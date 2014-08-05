@@ -48,4 +48,10 @@ public class TourCard extends Card {
 		layout.refreshDrawableState();
 		return view;
 	}
+
+	@Override
+	public boolean convert(View convertCardView) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }
