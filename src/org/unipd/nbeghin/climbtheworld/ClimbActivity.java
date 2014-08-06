@@ -74,6 +74,8 @@ public class ClimbActivity extends Activity {
 	private boolean					used_bonus					= false;
 	private double					percentage_bonus			= 0.50f;
 	private boolean climbedYesterday=false;
+	private int new_steps = 0;
+
 	
 	// number of virtual step for each real step
 	/**
@@ -146,6 +148,7 @@ public class ClimbActivity extends Activity {
 					apply_percentage_bonus();
 				} else { // standard, no bonus
 					num_steps += vstep_for_rstep; // increase the number of steps
+					new_steps += vstep_for_rstep;
 					seekbarIndicator.setProgress(num_steps); // increase the seekbar progress
 					percentage = (double) num_steps / (double) building.getSteps(); // increase the progress percentage
 					boolean win = (num_steps >= building.getSteps()); // user wins?
@@ -186,6 +189,16 @@ public class ClimbActivity extends Activity {
 		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.social_share);
 		findViewById(R.id.btnAccessPhotoGallery).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_fade_in));
 		findViewById(R.id.btnAccessPhotoGallery).setVisibility(View.VISIBLE);
+		((ImageButton) findViewById(R.id.btnAccessPhotoGallery)).setImageResource(R.drawable.device_access_video);
+	}
+	
+	private void apply_update() {
+		Log.i("apply_update", "apply_update " + new_steps);
+		findViewById(R.id.encouragment).setVisibility(View.VISIBLE);
+		((TextView)findViewById(R.id.encouragment)).setText(" Well Done!!!!");
+		((ImageButton) findViewById(R.id.btnAccessPhotoGallery)).setImageResource(R.drawable.social_share);
+		findViewById(R.id.btnAccessPhotoGallery).setVisibility(View.VISIBLE);
+		
 	}
 
 	private void enableRocket() {
@@ -234,12 +247,24 @@ public class ClimbActivity extends Activity {
 	}
 
 	public void accessPhotoGallery(View v) {
+		if(percentage >= 1.0){
 		Log.i(MainActivity.AppName, "Accessing gallery for building "+building.get_id());
 		Intent intent = new Intent(this, GalleryActivity.class);
 		intent.putExtra("gallery_building_id", building.get_id());
 		startActivity(intent);
+		}
+		else{
+			FacebookUtils fb = new FacebookUtils(this);
+			
+			try {
+				fb.postUpdateToWall(climbing, new_steps);
+			} catch (NoFBSession e) {
+				Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+				startActivity(intent);
+			
+		}
 	}
-
+	}
 	/**
 	 * Update the stat panel
 	 */
@@ -489,6 +514,8 @@ public class ClimbActivity extends Activity {
 		} else {
 			if (samplingEnabled) { // if sampling is enabled stop the classifier
 				stopClassify();
+				if(new_steps != 0)
+					apply_update();
 			} else { // if sampling is not enabled stop the classifier
 				climbedYesterday=StatUtils.climbedYesterday(climbing.get_id());
 				// FOR TESTING PURPOSES
@@ -562,6 +589,8 @@ public class ClimbActivity extends Activity {
 		samplingEnabled = true;
 		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.av_pause); // set button image to stop service
 		findViewById(R.id.lblReadyToClimb).setVisibility(View.GONE);
+		findViewById(R.id.encouragment).setVisibility(View.INVISIBLE);
+		findViewById(R.id.btnAccessPhotoGallery).setVisibility(View.INVISIBLE);
 		findViewById(R.id.progressBarClimbing).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_fade_in));
 		findViewById(R.id.progressBarClimbing).setVisibility(View.VISIBLE);
 	}

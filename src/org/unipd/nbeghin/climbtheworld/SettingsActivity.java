@@ -1,5 +1,7 @@
 package org.unipd.nbeghin.climbtheworld;
 
+import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +17,7 @@ import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.Request;
 import com.facebook.Response;
@@ -65,6 +68,7 @@ public class SettingsActivity extends PreferenceActivity {
 	}
 
 	private void updateFacebookSession(final Session session, SessionState state) {
+		if(FacebookUtils.isOnline(this)){
 		final TextView lblFacebookUser = (TextView) findViewById(R.id.lblFacebookUser);
 		final ProfilePictureView profilePictureView = (ProfilePictureView) findViewById(R.id.fb_profile_picture);
 		final Preference profile_name=findPreference("profile_name");
@@ -93,6 +97,9 @@ public class SettingsActivity extends PreferenceActivity {
 			lblFacebookUser.setText("Not logged in");
 			profile_name.setSummary("No user defined");
 		}
+		}
+		else
+			Toast.makeText(getApplicationContext(),"Check your intenet connection", Toast.LENGTH_LONG).show();
 	}
 
 	private void onSessionStateChange(final Session session, SessionState state, Exception exception) {

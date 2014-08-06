@@ -187,4 +187,17 @@
 
     </FrameLayout>
 
+    <TextView
+        android:id="@+id/encouragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="60dp"
+        android:gravity="center"
+        android:keepScreenOn="true"
+        android:text="Well Done!"
+        android:textColor="#33b5e5"
+        android:textSize="50sp"
+        android:textStyle="bold"
+        android:visibility="invisible" />
+
 </FrameLayout>

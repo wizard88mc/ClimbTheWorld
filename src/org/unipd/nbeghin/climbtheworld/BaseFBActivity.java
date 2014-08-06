@@ -68,11 +68,11 @@ public class BaseFBActivity extends ActionBarActivity {
 			public void onCompleted(GraphUser user, Response response) {
 				if (session == Session.getActiveSession()) {
 					if (user != null) {
-						TextView welcome = (TextView) findViewById(R.id.welcome);
+					/*	TextView welcome = (TextView) findViewById(R.id.welcome);
 						ProfilePictureView profilePictureView = (ProfilePictureView) findViewById(R.id.fb_profile_picture);
 						profilePictureView.setCropped(true);
 						profilePictureView.setProfileId(user.getId());
-						welcome.setText("Hello " + user.getName() + "!");
+						welcome.setText("Hello " + user.getName() + "!");*/
 					} else
 						System.err.println("no user");
 				}
@@ -132,6 +132,9 @@ public class BaseFBActivity extends ActionBarActivity {
 	// break;
 	// }
 	// }
+	
+/*
+ //NOT USED	
 	private FacebookDialog.ShareDialogBuilder createShareDialogBuilder() {
 		return new FacebookDialog.ShareDialogBuilder(this).setName("ClimbTheWorld").setDescription("ClimbTheWorld: a serious game to promote physical activity")
 				.setLink("http://www.climbtheworld.com");
@@ -208,7 +211,7 @@ public class BaseFBActivity extends ActionBarActivity {
 		// handlePendingAction();
 		// }
 	}
-
+*/
 	@Override
 	public void onDestroy() {
 		super.onDestroy();

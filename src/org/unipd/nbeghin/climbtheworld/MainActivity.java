@@ -23,6 +23,7 @@ import org.unipd.nbeghin.climbtheworld.models.BuildingTour;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Photo;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
+import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 import org.unipd.nbeghin.climbtheworld.weka.WekaClassifier;
 
 import android.annotation.SuppressLint;
@@ -39,8 +40,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.facebook.FacebookException;
+import com.facebook.FacebookOperationCanceledException;
+import com.facebook.Session;
+import com.facebook.widget.WebDialog;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 
 /**
@@ -68,7 +75,10 @@ public class MainActivity extends ActionBarActivity {
 	private ViewPager											mPager;
 	private static Context										sContext;
 	private DbHelper											dbHelper;
-
+	//NEW
+		private WebDialog dialog = null;
+	    private String dialogAction = null;
+	    private Bundle dialogParams = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -218,9 +228,104 @@ public class MainActivity extends ActionBarActivity {
 	}
 
 	public void onInviteFacebookFriends(MenuItem v) {
-		Intent intent = new Intent(sContext, FBPickFriendActivity.class);
-		startActivity(intent);
+		/*Intent intent = new Intent(sContext, FBPickFriendActivity.class);
+		startActivity(intent);*/
+		if(FacebookUtils.isOnline(this))
+			sendCustomChallenge();
+		else
+			Toast.makeText(getApplicationContext(), 
+                    "Check your intenet connection", 
+                    Toast.LENGTH_LONG).show();
 	}
+	
+	//-----NEW-------
+	//NEW
+		private void sendCustomChallenge() {
+			Session session = Session.getActiveSession();			
+			if (session == null || !session.isOpened()) {
+				return;
+			}
+			//List<String> permissions = session.getPermissions();			 
+				sendChallenge();
+		
+		}
+		private void sendChallenge() {
+	    	Bundle params = new Bundle();
+	    	
+	    	// Uncomment following link once uploaded on Google Play for deep linking
+	    	// params.putString("link", "https://play.google.com/store/apps/details?id=com.facebook.android.friendsmash");
+	    	
+	    	// 1. No additional parameters provided - enables generic Multi-friend selector
+	    	params.putString("message", "I just smashed  friends! Can you beat it?");
+	    	
+	    	// 2. Optionally provide a 'to' param to direct the request at a specific user
+//	    	params.putString("to", "515768651");
+	    	
+	    	// 3. Suggest friends the user may want to request - could be game specific
+	    	// e.g. players you are in a match with, or players who recently played the game etc.
+	    	// Normally this won't be hardcoded as follows but will be context specific
+//	    	String [] suggestedFriends = {
+//			    "695755709",
+//			    "685145706",
+//			    "569496010",
+//			    "286400088",
+//			    "627802916",
+//	    	};
+//	    	params.putString("suggestions", TextUtils.join(",", suggestedFriends));
+//	    	
+	    	// Show FBDialog without a notification bar
+	    	showDialogWithoutNotificationBar("apprequests", params);
+		}
+		
+		private void showDialogWithoutNotificationBar(String action, Bundle params) {
+			// Create the dialog
+			dialog = new WebDialog.Builder(this, Session.getActiveSession(), action, params).setOnCompleteListener(
+					new WebDialog.OnCompleteListener() {
+				
+
+						@Override
+		                public void onComplete(Bundle values,
+		                    FacebookException error) {
+		                    if (error != null) {
+		                        if (error instanceof FacebookOperationCanceledException) {
+		                            Toast.makeText(getApplicationContext(), 
+		                                "Request cancelled", 
+		                                Toast.LENGTH_SHORT).show();
+		                        } /*else {
+		                            Toast.makeText(getApplicationContext(), 
+		                                "Network Error", 
+		                                Toast.LENGTH_SHORT).show();
+		                        }*/
+		                    } else {
+		                        final String requestId = values.getString("request");
+		                        if (requestId != null) {
+		                            Toast.makeText(getApplicationContext(), 
+		                                "Request sent",  
+		                                Toast.LENGTH_SHORT).show();
+		                        } else {
+		                            Toast.makeText(getApplicationContext(), 
+		                                "Request cancelled", 
+		                                Toast.LENGTH_SHORT).show();
+		                        }
+		                    }   
+		                }
+
+		            })
+		            .build();
+			
+			// Hide the notification bar and resize to full screen
+			Window dialog_window = dialog.getWindow();
+	    	dialog_window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+	    	
+	    	// Store the dialog information in attributes
+	    	dialogAction = action;
+	    	dialogParams = params;
+	    	
+	    	// Show the dialog
+	    	dialog.show();
+		}
+		
+		//-----NEW-----
 
 	private void shareDb() {
 		SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");

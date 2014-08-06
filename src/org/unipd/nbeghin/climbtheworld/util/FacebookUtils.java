@@ -7,7 +7,10 @@ import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.exceptions.NoFBSession;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 
+import android.app.Activity;
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -36,6 +39,16 @@ public class FacebookUtils {
 //		}
 //	}
 
+	public static boolean isOnline(Activity activity) {
+	    ConnectivityManager cm =
+	        (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo netInfo = cm.getActiveNetworkInfo();
+	    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+	        return true;
+	    }
+	    return false;
+	}
+	
 	protected boolean hasPublishPermission() {
 		Session session = Session.getActiveSession();
 		return session != null && session.getPermissions().contains("publish_actions");
@@ -43,7 +56,7 @@ public class FacebookUtils {
 
 	private void checkFBSession() throws NoFBSession {
 		Session session = Session.getActiveSession();
-		if (session == null) throw new NoFBSession();
+		if (session == null || !session.isOpened()) throw new NoFBSession();
 	}
 
 	public void postToWall(Climbing climbing) throws NoFBSession {
@@ -53,7 +66,19 @@ public class FacebookUtils {
 		params.putString("caption", "Climb the world: a serious game to promote physical activity");
 		params.putString("description", climbing.getFBStatusMessage());
 		params.putString("link", "https://developers.facebook.com/android");
-		params.putString("picture", "https://raw.github.com/fbsamples/ios-3.x-howtos/master/Images/iossdk_logo.png");
+		params.putString("picture", /*climbing.getBuilding().getPhoto()*/ "http://2.bp.blogspot.com/-aO8ILLDFKv4/UQb08_I2JkI/AAAAAAAAPEU/RvEo5lNHDvs/s1600/Victory.jpg");
+		publishFeedDialog(params);
+	}
+	
+	public void postUpdateToWall(Climbing climbing, int newSteps) throws NoFBSession{
+		Log.i(MainActivity.AppName, "Posting on FB wall - update");
+		Bundle params = new Bundle();
+		params.putString("name", "ClimbTheWorld");
+		params.putString("caption", "Climb the world: a serious game to promote physical activity");
+		params.putString("description", "I'm climbing " + climbing.getBuilding().getName() + " and I've made " + (newSteps) + " more steps!!!!");
+		params.putString("link", "https://developers.facebook.com/android");
+		params.putString("picture", /*climbing.getBuilding().getPhoto()*/ "http://images.nationalgeographic.com/wpf/media-live/photos/000/234/cache/gunks-new-york-climb_23497_600x450.jpg");
+		//params.putString("picture", "https://raw.github.com/fbsamples/ios-3.x-howtos/master/Images/iossdk_logo.png");
 		publishFeedDialog(params);
 	}
 	
