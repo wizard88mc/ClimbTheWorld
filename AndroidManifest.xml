@@ -8,6 +8,15 @@
     <!-- Include next permission if you want to allow UIL to cache images on SD card -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    
+    <!-- autorizzazione per far sì che l'app riceva l'evento relativo al completamento del boot del device -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    
+    <!-- autorizzazione per far sì che l'app riceva gli update del riconoscimento dell'attività dell'utente-->
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION"/>
+    
+    
     <uses-sdk
         android:minSdkVersion="10"
         android:targetSdkVersion="17" />
@@ -24,7 +33,19 @@
         <service
             android:name="org.unipd.nbeghin.climbtheworld.services.SamplingRateDetectorService"
             android:exported="false" />
-
+        
+        <service
+ 		    android:name="org.unipd.nbeghin.climbtheworld.services.ActivityRecognitionRecordService"
+  	        android:exported="false" />
+        
+        <service
+ 		    android:name="org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionIntentService"
+  	        android:exported="false" />
+        
+        
+ 	    <meta-data android:name="com.google.android.gms.version"
+           android:value="@integer/google_play_services_version" /> 
+        
         <activity
             android:name="org.unipd.nbeghin.climbtheworld.MainActivity"
             android:label="@string/app_name"
@@ -39,15 +60,14 @@
         <activity
             android:name="org.unipd.nbeghin.climbtheworld.ClimbActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_climb"
-            android:launchMode="singleInstance"
+            android:label="@string/title_activity_climb"            
             android:parentActivityName="org.unipd.nbeghin.climbtheworld.MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullscreenTheme" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.unipd.nbeghin.climbtheworld.MainActivity" />
-        </activity>
+        </activity> <!-- android:launchMode="singleInstance"  -->
         <activity
             android:name="org.unipd.nbeghin.climbtheworld.ProfileActivity"
             android:label="@string/title_activity_profile"
@@ -113,6 +133,23 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.unipd.nbeghin.climbtheworld.MainActivity" />
         </activity>
+        
+        <receiver android:name="org.unipd.nbeghin.climbtheworld.receivers.TimeBatteryWatcher" 
+            android:exported="false" android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+  	      <intent-filter>
+      	    <action android:name="android.intent.action.BOOT_COMPLETED" />
+      	    <action android:name="ACTIVITY_RECOGNITION_START"/>   
+      	    <action android:name="ACTIVITY_RECOGNITION_STOP"/>       	    
+   	      </intent-filter>
+        </receiver>
+        
+        <receiver android:name="org.unipd.nbeghin.climbtheworld.receivers.UserMotionReceiver" 
+            android:exported="false">
+  	      <intent-filter>
+      	    
+   	      </intent-filter>
+        </receiver>
+        
     </application>
 
 </manifest>

@@ -23,11 +23,13 @@ import org.unipd.nbeghin.climbtheworld.models.BuildingTour;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Photo;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
+import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
 import org.unipd.nbeghin.climbtheworld.weka.WekaClassifier;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
@@ -42,6 +44,8 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.j256.ormlite.dao.RuntimeExceptionDao;
+
+
 
 /**
  * Main activity
@@ -69,11 +73,13 @@ public class MainActivity extends ActionBarActivity {
 	private static Context										sContext;
 	private DbHelper											dbHelper;
 
-
+	public static boolean logEnabled=true; 
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		sContext = getApplicationContext();
 		loadDb(); // instance db connection
 		// loading fragments
 		fragments.add(Fragment.instantiate(this, BuildingsFragment.class.getName())); // instance building fragments
@@ -81,7 +87,6 @@ public class MainActivity extends ActionBarActivity {
 		mPagerAdapter = new PagerAdapter(super.getSupportFragmentManager(), fragments);
 		mPager = (ViewPager) super.findViewById(R.id.pager);
 		mPager.setAdapter(this.mPagerAdapter);
-		sContext = getApplicationContext();
 		
 		try {
 			WekaClassifier.initializeParameters(getResources().openRawResource(R.raw.modelvsw30osl0));
@@ -126,15 +131,29 @@ public class MainActivity extends ActionBarActivity {
 		PreExistingDbLoader preExistingDbLoader = new PreExistingDbLoader(getApplicationContext()); // extract db from zip
 		SQLiteDatabase db = preExistingDbLoader.getReadableDatabase();
 		db.close(); // close connection to extracted db
-		dbHelper = new DbHelper(getApplicationContext()); // instance new db connection to now-standard db
+		dbHelper = DbHelper.getInstance(getApplicationContext()); //new DbHelper(getApplicationContext()); // instance new db connection to now-standard db
 		buildingDao = dbHelper.getBuildingDao(); // create building DAO
 		climbingDao = dbHelper.getClimbingDao(); // create climbing DAO
 		tourDao = dbHelper.getTourDao(); // create tour DAO
 		buildingTourDao = dbHelper.getBuildingTourDao(); // create building tour DAO
 		photoDao = dbHelper.getPhotoDao();
-		refresh(); // loads all buildings and tours
+				
+		refresh(); // loads all buildings and tours		
+		
+		//si recupera l'oggetto delle shared preferences
+		SharedPreferences pref = sContext.getSharedPreferences("appPrefs", 0);
+		//se si vede che si tratta del primo run dell'applicazione
+		if(pref.getBoolean("firstRun", true)){
+			
+			System.out.println("Main - FIRST RUN");
+			
+			//si inizializzano le shared preferences e gli alarm/template
+			GeneralUtils.initializePrefsAndAlarms(sContext);	 
+		}
 	}
 
+	
+	
 	public void onShowActionProfile(MenuItem v) {
 		Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
 		startActivity(intent);
@@ -194,7 +213,7 @@ public class MainActivity extends ActionBarActivity {
 
 	@Override
 	protected void onResume() {
-		Log.i(MainActivity.AppName, "MainActivity onResume");
+		Log.i(MainActivity.AppName, "MainActivity onResume");		
 		super.onResume();
 		refresh();
 	}

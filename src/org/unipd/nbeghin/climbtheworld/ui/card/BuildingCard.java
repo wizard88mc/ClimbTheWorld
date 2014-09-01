@@ -52,4 +52,10 @@ public class BuildingCard extends Card {
 		}
 		return view;
 	}
+
+	@Override
+	public boolean convert(View convertCardView) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

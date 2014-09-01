@@ -43,7 +43,8 @@ public class FacebookUtils {
 
 	private void checkFBSession() throws NoFBSession {
 		Session session = Session.getActiveSession();
-		if (session == null) throw new NoFBSession();
+		if (session == null || !session.isOpened()) //si lancia l'eccezione anche se la sessione non è aperta
+				throw new NoFBSession();
 	}
 
 	public void postToWall(Climbing climbing) throws NoFBSession {

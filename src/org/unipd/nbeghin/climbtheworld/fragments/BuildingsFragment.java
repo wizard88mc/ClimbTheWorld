@@ -23,8 +23,10 @@ import android.view.View.OnClickListener;
  *
  */
 public class BuildingsFragment extends Fragment {
-	public CardUI				buildingCards;
-
+	public CardUI buildingCards;
+	
+	//NON USATO
+/*
 	private class LoadBuildingsTask extends AsyncTask<Void, Void, Void> {
 		@Override
 		protected Void doInBackground(Void... unused) {
@@ -32,7 +34,7 @@ public class BuildingsFragment extends Fragment {
 			return null;
 		}
 	}
-
+*/
 	public void refresh() {
 		buildingCards.clearCards();
 		for (final Building building : MainActivity.buildings) {

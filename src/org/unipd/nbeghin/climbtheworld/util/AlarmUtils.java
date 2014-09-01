@@ -1,0 +1,511 @@
+package org.unipd.nbeghin.climbtheworld.util;
+
+import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+
+import org.unipd.nbeghin.climbtheworld.MainActivity;
+import org.unipd.nbeghin.climbtheworld.comparator.AlarmComparator;
+import org.unipd.nbeghin.climbtheworld.db.DbHelper;
+import org.unipd.nbeghin.climbtheworld.models.Alarm;
+import org.unipd.nbeghin.climbtheworld.models.AlarmTimeTemplate;
+import org.unipd.nbeghin.climbtheworld.models.TimeTemplate;
+
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.util.Log;
+
+import com.j256.ormlite.android.AndroidConnectionSource;
+import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.dao.RuntimeExceptionDao;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.SelectArg;
+import com.j256.ormlite.support.ConnectionSource;
+import com.j256.ormlite.table.TableUtils;
+
+public class AlarmUtils {
+	
+	private static PreparedQuery<Alarm> alarmsForTemplateQuery = null;
+	
+	
+	/**
+	 * Costruttore della classe.
+	 */
+	private AlarmUtils(){	
+	}
+
+    
+	/*
+    public static boolean addAlarm(Alarm alarm){
+    	
+    }
+    */
+	
+	
+    public static void setupAlarmTemplatesDB(Context context){
+    	
+    	ConnectionSource connectionSource = new AndroidConnectionSource(DbHelper.getInstance(context));
+    	    	
+    	try{    		
+    		DaoManager.createDao(connectionSource, Alarm.class);
+			DaoManager.createDao(connectionSource, TimeTemplate.class);
+			DaoManager.createDao(connectionSource, AlarmTimeTemplate.class);
+			
+			TableUtils.createTableIfNotExists(connectionSource, Alarm.class);
+			TableUtils.createTableIfNotExists(connectionSource, TimeTemplate.class);
+			TableUtils.createTableIfNotExists(connectionSource, AlarmTimeTemplate.class);
+			
+    	} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    }
+    
+    
+    public static void createAlarmsAndTemplates(Context context){
+    	
+    	DbHelper helper = DbHelper.getInstance(context);
+    	
+    	//esempi    	
+    	
+    	//creo alarm
+    	boolean bb[] = new boolean[] {true,true,true,true,true,true,true};
+    	boolean bb1[] = new boolean[] {false,false,true,true,true,true,true};
+    	boolean noweekend[] = new boolean[] {false,true,true,true,true,true,false}; 
+    	float pf[] = new float[] {0.25f,0.25f,0.25f,0.25f,0.25f,0.25f,0.25f};
+		Alarm alm1 = new Alarm(9,55,50,true,true,bb,pf);
+		Alarm alm2 = new Alarm(9,57,50,false,true,bb,pf);
+		Alarm alm3 = new Alarm(15,01,10,true,true,bb,pf);
+		Alarm alm4 = new Alarm(15,05,50,false,true,bb,pf); 
+		Alarm alm5 = new Alarm(21,10,51,true,true,bb,pf);
+		Alarm alm6 = new Alarm(21,13,50,false,true,bb,pf);
+		
+		//creo template
+		
+		//template usato nella prima settimana
+		TimeTemplate tt1 = new TimeTemplate(1,true);		
+		//template che viene popolato di alarm durante il processo di learning (prima settimana)
+		TimeTemplate tt2 = new TimeTemplate(2,true); 
+		//template che viene popolato di alarm durante la seconda settimana
+		TimeTemplate tt3 = new TimeTemplate(3,true); 
+		
+		//metto insieme alarm e relativo template facendo il join delle tabelle
+		
+		//esempio: il template 1 contiene 2 alarm
+		AlarmTimeTemplate att1 = new AlarmTimeTemplate(alm1,tt1);
+		AlarmTimeTemplate att2 = new AlarmTimeTemplate(alm2,tt1);
+		AlarmTimeTemplate att3 = new AlarmTimeTemplate(alm3,tt1);
+		AlarmTimeTemplate att4 = new AlarmTimeTemplate(alm4,tt1);
+		AlarmTimeTemplate att5 = new AlarmTimeTemplate(alm5,tt1);
+		AlarmTimeTemplate att6 = new AlarmTimeTemplate(alm6,tt1);
+				
+		// persist the alarm object to the database
+		helper.getAlarmDao().createIfNotExists(alm1);
+		helper.getAlarmDao().createIfNotExists(alm2);
+		helper.getAlarmDao().createIfNotExists(alm3);
+		helper.getAlarmDao().createIfNotExists(alm4);
+		helper.getAlarmDao().createIfNotExists(alm5);
+		helper.getAlarmDao().createIfNotExists(alm6);
+		
+		helper.getTimeTemplateDao().createIfNotExists(tt1);
+		helper.getTimeTemplateDao().createIfNotExists(tt2);
+		helper.getTimeTemplateDao().createIfNotExists(tt3);
+		
+		helper.getAlarmTimeTemplateDao().createIfNotExists(att1);
+		helper.getAlarmTimeTemplateDao().createIfNotExists(att2);
+		helper.getAlarmTimeTemplateDao().createIfNotExists(att3);
+		helper.getAlarmTimeTemplateDao().createIfNotExists(att4);
+		helper.getAlarmTimeTemplateDao().createIfNotExists(att5);
+		helper.getAlarmTimeTemplateDao().createIfNotExists(att6);
+    }
+    
+    
+    //forse non serve
+    private static void saveAlarmInDB(Context context, Alarm alarm, int template_id){
+    	    	
+    	DbHelper helper = DbHelper.getInstance(context);
+    	    	
+    	//persists the alarm object to the database
+    	helper.getAlarmDao().createIfNotExists(alarm);
+    		
+    	//the AlarmTimeTemplate object is created (by associating the alarm passed as a parameter and the template)
+    	//and is saved into the database
+    	helper.getAlarmTimeTemplateDao().createIfNotExists(new AlarmTimeTemplate(alarm, getTemplate(context, template_id)));
+        	
+    }
+    
+    
+    public static Alarm getAlarm(Context context, int alarm_id){ 
+    	
+    	return DbHelper.getInstance(context).getAlarmDao().queryForId(alarm_id);
+    }
+    
+    
+    public static List<Alarm> getAlarmsByActionType(Context context, boolean type){
+    	
+    	List<Alarm> alarms = null;
+      	
+    	RuntimeExceptionDao<Alarm, Integer> alarmDao = DbHelper.getInstance(context).getAlarmDao();    	
+    	
+    	
+    	QueryBuilder<Alarm, Integer> queryBuilder = alarmDao.queryBuilder();
+
+    	// get the WHERE object to build our query; the type field must be equal to 'type' parameter
+    	try {
+			alarms = queryBuilder.where().eq(Alarm.ACTION_TYPE_FIELD_NAME, type).query();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return alarms;
+    	
+    }
+    
+    
+    public static TimeTemplate getTemplate(Context context, int template_id){ 
+    	
+    	return DbHelper.getInstance(context).getTimeTemplateDao().queryForId(template_id);
+    }
+
+
+    public static List<Alarm> lookupAlarmsForTemplate(Context context, TimeTemplate template) {
+    	
+    	List<Alarm> alarms = null;
+    	
+    	DbHelper helper = DbHelper.getInstance(context);
+    	    	
+    	try{
+    		if (alarmsForTemplateQuery == null) {
+    			alarmsForTemplateQuery = makeAlarmsForTemplateQuery(helper);
+    		}
+    		alarmsForTemplateQuery.setArgumentHolderValue(0, template);
+    		alarms=helper.getAlarmDao().query(alarmsForTemplateQuery);    		
+    	} catch (SQLException e) {
+			e.printStackTrace();
+		}  
+    	
+    	return alarms;
+    }
+    
+    
+    
+	private static PreparedQuery<Alarm> makeAlarmsForTemplateQuery(DbHelper dbh) throws SQLException {
+		// build our inner query for AlarmTimeTemplate objects
+		QueryBuilder<AlarmTimeTemplate, Integer> alarmTemplateQb = dbh.getAlarmTimeTemplateDao().queryBuilder();
+		// just select the alarm-id field
+		alarmTemplateQb.selectColumns(AlarmTimeTemplate.ALARM_ID_FIELD_NAME);
+		SelectArg timetemplateSelectArg = new SelectArg();
+
+		alarmTemplateQb.where().eq(AlarmTimeTemplate.TIMETEMPLATE_ID_FIELD_NAME, timetemplateSelectArg);
+
+		// build our outer query for Alarm objects
+		QueryBuilder<Alarm, Integer> alarmQb = dbh.getAlarmDao().queryBuilder();
+		// where the id matches in the alarm-id from the inner query
+		alarmQb.where().in(Alarm.ID_FIELD_NAME, alarmTemplateQb);
+		return alarmQb.prepare();
+	}
+   
+    //Metodo per settare il prossimo alarm; chiamato la prima volta per inizializzare il primo alarm,
+	//nell'on receive per l'on boot action e al cambiamento di template 
+	public static void setNextAlarm(Context context, List<Alarm> alarms){
+		
+		//servirà per implementare la probabilità di riconsiderare un alarm scartato
+		Random rand = new Random(); 
+		
+		if(MainActivity.logEnabled){
+			Log.d(MainActivity.AppName, "SetNextAlarm: lista prima di collection sort");
+			for (Alarm e : alarms) {		    
+				Log.d(MainActivity.AppName,"Alarm id: " + e.get_id() + " - hms: " + e.get_hour() + "," + e.get_minute() + "," + e.get_second());			
+			}
+		}
+			
+		
+		Alarm nextAlarm=null;
+				
+		//prima si ordina la lista di alarm per orario (perché magari all'inizio 
+		//gli alarm non sono stati inseriti in ordine di orario; utile anche per il 
+		//fatto di poterne aggiungere/togliere in futuro senza doversi preoccupare
+		//del loro ordinamento)
+		Collections.sort(alarms,new AlarmComparator());
+		
+		
+		if(MainActivity.logEnabled){
+			Log.d(MainActivity.AppName, "SetNextAlarm: lista dopo collection sort");
+			for (Alarm e : alarms) {		    
+				Log.d(MainActivity.AppName,"Alarm id: " + e.get_id() + " - hms: " + e.get_hour() + "," + e.get_minute() + "," + e.get_second());			
+			}
+		}
+		
+		Calendar now = Calendar.getInstance();
+		Calendar alarmTime=Calendar.getInstance();			
+		int currentDayOfWeek = alarmTime.get(Calendar.DAY_OF_WEEK)-1;
+		
+		boolean stop=false;
+		
+		for(int i=0; i<alarms.size() && !stop; i++){
+			
+			Alarm e = alarms.get(i);
+			
+			//Calendar alarmTime=Calendar.getInstance();			
+			alarmTime.set(Calendar.HOUR_OF_DAY, e.get_hour());
+			alarmTime.set(Calendar.MINUTE, e.get_minute());
+			alarmTime.set(Calendar.SECOND, e.get_second());
+			
+			
+			//TODO: controllare se l'alarm è attivo per il giorno corrente;
+			//se è attivo vuol dire che era stato selezionato nella generazione 
+			//precedente per far parte della popolazione corrente; se non è attivo
+			//allora si attua la mutazione in base alla sua probabilità impostata
+			//con il calcolo della fitness in una generazione precedente
+			
+			//se un alarm di start rimane disattivato, si deve disattivare anche
+			//il relativo alarm di stop
+			
+			
+			if(e.getRepeatingDay(currentDayOfWeek) && alarmTime.after(now)){
+				
+				//se si è arrivati qui vuol dire che l'alarm è attivo in questo
+				//giorno della settimana ed è valido per essere lanciato e, quindi, 
+				//lo si seleziona per essere il prossimo alarm ad essere lanciato
+								
+				
+				nextAlarm=e;
+				stop=true;
+			}
+		}
+		
+		//Se nessun alarm del template scatta nel giorno corrente, allora si cerca un primo
+		//alarm che scatta in un giorno successivo a questo (un prossimo alarm lo si trova 
+		//sicuramente perché un alarm deve essere attivo in almeno un giorno della settimana,
+		//altrimenti sarebbe inutile)				
+		
+		if(nextAlarm==null)	{
+			
+			alarmTime.set(Calendar.HOUR_OF_DAY, 0);
+			alarmTime.set(Calendar.MINUTE, 0);
+			alarmTime.set(Calendar.SECOND, 0);
+						
+			while(!stop){
+				
+				alarmTime.add(Calendar.DATE, 1);			
+				
+				for(int i=0; i<alarms.size() && !stop; i++){
+					
+					Alarm e = alarms.get(i);
+					
+					//TODO: aggiungere anche qui condizione nell'if per ri-considerare
+					//      un alarm scartato in precedenza
+					
+					if(e.getRepeatingDay(alarmTime.get(Calendar.DAY_OF_WEEK)-1)){ //istante di inizio sicuramente > di ora
+						nextAlarm=e;
+						stop=true;
+					}
+				}
+			}
+		}
+		
+		int month =alarmTime.get(Calendar.MONTH)+1;
+		
+		
+		if(MainActivity.logEnabled){
+			Log.d(MainActivity.AppName, "NEXT ALARM: id=" + nextAlarm.get_id() + "  h:m:s=" 
+					+ nextAlarm.get_hour()+":"+ nextAlarm.get_minute()+":"+ nextAlarm.get_second() +
+					"  "+alarmTime.get(Calendar.DATE)+"/"+month+"/"+alarmTime.get(Calendar.YEAR));
+		}		
+		
+		//nell'oggetto shared preferences si imposta l'id del prossimo alarm e degli interi che indicano il giorno, il mese e 
+		//l'anno in cui scatta (ora, minuti e secondi sono all'interno dell'oggetto Alarm)		
+		SharedPreferences prefs = context.getSharedPreferences("appPrefs", 0);    	
+    	Editor editor = prefs.edit();	
+    	//si imposta l'id del prossimo alarm nelle preferenze
+    	editor.putInt("alarm_id", nextAlarm.get_id());
+    	//si impostano giorno, mese e anno dell'alarm
+    	editor.putInt("alarm_date", alarmTime.get(Calendar.DATE));
+    	editor.putInt("alarm_month", alarmTime.get(Calendar.MONTH));
+    	editor.putInt("alarm_year", alarmTime.get(Calendar.YEAR));    	
+    	//si salvano le credenziali
+    	editor.commit();    	    	
+    	
+    	//si crea il pending intent creando dapprima un intent con tutti i dati dell'alarm
+    	//per identificarlo in modo univoco
+    	PendingIntent pi = createPendingIntent(context, nextAlarm, new int[]{alarmTime.get(Calendar.DATE), alarmTime.get(Calendar.MONTH), alarmTime.get(Calendar.YEAR)});
+    	 	    
+ 	    AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+ 	    alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime.getTimeInMillis(), pi);
+ 	    
+ 	   if(MainActivity.logEnabled){
+			Log.d(MainActivity.AppName,"Creato pending intent e settato nell'alarm manager");		
+ 	   }
+	}
+	
+	//non cancello le preferences perché vengono sovrascritte con i dati del prossimo alarm
+	public static void cancelAlarm(Context context, Alarm alarm) {
+		 
+		SharedPreferences pref = context.getSharedPreferences("appPrefs", 0);
+		 			 
+		PendingIntent pIntent = createPendingIntent(context, alarm, new int[]{pref.getInt("alarm_date", -1),pref.getInt("alarm_month", -1),pref.getInt("alarm_year", -1)});	
+	    	
+		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+		alarmManager.cancel(pIntent);
+	}
+	 
+	 
+	private static PendingIntent createPendingIntent(Context context, Alarm alarm, int[] params) {
+		 
+		Intent intent = new Intent();
+	 	    
+		//si imposta il tipo di action dell'intent a seconda se è un alarm per far partire o
+		//fermare il service di classificazione
+		if(alarm.get_actionType()){
+			intent.setAction("ACTIVITY_RECOGNITION_START");
+		}
+		else{
+			intent.setAction("ACTIVITY_RECOGNITION_STOP");
+		}
+	 	    
+		intent.putExtra("id", alarm.get_id());
+		intent.putExtra("hour", alarm.get_hour());
+		intent.putExtra("minute", alarm.get_minute());
+		intent.putExtra("second", alarm.get_second());
+		intent.putExtra("date", params[0]);
+		intent.putExtra("month", params[1]);
+		intent.putExtra("year", params[2]);
+	 	 
+		return PendingIntent.getBroadcast(context, alarm.get_id(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+	}
+	 
+	 
+	
+	 
+	 
+	 
+	 //TODO: fare metodo per considerare una coppia di alarm start-stop consecutivi
+	 //      l'idea è che se si seleziona un alarm di start scartato per dargli una 
+	 //      probabilità (peso) di attivarsi la prossima volta, allora si deve
+	 //      attivare anche il relativo alarm di stop (attivare con day=true)
+	 
+	 //TODO: fare metodo che metta day=true ad un alarm (da usare, ad esempio, dopo
+	 //      che si vede che l'intervallo a false per tot volte consecutive in cui
+	 //      si è attivato è risultato sempre "buono")
+	 
+	 //TODO: fare metodo che ritorni tutti gli intervalli a false per un certo 
+	 //      giorno (utile, ad esempio, per diminuire la probabilità a tutti di
+	 //      essere scelti in quanto c'è poca batteria)
+	 
+	 
+	 //TODO: fare metodo per eliminare alarm  (EDIT: forse no se intervalli 
+	 //      prestabiliti che possono venire ri-considerati)
+	 
+	 
+	 
+	 //I SEGUENTI METODI NON SERVONO se gli intervalli (start-stop alarm) vengono 
+	 //già pre-impostati così da non estrarli, crearli e aggiornarli 
+	 //SI POSSONO FARE INTERVALLI BREVI (ad es. 10 minuti) separati tra di loro
+	 //da pochi secondi (meglio per chiarezza di codice, di spiegazione, più utili
+	 //e semplici in un algoritmo genetico)
+	 /*
+	 public static void setSimilarOrNewAlarm(Context context, Calendar startTime, Calendar stopTime, boolean isConsecutive){
+		 
+		 
+		 if(!isConsecutive){
+			 
+			 Alarm startAlarm = searchSimilarAlarm(context, startTime, true);
+			 
+			 if(startAlarm!=null){				 
+				startAlarm.setRepeatingDay(startTime.get(Calendar.DAY_OF_WEEK-1), true);				 
+			 }
+			 else{
+				 //si crea un nuovo alarm
+				 Alarm newStartAlarm = new Alarm(startTime.get(Calendar.HOUR_OF_DAY), startTime.get(Calendar.MINUTE),
+						 startTime.get(Calendar.SECOND), true);
+				 //
+				 newStartAlarm.setRepeatingDay(startTime.get(Calendar.DAY_OF_WEEK-1), true);
+				 
+				 saveAlarmInDB(context, newStartAlarm, 2);
+			 }
+			 
+			 
+			 Alarm stopAlarm = searchSimilarAlarm(context, stopTime, false);
+			 
+			 if(stopAlarm!=null){				 
+				stopAlarm.setRepeatingDay(stopTime.get(Calendar.DAY_OF_WEEK-1), true);				 
+			 }
+			 else{
+				 //si crea un nuovo alarm
+				 Alarm newStopAlarm = new Alarm(stopTime.get(Calendar.HOUR_OF_DAY), stopTime.get(Calendar.MINUTE),
+						 stopTime.get(Calendar.SECOND), false);
+				 //
+				 newStopAlarm.setRepeatingDay(stopTime.get(Calendar.DAY_OF_WEEK-1), true);
+				 
+				 saveAlarmInDB(context, newStopAlarm, 2);
+			 }
+			 
+			 
+		 }
+		 else{
+			 
+		 }
+			 
+		
+		 
+	 }
+	 
+	 
+	 
+	 
+	 private static Alarm searchSimilarAlarm(Context context, Calendar time, boolean alarmType){
+		 
+		 //si recuperano tutti gli alarm 
+		 List<Alarm> sameTypeAlarms = getAlarmsByType(context, alarmType);
+		 
+		 Collections.sort(sameTypeAlarms,new AlarmComparator());
+		 
+		 //se c'è almeno un alarm del tipo passato come parametro (tipo che può indicare start/stop classify)
+		 if(sameTypeAlarms!=null){
+			 
+			 Calendar alarmTime=Calendar.getInstance();
+				
+			 for(int i=0; i<sameTypeAlarms.size(); i++){
+					
+				 Alarm e = sameTypeAlarms.get(i);
+							
+				 alarmTime.set(Calendar.HOUR_OF_DAY, e.get_hour());
+				 alarmTime.set(Calendar.MINUTE, e.get_minute());
+				 alarmTime.set(Calendar.SECOND, e.get_second());
+			 			 
+				 //se è un alarm che ha un tempo di inizio uguale al tempo di inizio/fine dell'intervallo
+				 //considerato o comunque scatta in un tempo più o meno simile (differenza di 2 minuti) allora si 
+				 //imposta tale alarm settandolo come attivo nel giorno corrente
+				 if(Math.abs(time.getTimeInMillis() - alarmTime.getTimeInMillis()) <= 120000
+						 || Math.abs(alarmTime.getTimeInMillis()- time.getTimeInMillis()) <= 120000){
+						
+					 //e.setRepeatingDay(time.get(Calendar.DAY_OF_WEEK-1), true);						
+					 return e;					
+				 }
+				 
+				 
+				
+				 //per fare un metodo che vada bene sempre bisogna considerare anche l'intorno a cavallo 
+				 //di due giorni
+				 
+				 //if(time.get(Calendar.HOUR_OF_DAY)==23){
+							
+				//	 time.add(Calendar.DATE, 1);		
+				// }
+				 
+				 
+		 
+			 }
+		 }
+		 
+	 return null;
+		 
+	 }
+	 */
+}

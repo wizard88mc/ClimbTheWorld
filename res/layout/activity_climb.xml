@@ -1,11 +1,10 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0099cc"
     android:keepScreenOn="true"
-    tools:context=".ClimbActivity" >
-
+    tools:context=".ClimbActivity" xmlns:android="http://schemas.android.com/apk/res/android">
+	
     <ImageView
         android:id="@+id/buildingPhoto"
         android:layout_width="fill_parent"
@@ -14,15 +13,7 @@
         android:scaleType="fitXY"
         android:src="@drawable/tour_eiffel" />
 
-    <ImageView
-        android:id="@+id/imgRocket"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center"
-        android:layout_marginBottom="40dp"
-        android:src="@drawable/rocket"
-        android:visibility="invisible" />
-
+	
     <ImageView
         android:id="@+id/imgArrow"
         android:layout_width="wrap_content"
@@ -37,14 +28,15 @@
         android:id="@+id/lblReadyToClimb"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="60dp"
-        android:gravity="center"
-        android:keepScreenOn="true"
-        android:visibility="invisible"
+        android:layout_alignBottom="@+id/PositionWrapper"
+        android:gravity="center"        
         android:text="READY TO CLIMB!"
         android:textColor="#33b5e5"
         android:textSize="50sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:visibility="invisible" /> 
+        <!-- c'era android:keepScreenOn="true" che manteneva sempre attivo lo stato
+            visible della label  -->
 
     <!--
          This FrameLayout insets its children based on system windows using
@@ -185,6 +177,26 @@
             android:src="@drawable/device_access_video"
             android:visibility="invisible" />
 
-    </FrameLayout>
+        
+        <!-- nuova immagine razzo -->  <!-- rocket -->
+        <ImageView
+            android:id="@+id/imgRocket"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+       	    android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="50dp"
+            android:src="@drawable/new_rocket"
+            android:visibility="invisible" />
 
-</FrameLayout>
+    </FrameLayout>
+   
+
+    <android.widget.HoloCircleSeekBar
+        android:id="@+id/picker"
+        android:layout_width="105dp" 
+        android:layout_height="215dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"/> <!-- 195 , 215--> 
+
+</RelativeLayout>

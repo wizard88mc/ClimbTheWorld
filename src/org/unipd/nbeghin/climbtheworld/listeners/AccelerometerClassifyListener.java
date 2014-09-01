@@ -6,6 +6,7 @@ import org.unipd.nbeghin.climbtheworld.models.Sample;
 import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
 
 import android.app.IntentService;
+import android.app.Service;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;

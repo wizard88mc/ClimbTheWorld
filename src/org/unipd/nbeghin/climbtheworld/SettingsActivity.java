@@ -37,7 +37,7 @@ public class SettingsActivity extends PreferenceActivity {
 	private UiLifecycleHelper		uiHelper;
 	private Session.StatusCallback	callback			= new Session.StatusCallback() {
 															@Override
-															public void call(Session session, SessionState state, Exception exception) {
+															public void call(Session session, SessionState state, Exception exception) {																
 																onSessionStateChange(session, state, exception);
 															}
 														};
@@ -47,8 +47,9 @@ public class SettingsActivity extends PreferenceActivity {
 		super.onCreate(savedInstanceState);
 		uiHelper = new UiLifecycleHelper(this, callback);
 		uiHelper.onCreate(savedInstanceState);
-		Session session = Session.getActiveSession();
-		if (session != null && session.isOpened()) {
+		
+		Session session = Session.getActiveSession();		
+		if (session != null && session.isOpened()) {			
 			updateFacebookSession(session, session.getState());
 		}
 	}
@@ -233,9 +234,10 @@ public class SettingsActivity extends PreferenceActivity {
 	@Override
 	public void onResume() {
 	    super.onResume();
+	    
 	    Session session = Session.getActiveSession();
 	    if (session != null &&
-	           (session.isOpened() || session.isClosed()) ) {
+	           (session.isOpened() || session.isClosed()) ) {	    	
 	        onSessionStateChange(session, session.getState(), null);
 	    }
 

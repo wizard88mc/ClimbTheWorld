@@ -32,9 +32,11 @@ public class WekaClassifier {
 	private static List<Double> differenceMaxMinF = new ArrayList<Double>();
 
 	private static String[]	classifications	= new String[] { "NONSTAIR", "STAIR" };
+
+	public static boolean initialized=false;
 	
 	public static void initializeParameters(InputStream stream) throws IOException {
-		
+		initialized=true;
 		BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 		String line;
 		

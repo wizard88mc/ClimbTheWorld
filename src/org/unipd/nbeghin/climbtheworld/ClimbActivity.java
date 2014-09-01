@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.exceptions.ClimbingNotFound;
 import org.unipd.nbeghin.climbtheworld.exceptions.NoFBSession;
 import org.unipd.nbeghin.climbtheworld.listeners.AccelerometerSamplingRateDetect;
@@ -14,7 +15,9 @@ import org.unipd.nbeghin.climbtheworld.models.ClassifierCircularBuffer;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
 import org.unipd.nbeghin.climbtheworld.services.SamplingRateDetectorService;
+import org.unipd.nbeghin.climbtheworld.util.CountDownTimerPausable;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
+import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
 import org.unipd.nbeghin.climbtheworld.util.StatUtils;
 import org.unipd.nbeghin.climbtheworld.util.SystemUiHider;
 
@@ -23,15 +26,21 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.backup.RestoreObserver;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.hardware.SensorManager;
+import android.opengl.Visibility;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.MenuItem;
@@ -40,7 +49,7 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.TranslateAnimation;
+import android.widget.HoloCircleSeekBar;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -55,7 +64,7 @@ public class ClimbActivity extends Activity {
 	public static final String		SAMPLING_TYPE				= "ACTION_SAMPLING";														// intent's action
 	public static final String		SAMPLING_TYPE_NON_STAIR		= "NON_STAIR";																// classifier's output
 	public static final String		SAMPLING_DELAY				= "DELAY";																	// intent's action
-	private boolean					samplingEnabled				= false;																	// sentinel if sampling is running
+	public static boolean			samplingEnabled				= false;	//aggiunto static e public															// sentinel if sampling is running
 	private static double			detectedSamplingRate		= 0;																		// detected sampling rate (after sampling rate detector)
 	private static int				samplingDelay;																							// current sampling delay (SensorManager)
 	private double					minimumSamplingRate			= 13;																		// minimum sampling rate for using this app
@@ -72,9 +81,9 @@ public class ClimbActivity extends Activity {
 	private VerticalSeekBar			seekbarIndicator;																						// reference to vertical seekbar
 	private int						vstep_for_rstep				= 1;
 	private boolean					used_bonus					= false;
-	private double					percentage_bonus			= 0.50f;
+	private double					percentage_bonus			= 0.25f; //0.50f
 	private boolean climbedYesterday=false;
-	
+		
 	// number of virtual step for each real step
 	/**
 	 * Whether or not the system UI should be auto-hidden after {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -97,6 +106,22 @@ public class ClimbActivity extends Activity {
 	 */
 	private SystemUiHider			mSystemUiHider;
 
+	
+	//altri campi per visualizzare opportune stringhe di testo ed elementi grafici
+	private static long time_bk = 7 * 1000;		
+	private static HoloCircleSeekBar picker; //progress bar circolare che esegue il countdown		
+	private static boolean hasFinished = false;
+	private CountDownTimerPausable cp; //oggetto per implementare il countdown iniziale
+	
+	private boolean firstTimeStart = true;
+	
+	
+	//finestra di dialogo che mostra la non disponibilità della connessione dati
+	private static AlertDialog.Builder alertBuilder;
+	//relativo booleano
+	private boolean alertIsShown = false;
+
+	
 	// public static double getDetectedSamplingRate() {
 	// return detectedSamplingRate;
 	// }
@@ -170,15 +195,20 @@ public class ClimbActivity extends Activity {
 		Log.i(MainActivity.AppName, "Applying percentage bonus");
 		percentage += percentage_bonus;
 		num_steps = (int) (((double) building.getSteps()) * percentage);
-		stopClassify();
+		//stopClassify(); //prima era attivo
 		used_bonus = true;
-		Toast.makeText(getApplicationContext(), "BONUS: you climbed less than 24h ago, you earn +50%", Toast.LENGTH_LONG).show();
+		Toast.makeText(getApplicationContext(), "BONUS: you climbed less than 24h ago, you earn +25%", Toast.LENGTH_LONG).show(); //+50%
 		enableRocket();
 		updateStats(); // update the view of current stats
 		seekbarIndicator.setProgress(num_steps); // increase the seekbar progress
 	}
 
 	private void apply_win() {
+		
+		//si abilita il bottone di start nel caso la scalata sia già stata completata
+		//(quindi non si passa prima per il countdown)
+		findViewById(R.id.btnStartClimbing).setEnabled(true);
+		
 		Log.i(MainActivity.AppName, "Succesfully climbed building #"+building.get_id());
 		Toast.makeText(getApplicationContext(), "You successfully climbed " + building.getSteps() + " steps (" + building.getHeight() + "m) of " + building.getName() + "!", Toast.LENGTH_LONG).show(); // show completion text
 		findViewById(R.id.lblWin).setVisibility(View.VISIBLE); // load and animate completed climbing test
@@ -200,8 +230,11 @@ public class ClimbActivity extends Activity {
 	public class SamplingRateDetectorReceiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
+			
 			detectedSamplingRate = intent.getExtras().getDouble(AccelerometerSamplingRateDetect.SAMPLING_RATE); // get detected sampling rate from received intent
+						
 			samplingDelay = backgroundSamplingRateDetector.getExtras().getInt(SAMPLING_DELAY); // get used sampling delay from received intent
+						
 			Log.i(MainActivity.AppName, "Detected sampling rate: " + Double.toString(detectedSamplingRate) + "Hz");
 			if (detectedSamplingRate >= minimumSamplingRate) { // sampling rate high enough
 				SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit(); // get refence to android preferences
@@ -235,9 +268,24 @@ public class ClimbActivity extends Activity {
 
 	public void accessPhotoGallery(View v) {
 		Log.i(MainActivity.AppName, "Accessing gallery for building "+building.get_id());
-		Intent intent = new Intent(this, GalleryActivity.class);
-		intent.putExtra("gallery_building_id", building.get_id());
-		startActivity(intent);
+						
+		//si controlla dapprima se è attiva una qualche connessione dati; se
+		//non è attiva, si mostra un alert dialog
+		if(GeneralUtils.isInternetConnectionUp(getApplicationContext())){
+		    
+			//TODO task per fare il load della gallery?
+			
+			Intent intent = new Intent(this, GalleryActivity.class);
+			intent.putExtra("gallery_building_id", building.get_id());
+			startActivity(intent);
+		}
+		else{
+			alertBuilder.show();
+			alertIsShown=true;
+		}
+		
+		
+		
 	}
 
 	/**
@@ -263,12 +311,36 @@ public class ClimbActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_climb);
+		
+		//all'inizio si disabilita il bottone di start (lo si abilita in seguito alla fine del
+		//countdown oppure se la scalata è già stata completata)
+		findViewById(R.id.btnStartClimbing).setEnabled(false);
+				
+		//si crea una finestra di dialogo da mostrare nel caso non ci sia connessione
+        alertBuilder = new AlertDialog.Builder(this);
+        alertBuilder.setTitle(R.string.netalert_title)
+            .setMessage(R.string.netalert_msg)
+            .setCancelable(false)
+            .setIcon(R.drawable.error)
+            .setPositiveButton(R.string.netalert_yes, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                	startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+                	alertIsShown=false;
+                }
+            })
+            .setNegativeButton(R.string.netalert_no, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    dialog.cancel();
+                    alertIsShown=false;
+                }
+            }).create();
+		
 		setupActionBar();
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		final View contentView = findViewById(R.id.lblReadyToClimb);
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
-		mSystemUiHider = SystemUiHider.getInstance(this, contentView, HIDER_FLAGS);
+		mSystemUiHider = SystemUiHider.getInstance(this, contentView, HIDER_FLAGS);//contentView
 		mSystemUiHider.setup();
 		mSystemUiHider.setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
 			// Cached values.
@@ -316,7 +388,7 @@ public class ClimbActivity extends Activity {
 		// Upon interacting with UI controls, delay any scheduled hide()
 		// operations to prevent the jarring behavior of controls going away
 		// while interacting with the UI.
-		findViewById(R.id.btnStartClimbing).setOnTouchListener(mDelayHideTouchListener);
+	    //findViewById(R.id.btnStartClimbing).setOnTouchListener(mDelayHideTouchListener);
 		// app-specific logic
 		seekbarIndicator = (VerticalSeekBar) findViewById(R.id.seekBarPosition); // get reference to vertical seekbar (only once for performance-related reasons)
 		seekbarIndicator.setOnTouchListener(new OnTouchListener() { // disable user-driven seekbar changes
@@ -331,7 +403,7 @@ public class ClimbActivity extends Activity {
 			if (building_id == 0) throw new Exception("ERROR: unable to get intent data"); // no building id found in received intent
 			building = MainActivity.buildingDao.queryForId(building_id); // query db to get asked building
 			setup_from_building(); // load building info
-			backgroundClassifySampler = new Intent(this, SamplingClassifyService.class); // instance (without starting) background classifier
+			backgroundClassifySampler = new Intent(this, SamplingClassifyService.class); // instance (without starting) background classifier			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -385,18 +457,19 @@ public class ClimbActivity extends Activity {
 
 		updateStats();
 		if (percentage >= 1.00) { // building already climbed
-			findViewById(R.id.lblReadyToClimb).setVisibility(View.GONE);
+						
+			findViewById(R.id.lblReadyToClimb).setVisibility(View.GONE);			
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 			((TextView) findViewById(R.id.lblWin)).setText("ALREADY CLIMBED ON " + sdf.format(new Date(climbing.getCompleted())));
 			apply_win();
 		} else { // building to be completed
-			// animate "ready to climb" text
-            Animation anim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_slide_in_top);
-            Animation arrowAnim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.arrow);
+			// animate "ready to climb" text			
+            Animation anim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.ready_to_climb); //abc_slide_in_top
+            //Animation arrowAnim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.arrow);
             anim.setDuration(2500);
             findViewById(R.id.lblReadyToClimb).startAnimation(anim);
-			findViewById(R.id.imgArrow).startAnimation(arrowAnim);
-            findViewById(R.id.lblReadyToClimb).setVisibility(View.VISIBLE);
+			//findViewById(R.id.imgArrow).startAnimation(arrowAnim);
+            findViewById(R.id.lblReadyToClimb).setVisibility(View.VISIBLE); 
 		}
 	}
 
@@ -520,9 +593,9 @@ public class ClimbActivity extends Activity {
 	 * Stop background classifier service
 	 */
 	public void stopClassify() {
-		stopService(backgroundClassifySampler); // stop background service
+		stopService(backgroundClassifySampler); // stop background service		
 		samplingEnabled = false;
-		unregisterReceiver(classifierReceiver); // unregister listener
+		unregisterReceiver(classifierReceiver); // unregister listener		
 		// update db
 		climbing.setModified(new Date().getTime()); // update climbing last edit date
 		climbing.setCompleted_steps(num_steps); // update completed steps
@@ -540,6 +613,9 @@ public class ClimbActivity extends Activity {
 	 * Start background classifier service
 	 */
 	public void startClassifyService() {
+		
+		firstTimeStart = false; //aggiunto
+		
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()); // get reference to android preferences
 		int difficulty = Integer.parseInt(settings.getString("difficulty", "10")); // get difficulty from preferences
 		switch (difficulty) { // set several parameters related to difficulty
@@ -557,11 +633,14 @@ public class ClimbActivity extends Activity {
 				break;
 		}
 		Log.i(MainActivity.AppName, "Using " + vstep_for_rstep + " steps for each real step");
+		
 		startService(backgroundClassifySampler); // start background service
-		registerReceiver(classifierReceiver, classifierFilter); // register listener
+		registerReceiver(classifierReceiver, classifierFilter); // register listener		
 		samplingEnabled = true;
 		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.av_pause); // set button image to stop service
-		findViewById(R.id.lblReadyToClimb).setVisibility(View.GONE);
+		
+		//findViewById(R.id.lblReadyToClimb).setVisibility(View.GONE); // prima c'era; necessario per far rivedere il pulsante di start/stop al click
+		((TextView)findViewById(R.id.lblReadyToClimb)).setText("");		
 		findViewById(R.id.progressBarClimbing).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_fade_in));
 		findViewById(R.id.progressBarClimbing).setVisibility(View.VISIBLE);
 	}
@@ -572,13 +651,23 @@ public class ClimbActivity extends Activity {
 		int building_id = getIntent().getIntExtra(MainActivity.building_intent_object, 0); // get building id from received intent
 		Log.i(MainActivity.AppName, "Building id: "+building_id);
 		super.onResume();
+			
+		//se la scalata non è completata
+		if (percentage < 1.00) { 												
+			cp.start(); //si fa ripartire il countdown timer			
+		}	
 	}
 
 	@Override
 	protected void onPause() {
 		Log.i(MainActivity.AppName, "ClimbActivity onPause");
 		super.onPause();
-		this.finish();
+		//this.finish(); //prima c'era e faceva chiudere l'activity 
+		
+		//se la scalata non è completata
+		if (percentage < 1.00) { 
+			cp.pause(); //si mette in pausa il countdown timer	
+		}
 	}
 
 	@Override
@@ -593,6 +682,61 @@ public class ClimbActivity extends Activity {
 		if (samplingEnabled == false) super.onBackPressed();
 		else { // disable back button if sampling is enabled
 			Toast.makeText(getApplicationContext(), "Sampling running - Stop it before exiting", Toast.LENGTH_SHORT).show();
+		}	
+	}
+	
+	@Override
+	protected void onStop() {
+		// TODO Auto-generated method stub
+		Log.i(MainActivity.AppName, "ClimbActivity onStop");
+		super.onStop();
+	}
+	
+	@Override
+	protected void onStart() {
+		
+		super.onStart();
+				
+		picker = (HoloCircleSeekBar) findViewById(R.id.picker);
+				
+		if (percentage < 1.00) { //se la scalata non è completata
+								
+			System.out.println("on start perc > 100");
+			
+			if((time_bk == 5 * 1000 && !hasFinished) || (cp == null)) {
+							
+				//si inizializza l'oggetto per eseguire il countdown
+				cp = new CountDownTimerPausable(5* 1000, 1000){
+
+					@Override
+					public void onTick(long millisUntilFinished) {
+						time_bk = millisUntilFinished/1000;
+						picker.setValue((int)time_bk - 1, 4);	//6								
+					}
+
+					@Override
+					public void onFinish() {
+						picker.setValue(0, 4); //6
+						picker.setVisibility(View.INVISIBLE);
+						hasFinished = true;
+						time_bk = 5 * 1000; //7
+					
+						//si preme automaticamente il bottone di start, rendendo visibile
+						//(per il tempo di auto_hide) il controllo per stoppare/far ripartire
+						//il classify service
+						
+						if(firstTimeStart){							
+							findViewById(R.id.btnStartClimbing).setEnabled(true);
+							findViewById(R.id.btnStartClimbing).performClick();
+							findViewById(R.id.lblReadyToClimb).performClick();							
+						}
+						
+					}}.start(); //fa partire il countdown timer
+			}			
+		}
+		else{
+			picker.setVisibility(View.INVISIBLE);
 		}
 	}
+	
 }
