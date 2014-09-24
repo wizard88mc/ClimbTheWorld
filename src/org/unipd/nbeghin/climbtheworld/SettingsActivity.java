@@ -1,10 +1,23 @@
 package org.unipd.nbeghin.climbtheworld;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.Signature;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,6 +27,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -26,6 +40,10 @@ import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.ProfilePictureView;
+import com.parse.ParseFacebookUtils;
+import com.parse.LogInCallback;
+import com.parse.ParseException;
+import com.parse.ParseUser;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On handset devices, settings are presented as a single list. On tablets, settings are split by category, with category headers shown to the left of the list of settings.
@@ -50,10 +68,15 @@ public class SettingsActivity extends PreferenceActivity {
 		super.onCreate(savedInstanceState);
 		uiHelper = new UiLifecycleHelper(this, callback);
 		uiHelper.onCreate(savedInstanceState);
+		
+		
+		
 		Session session = Session.getActiveSession();
 		if (session != null && session.isOpened()) {
 			updateFacebookSession(session, session.getState());
 		}
+		
+		
 	}
 
 	/**
@@ -73,11 +96,33 @@ public class SettingsActivity extends PreferenceActivity {
 		final ProfilePictureView profilePictureView = (ProfilePictureView) findViewById(R.id.fb_profile_picture);
 		final Preference profile_name=findPreference("profile_name");
 		if (state.isOpened()) {
+			
+		     
 			Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
 				@Override
 				public void onCompleted(GraphUser user, Response response) {
 					if (session == Session.getActiveSession()) {
 						if (user != null && profilePictureView!=null) {
+							Map<String, Object> conditions = new HashMap<String, Object>();
+							conditions.put("FBid", user.getId());
+							User newUser = null;
+							List<User> users = MainActivity.userDao.queryForFieldValuesArgs(conditions);
+							if(users.isEmpty()){
+								newUser = new User();
+								newUser.setFBid(user.getId());
+								newUser.setName(user.getName());
+								newUser.setLevel(0);
+								newUser.setXP(0);
+								MainActivity.userDao.create(newUser);
+							}else{
+								newUser = users.get(0);
+							}
+							SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
+							Editor editor = pref.edit();
+							editor.putString("FBid", newUser.getFBid());
+							editor.commit();
+							
+							saveUserToParse(user, session);
 							profilePictureView.setCropped(true);
 							profilePictureView.setProfileId(user.getId());
 							lblFacebookUser.setText(user.getName());
@@ -91,6 +136,7 @@ public class SettingsActivity extends PreferenceActivity {
 				}
 			});
 			request.executeAsync();
+			
 		} else if (state.isClosed()) {
 			Log.i(MainActivity.AppName, "Logged out...");
 			profilePictureView.setProfileId(null);
@@ -101,6 +147,22 @@ public class SettingsActivity extends PreferenceActivity {
 		else
 			Toast.makeText(getApplicationContext(),"Check your intenet connection", Toast.LENGTH_LONG).show();
 	}
+	
+    private void saveUserToParse(GraphUser fbUser, Session session) {
+        ParseFacebookUtils.logIn(fbUser.getId(), session.getAccessToken(), 
+                 session.getExpirationDate(), new LogInCallback() {
+             @Override
+             public void done(ParseUser user, ParseException err) {                 
+                  if (user == null) {
+                       // The user wasn't saved. Check the exception.
+                       Log.d("Parse", "User was not saved to Parse: " + err.getMessage());
+                  } else {
+                       // The user has been saved to Parse.
+                       Log.d("Parse", "User has successfully been saved to Parse.");
+                  }
+             }
+        });
+    } 
 
 	private void onSessionStateChange(final Session session, SessionState state, Exception exception) {
 		updateFacebookSession(session, state);

@@ -35,6 +35,12 @@
         android:title="Share db"
         climbtheworld:showAsAction="never">
     </item>
+    <item
+        android:id="@+id/itemGroups"
+        android:onClick="onShowGroups"
+        android:title="Groups"
+        climbtheworld:showAsAction="never">
+    </item>
     
 
 </menu>

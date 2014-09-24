@@ -20,14 +20,14 @@
         android:label="@string/app_name"
         android:theme="@style/Theme.AppCompat.Light" >
         <service
-            android:name="org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService"
+            android:name=".services.SamplingClassifyService"
             android:exported="false" />
         <service
-            android:name="org.unipd.nbeghin.climbtheworld.services.SamplingRateDetectorService"
+            android:name=".services.SamplingRateDetectorService"
             android:exported="false" />
 
         <activity
-            android:name="org.unipd.nbeghin.climbtheworld.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light" >
@@ -38,11 +38,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="org.unipd.nbeghin.climbtheworld.ClimbActivity"
+            android:name=".ClimbActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_climb"
             android:launchMode="singleInstance"
-            android:parentActivityName="org.unipd.nbeghin.climbtheworld.MainActivity"
+            android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullscreenTheme" >
             <meta-data
@@ -50,43 +50,43 @@
                 android:value="org.unipd.nbeghin.climbtheworld.MainActivity" />
         </activity>
         <activity
-            android:name="org.unipd.nbeghin.climbtheworld.ProfileActivity"
+            android:name=".ProfileActivity"
             android:label="@string/title_activity_profile"
-            android:parentActivityName="org.unipd.nbeghin.climbtheworld.MainActivity" >
+            android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.unipd.nbeghin.climbtheworld.MainActivity" />
         </activity>
         <activity
-            android:name="org.unipd.nbeghin.climbtheworld.SettingsActivity"
+            android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName="org.unipd.nbeghin.climbtheworld.MainActivity" >
+            android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.unipd.nbeghin.climbtheworld.MainActivity" />
         </activity>
         <activity
-            android:name="org.unipd.nbeghin.climbtheworld.TourDetailActivity"
+            android:name=".TourDetailActivity"
             android:label="@string/title_activity_tour_detail"
-            android:parentActivityName="org.unipd.nbeghin.climbtheworld.MainActivity" >
+            android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.unipd.nbeghin.climbtheworld.MainActivity" />
         </activity>
         <activity
-            android:name="org.unipd.nbeghin.climbtheworld.GalleryActivity"
+            android:name=".GalleryActivity"
             android:label="@string/title_activity_gallery"
-            android:theme="@style/Theme.AppCompat.Light"
-            android:parentActivityName="org.unipd.nbeghin.climbtheworld.ClimbActivity" >
+            android:parentActivityName=".ClimbActivity"
+            android:theme="@style/Theme.AppCompat.Light" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.unipd.nbeghin.climbtheworld.ClimbActivity" />
         </activity>
         <activity
-            android:name="org.unipd.nbeghin.climbtheworld.PhotoPagerActivity"
+            android:name=".PhotoPagerActivity"
             android:label="@string/title_activity_photo_pager_activity"
-            android:theme="@style/Theme.AppCompat.Light"
-            android:parentActivityName="org.unipd.nbeghin.climbtheworld.GalleryActivity" >
+            android:parentActivityName=".GalleryActivity"
+            android:theme="@style/Theme.AppCompat.Light" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.unipd.nbeghin.climbtheworld.GalleryActivity" />
@@ -97,9 +97,9 @@
             android:value="@string/app_id" />
 
         <activity
-            android:name="org.unipd.nbeghin.climbtheworld.FBShareProgressActivity"
+            android:name=".FBShareProgressActivity"
             android:label="@string/title_activity_fbshare_progress"
-            android:parentActivityName="org.unipd.nbeghin.climbtheworld.MainActivity" >
+            android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.unipd.nbeghin.climbtheworld.MainActivity" />
@@ -107,9 +107,17 @@
         <activity android:name="com.facebook.LoginActivity" >
         </activity>
         <activity
-            android:name="org.unipd.nbeghin.climbtheworld.FBPickFriendActivity"
+            android:name=".FBPickFriendActivity"
             android:label="@string/title_activity_fbpick_friend"
-            android:parentActivityName="org.unipd.nbeghin.climbtheworld.MainActivity" >
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.unipd.nbeghin.climbtheworld.MainActivity" />
+        </activity>
+        <activity
+            android:name=".GroupsActivity"
+            android:label="@string/title_activity_groups" 
+            android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.unipd.nbeghin.climbtheworld.MainActivity" />
