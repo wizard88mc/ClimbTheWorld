@@ -31,6 +31,8 @@ public class PagerAdapter extends FragmentPagerAdapter {
 				return "Buildings";
 			case 1:
 				return "Tours";
+			case 2:
+				return "Notifications";
 			default:
 				return "Undefined";
 		}

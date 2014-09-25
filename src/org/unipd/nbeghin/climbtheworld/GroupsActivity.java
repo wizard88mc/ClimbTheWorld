@@ -1,6 +1,7 @@
 package org.unipd.nbeghin.climbtheworld;
 //TODO stabilire se nome gruppo è valido
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -12,7 +13,11 @@ import com.facebook.Session;
 import com.facebook.widget.WebDialog;
 import com.facebook.widget.WebDialog.OnCompleteListener;
 import com.facebook.FacebookException;
+import com.parse.FindCallback;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+import com.parse.ParseException;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -42,7 +47,8 @@ public class GroupsActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_groups);
         ExpandList = (ExpandableListView) findViewById(R.id.groupsList);
-        ExpListItems = SetStandardGroups();
+        //ExpListItems = 
+        setMyGroups();
         ExpAdapter = new ExpandListAdapter(GroupsActivity.this, ExpListItems);
         ExpandList.setAdapter(ExpAdapter);
         newName = (EditText) findViewById(R.id.insertName);
@@ -58,12 +64,52 @@ public class GroupsActivity extends ActionBarActivity {
 		});
     }
     
-    public ArrayList<ExpandListGroup> SetStandardGroups() {
-    	ArrayList<ExpandListGroup> list = new ArrayList<ExpandListGroup>();
-    	ArrayList<ExpandListChild> list2 = new ArrayList<ExpandListChild>();
+    public void setMyGroups(){
+    		List<String> myGroups = new ArrayList<String>(); 	
+		SharedPreferences pref = getSharedPreferences("UserSession", 0);
+		ParseQuery<ParseUser> user = ParseUser.getQuery();
+		user.whereEqualTo("FBid", pref.getString("FBid", "")); Log.d("FBid da cercare", "cerco " + pref.getString("FBid", "")); 
+		try {
+			List<ParseUser> users = user.find();
+			List<String> array =	(ArrayList<String>) users.get(0).get("Groups");
+	        SetGroups((array));
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/*user.findInBackground(new FindCallback<ParseUser>() {
+		    public void done(List<ParseUser> users, ParseException e) {
+		        if (e == null) { 
+		        	String[] array =	(String[]) users.get(0).get("groups");
+		        SetGroups(Arrays.asList(array));
+		        } else {
+
+		        }
+		    }
+		});*/
+    }
+    
+    public void SetGroups(List<String> groups) {
+
+	 	ArrayList<ExpandListGroup> list = new ArrayList<ExpandListGroup>();
+	   	
+	 	if(groups.size() == 0){ System.out.println("nessun gruppo");
+	 		 ExpandListGroup gru1 = new ExpandListGroup();
+	         gru1.setName("No Groups :(");
+	         
+	         list.add(gru1);
+	 	}else{
+	 	
+    	for(final String group : groups){
         ExpandListGroup gru1 = new ExpandListGroup();
-        gru1.setName("Comedy");
-        ExpandListChild ch1_1 = new ExpandListChild();
+        gru1.setName(group);
+        list.add(gru1);
+    	}
+	 	}
+    	
+  //  	ArrayList<ExpandListChild> list2 = new ArrayList<ExpandListChild>();
+        
+   /*     ExpandListChild ch1_1 = new ExpandListChild();
         ch1_1.setName("A movie");
         ch1_1.setTag(null);
         list2.add(ch1_1);
@@ -75,12 +121,11 @@ public class GroupsActivity extends ActionBarActivity {
         ch1_3.setName("And an other movie");
         ch1_3.setTag(null);
         list2.add(ch1_3);
-        gru1.setItems(list2);
-        list2 = new ArrayList<ExpandListChild>();
+        gru1.setItems(list2); */
+        //list2 = new ArrayList<ExpandListChild>();
         
-        ExpandListGroup gru2 = new ExpandListGroup();
-        gru2.setName("Action");
-        ExpandListChild ch2_1 = new ExpandListChild();
+        
+    /*    ExpandListChild ch2_1 = new ExpandListChild();
         ch2_1.setName("A movie");
         ch2_1.setTag(null);
         list2.add(ch2_1);
@@ -91,12 +136,11 @@ public class GroupsActivity extends ActionBarActivity {
         ExpandListChild ch2_3 = new ExpandListChild();
         ch2_3.setName("And an other movie");
         ch2_3.setTag(null);
-        list2.add(ch2_3);
-        gru2.setItems(list2);
-        list.add(gru1);
-        list.add(gru2);
+        list2.add(ch2_3);*/
+      //  gru2.setItems(list2);
+       
         
-        return list;
+        ExpListItems = list;
     }
     
     /**
@@ -133,12 +177,24 @@ public class GroupsActivity extends ActionBarActivity {
 		return super.onOptionsItemSelected(item);
 	}
 	
-	
+	private boolean usableGroupName(String name){
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("Group");
+		query.whereEqualTo("name", name);
+		try {
+			int groups = query.count();
+			if(groups == 0) return true;
+			else return false;
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+	}
 	
 	private void onCreateNewGroup(){
-		String groupName = newName.getText().toString();
-		if(groupName.isEmpty())
-			Toast.makeText(getApplicationContext(), "Entrer a valid name", Toast.LENGTH_SHORT).show();
+		final String groupName = newName.getText().toString();
+		if(groupName.isEmpty() || !usableGroupName(groupName))
+			Toast.makeText(getApplicationContext(), "The name must be non empty and not already used", Toast.LENGTH_SHORT).show();
 		else {
 			//salva gruppo su db con data di creazione (fatta in automatico)
 			SharedPreferences pref = getSharedPreferences("UserSession", 0);
@@ -149,7 +205,8 @@ public class GroupsActivity extends ActionBarActivity {
 			JSONArray members = new JSONArray();
 			JSONObject member = new JSONObject();
 			try {
-				member.put("name", pref.getString("FBid", ""));
+				member.put("FBid", pref.getString("FBid", ""));
+				member.put("name", pref.getString("username", ""));
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -159,11 +216,25 @@ public class GroupsActivity extends ActionBarActivity {
 			
 			group.saveInBackground();
 			
+			ParseQuery<ParseUser> user = ParseUser.getQuery();
+			user.whereEqualTo("FBid", pref.getString("FBid", "")); Log.d("FBid da cercare", "cerco " + pref.getString("FBid", "")); 
+			user.findInBackground(new FindCallback<ParseUser>() {
+			    public void done(List<ParseUser> users, ParseException e) {
+			        if (e == null) { System.out.println(users.size());
+			        		ParseUser me = users.get(0);
+			        		me.addAllUnique("Groups", Arrays.asList(groupName));
+			        		me.saveInBackground();
+			        } else {
+
+			        }
+			    }
+			});
+			
 			
 			//invia le richieste per entrare nel gruppo
 		Bundle params = new Bundle();
 	    params.putString("message", "Hey, let's make a team!!!!");
-	    params.putString("data", "{\"team_name\":\"" + groupName + "\"}");
+	    params.putString("data", "{\"team_name\":\"" + groupName + "\", \"type\": \"0\"}");
 	    
 	    WebDialog requestsDialog = (
 	        new WebDialog.RequestsDialogBuilder(this, Session.getActiveSession(), params)).setOnCompleteListener(new OnCompleteListener() {

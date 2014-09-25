@@ -2,6 +2,8 @@ package org.unipd.nbeghin.climbtheworld;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,10 +42,15 @@ import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.ProfilePictureView;
+import com.parse.FindCallback;
 import com.parse.ParseFacebookUtils;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
+import com.parse.SignUpCallback;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On handset devices, settings are presented as a single list. On tablets, settings are split by category, with category headers shown to the left of the list of settings.
@@ -119,10 +126,11 @@ public class SettingsActivity extends PreferenceActivity {
 							}
 							SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
 							Editor editor = pref.edit();
-							editor.putString("FBid", newUser.getFBid());
-							editor.commit();
+							editor.putString("FBid", newUser.getFBid()); Log.d("FBid", "salvo " + newUser.getFBid());
+							editor.putString("username", newUser.getName());
+							editor.commit(); Log.d("FBid", "salvato " + pref.getString("FBid", "wrooong"));
 							
-							saveUserToParse(user, session);
+							userExists(user, session);
 							profilePictureView.setCropped(true);
 							profilePictureView.setProfileId(user.getId());
 							lblFacebookUser.setText(user.getName());
@@ -148,7 +156,64 @@ public class SettingsActivity extends PreferenceActivity {
 			Toast.makeText(getApplicationContext(),"Check your intenet connection", Toast.LENGTH_LONG).show();
 	}
 	
+ private void userExists(final GraphUser fbUser, final Session session){
+		ParseQuery<ParseUser> sameFBid = ParseQuery.getQuery("User");
+		sameFBid.whereEqualTo("FBid", fbUser.getId());
+		
+		ParseQuery<ParseUser> sameName = ParseQuery.getQuery("User");
+		sameName.whereEqualTo("Username", fbUser.getName());
+		
+		List<ParseQuery<ParseUser>> queries = new ArrayList<ParseQuery<ParseUser>>();
+		queries.add(sameFBid);
+		queries.add(sameName);
+		 
+		ParseQuery<ParseUser> mainQuery = ParseQuery.or(queries);
+		mainQuery.findInBackground(new FindCallback<ParseUser>() {
+		  public void done(List<ParseUser> results, ParseException e) {
+		    if(results.isEmpty()){
+		    		saveUserToParse(fbUser, session);
+		    }else{
+		    		Toast.makeText(getApplicationContext(), "Choose a valid name", Toast.LENGTH_SHORT);
+		    		
+		    }
+		  }
+		});
+	}
+	
     private void saveUserToParse(GraphUser fbUser, Session session) {
+
+    	 	ParseUser user = new ParseUser();
+    		user.setUsername(fbUser.getName());
+    		user.setPassword("");
+    		user.put("FBid", fbUser.getId()); //System.out.println(fbUser.getId());
+    		
+    		
+    		
+    		user.signUpInBackground(new SignUpCallback() {
+    			  public void done(ParseException e) {
+    			    if (e == null) {
+    			    		Log.d("SIGN UP", "SIGN UP");
+    			    } else {
+    			      // Sign up didn't succeed. Look at the ParseException
+    			      // to figure out what went wrong
+    			    }
+    			  }
+    			});
+    		
+    		
+    		/*if (!ParseFacebookUtils.isLinked(user)) {
+    			  ParseFacebookUtils.link(user, this, new SaveCallback() {
+    			    @Override
+    			    public void done(ParseException ex) {
+    			      if (ParseFacebookUtils.isLinked(user)) {
+    			        Log.d("MyApp", "Woohoo, user logged in with Facebook!");
+    			      }
+    			    }
+    			  });
+    			}*/
+    		
+    		
+    	/*List<String> permissions = Arrays.asList("public_profile", "user_friends", "user_about_me");
         ParseFacebookUtils.logIn(fbUser.getId(), session.getAccessToken(), 
                  session.getExpirationDate(), new LogInCallback() {
              @Override
@@ -161,7 +226,7 @@ public class SettingsActivity extends PreferenceActivity {
                        Log.d("Parse", "User has successfully been saved to Parse.");
                   }
              }
-        });
+        });*/
     } 
 
 	private void onSessionStateChange(final Session session, SessionState state, Exception exception) {

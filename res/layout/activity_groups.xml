@@ -17,33 +17,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/textView1"
         android:layout_below="@+id/textView1"
-        android:layout_toLeftOf="@+id/imageButton1"
         android:ems="10" />
 
     <ExpandableListView
         android:id="@+id/groupsList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/editText1"
+        android:layout_below="@+id/insertName"
         android:layout_centerHorizontal="true" >
 
     </ExpandableListView>
-
-    <ImageButton
-        android:id="@+id/addMembers"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/editText1"
-        android:layout_alignParentRight="true"
-        android:src="@drawable/ic_action_add_group" />
-
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="2dip"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/editText1"
-        android:background="@color/gray" />
 
     <TextView
         android:id="@+id/textView1"
@@ -52,5 +37,21 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:text="New Group: insert a name for the group" />
+
+    <ImageButton
+        android:id="@+id/addMembers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/groupsList"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@+id/insertName"
+        android:src="@drawable/ic_action_add_group" />
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="2dip"
+        android:layout_alignBottom="@+id/insertName"
+        android:layout_alignParentLeft="true"
+        android:background="@color/gray" />
 
 </RelativeLayout>

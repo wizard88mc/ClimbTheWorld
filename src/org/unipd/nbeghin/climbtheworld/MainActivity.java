@@ -32,10 +32,13 @@ import org.unipd.nbeghin.climbtheworld.adapters.PagerAdapter;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.db.PreExistingDbLoader;
 import org.unipd.nbeghin.climbtheworld.fragments.BuildingsFragment;
+import org.unipd.nbeghin.climbtheworld.fragments.NotificationFragment;
 import org.unipd.nbeghin.climbtheworld.fragments.ToursFragment;
 import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.BuildingTour;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
+import org.unipd.nbeghin.climbtheworld.models.InviteNotification;
+import org.unipd.nbeghin.climbtheworld.models.Notification;
 import org.unipd.nbeghin.climbtheworld.models.Photo;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
 import org.unipd.nbeghin.climbtheworld.models.User;
@@ -88,6 +91,7 @@ public class MainActivity extends ActionBarActivity {
 	public static List<Building> buildings;
 	private List<Climbing> climbings; // list of loaded climbings
 	public static List<Tour> tours; // list of loaded tours
+	public static List<Notification> notifications;
 	private ActionBar ab; // reference to action bar
 	public static RuntimeExceptionDao<Building, Integer> buildingDao; // DAO for
 																		// buildings
@@ -123,8 +127,8 @@ public class MainActivity extends ActionBarActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		super.onCreate(savedInstanceState); Log.d("MainActivity", "inizio");
+		setContentView(R.layout.activity_main); Log.d("MainActivity", "dopo layout");
 
 		try {
 			PackageInfo info = getPackageManager().getPackageInfo(
@@ -144,6 +148,27 @@ public class MainActivity extends ActionBarActivity {
 		}
 
 		loadDb(); // instance db connection
+		
+		
+		// TODO prendere dati richiesta, vedere se è valida e salvare su db
+				// Check for an incoming notification. Save the info
+				notifications = new ArrayList<Notification>();
+				Uri intentUri = getIntent().getData();
+				if (intentUri != null) {
+					String requestIdParam = intentUri.getQueryParameter("request_ids");
+					if (requestIdParam != null) {
+						String array[] = requestIdParam.split(","); System.out.println("array " + array.length);
+						for(int i = 0; i < array.length; i++){
+							requestId = array[i];
+							Log.i("onActivityCreated", "Request id: " + requestId);
+							//deleteRequest(requestId);
+							getRequestData(requestId);
+						}
+					}
+					
+					System.out.println("notf " + notifications.size());
+				}
+		
 		// loading fragments
 		fragments.add(Fragment.instantiate(this,
 				BuildingsFragment.class.getName())); // instance building
@@ -152,6 +177,8 @@ public class MainActivity extends ActionBarActivity {
 				.add(Fragment.instantiate(this, ToursFragment.class.getName())); // instance
 																					// tours
 																					// fragments
+		fragments.add(Fragment.instantiate(this, NotificationFragment.class.getName()));
+		
 		mPagerAdapter = new PagerAdapter(super.getSupportFragmentManager(),
 				fragments);
 		mPager = (ViewPager) super.findViewById(R.id.pager);
@@ -165,23 +192,9 @@ public class MainActivity extends ActionBarActivity {
 			this.finish();
 		}
 
-		Parse.initialize(this, "e9wlYQPdpXlFX3XQc9Lq0GJFecuYrDSzwVNSovvd",
-				"QVII1Qhy8pXrjAZiL07qaTKbaWpkB87zc88UMWv2");
-		ParseFacebookUtils.initialize(getString(R.string.app_id));
+		
 
-		// TODO prendere dati richiesta, vedere se è valida e salvare su db
-		// Check for an incoming notification. Save the info
-		Uri intentUri = getIntent().getData();
-		if (intentUri != null) {
-			String requestIdParam = intentUri.getQueryParameter("request_ids");
-			if (requestIdParam != null) {
-				String array[] = requestIdParam.split(",");
-				requestId = array[0];
-				Log.i("onActivityCreated", "Request id: " + requestId);
-				//deleteRequest(requestId);
-				getRequestData(requestId);
-			}
-		}
+		
 	}
 
 	private void getRequestData(final String inRequestId) {
@@ -203,11 +216,19 @@ public class MainActivity extends ActionBarActivity {
 							// Get the data, parse info to get the key/value
 							// info
 							JSONObject dataObject;
+							JSONObject fromObject;
 							String groupName = "";
+							String sender = "";
+							int type = -1;
+							String id = "";
 
 							try {
 								dataObject = new JSONObject((String) graphObject.getProperty("data"));
+								fromObject = (JSONObject)graphObject.getProperty("from");
 								groupName = dataObject.getString("team_name");
+								type = dataObject.getInt("type");
+								sender = fromObject.getString("name");
+								id = ((String) graphObject.getProperty("id")) ;
 
 							} catch (JSONException e1) {
 								// TODO Auto-generated catch block
@@ -222,23 +243,15 @@ public class MainActivity extends ActionBarActivity {
 							message += " " + time;
 							if (isValid(time)) {
 								Log.d("qui", "query valida");
-								ParseQuery<ParseObject> query = ParseQuery
-										.getQuery("Group");
-								query.whereEqualTo("name", groupName.toString());
-								query.findInBackground(new FindCallback<ParseObject>() {
-									public void done(List<ParseObject> group,
-											ParseException e) {
-										if (e == null) {
-											Log.d("score",
-													"Retrieved " + group.size()
-															+ " group");
-											updateGroup(group.get(0));
-										} else {
-											Log.d("score",
-													"Error: " + e.getMessage());
-										}
-									}
-								});
+								
+								Notification notf = new InviteNotification(id, sender, groupName, type);
+								notifications.add(notf);
+								
+								
+											
+										
+									
+								
 							}
 
 							String title = "";
@@ -249,7 +262,7 @@ public class MainActivity extends ActionBarActivity {
 						}
 						Toast.makeText(getApplicationContext(), "Richiesta arrivata",
 								Toast.LENGTH_LONG).show();
-						deleteRequest(inRequestId);//da chiamare solo se non ci sono errori
+						//deleteRequest(inRequestId);//da chiamare solo se non ci sono errori
 					}
 				});
 		// Execute the request asynchronously.
@@ -278,44 +291,9 @@ public class MainActivity extends ActionBarActivity {
 			return true;
 	}
 
-	private void updateGroup(ParseObject group) {
-		SharedPreferences pref = getSharedPreferences("UserSession", 0);
-		JSONArray members = group.getJSONArray("members");
-		if (members.length() < 5) {
-			JSONObject member = new JSONObject();
-			try {
-				member.put("name", pref.getString("FBid", ""));
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			members.put(member);
-			group.saveInBackground();
-			;
-		} else {
-			Toast.makeText(getApplicationContext(),
-					"Too Late: group is complete", Toast.LENGTH_SHORT).show();
-		}
-
-	}
 	
-	private void deleteRequest(String inRequestId) {
-	    // Create a new request for an HTTP delete with the
-	    // request ID as the Graph path.
-	    Request request = new Request(Session.getActiveSession(), 
-	        inRequestId, null, HttpMethod.DELETE, new Request.Callback() {
-
-	            @Override
-	            public void onCompleted(Response response) {
-	                // Show a confirmation of the deletion
-	                // when the API call completes successfully.
-	                Toast.makeText(getApplicationContext(), "Request deleted",
-	                Toast.LENGTH_SHORT).show();
-	            }
-	        });
-	    // Execute the request asynchronously.
-	    Request.executeBatchAsync(request);
-	}
+	
+	
 
 	/**
 	 * Helper method to access application context
@@ -354,8 +332,10 @@ public class MainActivity extends ActionBarActivity {
 	 * assets/databases/ClimbTheWorld.zip
 	 */
 	private void loadDb() {
+		Log.d("Load normal db", "inizio");
 		PreExistingDbLoader preExistingDbLoader = new PreExistingDbLoader(
 				getApplicationContext()); // extract db from zip
+		Log.d("Load normal db", "fine");
 		SQLiteDatabase db = preExistingDbLoader.getReadableDatabase();
 		db.close(); // close connection to extracted db
 		dbHelper = new DbHelper(getApplicationContext()); // instance new db
@@ -597,5 +577,8 @@ public class MainActivity extends ActionBarActivity {
 			Log.e(AppName, e.getMessage());
 		}
 	}
-
+	
+	public static void emptyNotificationList(){
+		notifications.clear();
+	}
 }

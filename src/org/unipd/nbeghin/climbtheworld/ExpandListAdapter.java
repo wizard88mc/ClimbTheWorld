@@ -54,8 +54,9 @@ public class ExpandListAdapter extends BaseExpandableListAdapter {
 		public int getChildrenCount(int groupPosition) {
 			// TODO Auto-generated method stub
 			ArrayList<ExpandListChild> chList = groups.get(groupPosition).getItems();
-
-			return chList.size();
+			if(chList == null) return 0;
+			else
+				return chList.size();
 
 		}
 
