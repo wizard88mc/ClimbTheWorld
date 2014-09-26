@@ -67,7 +67,8 @@ public class ExpandListAdapter extends BaseExpandableListAdapter {
 
 		public int getGroupCount() {
 			// TODO Auto-generated method stub
-			return groups.size();
+			if(groups == null) return 0;
+			else return groups.size();
 		}
 
 		public long getGroupId(int groupPosition) {

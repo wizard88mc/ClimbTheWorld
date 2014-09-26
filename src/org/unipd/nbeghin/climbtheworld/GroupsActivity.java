@@ -7,6 +7,7 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 
 import com.facebook.FacebookOperationCanceledException;
 import com.facebook.Session;
@@ -42,6 +43,7 @@ public class GroupsActivity extends ActionBarActivity {
 	private ExpandableListView ExpandList;
 	private EditText newName;
 	private ImageButton sendRequests;
+	boolean usable;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,7 +60,12 @@ public class GroupsActivity extends ActionBarActivity {
 			
 			@Override
 			public void onClick(View arg0) {
-				onCreateNewGroup();
+				if(FacebookUtils.isOnline(GroupsActivity.this)){
+					onCreateNewGroup();			
+				}else{
+					Toast.makeText(getApplicationContext(), "No connection available", Toast.LENGTH_SHORT).show();
+				}
+				
 				
 			}
 		});
@@ -67,7 +74,27 @@ public class GroupsActivity extends ActionBarActivity {
     public void setMyGroups(){
     		List<String> myGroups = new ArrayList<String>(); 	
 		SharedPreferences pref = getSharedPreferences("UserSession", 0);
-		ParseQuery<ParseUser> user = ParseUser.getQuery();
+		
+		ParseQuery<ParseObject> groups = ParseQuery.getQuery("Group");
+		ArrayList<String> me = new ArrayList<String>();
+		me.add(pref.getString("FBid", "")); System.out.println("cerco " + pref.getString("FBid", "")); 
+		groups.whereContainsAll("members", me);//whereEqualTo("members", pref.getString("FBid", ""));
+		
+		try {
+			List<ParseObject> mygroups = groups.find();
+			System.out.println("gruppi: " + mygroups.size()); 
+
+			for(ParseObject group : mygroups){ 
+				myGroups.add(group.getString("name"));
+			}
+			SetGroups(myGroups);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			Toast.makeText(getApplicationContext(), "No connection available", Toast.LENGTH_SHORT).show();
+		}
+		
+		/*ParseQuery<ParseUser> user = ParseUser.getQuery();
 		user.whereEqualTo("FBid", pref.getString("FBid", "")); Log.d("FBid da cercare", "cerco " + pref.getString("FBid", "")); 
 		try {
 			List<ParseUser> users = user.find();
@@ -76,7 +103,8 @@ public class GroupsActivity extends ActionBarActivity {
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
+		
 		/*user.findInBackground(new FindCallback<ParseUser>() {
 		    public void done(List<ParseUser> users, ParseException e) {
 		        if (e == null) { 
@@ -177,7 +205,8 @@ public class GroupsActivity extends ActionBarActivity {
 		return super.onOptionsItemSelected(item);
 	}
 	
-	private boolean usableGroupName(String name){
+	 /*boolean usableGroupName(String name){
+		
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("Group");
 		query.whereEqualTo("name", name);
 		try {
@@ -187,20 +216,31 @@ public class GroupsActivity extends ActionBarActivity {
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			Toast.makeText(getApplicationContext(), "No connection available", Toast.LENGTH_SHORT).show();
 			return false;
 		}
 	}
-	
+	*/
+	 
+	//controllo su id
 	private void onCreateNewGroup(){
 		final String groupName = newName.getText().toString();
-		if(groupName.isEmpty() || !usableGroupName(groupName))
-			Toast.makeText(getApplicationContext(), "The name must be non empty and not already used", Toast.LENGTH_SHORT).show();
+		if(groupName.isEmpty() /*|| !usableGroupName(groupName)*/)
+			Toast.makeText(getApplicationContext(), "The name must be non empty", Toast.LENGTH_SHORT).show();
 		else {
+			
+			
 			//salva gruppo su db con data di creazione (fatta in automatico)
 			SharedPreferences pref = getSharedPreferences("UserSession", 0);
 			
-			
-			ParseObject group = new ParseObject("Group");
+			final ParseObject group = new ParseObject("Group");
+			group.put("name", groupName);
+			List<String> members = new ArrayList<String>();
+			members.add(pref.getString("FBid", ""));
+			group.put("members", members);
+			group.saveEventually();
+
+			/*ParseObject group = new ParseObject("Group");
 			group.put("name", groupName);
 			JSONArray members = new JSONArray();
 			JSONObject member = new JSONObject();
@@ -214,7 +254,8 @@ public class GroupsActivity extends ActionBarActivity {
 			members.put(member);
 			group.put("members", members);
 			
-			group.saveInBackground();
+			group.saveEventually();
+			String groupId = group.getObjectId();
 			
 			ParseQuery<ParseUser> user = ParseUser.getQuery();
 			user.whereEqualTo("FBid", pref.getString("FBid", "")); Log.d("FBid da cercare", "cerco " + pref.getString("FBid", "")); 
@@ -223,14 +264,15 @@ public class GroupsActivity extends ActionBarActivity {
 			        if (e == null) { System.out.println(users.size());
 			        		ParseUser me = users.get(0);
 			        		me.addAllUnique("Groups", Arrays.asList(groupName));
-			        		me.saveInBackground();
+			        		me.saveEventually();
 			        } else {
 
 			        }
 			    }
-			});
+			});	*/
 			
 			
+						
 			//invia le richieste per entrare nel gruppo
 		Bundle params = new Bundle();
 	    params.putString("message", "Hey, let's make a team!!!!");
@@ -245,10 +287,13 @@ public class GroupsActivity extends ActionBarActivity {
 	                            Toast.makeText(getApplicationContext(), 
 	                                "Request cancelled", 
 	                                Toast.LENGTH_SHORT).show();
+	                            		deleteGroup(group);
 	                        } else {
 	                            Toast.makeText(getApplicationContext(), 
 	                                "Network Error", 
 	                                Toast.LENGTH_SHORT).show();
+                        		deleteGroup(group);
+
 	                        }
 	                    } else {
 	                        final String requestId = values.getString("request");
@@ -256,10 +301,14 @@ public class GroupsActivity extends ActionBarActivity {
 	                            Toast.makeText(getApplicationContext(), 
 	                                "Request sent",  
 	                                Toast.LENGTH_SHORT).show();
+                        		deleteGroup(group);
+
 	                        } else {
 	                            Toast.makeText(getApplicationContext(), 
 	                                "Request cancelled", 
 	                                Toast.LENGTH_SHORT).show();
+                        		deleteGroup(group);
+
 	                        }
 	                    }   
 	                }
@@ -267,6 +316,19 @@ public class GroupsActivity extends ActionBarActivity {
 	            .build();
 	    requestsDialog.show();
 	}
+		
+		
+		
+
+		
 	}
+	
+	
+	public void deleteGroup(ParseObject gr )
+	{
+		gr.deleteEventually();
+	}
+	
+
 
 }

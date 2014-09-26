@@ -42,18 +42,21 @@ import org.unipd.nbeghin.climbtheworld.models.Notification;
 import org.unipd.nbeghin.climbtheworld.models.Photo;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
 import org.unipd.nbeghin.climbtheworld.models.User;
+import org.unipd.nbeghin.climbtheworld.services.NetworkBroadcasterReceiver;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 import org.unipd.nbeghin.climbtheworld.weka.WekaClassifier;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -130,6 +133,9 @@ public class MainActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState); Log.d("MainActivity", "inizio");
 		setContentView(R.layout.activity_main); Log.d("MainActivity", "dopo layout");
 
+		// this.registerReceiver(new NetworkBroadcasterReceiver(),
+		//         new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+		
 		try {
 			PackageInfo info = getPackageManager().getPackageInfo(
 					"org.unipd.nbeghin.climbtheworld",

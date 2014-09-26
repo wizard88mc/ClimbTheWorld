@@ -75,19 +75,31 @@ public class NotificationCard extends Card{
 					public void done(List<ParseObject> group,
 							ParseException e) {
 						if (e == null) {					
-							updateGroup(group.get(0));
+							if(group.size() == 0){
+								Toast.makeText(MainActivity.getContext(), "The group does not exists anymore", Toast.LENGTH_SHORT).show();
+								text.setText("Request expired");
+
+							}else{
+								updateGroup(group.get(0));
+							deleteRequest(String.valueOf(notification.getId()));	
+							text.setText("Request Accepted");
+							
+							}
+							cancelBtn.setEnabled(false);
+							acceptBtn.setEnabled(false);
+							notification.setRead(true);
 						} else {
-							Log.d("Error accepting request",
+							Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
+
+							Log.d("Connection problem",
 									"Error: " + e.getMessage());
+
+							
 						}
 					}
 				
 		});
-			deleteRequest(String.valueOf(notification.getId()));	
-			text.setText("Request Accepted");
-			cancelBtn.setEnabled(false);
-			acceptBtn.setEnabled(false);
-			notification.setRead(true);
+			
 			
 			}
 		});
@@ -114,10 +126,15 @@ public class NotificationCard extends Card{
 	
 	private void updateGroup(ParseObject group) {
 		SharedPreferences pref = MainActivity.getContext().getSharedPreferences("UserSession", 0);
-		JSONArray members = group.getJSONArray("members");
-		final String groupName = group.getString("name");
-		if (members.length() < 5) {
-			JSONObject member = new JSONObject();
+		//JSONArray members = group.getJSONArray("members");
+		//final String groupName = group.getString("name");
+		List<String> members = group.getList("members");
+		if (members.size() < 5) {
+			
+			members.add(pref.getString("FBid", ""));
+			group.saveEventually();
+			
+		/*	JSONObject member = new JSONObject();
 			try {
 				member.put("FBid", pref.getString("FBid", ""));
 				member.put("name", pref.getString("username", ""));
@@ -126,7 +143,7 @@ public class NotificationCard extends Card{
 				e.printStackTrace();
 			}
 			members.put(member);
-			group.saveInBackground();
+			group.saveEventually();
 			
 			ParseQuery<ParseUser> user = ParseUser.getQuery();
 			user.whereEqualTo("FBid", pref.getString("FBid", "")); Log.d("FBid da cercare", "cerco " + pref.getString("FBid", "")); 
@@ -135,12 +152,12 @@ public class NotificationCard extends Card{
 			        if (e == null) { System.out.println(users.size());
 			        		ParseUser me = users.get(0);
 			        		me.addAllUnique("Groups", Arrays.asList(groupName));
-			        		me.saveInBackground();
+			        		me.saveEventually();
 			        } else {
 
 			        }
 			    }
-			});
+			});*/
 			
 		} else {
 			Toast.makeText(MainActivity.getContext(),
