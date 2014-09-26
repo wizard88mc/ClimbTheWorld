@@ -25,6 +25,7 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceActivity.Header;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -32,7 +33,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -54,6 +57,59 @@ public class GroupsActivity extends ActionBarActivity {
         ExpAdapter = new ExpandListAdapter(GroupsActivity.this, ExpListItems);
         ExpandList.setAdapter(ExpAdapter);
         newName = (EditText) findViewById(R.id.insertName);
+        
+        ExpandList.setOnChildClickListener(new OnChildClickListener() {
+
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+              	ExpandableListAdapter adapter = ExpandList.getExpandableListAdapter();
+              	ExpandListChild elc = (ExpandListChild) adapter.getChild(groupPosition, childPosition);
+              	String selected = elc.getTag();
+             	 Log.d("child cick", "child of "+ selected);
+
+            	//Nothing here ever fires
+               if(selected!=null){
+            		//invia le richieste per entrare nel gruppo
+           		Bundle params = new Bundle();
+           	    params.putString("message", "Hey, let's make a team!!!!");
+           	    params.putString("data", "{\"team_name\":\"" + selected + "\", \"type\": \"0\"}");
+           	    WebDialog requestsDialog = (
+           		        new WebDialog.RequestsDialogBuilder(GroupsActivity.this, Session.getActiveSession(), params)).setOnCompleteListener(new OnCompleteListener() {
+           	                @Override
+           	                public void onComplete(Bundle values, FacebookException error) {
+           	                    if (error != null) {
+           	                        if (error instanceof FacebookOperationCanceledException) {
+           	                            Toast.makeText(getApplicationContext(), 
+           	                                "Request cancelled", 
+           	                                Toast.LENGTH_SHORT).show();
+           	                        } else {
+           	                            Toast.makeText(getApplicationContext(), 
+           	                                "Network Error", 
+           	                                Toast.LENGTH_SHORT).show();
+
+           	                        }
+           	                    } else {
+           	                        final String requestId = values.getString("request");
+           	                        if (requestId != null) {
+           	                            Toast.makeText(getApplicationContext(), 
+           	                                "Request sent",  
+           	                                Toast.LENGTH_SHORT).show();
+
+           	                        } else {
+           	                            Toast.makeText(getApplicationContext(), 
+           	                                "Request cancelled", 
+           	                                Toast.LENGTH_SHORT).show();
+
+           	                        }
+           	                    }   
+           	                }
+           	            }).build();
+           	    requestsDialog.show();
+               }
+                return true;
+            }
+        });
+        
         sendRequests = (ImageButton) findViewById(R.id.addMembers);
         
         sendRequests.setOnClickListener(new View.OnClickListener() {
@@ -84,10 +140,10 @@ public class GroupsActivity extends ActionBarActivity {
 			List<ParseObject> mygroups = groups.find();
 			System.out.println("gruppi: " + mygroups.size()); 
 
-			for(ParseObject group : mygroups){ 
+			/*for(ParseObject group : mygroups){ 
 				myGroups.add(group.getString("name"));
-			}
-			SetGroups(myGroups);
+			}*/
+			SetGroups(mygroups);
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -117,9 +173,12 @@ public class GroupsActivity extends ActionBarActivity {
 		});*/
     }
     
-    public void SetGroups(List<String> groups) {
+    
+    
+    public void SetGroups(List<ParseObject> groups) {
 
 	 	ArrayList<ExpandListGroup> list = new ArrayList<ExpandListGroup>();
+	 	ArrayList<ExpandListChild> list2 = new ArrayList<ExpandListChild>();
 	   	
 	 	if(groups.size() == 0){ System.out.println("nessun gruppo");
 	 		 ExpandListGroup gru1 = new ExpandListGroup();
@@ -128,12 +187,23 @@ public class GroupsActivity extends ActionBarActivity {
 	         list.add(gru1);
 	 	}else{
 	 	
-    	for(final String group : groups){
+    	for(final ParseObject group : groups){
         ExpandListGroup gru1 = new ExpandListGroup();
-        gru1.setName(group);
+        gru1.setName(group.getString("name"));
+        if(group.getList("members").size() < 5){
+        		ExpandListChild ch1_1 = new ExpandListChild();
+        		ch1_1.setName("    + Add member");
+        		ch1_1.setTag(gru1.getName());
+        		list2.add(ch1_1);
+        		System.out.println("ch1.1 tag " + ch1_1.getTag());
+
+        }
+		gru1.setItems(list2);
         list.add(gru1);
     	}
 	 	}
+	 	
+	 	
     	
   //  	ArrayList<ExpandListChild> list2 = new ArrayList<ExpandListChild>();
         
@@ -301,7 +371,6 @@ public class GroupsActivity extends ActionBarActivity {
 	                            Toast.makeText(getApplicationContext(), 
 	                                "Request sent",  
 	                                Toast.LENGTH_SHORT).show();
-                        		deleteGroup(group);
 
 	                        } else {
 	                            Toast.makeText(getApplicationContext(), 
@@ -322,6 +391,7 @@ public class GroupsActivity extends ActionBarActivity {
 
 		
 	}
+	
 	
 	
 	public void deleteGroup(ParseObject gr )

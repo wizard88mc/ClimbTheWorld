@@ -2,6 +2,7 @@ package org.unipd.nbeghin.climbtheworld.ui.card;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -58,7 +59,7 @@ public class NotificationCard extends Card{
 	}
 
 	@Override
-	public View getCardContent(Context context) {
+	public View getCardContent(final Context context) {
 		View view = LayoutInflater.from(context).inflate(R.layout.notification_card, null);
 		cancelBtn = ((ImageButton) view.findViewById(R.id.cancelButton));
 		acceptBtn = (ImageButton) view.findViewById(R.id.acceptButton);
@@ -80,11 +81,20 @@ public class NotificationCard extends Card{
 								text.setText("Request expired");
 
 							}else{
-								updateGroup(group.get(0));
-							deleteRequest(String.valueOf(notification.getId()));	
-							text.setText("Request Accepted");
+								SharedPreferences pref = context.getSharedPreferences("UserSession", 0);
+								List<String> members = group.get(0).getList("members");
+								if(members.contains(pref.getString("FBid", ""))){
+									Toast.makeText(MainActivity.getContext(), "You are already part of " + notification.getGroupName(), Toast.LENGTH_SHORT).show();
+									text.setText("Already a member");
+								}else{
+									updateGroup(group.get(0));
+									text.setText("Request Accepted");
+								}
+								
 							
 							}
+							deleteRequest(String.valueOf(notification.getId()));	
+
 							cancelBtn.setEnabled(false);
 							acceptBtn.setEnabled(false);
 							notification.setRead(true);
@@ -99,7 +109,8 @@ public class NotificationCard extends Card{
 					}
 				
 		});
-			
+				
+				
 			
 			}
 		});

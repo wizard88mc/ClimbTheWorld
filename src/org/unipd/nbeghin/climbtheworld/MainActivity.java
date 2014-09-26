@@ -267,7 +267,7 @@ public class MainActivity extends ActionBarActivity {
 
 						}
 						Toast.makeText(getApplicationContext(), "Richiesta arrivata",
-								Toast.LENGTH_LONG).show();
+								Toast.LENGTH_SHORT).show();
 						//deleteRequest(inRequestId);//da chiamare solo se non ci sono errori
 					}
 				});
