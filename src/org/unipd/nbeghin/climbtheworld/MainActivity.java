@@ -34,9 +34,11 @@ import org.unipd.nbeghin.climbtheworld.db.PreExistingDbLoader;
 import org.unipd.nbeghin.climbtheworld.fragments.BuildingsFragment;
 import org.unipd.nbeghin.climbtheworld.fragments.NotificationFragment;
 import org.unipd.nbeghin.climbtheworld.fragments.ToursFragment;
+import org.unipd.nbeghin.climbtheworld.models.AskCollaborationNotification;
 import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.BuildingTour;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
+import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.InviteNotification;
 import org.unipd.nbeghin.climbtheworld.models.Notification;
 import org.unipd.nbeghin.climbtheworld.models.Photo;
@@ -98,6 +100,7 @@ public class MainActivity extends ActionBarActivity {
 	private ActionBar ab; // reference to action bar
 	public static RuntimeExceptionDao<Building, Integer> buildingDao; // DAO for
 																		// buildings
+	public static RuntimeExceptionDao<Collaboration, Integer> collaborationDao;
 	public static RuntimeExceptionDao<Climbing, Integer> climbingDao; // DAO for
 																		// climbings
 	public static RuntimeExceptionDao<Tour, Integer> tourDao; // DAO for tours
@@ -227,6 +230,10 @@ public class MainActivity extends ActionBarActivity {
 							String sender = "";
 							int type = -1;
 							String id = "";
+							
+							int building_id = -1;
+							String building_name ="";
+							String team_id = "";
 
 							try {
 								dataObject = new JSONObject((String) graphObject.getProperty("data"));
@@ -235,6 +242,13 @@ public class MainActivity extends ActionBarActivity {
 								type = dataObject.getInt("type");
 								sender = fromObject.getString("name");
 								id = ((String) graphObject.getProperty("id")) ;
+								
+								if(type == 1){
+									building_id =	dataObject.getInt("building_id");									
+									building_name = dataObject.getString("building_name");
+									team_id = dataObject.getString("team_id");
+								}
+								
 
 							} catch (JSONException e1) {
 								// TODO Auto-generated catch block
@@ -249,9 +263,23 @@ public class MainActivity extends ActionBarActivity {
 							message += " " + time;
 							if (isValid(time)) {
 								Log.d("qui", "query valida");
+								switch (type) {
+								case 0:
+									Notification notf = new InviteNotification(id, sender, groupName, type);
+									notifications.add(notf);
+									break;
+
+								case 1:					
+									Notification notfA = new AskCollaborationNotification(id, sender, groupName, type);
+									((AskCollaborationNotification)notfA).setBuilding_id(building_id);
+									((AskCollaborationNotification)notfA).setBuilding_name(building_name);
+									((AskCollaborationNotification)notfA).setGroupId(team_id);
+									notifications.add(notfA);
+									
+									break;
+									
+								}
 								
-								Notification notf = new InviteNotification(id, sender, groupName, type);
-								notifications.add(notf);
 								
 								
 											
@@ -354,6 +382,7 @@ public class MainActivity extends ActionBarActivity {
 															// DAO
 		photoDao = dbHelper.getPhotoDao();
 		userDao = dbHelper.getUserDao();
+		collaborationDao = dbHelper.getCollaborationDao();
 		refresh(); // loads all buildings and tours
 	}
 

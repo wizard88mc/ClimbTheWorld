@@ -24,6 +24,8 @@ public class Building implements Serializable {
 	private int				height;
 	@DatabaseField
 	private int				steps;
+	@DatabaseField
+	private int				game_mode;
 	public static final int	average_step_height	= 17;	// in cm
 
 	Building() {} // needed by ormlite
@@ -91,4 +93,14 @@ public class Building implements Serializable {
 	public void setSteps(int steps) {
 		this.steps = steps;
 	}
+
+	public int getGame_mode() {
+		return game_mode;
+	}
+
+	public void setGame_mode(int game_mode) {
+		this.game_mode = game_mode;
+	}
+	
+	
 }

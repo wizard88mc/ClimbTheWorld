@@ -12,6 +12,7 @@ import org.unipd.nbeghin.climbtheworld.listeners.AccelerometerSamplingRateDetect
 import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.ClassifierCircularBuffer;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
+import org.unipd.nbeghin.climbtheworld.models.GameModeType;
 import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
 import org.unipd.nbeghin.climbtheworld.services.SamplingRateDetectorService;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
@@ -47,6 +48,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VerticalSeekBar;
 
+
 /**
  * Climbing activity: shows a given building and starts classifier. At start it calculates the sampling rate of the device it's run from (only once, after that it just saves the value in standard Android preferences)
  * 
@@ -75,6 +77,7 @@ public class ClimbActivity extends Activity {
 	private double					percentage_bonus			= 0.50f;
 	private boolean climbedYesterday=false;
 	private int new_steps = 0;
+	private GameModeType mode;
 
 	
 	// number of virtual step for each real step
@@ -378,6 +381,7 @@ public class ClimbActivity extends Activity {
 		((TextView) findViewById(R.id.lblNumSteps)).setText(Integer.toString(building.getSteps()) + " steps"); // building's steps
 		((TextView) findViewById(R.id.lblHeight)).setText(Integer.toString(building.getHeight()) + "mt"); // building's height (in mt)
 		loadPreviousClimbing(); // get previous climbing for this building
+		mode = GameModeType.values()[building.getGame_mode()];
 	}
 
 	/**
