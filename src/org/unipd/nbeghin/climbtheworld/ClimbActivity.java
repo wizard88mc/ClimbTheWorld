@@ -34,7 +34,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -53,7 +55,7 @@ import android.widget.VerticalSeekBar;
  * Climbing activity: shows a given building and starts classifier. At start it calculates the sampling rate of the device it's run from (only once, after that it just saves the value in standard Android preferences)
  * 
  */
-public class ClimbActivity extends Activity {
+public class ClimbActivity extends ActionBarActivity {
 	public static final String		SAMPLING_TYPE				= "ACTION_SAMPLING";														// intent's action
 	public static final String		SAMPLING_TYPE_NON_STAIR		= "NON_STAIR";																// classifier's output
 	public static final String		SAMPLING_DELAY				= "DELAY";																	// intent's action
@@ -627,5 +629,16 @@ public class ClimbActivity extends Activity {
 		else { // disable back button if sampling is enabled
 			Toast.makeText(getApplicationContext(), "Sampling running - Stop it before exiting", Toast.LENGTH_SHORT).show();
 		}
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.actionbar, menu);
+		return true;
+	}
+	
+	public void onUpdate(MenuItem v){
+		
 	}
 }
