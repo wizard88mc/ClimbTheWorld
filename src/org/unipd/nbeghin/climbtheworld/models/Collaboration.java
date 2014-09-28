@@ -15,6 +15,10 @@ public class Collaboration {
 	private int others_stairs;
 	@DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true)
 	private Building	 building;
+	@DatabaseField
+	private String group_name;
+	@DatabaseField
+	private int saved;
 
 	public Collaboration(){}
 
@@ -57,6 +61,28 @@ public class Collaboration {
 	public void setBuilding(Building building) {
 		this.building = building;
 	}
+
+	public String getGroup_name() {
+		return group_name;
+	}
+
+	public void setGroup_name(String group_name) {
+		this.group_name = group_name;
+	}
 	
+	public void setSaved(boolean saved){
+		if(saved){
+			this.saved = 1;
+		}else{
+			this.saved = 0;
+		}
+	}
+	
+	public boolean isSaved(){
+		if(saved == 1)
+			return true;
+		else
+			return false;
+	}
 	
 }

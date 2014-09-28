@@ -213,7 +213,7 @@ public class SettingsActivity extends PreferenceActivity {
     			}*/
     		
     		
-    	/*List<String> permissions = Arrays.asList("public_profile", "user_friends", "user_about_me");
+    	/*List<String> permissions = Arrays.asList("public_profile", "user_friends");
         ParseFacebookUtils.logIn(fbUser.getId(), session.getAccessToken(), 
                  session.getExpirationDate(), new LogInCallback() {
              @Override

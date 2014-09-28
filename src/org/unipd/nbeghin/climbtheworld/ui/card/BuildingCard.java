@@ -8,10 +8,14 @@ import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
+import org.unipd.nbeghin.climbtheworld.models.GameModeType;
+import org.w3c.dom.Text;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -29,15 +33,33 @@ public class BuildingCard extends Card {
 		this.building = building;
 	}
 
+	private String setModeText(){
+		switch (GameModeType.values()[building.getGame_mode()]) {
+		case SOCIAL_CHALLENGE:
+			return "Social Challenge";
+		case SOCIAL_CLIMB:
+			return "Social Climb";
+		case SOLO_CLIMB:
+			return "Solo Climb";
+		case TEAM_VS_TEAM:
+			return "Team vs Team";
+		default:
+				return "";
+					
+		}
+	}
+	
 	@Override
 	public View getCardContent(Context context) {
 		View view = LayoutInflater.from(context).inflate(R.layout.card_building_ex, null);
+		final TextView gameMode = ((TextView) view.findViewById(R.id.textModalita));
 		((TextView) view.findViewById(R.id.title)).setText(building.getName());
 		int imageId = MainActivity.getBuildingImageResource(building);
 		if (imageId > 0) ((ImageView) view.findViewById(R.id.photo)).setImageResource(imageId);
 		((TextView) view.findViewById(R.id.buildingStat)).setText(building.getSteps() + " steps (" + building.getHeight() + "m)");
 		((TextView) view.findViewById(R.id.location)).setText(building.getLocation());
 		((TextView) view.findViewById(R.id.description)).setText(building.getDescription());
+		gameMode.setText("Modalitˆ: " + setModeText());
 		TextView climbingStatus = (TextView) view.findViewById(R.id.climbingStatus);
 		Climbing climbing = MainActivity.getClimbingForBuilding(building.get_id());
 		SimpleDateFormat sdf=new SimpleDateFormat("yyyy.MM.dd");
@@ -50,6 +72,42 @@ public class BuildingCard extends Card {
 		} else {
 			climbingStatus.setText("Not climbed yet");
 		}
+		
+		Button socialClimbButton = ((Button) view.findViewById(R.id.socialClimbButton));
+		socialClimbButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				building.setGame_mode(1);
+				MainActivity.buildingDao.update(building);
+				gameMode.setText("Modalitˆ: " + setModeText());
+				
+			}
+		});
+		
+		Button socialChallengeButton = ((Button) view.findViewById(R.id.socialChallengeButton));
+		socialChallengeButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				building.setGame_mode(2);
+				MainActivity.buildingDao.update(building);
+				gameMode.setText("Modalitˆ: " + setModeText());
+				
+			}
+		});
+		
+		Button teamVsTeamButton = ((Button) view.findViewById(R.id.teamVsTeamButton));
+		teamVsTeamButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				building.setGame_mode(3);
+				MainActivity.buildingDao.update(building);
+				gameMode.setText("Modalitˆ: " + setModeText());
+				
+			}
+		});
 		return view;
 	}
 

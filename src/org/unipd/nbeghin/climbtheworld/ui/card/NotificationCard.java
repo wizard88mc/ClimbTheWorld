@@ -179,6 +179,7 @@ public class NotificationCard extends Card {
 									coll.setMy_stairs(0);
 									coll.setOthers_stairs(0);
 									coll.setId(collab.getObjectId());
+									coll.setGroup_name(current.getGroupName());
 									MainActivity.collaborationDao.create(coll);
 									
 									building.setGame_mode(1);

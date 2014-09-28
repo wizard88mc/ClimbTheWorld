@@ -7,7 +7,7 @@ import android.app.Application;
 import android.util.Log;
 
 public class ClimbApplication extends Application{
-
+	public static final int N_MEMBERS_PER_GROUP = 5;
 	 @Override
 	  public void onCreate()
 	  {

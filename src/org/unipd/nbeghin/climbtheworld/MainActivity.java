@@ -360,6 +360,15 @@ public class MainActivity extends ActionBarActivity {
 			return null;
 		return climbings.get(0);
 	}
+	
+	public static Collaboration getCollaborationForBuilding(int building_id) {
+		Map<String, Object> conditions = new HashMap<String, Object>();
+		conditions.put("building_id", building_id); // filter for building ID
+		List<Collaboration> collaborations = collaborationDao.queryForFieldValuesArgs(conditions);
+		if(collaborations.size() == 0)
+			return null;
+		return collaborations.get(0);
+	}
 
 	/**
 	 * Load db and setup DAOs NB: extracts DB from

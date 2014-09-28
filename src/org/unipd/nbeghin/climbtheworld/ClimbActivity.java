@@ -4,25 +4,29 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.unipd.nbeghin.climbtheworld.exceptions.ClimbingNotFound;
 import org.unipd.nbeghin.climbtheworld.exceptions.NoFBSession;
 import org.unipd.nbeghin.climbtheworld.listeners.AccelerometerSamplingRateDetect;
 import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.ClassifierCircularBuffer;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
+import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.GameModeType;
 import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
-import org.unipd.nbeghin.climbtheworld.services.SamplingRateDetectorService;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 import org.unipd.nbeghin.climbtheworld.util.StatUtils;
 import org.unipd.nbeghin.climbtheworld.util.SystemUiHider;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.backup.RestoreObserver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -33,7 +37,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -43,12 +46,16 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.TranslateAnimation;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VerticalSeekBar;
+
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 
 /**
@@ -79,7 +86,29 @@ public class ClimbActivity extends ActionBarActivity {
 	private double					percentage_bonus			= 0.50f;
 	private boolean climbedYesterday=false;
 	private int new_steps = 0;
+	
+	//logic for social mode
 	private GameModeType mode;
+	private Collaboration collaboration;
+	private Map<String, Integer> others_steps;
+	ParseObject collab_parse;
+	
+	//Graphics for Social Mode
+	private VerticalSeekBar secondSeekbar;
+	private TextView textTeam;
+	
+	//for teams
+	private List<TextView> group_members = new ArrayList<TextView>();
+	private List<TextView> group_steps = new ArrayList<TextView>();
+
+	/*private TextView name1;
+	private TextView steps1;
+	private TextView name2;
+	private TextView steps2;
+	private TextView name3;
+	private TextView steps3;
+	private TextView name4;
+	private TextView steps4;*/
 
 	
 	// number of virtual step for each real step
@@ -154,9 +183,14 @@ public class ClimbActivity extends ActionBarActivity {
 				} else { // standard, no bonus
 					num_steps += vstep_for_rstep; // increase the number of steps
 					new_steps += vstep_for_rstep;
-					seekbarIndicator.setProgress(num_steps); // increase the seekbar progress
+					// increase the seekbar progress
+					if(mode == GameModeType.SOCIAL_CLIMB) seekbarIndicator.setProgress(num_steps + sumOthersStep());
+					else seekbarIndicator.setProgress(num_steps); 
 					percentage = (double) num_steps / (double) building.getSteps(); // increase the progress percentage
-					boolean win = (num_steps >= building.getSteps()); // user wins?
+					boolean win = false;
+					if(mode == GameModeType.SOCIAL_CHALLENGE)
+						win = ((num_steps + sumOthersStep()) >= building.getSteps()); // user wins?
+					else win = ((num_steps) >= building.getSteps());
 					if (win) { // ensure it did not exceed the number of steps (when multiple steps-at-once are detected)
 						num_steps = building.getSteps();
 						percentage = 1.00;
@@ -183,7 +217,9 @@ public class ClimbActivity extends ActionBarActivity {
 		Toast.makeText(getApplicationContext(), "BONUS: you climbed less than 24h ago, you earn +50%", Toast.LENGTH_LONG).show();
 		enableRocket();
 		updateStats(); // update the view of current stats
-		seekbarIndicator.setProgress(num_steps); // increase the seekbar progress
+		if(mode == GameModeType.SOCIAL_CLIMB)
+			seekbarIndicator.setProgress(num_steps + sumOthersStep());
+		else seekbarIndicator.setProgress(num_steps); // increase the seekbar progress
 	}
 
 	private void apply_win() {
@@ -288,6 +324,104 @@ public class ClimbActivity extends ActionBarActivity {
 		// Toast.makeText(getApplicationContext(), "Start climbing some stairs!", Toast.LENGTH_LONG).show();
 		// }
 	}
+	
+	private void setGraphicsSocialMode(){
+		
+		secondSeekbar = (VerticalSeekBar) findViewById(R.id.seekBarPosition2);
+		secondSeekbar.setOnTouchListener(new OnTouchListener() { // disable user-driven seekbar changes
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				return true;
+			}
+		});
+		textTeam = (TextView) findViewById(R.id.textTeam); 
+		for(int i = 1; i <= ClimbApplication.N_MEMBERS_PER_GROUP - 1; i++){
+			int idNome = getResources().getIdentifier("nome" + i, "id", getPackageName());
+			int idPassi = getResources().getIdentifier("passi" + i, "id", getPackageName());
+			group_members.add((TextView)findViewById(idNome));
+			group_steps.add((TextView)findViewById(idPassi));
+		}
+		/*name1 = (TextView) findViewById(R.id.nome1); group_members.add(name1);
+		steps1 = (TextView) findViewById(R.id.passi1);
+		name2 = (TextView) findViewById(R.id.nome2); group_members.add(name2);
+		steps2 = (TextView) findViewById(R.id.passi2);
+		name3 = (TextView) findViewById(R.id.nome3);
+		steps3 = (TextView) findViewById(R.id.passi3);
+		name4 = (TextView) findViewById(R.id.nome4);
+		steps4 = (TextView) findViewById(R.id.passi4);*/
+		
+		switch (GameModeType.values()[building.getGame_mode()]) {
+		case SOCIAL_CLIMB:	
+			secondSeekbar.setVisibility(View.GONE);
+			textTeam.setVisibility(View.VISIBLE);
+			for(int i = 0; i < group_members.size(); i++){
+				group_members.get(i).setVisibility(View.VISIBLE);
+				group_steps.get(i).setVisibility(View.VISIBLE);
+			}
+			/*name1.setVisibility(View.VISIBLE);
+			steps1.setVisibility(View.VISIBLE);
+			name2.setVisibility(View.VISIBLE);
+			steps2.setVisibility(View.VISIBLE);
+			name3.setVisibility(View.VISIBLE);
+			steps3.setVisibility(View.VISIBLE);
+			name4.setVisibility(View.VISIBLE);
+			steps4.setVisibility(View.VISIBLE);*/
+			break;
+		case SOCIAL_CHALLENGE:
+			secondSeekbar.setVisibility(View.VISIBLE);
+			textTeam.setVisibility(View.VISIBLE);
+			for(int i = 0; i < group_members.size(); i++){
+				group_members.get(i).setVisibility(View.VISIBLE);
+				group_steps.get(i).setVisibility(View.VISIBLE);
+			}
+			/*name1.setVisibility(View.VISIBLE);
+			steps1.setVisibility(View.VISIBLE);
+			name2.setVisibility(View.VISIBLE);
+			steps2.setVisibility(View.VISIBLE);
+			name3.setVisibility(View.VISIBLE);
+			steps3.setVisibility(View.VISIBLE);
+			name4.setVisibility(View.VISIBLE);
+			steps4.setVisibility(View.VISIBLE);*/
+			break;
+		case TEAM_VS_TEAM:
+			secondSeekbar.setVisibility(View.VISIBLE);
+			textTeam.setVisibility(View.GONE);
+			for(int i = 0; i < 2; i++){
+				group_members.get(i).setVisibility(View.VISIBLE);
+				group_steps.get(i).setVisibility(View.VISIBLE);
+			}
+			for(int i = 2; i < group_members.size(); i++){
+				group_members.get(i).setVisibility(View.GONE);
+				group_steps.get(i).setVisibility(View.GONE);
+			}
+			/*name1.setVisibility(View.VISIBLE);
+			steps1.setVisibility(View.VISIBLE);
+			name2.setVisibility(View.VISIBLE);
+			steps2.setVisibility(View.VISIBLE);
+			name3.setVisibility(View.GONE);
+			steps3.setVisibility(View.GONE);
+			name4.setVisibility(View.GONE);
+			steps4.setVisibility(View.GONE);*/
+			break;
+		case SOLO_CLIMB:
+			secondSeekbar.setVisibility(View.GONE);
+			textTeam.setVisibility(View.GONE);
+			for(int i = 0; i < group_members.size(); i++){
+				group_members.get(i).setVisibility(View.GONE);
+				group_steps.get(i).setVisibility(View.GONE);
+			}
+			/*name1.setVisibility(View.GONE);
+			steps1.setVisibility(View.GONE);
+			name2.setVisibility(View.GONE);
+			steps2.setVisibility(View.GONE);
+			name3.setVisibility(View.GONE);
+			steps3.setVisibility(View.GONE);
+			name4.setVisibility(View.GONE);
+			steps4.setVisibility(View.GONE);*/
+			break;
+
+		}
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -384,7 +518,93 @@ public class ClimbActivity extends ActionBarActivity {
 		((TextView) findViewById(R.id.lblHeight)).setText(Integer.toString(building.getHeight()) + "mt"); // building's height (in mt)
 		loadPreviousClimbing(); // get previous climbing for this building
 		mode = GameModeType.values()[building.getGame_mode()];
+			loadSocialMode();
 	}
+	
+	private void loadSocialMode(){
+		switch (mode) {
+		case SOCIAL_CHALLENGE:			
+			break;
+		case SOCIAL_CLIMB:
+			//cerco collaborazione per il building corrente
+			loadCollaboration();
+			break;
+		case TEAM_VS_TEAM:
+			break;
+		case SOLO_CLIMB:
+			break;
+		}
+	}
+	
+	private void loadCollaboration(){
+		collaboration = MainActivity.getCollaborationForBuilding(building.get_id());
+		others_steps = new HashMap<String, Integer>();
+		if(collaboration == null){
+			Toast.makeText(getApplicationContext(), "No collaboration Available for this building", Toast.LENGTH_SHORT);
+		}
+		else{
+			textTeam.setText(collaboration.getGroup_name());
+			updateOthers();
+		}
+		
+	}
+	
+	
+	
+	private void updateOthers(){
+		if(FacebookUtils.isOnline(getParent())){
+			ParseQuery<ParseObject> query = ParseQuery.getQuery("Collaboration");
+			query.whereEqualTo("objectId", collaboration.getId());
+			query.findInBackground(new FindCallback<ParseObject>() {
+				
+				@Override
+				public void done(List<ParseObject> collabs, ParseException e) {
+					if(e == null){
+						if(collabs == null || collabs.size() == 0){
+							Toast.makeText(getApplicationContext(), "This Collaboration does not exists", Toast.LENGTH_SHORT).show();
+							Log.e("loadCollaboration", "Collaboration not present in Parse");
+							//delete this collaboration
+							MainActivity.collaborationDao.delete(collaboration);
+						}else{
+							collab_parse = collabs.get(0);
+							JSONObject others = collab_parse.getJSONObject("stairs");
+							Iterator members = others.keys();
+							int i = 0;
+							while(members.hasNext()){
+								String key = (String) members.next();
+								group_members.get(i).setText(key);
+								try {
+									others_steps.put(key, others.getInt(key));
+									group_steps.get(i).setText(others.getInt(key));
+								} catch (JSONException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+								i++;
+							}
+							
+							
+							
+						}
+					}else{
+						Toast.makeText(getApplicationContext(), "Connections Problem", Toast.LENGTH_SHORT).show();
+						Log.e("loadCollaboration", e.getMessage());
+					}
+				}
+			});
+		}else{
+			Toast.makeText(getApplicationContext(), "No Connection Available", Toast.LENGTH_SHORT).show();
+		}
+	}
+	private int sumOthersStep(){
+		int sum = 0;
+		Set<String> keys = others_steps.keySet();
+		for(String key : keys){
+			sum += others_steps.get(key);
+		}
+		return sum;
+	}
+	
 
 	/**
 	 * Check (and load) if a climbing exists for the given building
@@ -412,8 +632,13 @@ public class ClimbActivity extends ActionBarActivity {
 			Log.i(MainActivity.AppName, "Loaded existing climbing (#" + climbing.get_id() + ")");
 		}
 		seekbarIndicator.setMax(building.getSteps());
-		seekbarIndicator.setProgress(climbing.getCompleted_steps());
+		if(mode == GameModeType.SOCIAL_CLIMB)
+			seekbarIndicator.setProgress(climbing.getCompleted_steps() + sumOthersStep());
+		else
+			seekbarIndicator.setProgress(climbing.getCompleted_steps());
 
+		//per le competizioni setta la seconda seek bar
+		
 		updateStats();
 		if (percentage >= 1.00) { // building already climbed
 			findViewById(R.id.lblReadyToClimb).setVisibility(View.GONE);
@@ -567,6 +792,31 @@ public class ClimbActivity extends ActionBarActivity {
 		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.av_play); // set button icon to play again
 		findViewById(R.id.progressBarClimbing).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_fade_out)); // hide progress bar
 		findViewById(R.id.progressBarClimbing).setVisibility(View.INVISIBLE);
+		
+		if(mode == GameModeType.SOCIAL_CLIMB)
+			saveCollaborationData();
+	}
+	
+	private void saveCollaborationData(){
+		collaboration.setMy_stairs(climbing.getCompleted_steps());
+		if(collab_parse == null){
+			collaboration.setSaved(false);
+			Toast.makeText(getApplicationContext(), "Connection unavailable. Yout data will be saved during next connection", Toast.LENGTH_SHORT).show();
+		}else{
+			collaboration.setSaved(true);
+			SharedPreferences pref = getSharedPreferences("UserSesion	", 0);
+			JSONObject stairs = collab_parse.getJSONObject("stairs");
+			try {
+				stairs.put(pref.getString("FBid", ""), collaboration.getMy_stairs());
+				collab_parse.put("stairs", stairs);
+				collab_parse.saveEventually();
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		MainActivity.collaborationDao.update(collaboration);
+		
 	}
 
 	/**
@@ -639,6 +889,6 @@ public class ClimbActivity extends ActionBarActivity {
 	}
 	
 	public void onUpdate(MenuItem v){
-		
+		updateOthers();
 	}
 }
