@@ -352,7 +352,7 @@ public class ClimbActivity extends ActionBarActivity {
 		name4 = (TextView) findViewById(R.id.nome4);
 		steps4 = (TextView) findViewById(R.id.passi4);*/
 		
-		switch (GameModeType.values()[building.getGame_mode()]) {
+		switch (GameModeType.values()[climbing.getGame_mode()]) {
 		case SOCIAL_CLIMB:	
 			secondSeekbar.setVisibility(View.GONE);
 			textTeam.setVisibility(View.VISIBLE);
@@ -524,7 +524,7 @@ public class ClimbActivity extends ActionBarActivity {
 		((TextView) findViewById(R.id.lblHeight)).setText(Integer.toString(building.getHeight()) + "mt"); // building's height (in mt)
 		System.out.println("carico climb di prima o creo uno nuovo");
 		loadPreviousClimbing(); // get previous climbing for this building
-		mode = GameModeType.values()[building.getGame_mode()];
+		mode = GameModeType.values()[climbing.getGame_mode()];
 			loadSocialMode();
 	}
 	
@@ -632,8 +632,41 @@ public class ClimbActivity extends ActionBarActivity {
 			climb.put("remaining_steps", climbing.getRemaining_steps());
 			climb.put("percentage", String.valueOf(climbing.getPercentage()));
 			climb.put("users_id", climbing.getUser().getFBid());
+			climb.put("game_mode", climbing.getGame_mode());
 			climb.saveEventually();
 		}
+	}
+	
+	private void updateClimbingInParse( final Climbing climbing){
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
+		query.whereEqualTo("users_id", climbing.getUser().getFBid());
+		query.whereEqualTo("building", climbing.getBuilding().get_id());
+		query.findInBackground(new FindCallback<ParseObject>() {
+
+			@Override
+			public void done(List<ParseObject> climbs, ParseException e) {
+				if(e == null){
+					ParseObject c = climbs.get(0);
+					DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+					df.setTimeZone(new SimpleTimeZone(0, "GMT"));
+					try {
+						c.put("created", df.parse(df.format(climbing.getCreated())));
+						c.put("modified", df.parse(df.format(climbing.getModified())));		
+						c.put("completedAt", df.parse(df.format(climbing.getCompleted())));
+						} catch (java.text.ParseException ex) {
+							// TODO Auto-generated catch block
+							ex.printStackTrace();
+						}
+						c.put("completed_steps", climbing.getCompleted_steps());
+						c.put("remaining_steps", climbing.getRemaining_steps());
+						c.put("percentage", String.valueOf(climbing.getPercentage()));
+						c.saveEventually();
+				}else{
+					Toast.makeText(getApplicationContext(), "Connection Problem", Toast.LENGTH_SHORT).show();
+					Log.e("updateClimbingInParse", e.getMessage());
+				}
+			}
+		});
 	}
 
 	/**
@@ -829,7 +862,7 @@ public class ClimbActivity extends ActionBarActivity {
 		climbing.setRemaining_steps(building.getSteps() - num_steps); // update remaining steps
 		if (percentage >= 1.00) climbing.setCompleted(new Date().getTime());
 		MainActivity.climbingDao.update(climbing); // save to db
-		saveClimbingToParse(climbing);
+		updateClimbingInParse(climbing);
 		Log.i(MainActivity.AppName, "Updated climbing #" + climbing.get_id());
 		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.av_play); // set button icon to play again
 		findViewById(R.id.progressBarClimbing).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_fade_out)); // hide progress bar

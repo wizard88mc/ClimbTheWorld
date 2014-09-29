@@ -181,9 +181,7 @@ public class NotificationCard extends Card {
 									coll.setId(collab.getObjectId());
 									coll.setGroup_name(current.getGroupName());
 									MainActivity.collaborationDao.create(coll);
-									
-									building.setGame_mode(1);
-									MainActivity.buildingDao.update(building);
+									//creare un climbing con game mode modificato
 								}
 							}else{
 								Toast.makeText(MainActivity.getContext(), "Connection Problem", Toast.LENGTH_SHORT).show();

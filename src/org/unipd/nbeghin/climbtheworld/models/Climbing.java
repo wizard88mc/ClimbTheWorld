@@ -9,9 +9,9 @@ import com.j256.ormlite.table.DatabaseTable;
 public class Climbing {
 	@DatabaseField(generatedId = true)
 	private int			_id;
-	@DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true, columnName = "users_id")
-	private Building	building;
 	@DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true, columnName = "building_id")
+	private Building	building;
+	@DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true, columnName = "users_id")
 	private User user;
 	@DatabaseField
 	private int			completed_steps;
@@ -25,7 +25,16 @@ public class Climbing {
 	private long		modified;
 	@DatabaseField
 	private long		completed;
+	@DatabaseField
+	private int				game_mode;
 	
+	public int getGame_mode() {
+		return game_mode;
+	}
+
+	public void setGame_mode(int game_mode) {
+		this.game_mode = game_mode;
+	}
 	
 
 	public Climbing() {} // needed by ormlite

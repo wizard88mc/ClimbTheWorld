@@ -165,6 +165,7 @@ public class SettingsActivity extends PreferenceActivity {
 				climb.put("remaining_steps", climbing.getRemaining_steps());
 				climb.put("percentage", String.valueOf(climbing.getPercentage()));
 				climb.put("users_id", climbing.getUser().getFBid());
+				climb.put("game_mode", climbing.getGame_mode());
 				climb.saveEventually();
 			
 		}
@@ -188,24 +189,29 @@ public class SettingsActivity extends PreferenceActivity {
 							//save new climbing locally
 							Climbing c = new Climbing();
 							c.setBuilding(MainActivity.getBuildingById(climb.getInt("building")));
+							System.out.println("building " + c.getBuilding().get_id());
 							c.setCompleted(climb.getDate("completedAt").getTime());
 							c.setCompleted_steps(climb.getInt("completed_steps"));
-							c.setCreated(climb.getDate("createdAt").getTime());
-							c.setModified(climb.getDate("modifiedAt").getTime());
+							c.setCreated(climb.getDate("created").getTime());
+							c.setModified(climb.getDate("modified").getTime());
 							c.setPercentage(Float.valueOf(climb.getString("percentage")));
 							c.setRemaining_steps(climb.getInt("remaining_steps"));
 							c.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
+							System.out.println("user " + c.getUser().get_id());
+							c.setGame_mode(climb.getInt("game_mode"));
 							MainActivity.climbingDao.create(c);
 						}else{
+							System.out.println("modifica");
 							long localTime = localClimb.getModified();
 							long parseTime = climb.getDate("updatedAt").getTime();
 							if (localTime < parseTime){ //parseTime  piu recente
 								localClimb.setCompleted(climb.getDate("completedAt").getTime());
 								localClimb.setCompleted_steps(climb.getInt("completed_steps"));
-								localClimb.setCreated(climb.getDate("createdAt").getTime());
-								localClimb.setModified(climb.getDate("modifiedAt").getTime());
+								localClimb.setCreated(climb.getDate("created").getTime());
+								localClimb.setModified(climb.getDate("modified").getTime());
 								localClimb.setPercentage(Float.valueOf(climb.getString("percecntage")));
 								localClimb.setRemaining_steps(climb.getInt("remaining_steps"));
+								localClimb.setGame_mode(climb.getInt("game_mode"));
 								MainActivity.climbingDao.update(localClimb);
 							}
 						}
