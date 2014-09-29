@@ -9,13 +9,17 @@
         <!-- API 11 theme customizations can go here. -->
     </style>
 
-    <style name="FullscreenTheme" parent="android:Theme.Holo">
+    <style name="FullscreenTheme" parent="@style/Theme.AppCompat.Light"> <!--parent="android:Theme.NoTitleBar"  -->
         <item name="android:actionBarStyle">@style/FullscreenActionBarStyle</item>
         <item name="android:windowActionBarOverlay">true</item>
         <item name="android:windowBackground">@null</item>
         <item name="buttonBarStyle">?android:attr/buttonBarStyle</item>
         <item name="buttonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
-    </style>
+        
+
+    </style> <!-- 
+     <item name="android:windowNoTitle">true</item>
+    <item name="windowActionBar">false</item> -->
 
     <style name="FullscreenActionBarStyle" parent="android:Widget.Holo.ActionBar">
         <item name="android:background">@color/black_overlay</item>

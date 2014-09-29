@@ -1,13 +1,5 @@
 package org.unipd.nbeghin.climbtheworld;
 
-import com.parse.FindCallback;
-import com.parse.Parse;
-import com.parse.ParseAnalytics;
-import com.parse.ParseFacebookUtils;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseException;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -15,7 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.DateFormat;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,7 +17,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.unipd.nbeghin.climbtheworld.adapters.PagerAdapter;
@@ -44,21 +35,18 @@ import org.unipd.nbeghin.climbtheworld.models.Notification;
 import org.unipd.nbeghin.climbtheworld.models.Photo;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
 import org.unipd.nbeghin.climbtheworld.models.User;
-import org.unipd.nbeghin.climbtheworld.services.NetworkBroadcasterReceiver;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 import org.unipd.nbeghin.climbtheworld.weka.WekaClassifier;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.Signature;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.Signature;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -84,6 +72,9 @@ import com.facebook.Session;
 import com.facebook.model.GraphObject;
 import com.facebook.widget.WebDialog;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.Where;
 
 /**
  * Main activity
@@ -94,7 +85,7 @@ public class MainActivity extends ActionBarActivity {
 	private static final String APP_TITLE = "Climb the world";
 	public static final String AppName = "ClimbTheWorld";
 	public static List<Building> buildings;
-	private List<Climbing> climbings; // list of loaded climbings
+	public static List<Climbing> climbings /*= new ArrayList<Climbing>()*/; // list of loaded climbings
 	public static List<Tour> tours; // list of loaded tours
 	public static List<Notification> notifications;
 	private ActionBar ab; // reference to action bar
@@ -361,6 +352,37 @@ public class MainActivity extends ActionBarActivity {
 		return climbings.get(0);
 	}
 	
+	public static Climbing getClimbingForBuildingAndUser(int building_id, int user_id) {
+		/*Map<String, Object> conditions = new HashMap<String, Object>();
+		conditions.put("building_id", building_id); // filter for building ID
+		conditions.put("users_id", user_id);
+		Log.d("cerco", String.valueOf(user_id));
+		List<Climbing> climbings = climbingDao
+				.queryForFieldValuesArgs(conditions);*/
+		QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
+		Where<Climbing, Integer> where = query.where();
+		// the name field must be equal to "foo"
+		try {
+			where.eq("building_id", building_id);
+			// and
+			where.and();
+			// the password field must be equal to "_secret"
+			where.eq("users_id", user_id);
+			PreparedQuery<Climbing> preparedQuery = query.prepare();
+			List<Climbing> climbings = climbingDao.query(preparedQuery);
+			if (climbings.size() == 0)
+				return null;
+			return climbings.get(0);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		
+		
+		
+	}
+	
 	public static Collaboration getCollaborationForBuilding(int building_id) {
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("building_id", building_id); // filter for building ID
@@ -368,6 +390,33 @@ public class MainActivity extends ActionBarActivity {
 		if(collaborations.size() == 0)
 			return null;
 		return collaborations.get(0);
+	}
+	
+	public static User getUserById(int id) {
+		Map<String, Object> conditions = new HashMap<String, Object>();
+		conditions.put("_id", id); // filter for building ID
+		List<User> users = userDao.queryForFieldValuesArgs(conditions);
+		if(users.size() == 0)
+			return null;
+		return users.get(0);
+	}
+	
+	public static User getUserByFBId(String id) {
+		Map<String, Object> conditions = new HashMap<String, Object>();
+		conditions.put("FBid", id); // filter for building ID
+		List<User> users = userDao.queryForFieldValuesArgs(conditions);
+		if(users.size() == 0)
+			return null;
+		return users.get(0);
+	}
+	
+	public static Building getBuildingById(int id) {
+		Map<String, Object> conditions = new HashMap<String, Object>();
+		conditions.put("_id", id); // filter for building ID
+		List<Building> buildings = buildingDao.queryForFieldValuesArgs(conditions);
+		if(buildings.size() == 0)
+			return null;
+		return buildings.get(0);
 	}
 
 	/**
@@ -385,12 +434,13 @@ public class MainActivity extends ActionBarActivity {
 															// connection to
 															// now-standard db
 		buildingDao = dbHelper.getBuildingDao(); // create building DAO
+		userDao = dbHelper.getUserDao();
+
 		climbingDao = dbHelper.getClimbingDao(); // create climbing DAO
 		tourDao = dbHelper.getTourDao(); // create tour DAO
 		buildingTourDao = dbHelper.getBuildingTourDao(); // create building tour
 															// DAO
 		photoDao = dbHelper.getPhotoDao();
-		userDao = dbHelper.getUserDao();
 		collaborationDao = dbHelper.getCollaborationDao();
 		refresh(); // loads all buildings and tours
 	}
@@ -418,6 +468,35 @@ public class MainActivity extends ActionBarActivity {
 	 */
 	public static void refreshBuildings() {
 		buildings = buildingDao.queryForAll();
+	}
+	
+	public static void refreshClimbings(){ System.out.println("refreshClimbings");
+		SharedPreferences pref = getContext().getSharedPreferences("UserSession", 0);
+		/*Map<String, Object> conditions = new HashMap<String, Object>();
+		conditions.put("users_id", pref.getInt("local_id", -1)); // filter for building ID
+		System.out.println("climbing di " + pref.getInt("local_id", -1));
+		climbings = climbingDao.queryForFieldValuesArgs(conditions);
+		System.out.println(climbings.size());*/
+		
+		QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
+		Where<Climbing, Integer> where = query.where();
+		// the name field must be equal to "foo"
+		try {
+			
+			where.eq("users_id", pref.getInt("local_id", -1));
+			System.out.println("climbing di " + pref.getInt("local_id", -1));
+
+			PreparedQuery<Climbing> preparedQuery = query.prepare();
+			List<Climbing> climbs = climbingDao.query(preparedQuery);
+			climbings = climbs;
+			System.out.println(climbings.size());
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			
+		}
+		
+		
 	}
 
 	/**

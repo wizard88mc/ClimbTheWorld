@@ -12,6 +12,7 @@ import org.unipd.nbeghin.climbtheworld.models.GameModeType;
 import org.w3c.dom.Text;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -61,7 +62,8 @@ public class BuildingCard extends Card {
 		((TextView) view.findViewById(R.id.description)).setText(building.getDescription());
 		gameMode.setText("Modalitˆ: " + setModeText());
 		TextView climbingStatus = (TextView) view.findViewById(R.id.climbingStatus);
-		Climbing climbing = MainActivity.getClimbingForBuilding(building.get_id());
+		SharedPreferences pref = MainActivity.getContext().getSharedPreferences("UserSession", 0);
+		Climbing climbing = MainActivity.getClimbingForBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
 		SimpleDateFormat sdf=new SimpleDateFormat("yyyy.MM.dd");
 		if (climbing != null) {
 			if (climbing.getPercentage() >= 100) {

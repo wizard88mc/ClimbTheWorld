@@ -1,5 +1,6 @@
 package org.unipd.nbeghin.climbtheworld;
 
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SimpleTimeZone;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -422,6 +424,8 @@ public class ClimbActivity extends ActionBarActivity {
 
 		}
 	}
+	
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -499,6 +503,8 @@ public class ClimbActivity extends ActionBarActivity {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		setGraphicsSocialMode();
+
 	}
 
 	protected void onNewIntent (Intent intent) {
@@ -516,6 +522,7 @@ public class ClimbActivity extends ActionBarActivity {
 		((TextView) findViewById(R.id.lblBuildingName)).setText(building.getName() + " (" + building.getLocation() + ")"); // building's location
 		((TextView) findViewById(R.id.lblNumSteps)).setText(Integer.toString(building.getSteps()) + " steps"); // building's steps
 		((TextView) findViewById(R.id.lblHeight)).setText(Integer.toString(building.getHeight()) + "mt"); // building's height (in mt)
+		System.out.println("carico climb di prima o creo uno nuovo");
 		loadPreviousClimbing(); // get previous climbing for this building
 		mode = GameModeType.values()[building.getGame_mode()];
 			loadSocialMode();
@@ -605,6 +612,29 @@ public class ClimbActivity extends ActionBarActivity {
 		return sum;
 	}
 	
+	private void saveClimbingToParse(Climbing climbing){
+		SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
+		//save climbing to parse
+		if(!pref.getString("FBid", "none").equals("none")){
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+			df.setTimeZone(new SimpleTimeZone(0, "GMT"));
+			ParseObject climb = new ParseObject("Climbing");
+			climb.put("building", climbing.getBuilding().get_id());
+			try {
+			climb.put("created", df.parse(df.format(climbing.getCreated())));
+			climb.put("modified", df.parse(df.format(climbing.getModified())));		
+			climb.put("completedAt", df.parse(df.format(climbing.getCompleted())));
+			} catch (java.text.ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			climb.put("completed_steps", climbing.getCompleted_steps());
+			climb.put("remaining_steps", climbing.getRemaining_steps());
+			climb.put("percentage", String.valueOf(climbing.getPercentage()));
+			climb.put("users_id", climbing.getUser().getFBid());
+			climb.saveEventually();
+		}
+	}
 
 	/**
 	 * Check (and load) if a climbing exists for the given building
@@ -612,7 +642,8 @@ public class ClimbActivity extends ActionBarActivity {
 	 * @throws ClimbingNotFound
 	 */
 	private void loadPreviousClimbing() {
-		climbing = MainActivity.getClimbingForBuilding(building.get_id());
+		SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
+		climbing = MainActivity.getClimbingForBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
 		if (climbing == null) { // no climbing found
 			Log.i(MainActivity.AppName, "No previous climbing found");
 			num_steps = 0;
@@ -624,9 +655,19 @@ public class ClimbActivity extends ActionBarActivity {
 			climbing.setCompleted_steps(num_steps);
 			climbing.setCreated(new Date().getTime());
 			climbing.setModified(new Date().getTime());
+			String FBid = pref.getString("FBid", "");
+			if(FBid.equals(""))
+				climbing.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
+			else 
+				climbing.setUser(MainActivity.getUserByFBId(FBid));
+
 			MainActivity.climbingDao.create(climbing);
+			
+			saveClimbingToParse(climbing);
+			
 			Log.i(MainActivity.AppName, "Created new climbing #" + climbing.get_id());
 		} else {
+			Log.d(MainActivity.AppName, "uno vecchio trovato");
 			num_steps = climbing.getCompleted_steps();
 			percentage = climbing.getPercentage();
 			Log.i(MainActivity.AppName, "Loaded existing climbing (#" + climbing.get_id() + ")");
@@ -788,6 +829,7 @@ public class ClimbActivity extends ActionBarActivity {
 		climbing.setRemaining_steps(building.getSteps() - num_steps); // update remaining steps
 		if (percentage >= 1.00) climbing.setCompleted(new Date().getTime());
 		MainActivity.climbingDao.update(climbing); // save to db
+		saveClimbingToParse(climbing);
 		Log.i(MainActivity.AppName, "Updated climbing #" + climbing.get_id());
 		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.av_play); // set button icon to play again
 		findViewById(R.id.progressBarClimbing).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_fade_out)); // hide progress bar
@@ -884,7 +926,7 @@ public class ClimbActivity extends ActionBarActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.actionbar, menu);
+		getMenuInflater().inflate(R.menu.climb, menu);
 		return true;
 	}
 	

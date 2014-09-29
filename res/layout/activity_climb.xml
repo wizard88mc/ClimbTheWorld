@@ -201,6 +201,144 @@
             android:src="@drawable/device_access_video"
             android:visibility="invisible" />
 
+        <TextView
+            android:id="@+id/textTeam"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginTop="60dp"
+            android:text="Team Name"
+            android:gravity = "center_horizontal"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="#fff" />
+
+        <TableLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginTop="80dp"
+            android:gravity="center_horizontal"
+            android:paddingLeft="70dp"
+            android:paddingRight="70dp" >
+
+            <TableRow
+                android:id="@+id/tableRow1"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:paddingTop="2dp" >
+
+                <TextView
+                    android:id="@+id/nome1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.6"
+                    android:background="#dcdcdc"
+                    android:gravity="center_horizontal"
+                    android:text="Nome"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:id="@+id/passi1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.4"
+                    android:background="#dcdcdc"
+                    android:gravity="center_horizontal"
+                    android:text="0"
+                    android:textColor="#000000" />
+
+                <ProgressBar
+                    android:id="@+id/progressBar1"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.6"
+                    android:visibility="gone" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow2"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:paddingTop="2dp" >
+
+                <TextView
+                    android:id="@+id/nome2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.6"
+                    android:background="#dcdcdc"
+                    android:gravity="center_horizontal"
+                    android:text="Nome"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:id="@+id/passi2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.4"
+                    android:background="#dcdcdc"
+                    android:gravity="center_horizontal"
+                    android:text="0"
+                    android:textColor="#000000" />
+
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow3"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:paddingTop="2dp" >
+
+                <TextView
+                    android:id="@+id/nome3"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.6"
+                    android:background="#dcdcdc"
+                    android:gravity="center_horizontal"
+                    android:text="Nome"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:id="@+id/passi3"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.4"
+                    android:background="#dcdcdc"
+                    android:gravity="center_horizontal"
+                    android:text="0"
+                    android:textColor="#000000" />
+
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow4"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:paddingTop="2dp" >
+
+                <TextView
+                    android:id="@+id/nome4"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.6"
+                    android:background="#dcdcdc"
+                    android:gravity="center_horizontal"
+                    android:text="Nome"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:id="@+id/passi4"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.4"
+                    android:background="#dcdcdc"
+                    android:gravity="center_horizontal"
+                    android:text="0"
+                    android:textColor="#000000" />
+
+            </TableRow>
+        </TableLayout>
+
     </FrameLayout>
 
     <TextView
@@ -215,107 +353,5 @@
         android:textSize="50sp"
         android:textStyle="bold"
         android:visibility="invisible" />
-
-    <TextView
-        android:id="@+id/textTeam"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Team Name"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="50dp"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TableLayout
-        android:layout_width="161dp"
-        android:layout_height="260dp"
-        android:layout_marginTop="80dp"
-        android:layout_gravity="center_horizontal" >
-
-        <TableRow
-            android:id="@+id/tableRow1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="2dp" >
-        
-        
-         <TextView
-                                android:id="@+id/nome1" android:text="Nome"
-                                android:layout_weight="0.6" android:background="#dcdcdc"
-                                android:textColor="#000000"
-                                 android:gravity="center"/>
-         <TextView
-                                android:id="@+id/passi1" android:text="0"
-                                android:layout_weight="0.4" android:background="#dcdcdc"
-                                android:textColor="#000000"
-                                 android:gravity="center"/>
-         
-
-         <ProgressBar
-             android:id="@+id/progressBar1"
-             style="?android:attr/progressBarStyleHorizontal"
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content" 
-             android:layout_weight="0.6"
-             android:visibility="gone"/>
-                   
-           </TableRow>                 
-
-        <TableRow
-            android:id="@+id/tableRow2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="2dp"
-             >
-         
-            <TextView
-                                android:id="@+id/nome2" android:text="Nome"
-                                android:layout_weight="0.6" android:background="#dcdcdc"
-                                android:textColor="#000000"
-                                 android:gravity="center"
-                                 />
-         <TextView
-                                android:id="@+id/passi2" android:text="0"
-                                android:layout_weight="0.4" android:background="#dcdcdc"
-                                android:textColor="#000000"
-                                 android:gravity="center"/>
-            
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="2dp" >
-         <TextView
-                                android:id="@+id/nome3" android:text="Nome"
-                                android:layout_weight="0.6" android:background="#dcdcdc"
-                                android:textColor="#000000"
-                                 android:gravity="center"/>
-         <TextView
-                                android:id="@+id/passi3" android:text="0"
-                                android:layout_weight="0.4" android:background="#dcdcdc"
-                                android:textColor="#000000"
-                                 android:gravity="center"/>
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="2dp" >
-         
-            <TextView
-                                android:id="@+id/nome4" android:text="Nome"
-                                android:layout_weight="0.6" android:background="#dcdcdc"
-                                android:textColor="#000000"
-                                 android:gravity="center"/>
-         <TextView
-                                android:id="@+id/passi4" android:text="0"
-                                android:layout_weight="0.4" android:background="#dcdcdc"
-                                android:textColor="#000000"
-                                 android:gravity="center"/>
-            
-        </TableRow>
-    </TableLayout>
 
 </FrameLayout>

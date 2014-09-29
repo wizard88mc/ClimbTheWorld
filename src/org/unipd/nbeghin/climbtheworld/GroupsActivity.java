@@ -311,6 +311,14 @@ public class GroupsActivity extends ActionBarActivity {
 
 			final ParseObject group = new ParseObject("Group");
 			group.put("name", groupName);
+			JSONObject me = new JSONObject();
+			try {
+				me.put(pref.getString("FBid", ""), pref.getString("username", ""));
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			group.put("creator", me);
 			JSONObject members = new JSONObject();
 			try {
 				members.put(pref.getString("FBid", ""),

@@ -5,23 +5,27 @@ import java.io.Serializable;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-@DatabaseTable(tableName = "User")
+@DatabaseTable(tableName = "users")
 public class User implements Serializable{
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	@DatabaseField(generatedId = true)
+	private int				_id;
 	@DatabaseField
 	private String			FBid;
+	@DatabaseField
+	private String			name;
 	@DatabaseField
 	private int				XP;
 	@DatabaseField
 	private int				level;
 	@DatabaseField
-	private String			name;
-	@DatabaseField(generatedId = true)
-	private int				_id;
+	private int 				owner;
+	
+	
 	
 	public User(){} //needed by ormlite
 
@@ -65,7 +69,17 @@ public class User implements Serializable{
 		this._id = _id;
 	}
 	
+	public boolean isOwner(){
+		if(owner ==  1)
+			return true;
+		else return false;
+	}
 	
+	public void setOwner(boolean isOwner){
+		if(isOwner)
+			owner = 1;
+		else owner = 0 ;
+	}
 
 	
 }

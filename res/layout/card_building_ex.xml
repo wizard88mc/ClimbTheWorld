@@ -135,22 +135,22 @@
             android:text="Collab" />
 
         <Button
-            android:id="@+id/socialChallengeButton"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_toRightOf="@+id/button1"
-            android:text="Competiz" />
-
-        <Button
             android:id="@+id/teamVsTeamButton"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_toRightOf="@+id/button2"
+            android:layout_centerHorizontal="true"
             android:text="team vs team" />
+
+        <Button
+            android:id="@+id/socialChallengeButton"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:text="Competiz" />
 
     </RelativeLayout>
 
