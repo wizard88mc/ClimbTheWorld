@@ -59,6 +59,12 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+//TODO prendi da locale collab dato building
+// prendi collab da parse e mostra dati
+
+//update: mostra dati nuovi
+
+//quando vinco o metto pausa: aggiorna climbing e collaborazione
 
 /**
  * Climbing activity: shows a given building and starts classifier. At start it calculates the sampling rate of the device it's run from (only once, after that it just saves the value in standard Android preferences)
@@ -97,7 +103,7 @@ public class ClimbActivity extends ActionBarActivity {
 	
 	//Graphics for Social Mode
 	private VerticalSeekBar secondSeekbar;
-	private TextView textTeam;
+	//private TextView textTeam;
 	
 	//for teams
 	private List<TextView> group_members = new ArrayList<TextView>();
@@ -336,7 +342,7 @@ public class ClimbActivity extends ActionBarActivity {
 				return true;
 			}
 		});
-		textTeam = (TextView) findViewById(R.id.textTeam); 
+		//textTeam = (TextView) findViewById(R.id.textTeam); 
 		for(int i = 1; i <= ClimbApplication.N_MEMBERS_PER_GROUP - 1; i++){
 			int idNome = getResources().getIdentifier("nome" + i, "id", getPackageName());
 			int idPassi = getResources().getIdentifier("passi" + i, "id", getPackageName());
@@ -355,7 +361,7 @@ public class ClimbActivity extends ActionBarActivity {
 		switch (GameModeType.values()[climbing.getGame_mode()]) {
 		case SOCIAL_CLIMB:	
 			secondSeekbar.setVisibility(View.GONE);
-			textTeam.setVisibility(View.VISIBLE);
+			//textTeam.setVisibility(View.VISIBLE);
 			for(int i = 0; i < group_members.size(); i++){
 				group_members.get(i).setVisibility(View.VISIBLE);
 				group_steps.get(i).setVisibility(View.VISIBLE);
@@ -371,7 +377,7 @@ public class ClimbActivity extends ActionBarActivity {
 			break;
 		case SOCIAL_CHALLENGE:
 			secondSeekbar.setVisibility(View.VISIBLE);
-			textTeam.setVisibility(View.VISIBLE);
+			//textTeam.setVisibility(View.VISIBLE);
 			for(int i = 0; i < group_members.size(); i++){
 				group_members.get(i).setVisibility(View.VISIBLE);
 				group_steps.get(i).setVisibility(View.VISIBLE);
@@ -387,7 +393,7 @@ public class ClimbActivity extends ActionBarActivity {
 			break;
 		case TEAM_VS_TEAM:
 			secondSeekbar.setVisibility(View.VISIBLE);
-			textTeam.setVisibility(View.GONE);
+			//textTeam.setVisibility(View.GONE);
 			for(int i = 0; i < 2; i++){
 				group_members.get(i).setVisibility(View.VISIBLE);
 				group_steps.get(i).setVisibility(View.VISIBLE);
@@ -407,7 +413,7 @@ public class ClimbActivity extends ActionBarActivity {
 			break;
 		case SOLO_CLIMB:
 			secondSeekbar.setVisibility(View.GONE);
-			textTeam.setVisibility(View.GONE);
+			//textTeam.setVisibility(View.GONE);
 			for(int i = 0; i < group_members.size(); i++){
 				group_members.get(i).setVisibility(View.GONE);
 				group_steps.get(i).setVisibility(View.GONE);
@@ -550,7 +556,6 @@ public class ClimbActivity extends ActionBarActivity {
 			Toast.makeText(getApplicationContext(), "No collaboration Available for this building", Toast.LENGTH_SHORT);
 		}
 		else{
-			textTeam.setText(collaboration.getGroup_name());
 			updateOthers();
 		}
 		

@@ -75,6 +75,7 @@ import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.Where;
+import com.j256.ormlite.stmt.query.In;
 
 /**
  * Main activity
@@ -496,6 +497,27 @@ public class MainActivity extends ActionBarActivity {
 			
 		}
 		
+		
+	}
+	
+	//per ogni edificio, una sola collaborazione
+	public static Collaboration getCollaborationByBuilding(int building_id){
+		SharedPreferences pref = getContext().getSharedPreferences("UserSession", 0);
+		QueryBuilder<Collaboration, Integer> query = collaborationDao.queryBuilder();
+		Where<Collaboration, Integer> where = query.where();
+		
+		try {
+			where.eq("building_id", building_id);
+			PreparedQuery<Collaboration> preparedQuery = query.prepare();
+			List<Collaboration> collabs = collaborationDao.query(preparedQuery);
+			if(collabs.size() == 0)
+				return null;
+			else return collabs.get(0);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
 		
 	}
 
