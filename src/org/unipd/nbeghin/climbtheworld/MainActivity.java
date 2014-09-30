@@ -71,6 +71,7 @@ import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.model.GraphObject;
 import com.facebook.widget.WebDialog;
+import com.facebook.widget.WebDialog.OnCompleteListener;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
@@ -89,6 +90,7 @@ public class MainActivity extends ActionBarActivity {
 	public static List<Climbing> climbings /*= new ArrayList<Climbing>()*/; // list of loaded climbings
 	public static List<Tour> tours; // list of loaded tours
 	public static List<Notification> notifications;
+	public static List<Collaboration> collaborations;
 	private ActionBar ab; // reference to action bar
 	public static RuntimeExceptionDao<Building, Integer> buildingDao; // DAO for
 																		// buildings
@@ -122,12 +124,13 @@ public class MainActivity extends ActionBarActivity {
 	private Bundle dialogParams = null;
 
 	private String requestId;
+	SharedPreferences pref;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState); Log.d("MainActivity", "inizio");
 		setContentView(R.layout.activity_main); Log.d("MainActivity", "dopo layout");
-
+		pref = getSharedPreferences("UserSession", 0);
 		// this.registerReceiver(new NetworkBroadcasterReceiver(),
 		//         new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		
@@ -151,7 +154,7 @@ public class MainActivity extends ActionBarActivity {
 		loadDb(); // instance db connection
 		
 		
-		// TODO prendere dati richiesta, vedere se è valida e salvare su db
+		// prendere dati richiesta, vedere se è valida e salvare su db
 				// Check for an incoming notification. Save the info
 				notifications = new ArrayList<Notification>();
 				Uri intentUri = getIntent().getData();
@@ -218,33 +221,39 @@ public class MainActivity extends ActionBarActivity {
 							// info
 							JSONObject dataObject;
 							JSONObject fromObject;
+							JSONObject toObject;
 							String groupName = "";
 							String sender = "";
+							String toId = "noId";
 							int type = -1;
 							String id = "";
 							
 							int building_id = -1;
 							String building_name ="";
-							String team_id = "";
+							String collaboration_id = "";
 
 							try {
 								dataObject = new JSONObject((String) graphObject.getProperty("data"));
 								fromObject = (JSONObject)graphObject.getProperty("from");
-								groupName = dataObject.getString("team_name");
+								toObject = (JSONObject)graphObject.getProperty("to");
 								type = dataObject.getInt("type");
 								sender = fromObject.getString("name");
+								toId = toObject.getString("id");
 								id = ((String) graphObject.getProperty("id")) ;
 								
+								System.out.println("type " + type);
+								
 								if(type == 1){
-									building_id =	dataObject.getInt("building_id");									
-									building_name = dataObject.getString("building_name");
-									team_id = dataObject.getString("team_id");
+									building_id =	dataObject.getInt("idBuilding");									
+									building_name = dataObject.getString("nameBuilding");
+									collaboration_id = dataObject.getString("idCollab");
 								}
 								
 
 							} catch (JSONException e1) {
 								// TODO Auto-generated catch block
 								e1.printStackTrace();
+								
 							}
 							
 							
@@ -253,8 +262,8 @@ public class MainActivity extends ActionBarActivity {
 							String time = (String) graphObject
 									.getProperty("created_time");
 							message += " " + time;
-							if (isValid(time)) {
-								Log.d("qui", "query valida");
+							if (isValid(time) && toId.equalsIgnoreCase(pref.getString("FBid", ""))) {
+								Log.d("qui", "request valida");
 								switch (type) {
 								case 0:
 									Notification notf = new InviteNotification(id, sender, groupName, type);
@@ -265,7 +274,7 @@ public class MainActivity extends ActionBarActivity {
 									Notification notfA = new AskCollaborationNotification(id, sender, groupName, type);
 									((AskCollaborationNotification)notfA).setBuilding_id(building_id);
 									((AskCollaborationNotification)notfA).setBuilding_name(building_name);
-									((AskCollaborationNotification)notfA).setGroupId(team_id);
+									((AskCollaborationNotification)notfA).setCollaborationId(collaboration_id);
 									notifications.add(notfA);
 									
 									break;
@@ -393,6 +402,15 @@ public class MainActivity extends ActionBarActivity {
 		return collaborations.get(0);
 	}
 	
+	public static Collaboration getCollaborationById(String id){
+		Map<String, Object> conditions = new HashMap<String, Object>();
+		conditions.put("_id", id); // filter for building ID
+		List<Collaboration> collaborations = collaborationDao.queryForFieldValuesArgs(conditions);
+		if(collaborations.size() == 0)
+			return null;
+		return collaborations.get(0);
+	}
+	
 	public static User getUserById(int id) {
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("_id", id); // filter for building ID
@@ -469,6 +487,27 @@ public class MainActivity extends ActionBarActivity {
 	 */
 	public static void refreshBuildings() {
 		buildings = buildingDao.queryForAll();
+	}
+	
+	public static void refreshCollaborations(){
+		SharedPreferences pref = getContext().getSharedPreferences("UserSession", 0);
+		QueryBuilder<Collaboration, Integer> query = collaborationDao.queryBuilder();
+		Where<Collaboration, Integer> where = query.where();
+		// the name field must be equal to "foo"
+		try {
+			
+			where.eq("user_id", pref.getInt("local_id", -1));
+			System.out.println("collaborations di " + pref.getInt("local_id", -1));
+
+			PreparedQuery<Collaboration> preparedQuery = query.prepare();
+			List<Collaboration> colls = collaborationDao.query(preparedQuery);
+			collaborations = colls;
+			System.out.println(climbings.size());
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			
+		}
 	}
 	
 	public static void refreshClimbings(){ System.out.println("refreshClimbings");
@@ -726,4 +765,22 @@ public class MainActivity extends ActionBarActivity {
 	public static void emptyNotificationList(){
 		notifications.clear();
 	}
+	
+	//ONLY FOR DEBUG
+	private void deleteRequest(String inRequestId) {
+		// Create a new request for an HTTP delete with the
+		// request ID as the Graph path.
+		Request request = new Request(Session.getActiveSession(), inRequestId, null, HttpMethod.DELETE, new Request.Callback() {
+
+			@Override
+			public void onCompleted(Response response) {
+				// Show a confirmation of the deletion
+				// when the API call completes successfully.
+				Toast.makeText(MainActivity.getContext(), "Request deleted", Toast.LENGTH_SHORT).show();
+			}
+		});
+		// Execute the request asynchronously.
+		Request.executeBatchAsync(request);
+	}
+
 }

@@ -27,6 +27,8 @@ public class Climbing {
 	private long		completed;
 	@DatabaseField
 	private int				game_mode;
+	@DatabaseField
+	private int 		saved;
 	
 	public int getGame_mode() {
 		return game_mode;
@@ -125,6 +127,21 @@ public class Climbing {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+	
+	public void setSaved(boolean saved){
+		if(saved){
+			this.saved = 1;
+		}else{
+			this.saved = 0;
+		}
+	}
+	
+	public boolean isSaved(){
+		if(saved == 1)
+			return true;
+		else
+			return false;
 	}
 	
 	

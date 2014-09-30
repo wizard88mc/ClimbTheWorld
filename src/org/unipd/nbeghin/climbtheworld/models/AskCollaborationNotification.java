@@ -2,26 +2,32 @@ package org.unipd.nbeghin.climbtheworld.models;
 
 public class AskCollaborationNotification extends Notification {
 	
-	private String groupId;
+	private String collaborationId;
 	private int building_id;
 	private String building_name;
 	
-	public AskCollaborationNotification(String _id, String _sender, String _groupName, int _type) {
+	public AskCollaborationNotification(String _id, String _sender, String _collabIb, int _type) {
 		id = _id;
 		sender = _sender;
-		groupName = _groupName;
+		collaborationId = _collabIb;
 		type = NotificationType.values()[_type];
 		read = false;
 		
 	}
 
-	public String getGroupId() {
-		return groupId;
+
+
+	public String getCollaborationId() {
+		return collaborationId;
 	}
 
-	public void setGroupId(String groupId) {
-		this.groupId = groupId;
+
+
+	public void setCollaborationId(String collaborationId) {
+		this.collaborationId = collaborationId;
 	}
+
+
 
 	public int getBuilding_id() {
 		return building_id;

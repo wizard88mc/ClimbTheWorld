@@ -232,7 +232,6 @@
                     android:layout_weight="0.6"
                     android:background="#dcdcdc"
                     android:gravity="center_horizontal"
-                    android:text="Nome"
                     android:textColor="#000000" />
 
                 <TextView
@@ -242,7 +241,6 @@
                     android:layout_weight="0.4"
                     android:background="#dcdcdc"
                     android:gravity="center_horizontal"
-                    android:text="0"
                     android:textColor="#000000" />
 
                 <ProgressBar
@@ -267,7 +265,6 @@
                     android:layout_weight="0.6"
                     android:background="#dcdcdc"
                     android:gravity="center_horizontal"
-                    android:text="Nome"
                     android:textColor="#000000" />
 
                 <TextView
@@ -277,7 +274,6 @@
                     android:layout_weight="0.4"
                     android:background="#dcdcdc"
                     android:gravity="center_horizontal"
-                    android:text="0"
                     android:textColor="#000000" />
 
             </TableRow>
@@ -295,7 +291,6 @@
                     android:layout_weight="0.6"
                     android:background="#dcdcdc"
                     android:gravity="center_horizontal"
-                    android:text="Nome"
                     android:textColor="#000000" />
 
                 <TextView
@@ -305,7 +300,6 @@
                     android:layout_weight="0.4"
                     android:background="#dcdcdc"
                     android:gravity="center_horizontal"
-                    android:text="0"
                     android:textColor="#000000" />
 
             </TableRow>
@@ -323,7 +317,6 @@
                     android:layout_weight="0.6"
                     android:background="#dcdcdc"
                     android:gravity="center_horizontal"
-                    android:text="Nome"
                     android:textColor="#000000" />
 
                 <TextView
@@ -333,7 +326,31 @@
                     android:layout_weight="0.4"
                     android:background="#dcdcdc"
                     android:gravity="center_horizontal"
-                    android:text="0"
+                    android:textColor="#000000" />
+
+            </TableRow>
+             <TableRow
+                android:id="@+id/tableRow5"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:paddingTop="2dp" >
+
+                <TextView
+                    android:id="@+id/nome5"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.6"
+                    android:background="#dcdcdc"
+                    android:gravity="center_horizontal"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:id="@+id/passi5"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.4"
+                    android:background="#dcdcdc"
+                    android:gravity="center_horizontal"
                     android:textColor="#000000" />
 
             </TableRow>

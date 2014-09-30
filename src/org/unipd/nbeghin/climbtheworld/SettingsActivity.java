@@ -3,11 +3,16 @@ package org.unipd.nbeghin.climbtheworld;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SimpleTimeZone;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
+import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 
@@ -107,6 +112,7 @@ public class SettingsActivity extends PreferenceActivity {
 
 				}
 				MainActivity.refreshClimbings();
+				MainActivity.refreshCollaborations();
 
 		Session session = Session.getActiveSession();
 		if (session != null && session.isOpened()) {
@@ -174,7 +180,7 @@ public class SettingsActivity extends PreferenceActivity {
 	private void loadProgressFromParse(){//date non salvate
 		Log.d("setting activity", "loadProgressFromParse");
 		final SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
-		
+		MainActivity.refreshClimbings();
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
 		query.whereEqualTo("users_id", pref.getString("FBid", ""));
 		query.findInBackground(new FindCallback<ParseObject>() {
@@ -184,8 +190,9 @@ public class SettingsActivity extends PreferenceActivity {
 				if(e == null){
 					//save results locally
 					for(ParseObject climb : climbings){
-						Climbing localClimb = MainActivity.getClimbingForBuildingAndUser(climb.getInt("building"), pref.getInt("users_id", -1));
-						if(localClimb == null){
+						Climbing localClimb = MainActivity.getClimbingForBuildingAndUser(climb.getInt("building"), pref.getInt("local_id", -1));
+						System.out.println("cerco building " + climb.getInt("building") + " e user " + pref.getInt("local_id", -1));
+						if(localClimb == null){ System.out.println("creo nuovo");
 							//save new climbing locally
 							Climbing c = new Climbing();
 							c.setBuilding(MainActivity.getBuildingById(climb.getInt("building")));
@@ -203,8 +210,9 @@ public class SettingsActivity extends PreferenceActivity {
 						}else{
 							System.out.println("modifica");
 							long localTime = localClimb.getModified();
-							long parseTime = climb.getDate("updatedAt").getTime();
+							long parseTime = climb.getDate("modified").getTime();
 							if (localTime < parseTime){ //parseTime  piu recente
+								System.out.println("c' un aggiornamento");
 								localClimb.setCompleted(climb.getDate("completedAt").getTime());
 								localClimb.setCompleted_steps(climb.getInt("completed_steps"));
 								localClimb.setCreated(climb.getDate("created").getTime());
@@ -226,6 +234,69 @@ public class SettingsActivity extends PreferenceActivity {
 		});
 		
 		
+	}
+	
+	private int sumOthersStep(JSONObject others_step){
+		int sum = 0;
+		Iterator keys = others_step.keys();
+		while(keys.hasNext()){
+			try {
+				sum += ((Integer) others_step.get((String) keys.next()));
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return sum;
+	}
+	
+	private void loadCollaborationsFromParse(){
+		final SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
+		MainActivity.refreshCollaborations();
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("Collaboration");
+		query.whereEqualTo("collaborators." + pref.getString("FBid", ""), pref.getString("username", ""));
+		query.findInBackground(new FindCallback<ParseObject>() {
+
+			@Override
+			public void done(List<ParseObject> collabs, ParseException e) {
+					if(e == null){
+						for(ParseObject collaboration : collabs){
+							JSONObject others_steps = collaboration.getJSONObject("stairs");
+							Collaboration local_collab = MainActivity.getCollaborationById(collaboration.getObjectId());
+							if(local_collab == null){
+								//crea nuova collaborazione
+								Collaboration coll = new Collaboration();
+								coll.setBuilding(MainActivity.getBuildingById(collaboration.getInt("building")));
+								coll.setId(collaboration.getObjectId());
+								if(collaboration.getInt("leaved") == 0)
+									coll.setLeaved(false);
+								else
+									coll.setLeaved(true);
+								coll.setMy_stairs(collaboration.getInt("my_stairs"));
+								coll.setOthers_stairs(sumOthersStep(others_steps));
+								if(collaboration.getInt("saved") == 0)
+									coll.setSaved(false);
+								else
+									coll.setSaved(true);
+								coll.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
+								MainActivity.collaborationDao.create(coll);
+								
+							}else{//update collaborazione esistente
+								if(local_collab.getMy_stairs() < collaboration.getInt("my_stairs"))
+									local_collab.setMy_stairs(collaboration.getInt("my_stairs"));
+								JSONObject others = collaboration.getJSONObject("stairs");
+								local_collab.setOthers_stairs(sumOthersStep(others));
+								MainActivity.collaborationDao.update(local_collab);
+								
+							}
+						}
+						MainActivity.refreshCollaborations();
+					}else{
+						Toast.makeText(getApplicationContext(), "Connetction problems", Toast.LENGTH_SHORT).show();
+						Log.e("loadCollaborationsFromParse", e.getMessage());
+					}
+			}
+		});
 	}
 	
 	private void updateFacebookSession(final Session session, SessionState state) {
@@ -261,6 +332,7 @@ public class SettingsActivity extends PreferenceActivity {
 										System.out.println("prendo owner e ci setto fb");
 										newUser = users2.get(0);
 										newUser.setFBid(user.getId());
+										newUser.setName(user.getName());
 										MainActivity.userDao.update(newUser);
 									}else{
 										System.out.println("nuovo host con fb");
@@ -301,11 +373,12 @@ public class SettingsActivity extends PreferenceActivity {
 							//save data locally
 							SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
 							Editor editor = pref.edit();
-							editor.putString("FBid", newUser.getFBid()); Log.d("FBid", "salvo " + newUser.getFBid());
+							editor.putString("FBid", newUser.getFBid()); 
 							editor.putString("username", newUser.getName());
 							editor.putInt("local_id", newUser.get_id());
 							editor.commit(); 
 							Log.d("local id", "salvato " + pref.getInt("local_id", 0));
+							Log.d("FBid", "salvo " + pref.getString("FBid", ""));
 							
 							userExists(user, session);
 							profilePictureView.setCropped(true);
@@ -362,6 +435,7 @@ public class SettingsActivity extends PreferenceActivity {
 		    		    if (user != null) {
 		    		      // Hooray! The user is logged in.
 				    		loadProgressFromParse();
+				    		loadCollaborationsFromParse();
 
 		    		    } else {
 		    		      // Signup failed. Look at the ParseException to see what happened.

@@ -36,7 +36,7 @@ public class BuildingsFragment extends Fragment {
 	public void refresh() {
 		buildingCards.clearCards();
 		for (final Building building : MainActivity.buildings) {
-			BuildingCard buildingCard = new BuildingCard(building);
+			BuildingCard buildingCard = new BuildingCard(building, getActivity());
 			buildingCard.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {

@@ -5,38 +5,57 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "collaborations")
 public class Collaboration {
+	@DatabaseField(generatedId = true)
+	private int _id;
 	@DatabaseField
-	private String id;	
-	@DatabaseField
-	private String groupId;
+	private String id_online;	
+/*	@DatabaseField
+	private String groupId;*/
 	@DatabaseField
 	private int my_stairs;
 	@DatabaseField
 	private int others_stairs;
-	@DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true)
+	@DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true, columnName = "building_id")
 	private Building	 building;
 /*	@DatabaseField
 	private String group_name;*/
 	@DatabaseField
 	private int saved;
+	@DatabaseField
+	private int leaved;
+	@DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true, columnName = "user_id")
+	private User	 user;
+
 
 	public Collaboration(){}
+	
+	public User getUser() {
+		return user;
+	}
+
+
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+
 
 	public String getId() {
-		return id;
+		return id_online;
 	}
 
 	public void setId(String id) {
-		this.id = id;
+		this.id_online = id;
 	}
 
-	public String getGroupId() {
+/*	public String getGroupId() {
 		return groupId;
 	}
 
 	public void setGroupId(String groupId) {
 		this.groupId = groupId;
-	}
+	}*/
 
 	public int getMy_stairs() {
 		return my_stairs;
@@ -84,5 +103,20 @@ public class Collaboration {
 		else
 			return false;
 	}
+	
+	public void setLeaved(boolean leaved){
+		if(leaved){
+			this.leaved = 1;
+		}else{
+			this.leaved = 0;
+		}
+	}
+	
+	public boolean isLeaved(){
+		if(leaved == 1)
+			return true;
+		else
+			return false;
+	} 
 	
 }
