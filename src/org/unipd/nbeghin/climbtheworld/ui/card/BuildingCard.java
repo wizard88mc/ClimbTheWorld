@@ -117,7 +117,7 @@ public class BuildingCard extends Card {
 		if(climbing != null && climbing.getGame_mode() == 1)
 			setSocialClimb();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
-		if (climbing != null) {
+		if (climbing != null && climbing.getGame_mode() == 0) {
 			if (climbing.getPercentage() >= 100) {
 				climbingStatus.setText("Climbing: COMPLETED! (on " + sdf.format(new Date(climbing.getModified())) + ")");
 				socialClimbButton.setEnabled(false);
@@ -125,13 +125,13 @@ public class BuildingCard extends Card {
 				teamVsTeamButton.setEnabled(true);
 			} else {
 				climbingStatus.setText("Climbing status: " + new DecimalFormat("#").format(climbing.getPercentage() * 100) + "% (last attempt @ " + sdf.format(new Date(climbing.getModified())) + ")");
-				socialClimbButton.setEnabled(false);
+				socialClimbButton.setEnabled(true);
 				socialChallengeButton.setEnabled(true);
 				teamVsTeamButton.setEnabled(true);
 			}
-		} else {
+		} else if(climbing == null){
 			climbingStatus.setText("Not climbed yet");
-			socialClimbButton.setEnabled(false);
+			socialClimbButton.setEnabled(true);
 			socialChallengeButton.setEnabled(true);
 			teamVsTeamButton.setEnabled(true);
 		}

@@ -1,5 +1,7 @@
 package org.unipd.nbeghin.climbtheworld;
 
+import org.unipd.nbeghin.climbtheworld.db.DbHelper;
+
 import com.parse.Parse;
 import com.parse.ParseFacebookUtils;
 
@@ -8,6 +10,8 @@ import android.util.Log;
 
 public class ClimbApplication extends Application{
 	public static final int N_MEMBERS_PER_GROUP = 6; // 5 amici + me
+
+	
 	 @Override
 	  public void onCreate()
 	  {
