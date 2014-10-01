@@ -70,8 +70,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
-//collaborazioni: stabilire soglia minima e implementare sue conseguenze
-//competizioni: stabilire vincitore e sue conseguenze
+//competizioni: riuso lo stesso climbing (una competizione per edificio alla volta)
 
 /**
  * Climbing activity: shows a given building and starts classifier. At start it
@@ -134,6 +133,7 @@ public class ClimbActivity extends ActionBarActivity {
 	private Collaboration collaboration;
 	private Map<String, Integer> others_steps;
 	ParseObject collab_parse;
+	private 	int threshold;
 	
 	private Competition competition;
 	private Map<Integer, String> chart;
@@ -141,17 +141,11 @@ public class ClimbActivity extends ActionBarActivity {
 
 	// Graphics for Social Mode
 	private VerticalSeekBar secondSeekbar;
-	// private TextView textTeam;
+	private TextView current;
 
 	// for teams
 	private List<TextView> group_members = new ArrayList<TextView>();
 	private List<TextView> group_steps = new ArrayList<TextView>();
-
-	/*
-	 * private TextView name1; private TextView steps1; private TextView name2;
-	 * private TextView steps2; private TextView name3; private TextView steps3;
-	 * private TextView name4; private TextView steps4;
-	 */
 
 	// number of virtual step for each real step
 	/**
@@ -231,19 +225,20 @@ public class ClimbActivity extends ActionBarActivity {
 													// steps
 					new_steps += vstep_for_rstep;
 					// increase the seekbar progress
-					if (mode == GameModeType.SOCIAL_CLIMB)
+					if (mode == GameModeType.SOCIAL_CLIMB){
 						seekbarIndicator.setProgress(num_steps + sumOthersStep());
-					else
+						setThresholdText();
+					}else
 						seekbarIndicator.setProgress(num_steps);
 					percentage = (double) num_steps / (double) building.getSteps(); // increase
 																					// the
 																					// progress
 																					// percentage
 					boolean win = false;
-					if (mode == GameModeType.SOCIAL_CHALLENGE)
-						win = ((num_steps + sumOthersStep()) >= building.getSteps()); // user
-																						// wins?
-					else
+					if (mode == GameModeType.SOCIAL_CLIMB){
+						win = ((num_steps + sumOthersStep()) >= building.getSteps()) && (threshold - num_steps <= 0); // user
+						setThresholdText();																// wins?
+					}else
 						win = ((num_steps) >= building.getSteps());
 					if (win) { // ensure it did not exceed the number of steps
 								// (when multiple steps-at-once are detected)
@@ -254,6 +249,9 @@ public class ClimbActivity extends ActionBarActivity {
 					if (win) {
 						stopClassify(); // stop classifier service service
 						apply_win();
+					}
+					if(((num_steps + sumOthersStep()) >= building.getSteps()) && (threshold - num_steps > 0)){
+						socialPenalty();
 					}
 				}
 			}
@@ -276,12 +274,15 @@ public class ClimbActivity extends ActionBarActivity {
 		Toast.makeText(getApplicationContext(), "BONUS: you climbed less than 24h ago, you earn +50%", Toast.LENGTH_LONG).show();
 		enableRocket();
 		updateStats(); // update the view of current stats
-		if (mode == GameModeType.SOCIAL_CLIMB)
+		if (mode == GameModeType.SOCIAL_CLIMB){
 			seekbarIndicator.setProgress(num_steps + sumOthersStep());
-		else
+			setThresholdText();
+		}else
 			seekbarIndicator.setProgress(num_steps); // increase the seekbar
 														// progress
 	}
+	
+
 
 	private void apply_win() {
 		Log.i(MainActivity.AppName, "Succesfully climbed building #" + building.get_id());
@@ -297,6 +298,8 @@ public class ClimbActivity extends ActionBarActivity {
 		findViewById(R.id.btnAccessPhotoGallery).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_fade_in));
 		findViewById(R.id.btnAccessPhotoGallery).setVisibility(View.VISIBLE);
 		((ImageButton) findViewById(R.id.btnAccessPhotoGallery)).setImageResource(R.drawable.device_access_video);
+		setThresholdText();
+		Toast.makeText(getApplicationContext(), "Update to see if you have won the competition", Toast.LENGTH_SHORT).show();
 	}
 
 	private void apply_update() {
@@ -447,6 +450,14 @@ public class ClimbActivity extends ActionBarActivity {
 		// }
 	}
 
+	private void setThresholdText(){
+		int stepsToThreshold = threshold - num_steps;
+		if(stepsToThreshold <= 0)
+			current.setText("Threshold passed: you're in!!!!");
+		else
+			current.setText(R.string.threshold + ": " + stepsToThreshold);
+	}
+	
 	private void setGraphicsSocialMode() {
 
 		secondSeekbar = (VerticalSeekBar) findViewById(R.id.seekBarPosition2);
@@ -459,7 +470,7 @@ public class ClimbActivity extends ActionBarActivity {
 						return true;
 					}
 				});
-		// textTeam = (TextView) findViewById(R.id.textTeam);
+		current = (TextView) findViewById(R.id.textPosition);
 		for (int i = 1; i <= ClimbApplication.N_MEMBERS_PER_GROUP; i++) {
 			System.out.println("qui " + i);
 			int idNome = getResources().getIdentifier("nome" + i, "id", getPackageName());
@@ -468,17 +479,6 @@ public class ClimbActivity extends ActionBarActivity {
 			group_steps.add((TextView) findViewById(idPassi)); System.out.println(idPassi);
 			System.out.println(group_members.size());
 		}
-		/*
-		 * name1 = (TextView) findViewById(R.id.nome1);
-		 * group_members.add(name1); steps1 = (TextView)
-		 * findViewById(R.id.passi1); name2 = (TextView)
-		 * findViewById(R.id.nome2); group_members.add(name2); steps2 =
-		 * (TextView) findViewById(R.id.passi2); name3 = (TextView)
-		 * findViewById(R.id.nome3); steps3 = (TextView)
-		 * findViewById(R.id.passi3); name4 = (TextView)
-		 * findViewById(R.id.nome4); steps4 = (TextView)
-		 * findViewById(R.id.passi4);
-		 */
 
 		switch (GameModeType.values()[climbing.getGame_mode()]) {
 		case SOCIAL_CLIMB:
@@ -490,39 +490,22 @@ public class ClimbActivity extends ActionBarActivity {
 			}
 			group_members.get(group_members.size() - 1).setVisibility(View.VISIBLE);
 			group_steps.get(group_steps.size() - 1).setVisibility(View.VISIBLE);
+			current.setVisibility(View.VISIBLE);
+			setThresholdText();
 			
-			/*
-			 * name1.setVisibility(View.VISIBLE);
-			 * steps1.setVisibility(View.VISIBLE);
-			 * name2.setVisibility(View.VISIBLE);
-			 * steps2.setVisibility(View.VISIBLE);
-			 * name3.setVisibility(View.VISIBLE);
-			 * steps3.setVisibility(View.VISIBLE);
-			 * name4.setVisibility(View.VISIBLE);
-			 * steps4.setVisibility(View.VISIBLE);
-			 */
 			break;
 		case SOCIAL_CHALLENGE:
 			secondSeekbar.setVisibility(View.VISIBLE);
-			// textTeam.setVisibility(View.VISIBLE);
+			current.setVisibility(View.VISIBLE);
 			for (int i = 0; i < group_members.size(); i++) {
 				group_members.get(i).setVisibility(View.VISIBLE);
 				group_steps.get(i).setVisibility(View.VISIBLE);
 			}
-			/*
-			 * name1.setVisibility(View.VISIBLE);
-			 * steps1.setVisibility(View.VISIBLE);
-			 * name2.setVisibility(View.VISIBLE);
-			 * steps2.setVisibility(View.VISIBLE);
-			 * name3.setVisibility(View.VISIBLE);
-			 * steps3.setVisibility(View.VISIBLE);
-			 * name4.setVisibility(View.VISIBLE);
-			 * steps4.setVisibility(View.VISIBLE);
-			 */
+
 			break;
 		case TEAM_VS_TEAM:
 			secondSeekbar.setVisibility(View.VISIBLE);
-			// textTeam.setVisibility(View.GONE);
+		    current.setVisibility(View.GONE);
 			for (int i = 0; i < 2; i++) {
 				group_members.get(i).setVisibility(View.VISIBLE);
 				group_steps.get(i).setVisibility(View.VISIBLE);
@@ -531,28 +514,16 @@ public class ClimbActivity extends ActionBarActivity {
 				group_members.get(i).setVisibility(View.GONE);
 				group_steps.get(i).setVisibility(View.GONE);
 			}
-			/*
-			 * name1.setVisibility(View.VISIBLE);
-			 * steps1.setVisibility(View.VISIBLE);
-			 * name2.setVisibility(View.VISIBLE);
-			 * steps2.setVisibility(View.VISIBLE);
-			 * name3.setVisibility(View.GONE); steps3.setVisibility(View.GONE);
-			 * name4.setVisibility(View.GONE); steps4.setVisibility(View.GONE);
-			 */
+
 			break;
 		case SOLO_CLIMB:
 			secondSeekbar.setVisibility(View.GONE);
-			// textTeam.setVisibility(View.GONE);
+			current.setVisibility(View.GONE);
 			for (int i = 0; i < group_members.size(); i++) {
 				group_members.get(i).setVisibility(View.GONE);
 				group_steps.get(i).setVisibility(View.GONE);
 			}
-			/*
-			 * name1.setVisibility(View.GONE); steps1.setVisibility(View.GONE);
-			 * name2.setVisibility(View.GONE); steps2.setVisibility(View.GONE);
-			 * name3.setVisibility(View.GONE); steps3.setVisibility(View.GONE);
-			 * name4.setVisibility(View.GONE); steps4.setVisibility(View.GONE);
-			 */
+
 			break;
 
 		}
@@ -965,7 +936,7 @@ public class ClimbActivity extends ActionBarActivity {
 			MainActivity.climbingDao.create(climbing);
 
 			saveClimbingToParse(climbing);
-
+			
 			Log.i(MainActivity.AppName, "Created new climbing #" + climbing.get_id());
 		} else {
 			Log.d(MainActivity.AppName, "uno vecchio trovato");
@@ -973,6 +944,7 @@ public class ClimbActivity extends ActionBarActivity {
 			percentage = climbing.getPercentage();
 			Log.i(MainActivity.AppName, "Loaded existing climbing (#" + climbing.get_id() + ")");
 		}
+		threshold = building.getSteps() / ClimbApplication.N_MEMBERS_PER_GROUP;
 		seekbarIndicator.setMax(building.getSteps());
 		if (mode == GameModeType.SOCIAL_CLIMB)
 			seekbarIndicator.setProgress(climbing.getCompleted_steps() + sumOthersStep());
@@ -1118,6 +1090,13 @@ public class ClimbActivity extends ActionBarActivity {
 			Log.e(MainActivity.AppName, "Classifier service not running or unable to stop");
 		}
 	}
+	
+	private void socialPenalty(){
+		
+			Toast.makeText(this.getApplicationContext(), "Move up next time!!!!", Toast.LENGTH_SHORT).show();
+			mode = GameModeType.SOLO_CLIMB;
+			climbing.setGame_mode(0);
+	}
 
 	/**
 	 * Stop background classifier service
@@ -1134,7 +1113,7 @@ public class ClimbActivity extends ActionBarActivity {
 		climbing.setRemaining_steps(building.getSteps() - num_steps); // update
 																		// remaining
 																		// steps
-		if (percentage >= 1.00)
+		if (percentage >= 1.00 && (mode != GameModeType.SOCIAL_CHALLENGE) && (mode != GameModeType.TEAM_VS_TEAM))
 			climbing.setCompleted(new Date().getTime());
 		MainActivity.climbingDao.update(climbing); // save to db
 		updateClimbingInParse(climbing);
@@ -1302,6 +1281,22 @@ public class ClimbActivity extends ActionBarActivity {
 		}
 	}
 	
+	private void endCompetition(){
+		if(climbing.getCompleted() != 0){
+			//ho giˆ scalato l'edificio una volta, quindi lo lascio scalato per intero
+			climbing.setCompleted_steps(building.getSteps());
+			climbing.setRemaining_steps(0);
+			climbing.setPercentage(100);
+			
+		}else{
+			//salvo i dati di climbing che ho e tengo buoni i miei passi
+		}
+		climbing.setGame_mode(0);
+		MainActivity.climbingDao.update(climbing);
+		updateClimbingInParse(climbing);
+		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.social_share);		
+	}
+	
 	private void updateChart() {
 		System.out.println("update chart");
 		if (!(mode == GameModeType.SOLO_CLIMB) && FacebookUtils.isOnline(this)) {
@@ -1322,6 +1317,12 @@ public class ClimbActivity extends ActionBarActivity {
 							compet_parse = compets.get(0);
 							JSONObject others = compet_parse.getJSONObject("stairs");
 							JSONObject othersName = compet_parse.getJSONObject("competitors");
+							try {
+								others.put(pref.getString("FBid", ""), num_steps);
+							} catch (JSONException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
 							Iterator members = others.keys();
 							int i = 0;
 							chart = ModelsUtil.fromJsonToSortedMap(others);
@@ -1346,12 +1347,20 @@ public class ClimbActivity extends ActionBarActivity {
 									group_members.get(i).setBackgroundColor(0xdcdcdc);
 									group_steps.get(i).setBackgroundColor(0xdcdcdc);
 
-									
 									i++;
 							
-							if (!key.equalsIgnoreCase(pref.getString("FBid", ""))) {
+							if (key.equalsIgnoreCase(pref.getString("FBid", ""))) {
 								group_members.get(i).setBackgroundColor(0xf7fe2e);
 								group_steps.get(i).setBackgroundColor(0xf7fe27);
+								if(steps >= building.getSteps()){
+									endCompetition();
+									Toast.makeText(getApplicationContext(),  "Yeah!!!! You won this challenge", Toast.LENGTH_SHORT).show();
+								}
+							}else{
+								if(steps >= building.getSteps()){
+									endCompetition();
+									Toast.makeText(getApplicationContext(), name + " won this challenge", Toast.LENGTH_SHORT).show();
+								}
 							}
 							
 							}

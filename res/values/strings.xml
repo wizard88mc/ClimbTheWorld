@@ -19,5 +19,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_fbpick_friend">FBPickFriendActivity</string>
     <string name="title_activity_groups">GroupsActivity</string>
+    
+    <string name="threshold">"Steps to threshold"</string>
 
 </resources>
