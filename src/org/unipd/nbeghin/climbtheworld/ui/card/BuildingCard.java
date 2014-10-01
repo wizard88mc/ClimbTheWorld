@@ -15,6 +15,7 @@ import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.GameModeType;
+import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -128,6 +129,7 @@ public class BuildingCard extends Card {
 
 			@Override
 			public void onClick(View v) {
+				if(FacebookUtils.isOnline(activity)){
 				// crea collaborazione
 				// crea climbing se non c'è gia e cambia modalita
 				// invia richieste
@@ -169,6 +171,10 @@ public class BuildingCard extends Card {
 					break;
 				}
 
+			
+			}else{
+				Toast.makeText(activity.getApplicationContext(), "Connection needed", Toast.LENGTH_SHORT).show();
+			}
 			}
 		});
 
@@ -176,11 +182,12 @@ public class BuildingCard extends Card {
 
 			@Override
 			public void onClick(View arg0) {
+				if(FacebookUtils.isOnline(activity)){
 				climbing.setGame_mode(3);
 				MainActivity.climbingDao.update(climbing);
 				updateClimbingInParse();
 				gameMode.setText("Modalità: " + setModeText());
-				sendRequest(GameModeType.SOCIAL_CHALLENGE, "");
+				sendRequest(GameModeType.SOCIAL_CHALLENGE, "");}
 
 			}
 		});
@@ -189,12 +196,13 @@ public class BuildingCard extends Card {
 
 			@Override
 			public void onClick(View arg0) {
+				if(FacebookUtils.isOnline(activity)){
 				climbing.setGame_mode(4);
 				MainActivity.climbingDao.update(climbing);
 				updateClimbingInParse();
 				gameMode.setText("Modalità: " + setModeText());
 				sendRequest(GameModeType.TEAM_VS_TEAM, "");
-
+				}
 			}
 		});
 		return view;
@@ -312,6 +320,7 @@ public class BuildingCard extends Card {
 				if (e == null) {
 					if (collabs.size() == 0) {
 						Toast.makeText(MainActivity.getContext(), "This collaboration does not exists anymore", Toast.LENGTH_SHORT).show();
+						MainActivity.collaborationDao.delete(collab);
 					} else {
 						ParseObject c = collabs.get(0);
 						JSONObject collaborators = c.getJSONObject("collaborators");
@@ -320,10 +329,14 @@ public class BuildingCard extends Card {
 						stairs.remove(pref.getString("FBid", ""));
 						c.put("collaborators", collaborators);
 						c.put("stairs", stairs);
-						c.saveEventually();
-						collab.setLeaved(true);
+						if(collaborators.length() == 0)
+							c.deleteEventually();
+						else
+							c.saveEventually();
+						/*collab.setLeaved(true);
 						collab.setSaved(true);
-						MainActivity.collaborationDao.update(collab);
+						MainActivity.collaborationDao.update(collab);*/
+						MainActivity.collaborationDao.delete(collab);
 						climbing.setGame_mode(0);
 						MainActivity.climbingDao.update(climbing);
 						updateClimbingInParse();

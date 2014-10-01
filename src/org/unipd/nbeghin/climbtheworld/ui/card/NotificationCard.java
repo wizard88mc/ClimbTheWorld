@@ -231,11 +231,11 @@ public class NotificationCard extends Card {
 									
 									text.setText("Request Accepted");}
 									else{
-										text.setText("you are already in this collaboration");
-									}
-									}else{
 										text.setText("Collaboration completed");
 										Toast.makeText(MainActivity.getContext(), "Too Late: collaboration completed", Toast.LENGTH_SHORT).show();
+									}
+									}else{
+										text.setText("You are already in this collaboration");
 									}
 									
 									deleteRequest(String.valueOf(notification.getId()));

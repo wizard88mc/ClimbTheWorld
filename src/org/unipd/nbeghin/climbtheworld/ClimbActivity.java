@@ -760,6 +760,7 @@ public class ClimbActivity extends ActionBarActivity {
 									}
 									group_members.get(i).setText(name);
 									others_steps.put(key, steps);
+									group_steps.get(i).setVisibility(View.VISIBLE);
 									group_steps.get(i).setText(String.valueOf(steps));
 									group_members.get(i).setClickable(false);
 									group_members.get(i).setVisibility(View.VISIBLE);
@@ -767,6 +768,7 @@ public class ClimbActivity extends ActionBarActivity {
 								}
 							}
 							if(i < group_members.size()){
+								group_steps.get(i).setVisibility(View.INVISIBLE);
 								group_members.get(i).setClickable(true);
 								group_members.get(i).setText("  +");
 								group_members.get(i).setVisibility(View.VISIBLE);
@@ -814,6 +816,8 @@ public class ClimbActivity extends ActionBarActivity {
 							for(; i < group_members.size(); i++){
 								group_members.get(i).setClickable(false);
 								group_members.get(i).setVisibility(View.INVISIBLE);
+								group_steps.get(i).setVisibility(View.INVISIBLE);
+
 							}
 
 						}
