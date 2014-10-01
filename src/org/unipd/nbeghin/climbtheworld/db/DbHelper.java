@@ -4,6 +4,7 @@ import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.BuildingTour;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Collaboration;
+import org.unipd.nbeghin.climbtheworld.models.Competition;
 import org.unipd.nbeghin.climbtheworld.models.Photo;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
 import org.unipd.nbeghin.climbtheworld.models.User;
@@ -25,6 +26,7 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
 	private RuntimeExceptionDao<Photo, Integer>			photoRuntimeDao			= null;
 	private RuntimeExceptionDao<User, Integer>			userRuntimeDao			= null;
 	private RuntimeExceptionDao<Collaboration, Integer> 	collaborationRuntimeDao	= null;
+	private RuntimeExceptionDao<Competition, Integer> 	competitionRuntimeDao 	= null;
 
 	public DbHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -88,6 +90,13 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
 		}
 		return collaborationRuntimeDao;
 	}
+	
+	public RuntimeExceptionDao<Competition, Integer> getCompetitionDao(){
+		if(competitionRuntimeDao == null){
+			competitionRuntimeDao = getRuntimeExceptionDao(Competition.class);
+		}
+		return competitionRuntimeDao;
+	}
 
     public String getDbPath() {
         return this.getReadableDatabase().getPath();
@@ -106,5 +115,6 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
 		photoRuntimeDao = null;
 		userRuntimeDao = null;
 		collaborationRuntimeDao = null;
+		competitionRuntimeDao = null;
 	}
 }

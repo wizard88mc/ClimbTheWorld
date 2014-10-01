@@ -30,6 +30,7 @@ import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.BuildingTour;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Collaboration;
+import org.unipd.nbeghin.climbtheworld.models.Competition;
 import org.unipd.nbeghin.climbtheworld.models.InviteNotification;
 import org.unipd.nbeghin.climbtheworld.models.Notification;
 import org.unipd.nbeghin.climbtheworld.models.Photo;
@@ -71,12 +72,10 @@ import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.model.GraphObject;
 import com.facebook.widget.WebDialog;
-import com.facebook.widget.WebDialog.OnCompleteListener;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.Where;
-import com.j256.ormlite.stmt.query.In;
 
 /**
  * Main activity
@@ -91,10 +90,12 @@ public class MainActivity extends ActionBarActivity {
 	public static List<Tour> tours; // list of loaded tours
 	public static List<Notification> notifications;
 	public static List<Collaboration> collaborations;
+	public static List<Competition> competitions;
 	private ActionBar ab; // reference to action bar
 	public static RuntimeExceptionDao<Building, Integer> buildingDao; // DAO for
 																		// buildings
 	public static RuntimeExceptionDao<Collaboration, Integer> collaborationDao;
+	public static RuntimeExceptionDao<Competition, Integer> competitionDao;
 	public static RuntimeExceptionDao<Climbing, Integer> climbingDao; // DAO for
 																		// climbings
 	public static RuntimeExceptionDao<Tour, Integer> tourDao; // DAO for tours
@@ -411,6 +412,15 @@ public class MainActivity extends ActionBarActivity {
 		return collaborations.get(0);
 	}
 	
+	public static Competition getCompetitionById(String id){
+		Map<String, Object> conditions = new HashMap<String, Object>();
+		conditions.put("_id", id); // filter for building ID
+		List<Competition> collaborations = competitionDao.queryForFieldValuesArgs(conditions);
+		if(collaborations.size() == 0)
+			return null;
+		return collaborations.get(0);
+	}
+	
 	public static User getUserById(int id) {
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("_id", id); // filter for building ID
@@ -461,6 +471,7 @@ public class MainActivity extends ActionBarActivity {
 															// DAO
 		photoDao = dbHelper.getPhotoDao();
 		collaborationDao = dbHelper.getCollaborationDao();
+		competitionDao = dbHelper.getCompetitionDao();
 		refresh(); // loads all buildings and tours
 	}
 
@@ -502,7 +513,30 @@ public class MainActivity extends ActionBarActivity {
 			PreparedQuery<Collaboration> preparedQuery = query.prepare();
 			List<Collaboration> colls = collaborationDao.query(preparedQuery);
 			collaborations = colls;
-			System.out.println(climbings.size());
+			System.out.println(collaborations.size());
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			
+		}
+	}
+	
+	public static void refreshCompetitions(){
+		SharedPreferences pref = getContext().getSharedPreferences("UserSession", 0);
+		QueryBuilder<Competition, Integer> query = competitionDao.queryBuilder();
+		Where<Competition, Integer> where = query.where();
+		// the name field must be equal to "foo"
+		try {
+			
+			where.eq("user_id", pref.getInt("local_id", -1));
+			where.and();
+			where.eq("completed", 0);
+			System.out.println("competition di " + pref.getInt("local_id", -1));
+
+			PreparedQuery<Competition> preparedQuery = query.prepare();
+			List<Competition> colls = competitionDao.query(preparedQuery);
+			competitions = colls;
+			System.out.println(competitions.size());
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -539,6 +573,7 @@ public class MainActivity extends ActionBarActivity {
 		
 	}
 	
+	
 	//per ogni edificio, una sola collaborazione
 	public static Collaboration getCollaborationByBuilding(int building_id){
 		SharedPreferences pref = getContext().getSharedPreferences("UserSession", 0);
@@ -549,6 +584,29 @@ public class MainActivity extends ActionBarActivity {
 			where.eq("building_id", building_id);
 			PreparedQuery<Collaboration> preparedQuery = query.prepare();
 			List<Collaboration> collabs = collaborationDao.query(preparedQuery);
+			if(collabs.size() == 0)
+				return null;
+			else return collabs.get(0);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
+	
+	//per ogni edificio, una sola collaborazione
+	public static Competition getCompetitionByBuilding(int building_id){
+		SharedPreferences pref = getContext().getSharedPreferences("UserSession", 0);
+		QueryBuilder<Competition, Integer> query = competitionDao.queryBuilder();
+		Where<Competition, Integer> where = query.where();
+		
+		try {
+			where.eq("building_id", building_id);
+			where.and();
+			where.eq("completed", 0);
+			PreparedQuery<Competition> preparedQuery = query.prepare();
+			List<Competition> collabs = competitionDao.query(preparedQuery);
 			if(collabs.size() == 0)
 				return null;
 			else return collabs.get(0);

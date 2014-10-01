@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SimpleTimeZone;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,9 +24,11 @@ import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.ClassifierCircularBuffer;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Collaboration;
+import org.unipd.nbeghin.climbtheworld.models.Competition;
 import org.unipd.nbeghin.climbtheworld.models.GameModeType;
 import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
+import org.unipd.nbeghin.climbtheworld.util.ModelsUtil;
 import org.unipd.nbeghin.climbtheworld.util.StatUtils;
 import org.unipd.nbeghin.climbtheworld.util.SystemUiHider;
 
@@ -65,7 +70,8 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
-//quando vinco o metto pausa: aggiorna climbing e collaborazione
+//collaborazioni: stabilire soglia minima e implementare sue conseguenze
+//competizioni: stabilire vincitore e sue conseguenze
 
 /**
  * Climbing activity: shows a given building and starts classifier. At start it
@@ -124,9 +130,14 @@ public class ClimbActivity extends ActionBarActivity {
 
 	// logic for social mode
 	private GameModeType mode;
+	
 	private Collaboration collaboration;
 	private Map<String, Integer> others_steps;
 	ParseObject collab_parse;
+	
+	private Competition competition;
+	private Map<Integer, String> chart;
+	ParseObject compet_parse;
 
 	// Graphics for Social Mode
 	private VerticalSeekBar secondSeekbar;
@@ -449,7 +460,7 @@ public class ClimbActivity extends ActionBarActivity {
 					}
 				});
 		// textTeam = (TextView) findViewById(R.id.textTeam);
-		for (int i = 1; i <= ClimbApplication.N_MEMBERS_PER_GROUP - 1; i++) {
+		for (int i = 1; i <= ClimbApplication.N_MEMBERS_PER_GROUP; i++) {
 			System.out.println("qui " + i);
 			int idNome = getResources().getIdentifier("nome" + i, "id", getPackageName());
 			int idPassi = getResources().getIdentifier("passi" + i, "id", getPackageName());
@@ -473,10 +484,13 @@ public class ClimbActivity extends ActionBarActivity {
 		case SOCIAL_CLIMB:
 			secondSeekbar.setVisibility(View.GONE);
 			// textTeam.setVisibility(View.VISIBLE);
-			for (int i = 0; i < group_members.size(); i++) {
+			for (int i = 0; i < group_members.size() - 1; i++) {
 				group_members.get(i).setVisibility(View.VISIBLE);
 				group_steps.get(i).setVisibility(View.VISIBLE);
 			}
+			group_members.get(group_members.size() - 1).setVisibility(View.VISIBLE);
+			group_steps.get(group_steps.size() - 1).setVisibility(View.VISIBLE);
+			
 			/*
 			 * name1.setVisibility(View.VISIBLE);
 			 * steps1.setVisibility(View.VISIBLE);
@@ -698,6 +712,8 @@ public class ClimbActivity extends ActionBarActivity {
 		System.out.println("mode: " + mode);
 		switch (mode) {
 		case SOCIAL_CHALLENGE:
+			mode = GameModeType.SOCIAL_CHALLENGE;
+			loadCompetition();
 			break;
 		case SOCIAL_CLIMB:
 			// cerco collaborazione per il building corrente
@@ -715,11 +731,21 @@ public class ClimbActivity extends ActionBarActivity {
 		collaboration = MainActivity.getCollaborationForBuilding(building.get_id());
 		others_steps = new HashMap<String, Integer>();
 		if (collaboration == null) {
-			Toast.makeText(this, "No collaboration Available for this building", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, "No collaboration available for this building", Toast.LENGTH_SHORT).show();
 		} else {
 			updateOthers();
 		}
 
+	}
+	
+	private void loadCompetition() {
+		competition = MainActivity.getCompetitionByBuilding(building.get_id());
+		chart = new TreeMap<Integer, String>();
+		if(competition == null){
+			Toast.makeText(this, "No competition available for this building", Toast.LENGTH_SHORT).show();
+		}else{
+			updateOthers();
+		}
 	}
 
 	private void updateOthers() {
@@ -767,7 +793,7 @@ public class ClimbActivity extends ActionBarActivity {
 									i++;
 								}
 							}
-							if(i < group_members.size()){
+							if(i < group_members.size() && i <= ClimbApplication.N_MEMBERS_PER_GROUP){
 								group_steps.get(i).setVisibility(View.INVISIBLE);
 								group_members.get(i).setClickable(true);
 								group_members.get(i).setText("  +");
@@ -1126,6 +1152,8 @@ public class ClimbActivity extends ActionBarActivity {
 
 		if (mode == GameModeType.SOCIAL_CLIMB)
 			saveCollaborationData();
+		else if (mode == GameModeType.SOCIAL_CHALLENGE)
+			saveCompetitionData();
 	}
 
 	private void saveCollaborationData() {
@@ -1149,6 +1177,29 @@ public class ClimbActivity extends ActionBarActivity {
 		MainActivity.collaborationDao.update(collaboration);
 
 	}
+	
+	private void saveCompetitionData() {
+		competition.setMy_stairs(climbing.getCompleted_steps());
+		if (compet_parse == null) {
+			competition.setSaved(false);
+			Toast.makeText(getApplicationContext(), "Connection unavailable. Yout data will be saved during next connection", Toast.LENGTH_SHORT).show();
+		} else {
+			SharedPreferences pref = getSharedPreferences("UserSession", 0);
+			JSONObject stairs = compet_parse.getJSONObject("stairs");
+			try {
+				stairs.put(pref.getString("FBid", ""), collaboration.getMy_stairs());
+				compet_parse.put("stairs", stairs);
+				compet_parse.saveEventually();
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			competition.setSaved(true);
+		}
+		MainActivity.collaborationDao.update(collaboration);
+
+	}
+
 
 	/**
 	 * Start background classifier service
@@ -1239,6 +1290,133 @@ public class ClimbActivity extends ActionBarActivity {
 	}
 
 	public void onUpdate(MenuItem v) {
-		updateOthers();
+		switch(climbing.getGame_mode()){
+		case 0:
+			break;
+		case 1:
+			updateOthers();
+			break;
+		case 2:
+			updateChart();
+				
+		}
+	}
+	
+	private void updateChart() {
+		System.out.println("update chart");
+		if (!(mode == GameModeType.SOLO_CLIMB) && FacebookUtils.isOnline(this)) {
+			ParseQuery<ParseObject> query = ParseQuery.getQuery("Competition");
+			query.whereEqualTo("objectId", competition.getId_online());
+			query.findInBackground(new FindCallback<ParseObject>() {
+
+				@Override
+				public void done(List<ParseObject> compets, ParseException e) {
+					if (e == null) {
+						if (compets == null || compets.size() == 0) {
+							Toast.makeText(getApplicationContext(), "This competition does not exists", Toast.LENGTH_SHORT).show();
+							Log.e("updatechart", "Competition not present in Parse");
+							// delete this collaboration
+							MainActivity.competitionDao.delete(competition);
+						} else {
+							SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
+							compet_parse = compets.get(0);
+							JSONObject others = compet_parse.getJSONObject("stairs");
+							JSONObject othersName = compet_parse.getJSONObject("competitors");
+							Iterator members = others.keys();
+							int i = 0;
+							chart = ModelsUtil.fromJsonToSortedMap(others);
+							for (Entry<Integer, String> entry : chart.entrySet()){
+								String key = entry.getValue();
+									System.out.println(key);
+									System.out.println(pref.getString("FBid", ""));
+									String name = "";
+									int steps = -1;
+									try {
+										name = (String) othersName.getString(key);
+										steps = (Integer) others.getInt(key);
+									} catch (JSONException e2) {
+										// TODO Auto-generated catch block
+										e2.printStackTrace();
+									}
+									group_members.get(i).setText(name);
+									group_steps.get(i).setVisibility(View.VISIBLE);
+									group_steps.get(i).setText(steps);
+									group_members.get(i).setClickable(false);
+									group_members.get(i).setVisibility(View.VISIBLE);
+									group_members.get(i).setBackgroundColor(0xdcdcdc);
+									group_steps.get(i).setBackgroundColor(0xdcdcdc);
+
+									
+									i++;
+							
+							if (!key.equalsIgnoreCase(pref.getString("FBid", ""))) {
+								group_members.get(i).setBackgroundColor(0xf7fe2e);
+								group_steps.get(i).setBackgroundColor(0xf7fe27);
+							}
+							
+							}
+							if(i < group_members.size() && i <= ClimbApplication.N_MEMBERS_PER_GROUP){
+								group_steps.get(i).setVisibility(View.INVISIBLE);
+								group_members.get(i).setClickable(true);
+								group_members.get(i).setText("  +");
+								group_members.get(i).setVisibility(View.VISIBLE);
+								group_members.get(i).setBackgroundColor(0xdcdcdc);
+								group_members.get(i).setOnClickListener(new OnClickListener() {
+								
+							
+								
+								@Override
+								public void onClick(View arg0) {
+									Bundle params = new Bundle();
+									params.putString("data", "{\"idCompet\":\"" + competition.getId_online() + "\"," + "\"idBuilding\":\"" + building.get_id() + "\"," + "\"nameBuilding\":\"" + building.getName() + "\", \"type\": \"1\"}");
+									params.putString("message", "Please, help me!!!!");
+									WebDialog requestsDialog = (new WebDialog.RequestsDialogBuilder(ClimbActivity.this, Session.getActiveSession(), params)).setOnCompleteListener(new OnCompleteListener() {
+
+										@Override
+										public void onComplete(Bundle values, FacebookException error) {
+											if (error != null) {
+												if (error instanceof FacebookOperationCanceledException) {
+													Toast.makeText(ClimbActivity.this, "Request cancelled", Toast.LENGTH_SHORT).show();
+													
+												} else {
+													Toast.makeText(ClimbActivity.this, "Network Error", Toast.LENGTH_SHORT).show();
+							
+												}
+											} else {
+												final String requestId = values.getString("request");
+												if (requestId != null) {
+													Toast.makeText(ClimbActivity.this, "Request sent", Toast.LENGTH_SHORT).show();
+												} else {
+													Toast.makeText(ClimbActivity.this, "Request cancelled", Toast.LENGTH_SHORT).show();
+									
+
+												}
+											}
+										}
+
+									}).build();
+									requestsDialog.show();
+									
+								}
+							});
+							i++;
+							}
+							for(; i < group_members.size(); i++){
+								group_members.get(i).setClickable(false);
+								group_members.get(i).setVisibility(View.INVISIBLE);
+								group_steps.get(i).setVisibility(View.INVISIBLE);
+
+							}
+
+						}
+					} else if(!(mode == GameModeType.SOCIAL_CLIMB)) {
+						Toast.makeText(getApplicationContext(), "Connections Problem", Toast.LENGTH_SHORT).show();
+						Log.e("updateChart", e.getMessage());
+					}
+				}
+			});
+		} else {
+			Toast.makeText(getApplicationContext(), "No Connection Available", Toast.LENGTH_SHORT).show();
+		}
 	}
 }

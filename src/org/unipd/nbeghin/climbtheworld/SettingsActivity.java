@@ -13,8 +13,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Collaboration;
+import org.unipd.nbeghin.climbtheworld.models.Competition;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
+import org.unipd.nbeghin.climbtheworld.util.ModelsUtil;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -113,6 +115,7 @@ public class SettingsActivity extends PreferenceActivity {
 				}
 				MainActivity.refreshClimbings();
 				MainActivity.refreshCollaborations();
+				MainActivity.refreshCompetitions();
 
 		Session session = Session.getActiveSession();
 		if (session != null && session.isOpened()) {
@@ -299,6 +302,61 @@ public class SettingsActivity extends PreferenceActivity {
 		});
 	}
 	
+	
+	
+	private void loadCompetitionsFromParse(){
+		final SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
+		MainActivity.refreshCompetitions();
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("Competition");
+		query.whereEqualTo("competitors." + pref.getString("FBid", ""), pref.getString("username", ""));
+		query.whereEqualTo("completed", false);
+		query.findInBackground(new FindCallback<ParseObject>() {
+
+			@Override
+			public void done(List<ParseObject> compets, ParseException e) {
+					if(e == null){
+						for(ParseObject competition : compets){
+							JSONObject others_steps = competition.getJSONObject("stairs");
+							Competition local_compet = MainActivity.getCompetitionById(competition.getObjectId());
+							if(local_compet == null){
+								//crea nuova collaborazione
+								Competition comp = new Competition();
+								comp.setBuilding(MainActivity.getBuildingById(competition.getInt("building")));
+								comp.setId_online(competition.getObjectId());
+								if(competition.getInt("leaved") == 0)
+									comp.setLeaved(false);
+								else
+									comp.setLeaved(true);
+								comp.setMy_stairs(competition.getInt("my_stairs"));
+								//setcurrentposition
+								comp.setCurrent_position(ModelsUtil.getMyPosition(pref.getString("FBid", ""), ModelsUtil.fromJsonToSortedMap(competition.getJSONObject("stairs"))));
+								if(competition.getInt("saved") == 0)
+									comp.setSaved(false);
+								else
+									comp.setSaved(true);
+								
+								comp.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
+								MainActivity.competitionDao.create(comp);
+								
+							}else{//update collaborazione esistente
+								if(local_compet.getMy_stairs() < competition.getInt("my_stairs"))
+									local_compet.setMy_stairs(competition.getInt("my_stairs"));
+								JSONObject others = competition.getJSONObject("stairs");
+								//setcurrentposition
+								local_compet.setCurrent_position(ModelsUtil.getMyPosition(pref.getString("FBid", ""), ModelsUtil.fromJsonToSortedMap(competition.getJSONObject("stairs"))));
+								MainActivity.competitionDao.update(local_compet);
+								
+							}
+						}
+						MainActivity.refreshCompetitions();
+					}else{
+						Toast.makeText(getApplicationContext(), "Connetction problems", Toast.LENGTH_SHORT).show();
+						Log.e("loadCompetitionsFromParse", e.getMessage());
+					}
+			}
+		});
+	}
+	
 	private void updateFacebookSession(final Session session, SessionState state) {
 		if(FacebookUtils.isOnline(this)){
 		final TextView lblFacebookUser = (TextView) findViewById(R.id.lblFacebookUser);
@@ -436,6 +494,7 @@ public class SettingsActivity extends PreferenceActivity {
 		    		      // Hooray! The user is logged in.
 				    		loadProgressFromParse();
 				    		loadCollaborationsFromParse();
+				    		loadCompetitionsFromParse();
 
 		    		    } else {
 		    		      // Signup failed. Look at the ParseException to see what happened.
