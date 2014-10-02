@@ -266,6 +266,11 @@ public class NotificationCard extends Card {
 							
 						}
 					});
+					deleteRequest(String.valueOf(notification.getId()));
+
+					cancelBtn.setEnabled(false);
+					acceptBtn.setEnabled(false);
+					notification.setRead(true);
 					}else{
 						text.setText("Unable to take part");
 						deleteRequest(String.valueOf(notification.getId()));
@@ -359,6 +364,11 @@ public class NotificationCard extends Card {
 										climbingParse.saveEventually();
 									}else{
 										climb.setGame_mode(2);
+										if(climb.getPercentage() >= 1.00){
+											climb.setPercentage(0);
+											climb.setCompleted_steps(0);
+											climb.setRemaining_steps(building.getSteps());
+										}
 										my_stairs = climb.getCompleted_steps();
 										ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
 										query.whereEqualTo("building", building.get_id());
@@ -398,10 +408,10 @@ public class NotificationCard extends Card {
 									text.setText("Request Accepted");}
 									else{
 										text.setText("Collaboration completed");
-										Toast.makeText(MainActivity.getContext(), "Too Late: collaboration completed", Toast.LENGTH_SHORT).show();
+										Toast.makeText(MainActivity.getContext(), "Too Late: competition completed", Toast.LENGTH_SHORT).show();
 									}
 									}else{
-										text.setText("You are already in this collaboration");
+										text.setText("You are already in this competition");
 									}
 									
 									deleteRequest(String.valueOf(notification.getId()));
@@ -417,6 +427,11 @@ public class NotificationCard extends Card {
 							
 						}
 					});
+					deleteRequest(String.valueOf(notification.getId()));
+
+					cancelBtn.setEnabled(false);
+					acceptBtn.setEnabled(false);
+					notification.setRead(true);
 					}else{
 						text.setText("Unable to take part");
 						deleteRequest(String.valueOf(notification.getId()));

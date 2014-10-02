@@ -26,6 +26,7 @@ import org.unipd.nbeghin.climbtheworld.fragments.BuildingsFragment;
 import org.unipd.nbeghin.climbtheworld.fragments.NotificationFragment;
 import org.unipd.nbeghin.climbtheworld.fragments.ToursFragment;
 import org.unipd.nbeghin.climbtheworld.models.AskCollaborationNotification;
+import org.unipd.nbeghin.climbtheworld.models.AskCompetitionNotification;
 import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.BuildingTour;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
@@ -242,7 +243,7 @@ public class MainActivity extends ActionBarActivity {
 								
 								System.out.println("type " + type);
 								
-								if(type == 1){
+								if(type == 1 || type == 2){
 									building_id =	dataObject.getInt("idBuilding");									
 									building_name = dataObject.getString("nameBuilding");
 									collaboration_id = dataObject.getString("idCollab");
@@ -277,6 +278,13 @@ public class MainActivity extends ActionBarActivity {
 									notifications.add(notfA);
 									
 									break;
+									
+								case 2:
+									Notification notfB = new AskCompetitionNotification(id, sender, groupName, type);
+									((AskCompetitionNotification)notfB).setBuilding_id(building_id);
+									((AskCompetitionNotification)notfB).setBuilding_name(building_name);
+									((AskCompetitionNotification)notfB).setCompetitionId(collaboration_id);
+									notifications.add(notfB);
 									
 								}
 								
@@ -412,7 +420,7 @@ public class MainActivity extends ActionBarActivity {
 	
 	public static Competition getCompetitionById(String id){
 		Map<String, Object> conditions = new HashMap<String, Object>();
-		conditions.put("_id", id); // filter for building ID
+		conditions.put("id_online", id); // filter for building ID
 		List<Competition> collaborations = competitionDao.queryForFieldValuesArgs(conditions);
 		if(collaborations.size() == 0)
 			return null;
@@ -527,8 +535,6 @@ public class MainActivity extends ActionBarActivity {
 		try {
 			
 			where.eq("user_id", pref.getInt("local_id", -1));
-			where.and();
-			where.eq("completed", 0);
 			System.out.println("competition di " + pref.getInt("local_id", -1));
 
 			PreparedQuery<Competition> preparedQuery = query.prepare();

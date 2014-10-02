@@ -310,7 +310,6 @@ public class SettingsActivity extends PreferenceActivity {
 		MainActivity.refreshCompetitions();
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("Competition");
 		query.whereEqualTo("competitors." + pref.getString("FBid", ""), pref.getString("username", ""));
-		query.whereEqualTo("completed", false);
 		query.findInBackground(new FindCallback<ParseObject>() {
 
 			@Override
@@ -318,8 +317,10 @@ public class SettingsActivity extends PreferenceActivity {
 					if(e == null){
 						for(ParseObject competition : compets){
 							JSONObject others_steps = competition.getJSONObject("stairs");
+							boolean completed = competition.getBoolean("completed");
 							Competition local_compet = MainActivity.getCompetitionById(competition.getObjectId());
 							if(local_compet == null){
+								if(!completed){
 								//crea nuova collaborazione
 								Competition comp = new Competition();
 								comp.setBuilding(MainActivity.getBuildingById(competition.getInt("building")));
@@ -332,7 +333,7 @@ public class SettingsActivity extends PreferenceActivity {
 								
 								comp.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
 								MainActivity.competitionDao.create(comp);
-								
+								}
 							}else{//update collaborazione esistente
 								if(local_compet.getMy_stairs() < competition.getInt("my_stairs"))
 									local_compet.setMy_stairs(competition.getInt("my_stairs"));

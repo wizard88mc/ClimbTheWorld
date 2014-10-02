@@ -9,11 +9,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SimpleTimeZone;
-import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,6 +20,7 @@ import org.unipd.nbeghin.climbtheworld.exceptions.ClimbingNotFound;
 import org.unipd.nbeghin.climbtheworld.exceptions.NoFBSession;
 import org.unipd.nbeghin.climbtheworld.listeners.AccelerometerSamplingRateDetect;
 import org.unipd.nbeghin.climbtheworld.models.Building;
+import org.unipd.nbeghin.climbtheworld.models.ChartMember;
 import org.unipd.nbeghin.climbtheworld.models.ClassifierCircularBuffer;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Collaboration;
@@ -39,6 +39,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -70,7 +71,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
-//competizioni: riuso lo stesso climbing (una competizione per edificio alla volta)
+//competizioni: se vinco ma senza altri partecipanti, no punti extra vittoria ne badge
 
 /**
  * Climbing activity: shows a given building and starts classifier. At start it
@@ -136,7 +137,7 @@ public class ClimbActivity extends ActionBarActivity {
 	private 	int threshold;
 	
 	private Competition competition;
-	private Map<Integer, String> chart;
+	private List<ChartMember> chart;
 	ParseObject compet_parse;
 
 	// Graphics for Social Mode
@@ -299,8 +300,16 @@ public class ClimbActivity extends ActionBarActivity {
 		findViewById(R.id.btnAccessPhotoGallery).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_fade_in));
 		findViewById(R.id.btnAccessPhotoGallery).setVisibility(View.VISIBLE);
 		((ImageButton) findViewById(R.id.btnAccessPhotoGallery)).setImageResource(R.drawable.device_access_video);
-		setThresholdText();
-		Toast.makeText(getApplicationContext(), "Update to see if you have won the competition", Toast.LENGTH_SHORT).show();
+		switch (climbing.getGame_mode()) {
+		case 1:
+			setThresholdText();
+			break;
+		case 2:
+			Toast.makeText(getApplicationContext(), "Update to see if you have won the competition", Toast.LENGTH_SHORT).show();
+			break;
+		default:
+			break;
+		}
 	}
 
 	private void apply_update() {
@@ -496,7 +505,7 @@ public class ClimbActivity extends ActionBarActivity {
 			
 			break;
 		case SOCIAL_CHALLENGE:
-			secondSeekbar.setVisibility(View.VISIBLE);
+			secondSeekbar.setVisibility(View.INVISIBLE);
 			current.setVisibility(View.VISIBLE);
 			for (int i = 0; i < group_members.size(); i++) {
 				group_members.get(i).setVisibility(View.VISIBLE);
@@ -712,7 +721,6 @@ public class ClimbActivity extends ActionBarActivity {
 	
 	private void loadCompetition() {
 		competition = MainActivity.getCompetitionByBuilding(building.get_id());
-		chart = new TreeMap<Integer, String>();
 		if(competition == null){
 			Toast.makeText(this, "No competition available for this building", Toast.LENGTH_SHORT).show();
 		}else{
@@ -1175,7 +1183,11 @@ public class ClimbActivity extends ActionBarActivity {
 			}
 			collaboration.setSaved(true);
 		}
-		MainActivity.collaborationDao.delete(collaboration);
+		if(collaboration.isCompleted())
+			MainActivity.collaborationDao.delete(collaboration);
+		else
+			MainActivity.collaborationDao.update(collaboration);
+
 
 	}
 	
@@ -1188,8 +1200,13 @@ public class ClimbActivity extends ActionBarActivity {
 			SharedPreferences pref = getSharedPreferences("UserSession", 0);
 			JSONObject stairs = compet_parse.getJSONObject("stairs");
 			try {
-				stairs.put(pref.getString("FBid", ""), collaboration.getMy_stairs());
+				stairs.put(pref.getString("FBid", ""), competition.getMy_stairs());
 				compet_parse.put("stairs", stairs);
+				if(percentage >= 1.00){
+					System.out.println("elimino collab");
+					compet_parse.put("completed", true);
+					competition.setCompleted(true);
+				}
 				compet_parse.saveEventually();
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
@@ -1197,7 +1214,10 @@ public class ClimbActivity extends ActionBarActivity {
 			}
 			competition.setSaved(true);
 		}
-		MainActivity.collaborationDao.update(collaboration);
+		if(competition.isCompleted())
+			MainActivity.competitionDao.delete(competition);
+		else
+			MainActivity.competitionDao.update(competition);
 
 	}
 
@@ -1335,6 +1355,7 @@ public class ClimbActivity extends ActionBarActivity {
 							// delete this collaboration
 							MainActivity.competitionDao.delete(competition);
 						} else {
+							System.out.println("id: " + competition.getId_online());
 							SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
 							compet_parse = compets.get(0);
 							JSONObject others = compet_parse.getJSONObject("stairs");
@@ -1347,33 +1368,35 @@ public class ClimbActivity extends ActionBarActivity {
 							}
 							Iterator members = others.keys();
 							int i = 0;
-							chart = ModelsUtil.fromJsonToSortedMap(others);
-							for (Entry<Integer, String> entry : chart.entrySet()){
-								String key = entry.getValue();
+							chart = ModelsUtil.fromJsonToChart(others);
+							System.out.println("key size: " + others.length());
+							System.out.println("chart size" +  chart.size());
+							for (ChartMember entry : chart){
+								String key = entry.getId();
 									System.out.println(key);
 									System.out.println(pref.getString("FBid", ""));
 									String name = "";
 									int steps = -1;
 									try {
 										name = (String) othersName.getString(key);
-										steps = (Integer) others.getInt(key);
+										steps = entry.getScore();//(Integer) others.getInt(key);
 									} catch (JSONException e2) {
 										// TODO Auto-generated catch block
 										e2.printStackTrace();
 									}
 									group_members.get(i).setText(name);
 									group_steps.get(i).setVisibility(View.VISIBLE);
-									group_steps.get(i).setText(steps);
+									group_steps.get(i).setText(String.valueOf(steps));
 									group_members.get(i).setClickable(false);
 									group_members.get(i).setVisibility(View.VISIBLE);
-									group_members.get(i).setBackgroundColor(0xdcdcdc);
-									group_steps.get(i).setBackgroundColor(0xdcdcdc);
+									group_members.get(i).setBackgroundColor(Color.parseColor("#dcdcdc"));
+									group_steps.get(i).setBackgroundColor(Color.parseColor("#dcdcdc"));
 
 									i++;
 							
 							if (key.equalsIgnoreCase(pref.getString("FBid", ""))) {
-								group_members.get(i).setBackgroundColor(0xf7fe2e);
-								group_steps.get(i).setBackgroundColor(0xf7fe27);
+								group_members.get(i - 1).setBackgroundColor(Color.parseColor("#f7fe2e"));
+								group_steps.get(i - 1).setBackgroundColor(Color.parseColor("#f7fe2e"));
 								if(steps >= building.getSteps()){
 									endCompetition();
 									Toast.makeText(getApplicationContext(),  "Yeah!!!! You won this challenge", Toast.LENGTH_SHORT).show();
@@ -1391,7 +1414,7 @@ public class ClimbActivity extends ActionBarActivity {
 								group_members.get(i).setClickable(true);
 								group_members.get(i).setText("  +");
 								group_members.get(i).setVisibility(View.VISIBLE);
-								group_members.get(i).setBackgroundColor(0xdcdcdc);
+								group_members.get(i).setBackgroundColor(Color.parseColor("#dcdcdc"));
 								group_members.get(i).setOnClickListener(new OnClickListener() {
 								
 							
@@ -1399,7 +1422,7 @@ public class ClimbActivity extends ActionBarActivity {
 								@Override
 								public void onClick(View arg0) {
 									Bundle params = new Bundle();
-									params.putString("data", "{\"idCompet\":\"" + competition.getId_online() + "\"," + "\"idBuilding\":\"" + building.get_id() + "\"," + "\"nameBuilding\":\"" + building.getName() + "\", \"type\": \"1\"}");
+									params.putString("data", "{\"idCollab\":\"" + competition.getId_online() + "\"," + "\"idBuilding\":\"" + building.get_id() + "\"," + "\"nameBuilding\":\"" + building.getName() + "\", \"type\": \"2\"}");
 									params.putString("message", "Please, help me!!!!");
 									WebDialog requestsDialog = (new WebDialog.RequestsDialogBuilder(ClimbActivity.this, Session.getActiveSession(), params)).setOnCompleteListener(new OnCompleteListener() {
 

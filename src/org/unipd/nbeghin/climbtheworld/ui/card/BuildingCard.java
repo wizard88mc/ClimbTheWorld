@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.SimpleTimeZone;
 
+import org.apache.http.cookie.SetCookie;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
@@ -114,8 +115,21 @@ public class BuildingCard extends Card {
 		// MainActivity.getContext().getSharedPreferences("UserSession", 0);
 		climbing = MainActivity.getClimbingForBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
 		gameMode.setText("Modalitˆ: " + setModeText());
-		if(climbing != null && climbing.getGame_mode() == 1)
-			setSocialClimb();
+		if(climbing != null){
+			switch (climbing.getGame_mode()) {
+			case 1:
+				setSocialClimb();
+				break;
+			case 2:
+				setSocialChallenge();
+				break;
+			case 3:
+				break;
+			default:
+				break;
+			}
+		}
+			
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 		if(climbing != null){
 		if(climbing.getPercentage() >= 1.00){
@@ -171,6 +185,11 @@ public class BuildingCard extends Card {
 					} else {
 						// aggiorna esistente
 						climbing.setGame_mode(1);
+						if(climbing.getPercentage() >= 1.00){
+							climbing.setPercentage(0);
+							climbing.setCompleted_steps(0);
+							climbing.setRemaining_steps(building.getSteps());
+						}
 						MainActivity.climbingDao.update(climbing);
 						updateClimbingInParse();
 					}
@@ -202,7 +221,7 @@ public class BuildingCard extends Card {
 				if(FacebookUtils.isOnline(activity)){
 					
 					switch (mode) {
-					case SOCIAL_CHALLENGE:
+					case SOLO_CLIMB:
 						if (climbing == null) {
 							// crea nuovo
 							climbing = new Climbing();
@@ -219,7 +238,12 @@ public class BuildingCard extends Card {
 							saveClimbingInParse();
 						} else {
 							// aggiorna esistente
-							climbing.setGame_mode(1);
+							climbing.setGame_mode(2);
+							if(climbing.getPercentage() >= 1.00){
+								climbing.setPercentage(0);
+								climbing.setCompleted_steps(0);
+								climbing.setRemaining_steps(building.getSteps());
+							}
 							MainActivity.climbingDao.update(climbing);
 							updateClimbingInParse();
 						}
@@ -227,7 +251,7 @@ public class BuildingCard extends Card {
 						saveCompetition();
 						break;
 
-					case SOLO_CLIMB:
+					case SOCIAL_CHALLENGE:
 						Log.d("onClick", "solo");
 						climbing.setGame_mode(0);
 						MainActivity.climbingDao.update(climbing);
@@ -390,7 +414,7 @@ public class BuildingCard extends Card {
 			public void done(ParseException e) {
 				if(e == null){
 				compet.setBuilding(building);
-				compet.setId_online(collabParse.getObjectId());
+				compet.setId_online(competParse.getObjectId());
 				compet.setMy_stairs(0);
 				compet.setCurrent_position(0);
 				compet.setSaved(true);
@@ -400,9 +424,9 @@ public class BuildingCard extends Card {
 				MainActivity.competitionDao.create(compet);
 				
 
-				mode = GameModeType.SOCIAL_CLIMB;
-				setSocialClimb();
-				sendRequest(GameModeType.SOCIAL_CLIMB, compet.getId_online());
+				mode = GameModeType.SOCIAL_CHALLENGE;
+				setSocialChallenge();
+				sendRequest(GameModeType.SOCIAL_CHALLENGE, compet.getId_online());
 				}else{
 					Toast.makeText(MainActivity.getContext(), "Connection Problems: cannot create competition", Toast.LENGTH_SHORT).show();
 					Log.e("saveCompetition", e.getMessage());					
@@ -467,7 +491,7 @@ public class BuildingCard extends Card {
 
 	private void leaveCompetition() {
 		final Competition competit = MainActivity.getCompetitionByBuilding(building.get_id());
-		ParseQuery<ParseObject> query = ParseQuery.getQuery("Collaboration");
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("Competition");
 		query.whereEqualTo("objectId", competit.getId_online());
 		query.findInBackground(new FindCallback<ParseObject>() {
 
