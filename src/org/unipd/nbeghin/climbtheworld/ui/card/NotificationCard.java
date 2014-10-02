@@ -122,6 +122,11 @@ public class NotificationCard extends Card {
 
 					final AskCollaborationNotification current = ((AskCollaborationNotification) notification);
 
+					Collaboration collabs = MainActivity.getCollaborationByBuilding(current.getBuilding_id());
+					Competition compet = MainActivity.getCompetitionByBuilding(current.getBuilding_id());
+					//stessa per team
+					if(collabs == null && compet == null /* add team*/){
+					
 					//prendi collaborazione da parse
 					ParseQuery<ParseObject> queryColl = ParseQuery.getQuery("Collaboration");
 					queryColl.whereEqualTo("objectId", current.getCollaborationId());
@@ -198,6 +203,11 @@ public class NotificationCard extends Card {
 										climbingParse.saveEventually();
 									}else{
 										climb.setGame_mode(1);
+										if(climb.getPercentage() >= 1.00){
+											climb.setPercentage(0);
+											climb.setCompleted_steps(0);
+											climb.setRemaining_steps(building.getSteps());
+										}
 										my_stairs = climb.getCompleted_steps();
 										ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
 										query.whereEqualTo("building", building.get_id());
@@ -228,6 +238,7 @@ public class NotificationCard extends Card {
 									collaborationLocal.setSaved(true);
 									collaborationLocal.setLeaved(false);
 									collaborationLocal.setUser(me);
+									collaborationLocal.setCompleted(false);
 									MainActivity.collaborationDao.create(collaborationLocal);
 									
 									
@@ -255,10 +266,22 @@ public class NotificationCard extends Card {
 							
 						}
 					});
-		
+					}else{
+						text.setText("Unable to take part");
+						deleteRequest(String.valueOf(notification.getId()));
+
+						cancelBtn.setEnabled(false);
+						acceptBtn.setEnabled(false);
+						notification.setRead(true);
+					}
 					break;
 				case ASK_COMPETITION:
 					final AskCompetitionNotification current1 = ((AskCompetitionNotification) notification);
+					
+					Collaboration collabs1 = MainActivity.getCollaborationByBuilding(current1.getBuilding_id());
+					Competition compet1 = MainActivity.getCompetitionByBuilding(current1.getBuilding_id());
+					//stessa per team
+					if(collabs1 == null && compet1 == null /* add team*/){
 
 					//prendi competizione da parse
 					ParseQuery<ParseObject> queryComp = ParseQuery.getQuery("Competition");
@@ -366,6 +389,7 @@ public class NotificationCard extends Card {
 									competitionLocal.setSaved(true);
 									competitionLocal.setLeaved(false);
 									competitionLocal.setUser(me);
+									competitionLocal.setCompleted(false);
 									MainActivity.competitionDao.create(competitionLocal);
 									
 									
@@ -393,6 +417,14 @@ public class NotificationCard extends Card {
 							
 						}
 					});
+					}else{
+						text.setText("Unable to take part");
+						deleteRequest(String.valueOf(notification.getId()));
+
+						cancelBtn.setEnabled(false);
+						acceptBtn.setEnabled(false);
+						notification.setRead(true);
+					}
 					break;
 
 				}

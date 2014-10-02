@@ -250,7 +250,8 @@ public class ClimbActivity extends ActionBarActivity {
 						stopClassify(); // stop classifier service service
 						apply_win();
 					}
-					if(((num_steps + sumOthersStep()) >= building.getSteps()) && (threshold - num_steps > 0)){
+					if(mode == GameModeType.SOCIAL_CLIMB && ((num_steps + sumOthersStep()) >= building.getSteps()) && (threshold - num_steps > 0)){
+						System.out.println("Social Penalty");
 						socialPenalty();
 					}
 				}
@@ -455,7 +456,7 @@ public class ClimbActivity extends ActionBarActivity {
 		if(stepsToThreshold <= 0)
 			current.setText("Threshold passed: you're in!!!!");
 		else
-			current.setText(R.string.threshold + ": " + stepsToThreshold);
+			current.setText(getString(R.string.threshold) + ": " + stepsToThreshold);
 	}
 	
 	private void setGraphicsSocialMode() {
@@ -715,7 +716,7 @@ public class ClimbActivity extends ActionBarActivity {
 		if(competition == null){
 			Toast.makeText(this, "No competition available for this building", Toast.LENGTH_SHORT).show();
 		}else{
-			updateOthers();
+			updateChart();
 		}
 	}
 
@@ -731,7 +732,7 @@ public class ClimbActivity extends ActionBarActivity {
 					if (e == null) {
 						if (collabs == null || collabs.size() == 0) {
 							Toast.makeText(getApplicationContext(), "This Collaboration does not exists", Toast.LENGTH_SHORT).show();
-							Log.e("loadCollaboration", "Collaboration not present in Parse");
+							Log.e("loadCollaboration", "Collaboration " + collaboration.getId() + " not present in Parse");
 							// delete this collaboration
 							MainActivity.collaborationDao.delete(collaboration);
 						} else {
@@ -816,6 +817,12 @@ public class ClimbActivity extends ActionBarActivity {
 								group_steps.get(i).setVisibility(View.INVISIBLE);
 
 							}
+							System.out.println("num_steps " + num_steps);
+							System.out.println("sum other steps " + sumOthersStep());
+							if((num_steps + sumOthersStep() >= building.getSteps()) && (num_steps < threshold)){
+								System.out.println("social penalty");
+								socialPenalty();
+							}
 
 						}
 					} else if(!(mode == GameModeType.SOCIAL_CLIMB)) {
@@ -824,6 +831,8 @@ public class ClimbActivity extends ActionBarActivity {
 					}
 				}
 			});
+			
+				
 		} else {
 			Toast.makeText(getApplicationContext(), "No Connection Available", Toast.LENGTH_SHORT).show();
 		}
@@ -864,8 +873,8 @@ public class ClimbActivity extends ActionBarActivity {
 	}
 
 	private void updateClimbingInParse(final Climbing climbing) {
+		final SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
 		if (FacebookUtils.isOnline(this)) {
-
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
 			query.whereEqualTo("users_id", climbing.getUser().getFBid());
 			query.whereEqualTo("building", climbing.getBuilding().get_id());
@@ -1091,11 +1100,16 @@ public class ClimbActivity extends ActionBarActivity {
 		}
 	}
 	
+	//la collaborazione si  conclusa e non ho superato la soglia minima
+	//quindi torno in social climb e elimino la collab localmente
 	private void socialPenalty(){
 		
 			Toast.makeText(this.getApplicationContext(), "Move up next time!!!!", Toast.LENGTH_SHORT).show();
+			((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.social_share);
 			mode = GameModeType.SOLO_CLIMB;
 			climbing.setGame_mode(0);
+			updateClimbingInParse(climbing);
+			MainActivity.collaborationDao.delete(collaboration);
 	}
 
 	/**
@@ -1115,6 +1129,8 @@ public class ClimbActivity extends ActionBarActivity {
 																		// steps
 		if (percentage >= 1.00 && (mode != GameModeType.SOCIAL_CHALLENGE) && (mode != GameModeType.TEAM_VS_TEAM))
 			climbing.setCompleted(new Date().getTime());
+		if(percentage >= 1.00)
+			climbing.setGame_mode(0);
 		MainActivity.climbingDao.update(climbing); // save to db
 		updateClimbingInParse(climbing);
 		Log.i(MainActivity.AppName, "Updated climbing #" + climbing.get_id());
@@ -1135,6 +1151,7 @@ public class ClimbActivity extends ActionBarActivity {
 			saveCompetitionData();
 	}
 
+	//elimino localmente la collabrazione se l'ho completata
 	private void saveCollaborationData() {
 		collaboration.setMy_stairs(climbing.getCompleted_steps());
 		if (collab_parse == null) {
@@ -1146,6 +1163,11 @@ public class ClimbActivity extends ActionBarActivity {
 			try {
 				stairs.put(pref.getString("FBid", ""), collaboration.getMy_stairs());
 				collab_parse.put("stairs", stairs);
+				if(percentage >= 1.00){
+					System.out.println("elimino collab");
+					collab_parse.put("completed", true);
+					collaboration.setCompleted(true);
+				}
 				collab_parse.saveEventually();
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
@@ -1153,7 +1175,7 @@ public class ClimbActivity extends ActionBarActivity {
 			}
 			collaboration.setSaved(true);
 		}
-		MainActivity.collaborationDao.update(collaboration);
+		MainActivity.collaborationDao.delete(collaboration);
 
 	}
 	

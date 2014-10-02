@@ -37,7 +37,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name=".services.NetworkBroadcasterReceiver" >
+       <receiver android:name=".services.NetworkBroadcasterReceiver" >
         <intent-filter>
             <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
         </intent-filter>

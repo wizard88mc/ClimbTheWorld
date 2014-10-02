@@ -117,14 +117,19 @@ public class BuildingCard extends Card {
 		if(climbing != null && climbing.getGame_mode() == 1)
 			setSocialClimb();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
+		if(climbing != null){
+		if(climbing.getPercentage() >= 1.00){
+			climbingStatus.setText("Climbing: COMPLETED! (on " + sdf.format(new Date(climbing.getModified())) + ")");
+		}else{
+			climbingStatus.setText("Climbing status: " + new DecimalFormat("#").format(climbing.getPercentage() * 100) + "% (last attempt @ " + sdf.format(new Date(climbing.getModified())) + ")");
+		}
+		}	
 		if (climbing != null && climbing.getGame_mode() == 0) {
-			if (climbing.getPercentage() >= 100) {
-				climbingStatus.setText("Climbing: COMPLETED! (on " + sdf.format(new Date(climbing.getModified())) + ")");
+			if (climbing.getPercentage() >= 1.00) {
 				socialClimbButton.setEnabled(false);
 				socialChallengeButton.setEnabled(true);
 				teamVsTeamButton.setEnabled(true);
 			} else {
-				climbingStatus.setText("Climbing status: " + new DecimalFormat("#").format(climbing.getPercentage() * 100) + "% (last attempt @ " + sdf.format(new Date(climbing.getModified())) + ")");
 				socialClimbButton.setEnabled(true);
 				socialChallengeButton.setEnabled(true);
 				teamVsTeamButton.setEnabled(true);
@@ -329,6 +334,7 @@ public class BuildingCard extends Card {
 		collabParse.put("building", building.get_id());
 		collabParse.put("stairs", stairs);
 		collabParse.put("collaborators", collaborators);
+		collabParse.put("completed", false);
 		collabParse.saveInBackground(new SaveCallback() {
 			
 			@Override
@@ -341,6 +347,7 @@ public class BuildingCard extends Card {
 				collab.setSaved(true);
 				collab.setLeaved(false);
 				collab.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
+				collab.setCompleted(false);
 				MainActivity.collaborationDao.create(collab);
 				
 
@@ -587,7 +594,8 @@ public class BuildingCard extends Card {
 			climbing.setGame_mode(0);
 			MainActivity.climbingDao.update(climbing);
 			updateClimbingInParse();
-			
+			graphicsRollBack(type);
+
 			mode = GameModeType.SOLO_CLIMB;
 			gameMode.setText("Modalitˆ: " + setModeText());
 			break;

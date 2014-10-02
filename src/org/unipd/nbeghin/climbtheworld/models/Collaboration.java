@@ -25,7 +25,8 @@ public class Collaboration {
 	private int leaved;
 	@DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true, columnName = "user_id")
 	private User	 user;
-
+	@DatabaseField
+	private int completed;
 
 	public Collaboration(){}
 	
@@ -114,6 +115,21 @@ public class Collaboration {
 	
 	public boolean isLeaved(){
 		if(leaved == 1)
+			return true;
+		else
+			return false;
+	} 
+	
+	public void setCompleted(boolean completed){
+		if(completed){
+			this.completed = 1;
+		}else{
+			this.completed = 0;
+		}
+	}
+	
+	public boolean isCompleted(){
+		if(completed == 1)
 			return true;
 		else
 			return false;

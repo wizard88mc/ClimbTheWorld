@@ -132,8 +132,6 @@ public class MainActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState); Log.d("MainActivity", "inizio");
 		setContentView(R.layout.activity_main); Log.d("MainActivity", "dopo layout");
 		pref = getSharedPreferences("UserSession", 0);
-		// this.registerReceiver(new NetworkBroadcasterReceiver(),
-		//         new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		
 		try {
 			PackageInfo info = getPackageManager().getPackageInfo(
@@ -405,7 +403,7 @@ public class MainActivity extends ActionBarActivity {
 	
 	public static Collaboration getCollaborationById(String id){
 		Map<String, Object> conditions = new HashMap<String, Object>();
-		conditions.put("_id", id); // filter for building ID
+		conditions.put("id_online", id); // filter for building ID
 		List<Collaboration> collaborations = collaborationDao.queryForFieldValuesArgs(conditions);
 		if(collaborations.size() == 0)
 			return null;

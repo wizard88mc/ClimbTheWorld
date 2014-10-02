@@ -60,7 +60,6 @@ public class UpdateService extends IntentService {
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("saved", 0); 
 		List<Climbing> climbings = climbingDao.queryForFieldValuesArgs(conditions);
-		System.out.println("Climbings: " + climbings.size());
 		Log.d("updateService", "Climbings: " + climbings.size());
 		for(final Climbing climbing: climbings)
 		{
@@ -88,14 +87,14 @@ public class UpdateService extends IntentService {
 							}
 						}else{
 							Toast.makeText(context, "Connection Problems", Toast.LENGTH_SHORT).show();
-							Log.e("NetworkBroadcasterReceiver", e.getMessage());
+							Log.e("updateService - climbings", e.getMessage());
 						}
 				}
 			});
 		}
 	}
 	
-	private void saveCollaborations(final SharedPreferences pref, final Context context){
+	private void saveCollaborations(final Context context){
 		//salvo tutti i climbing online
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("saved", 0); 
@@ -117,8 +116,8 @@ public class UpdateService extends IntentService {
 
 							if(collaboration.isLeaved()){
 								JSONObject collaborators = collabParse.getJSONObject("collaborators");
-								collaborators.remove(pref.getString("FBid", ""));
-								stairs.remove(pref.getString("FBid", ""));
+								collaborators.remove(collaboration.getUser().getFBid());
+								stairs.remove(collaboration.getUser().getFBid());
 								collabParse.put("collaborators", collaborators);
 								collabParse.put("stairs", stairs);
 								collabParse.saveEventually();
@@ -126,7 +125,7 @@ public class UpdateService extends IntentService {
 								collaborationDao.update(collaboration);
 							}else{
 								try {
-									stairs.put(pref.getString("FBid", ""), collaboration.getMy_stairs());
+									stairs.put(collaboration.getUser().getFBid(), collaboration.getMy_stairs());
 									collabParse.put("stairs", stairs);
 									collabParse.saveEventually();
 									collaboration.setSaved(true);
@@ -139,7 +138,7 @@ public class UpdateService extends IntentService {
 						}
 					}else{
 						Toast.makeText(context, "Connection Problems", Toast.LENGTH_SHORT).show();
-						Log.e("NetworkBroadcasterReceiver", e.getMessage());
+						Log.e("updateService - collaborations", e.getMessage());
 					}
 				}
 				
@@ -147,9 +146,60 @@ public class UpdateService extends IntentService {
 		}
 	}
     
+	private void saveCompetitions(final Context context){
+		//salvo tutti i climbing online
+		Map<String, Object> conditions = new HashMap<String, Object>();
+		conditions.put("saved", 0); 
+		List<Competition> competitions = competitionDao.queryForFieldValuesArgs(conditions);
+		Log.d("updateService", "Collaborations: " + competitions.size());
+		for(final Competition competition : competitions){
+			ParseQuery<ParseObject> query = ParseQuery.getQuery("Collaboration");
+			query.whereEqualTo("objectId", competition.getId_online());
+			query.findInBackground(new FindCallback<ParseObject>() {
+				
+				@Override
+				public void done(List<ParseObject> collabs, ParseException e) {
+					if(e == null){
+						if(collabs.size() == 0){
+							competitionDao.delete(competition);
+						}else{
+							ParseObject collabParse = new ParseObject("Competition");
+							JSONObject stairs = collabParse.getJSONObject("stairs");
+
+							if(competition.isLeaved()){
+								JSONObject collaborators = collabParse.getJSONObject("competitors");
+								collaborators.remove(competition.getUser().getFBid());
+								stairs.remove(competition.getUser().getFBid());
+								collabParse.put("competitors", collaborators);
+								collabParse.put("stairs", stairs);
+								collabParse.saveEventually();
+								competition.setSaved(true);
+								competitionDao.update(competition);
+							}else{
+								try {
+									stairs.put(competition.getUser().getFBid(), competition.getMy_stairs());
+									collabParse.put("stairs", stairs);
+									collabParse.saveEventually();
+									competition.setSaved(true);
+									competitionDao.update(competition);
+								} catch (JSONException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+							}
+						}
+					}else{
+						Toast.makeText(context, "Connection Problems", Toast.LENGTH_SHORT).show();
+						Log.e("UpdateService - competitors", e.getMessage());
+					}
+				}
+				
+			});
+		}
+	}
+	
     @Override
     protected void onHandleIntent(Intent intent) {
-    	SharedPreferences pref = getSharedPreferences("UserSession", 0);
 System.out.println("service on");
 PreExistingDbLoader preExistingDbLoader = new PreExistingDbLoader(
 				this); // extract db from zip
@@ -162,7 +212,8 @@ PreExistingDbLoader preExistingDbLoader = new PreExistingDbLoader(
 		competitionDao = dbHelper.getCompetitionDao();
 		if(isOnline(this)){
 			saveClimbings(this);
-			saveCollaborations(pref, this);
+			saveCollaborations(this);
+			saveCompetitions(this);
 		}
       
     }

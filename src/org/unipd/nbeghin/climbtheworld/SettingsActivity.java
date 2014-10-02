@@ -207,6 +207,7 @@ public class SettingsActivity extends PreferenceActivity {
 							c.setPercentage(Float.valueOf(climb.getString("percentage")));
 							c.setRemaining_steps(climb.getInt("remaining_steps"));
 							c.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
+							c.setSaved(true);
 							System.out.println("user " + c.getUser().get_id());
 							c.setGame_mode(climb.getInt("game_mode"));
 							MainActivity.climbingDao.create(c);
@@ -223,6 +224,7 @@ public class SettingsActivity extends PreferenceActivity {
 								localClimb.setPercentage(Float.valueOf(climb.getString("percecntage")));
 								localClimb.setRemaining_steps(climb.getInt("remaining_steps"));
 								localClimb.setGame_mode(climb.getInt("game_mode"));
+								localClimb.setSaved(true);
 								MainActivity.climbingDao.update(localClimb);
 							}
 						}
@@ -265,30 +267,29 @@ public class SettingsActivity extends PreferenceActivity {
 					if(e == null){
 						for(ParseObject collaboration : collabs){
 							JSONObject others_steps = collaboration.getJSONObject("stairs");
+							boolean completed = collaboration.getBoolean("completed");
 							Collaboration local_collab = MainActivity.getCollaborationById(collaboration.getObjectId());
 							if(local_collab == null){
+								if(!completed){ // altrim l'ho già vista e non mi serve più
 								//crea nuova collaborazione
 								Collaboration coll = new Collaboration();
 								coll.setBuilding(MainActivity.getBuildingById(collaboration.getInt("building")));
 								coll.setId(collaboration.getObjectId());
-								if(collaboration.getInt("leaved") == 0)
-									coll.setLeaved(false);
-								else
-									coll.setLeaved(true);
+								coll.setLeaved(false);
 								coll.setMy_stairs(collaboration.getInt("my_stairs"));
 								coll.setOthers_stairs(sumOthersStep(others_steps));
-								if(collaboration.getInt("saved") == 0)
-									coll.setSaved(false);
-								else
-									coll.setSaved(true);
+								coll.setSaved(true);
 								coll.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
 								MainActivity.collaborationDao.create(coll);
+								}
 								
 							}else{//update collaborazione esistente
 								if(local_collab.getMy_stairs() < collaboration.getInt("my_stairs"))
 									local_collab.setMy_stairs(collaboration.getInt("my_stairs"));
 								JSONObject others = collaboration.getJSONObject("stairs");
 								local_collab.setOthers_stairs(sumOthersStep(others));
+								local_collab.setSaved(true);
+								local_collab.setCompleted(collaboration.getBoolean("completed"));
 								MainActivity.collaborationDao.update(local_collab);
 								
 							}
@@ -323,17 +324,11 @@ public class SettingsActivity extends PreferenceActivity {
 								Competition comp = new Competition();
 								comp.setBuilding(MainActivity.getBuildingById(competition.getInt("building")));
 								comp.setId_online(competition.getObjectId());
-								if(competition.getInt("leaved") == 0)
-									comp.setLeaved(false);
-								else
-									comp.setLeaved(true);
+								comp.setLeaved(false);
 								comp.setMy_stairs(competition.getInt("my_stairs"));
 								//setcurrentposition
 								comp.setCurrent_position(ModelsUtil.getMyPosition(pref.getString("FBid", ""), ModelsUtil.fromJsonToSortedMap(competition.getJSONObject("stairs"))));
-								if(competition.getInt("saved") == 0)
-									comp.setSaved(false);
-								else
-									comp.setSaved(true);
+								comp.setSaved(true);
 								
 								comp.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
 								MainActivity.competitionDao.create(comp);
@@ -344,6 +339,7 @@ public class SettingsActivity extends PreferenceActivity {
 								JSONObject others = competition.getJSONObject("stairs");
 								//setcurrentposition
 								local_compet.setCurrent_position(ModelsUtil.getMyPosition(pref.getString("FBid", ""), ModelsUtil.fromJsonToSortedMap(competition.getJSONObject("stairs"))));
+								local_compet.setSaved(true);
 								MainActivity.competitionDao.update(local_compet);
 								
 							}

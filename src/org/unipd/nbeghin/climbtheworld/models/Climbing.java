@@ -29,7 +29,8 @@ public class Climbing {
 	private int				game_mode;
 	@DatabaseField
 	private int 		saved;
-	
+
+
 	public int getGame_mode() {
 		return game_mode;
 	}
