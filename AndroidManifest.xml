@@ -139,7 +139,8 @@
   	      <intent-filter>
       	    <action android:name="android.intent.action.BOOT_COMPLETED" />
       	    <action android:name="ACTIVITY_RECOGNITION_START"/>   
-      	    <action android:name="ACTIVITY_RECOGNITION_STOP"/>       	    
+      	    <action android:name="ACTIVITY_RECOGNITION_STOP"/> 
+      	    <action android:name="UPDATE_DAY_INDEX_TESTING"/>      	    
    	      </intent-filter>
         </receiver>
         

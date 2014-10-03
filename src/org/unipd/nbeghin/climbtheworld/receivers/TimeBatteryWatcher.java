@@ -1,5 +1,12 @@
 package org.unipd.nbeghin.climbtheworld.receivers;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.models.Alarm;
 import org.unipd.nbeghin.climbtheworld.services.ActivityRecognitionRecordService;
 import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
@@ -13,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.util.Log;
 
 public class TimeBatteryWatcher extends BroadcastReceiver {
 	
@@ -22,6 +30,9 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 	private final String BOOT_ACTION = "android.intent.action.BOOT_COMPLETED";
 	private final String ACTIVITY_RECOGNITION_START_ACTION = "ACTIVITY_RECOGNITION_START";
 	private final String ACTIVITY_RECOGNITION_STOP_ACTION = "ACTIVITY_RECOGNITION_STOP";
+	
+	//per test algoritmo
+	private final String UPDATE_DAY_INDEX_FOR_TESTING = "UPDATE_DAY_INDEX_TESTING";
 	
 	//campi utili a registrare il receiver che "ascolta" l'attività utente; quest'ultimo sarà
 	//chiamato con qualsiasi broadcast intent che matcha con l'azione descritta dal seguente
@@ -126,7 +137,91 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					}
 					
 				}
+				
+				/////////				
+				//per test algoritmo: si aggiorna l'indice artificiale che rappresenta il giorno 
+				//corrente della settimana (utile per testare l'algoritmo con una settimana
+				//corta, composta ad esempio da 1,2 giorni); tale indice viene opportunamente 
+				//aggiornato considerando i giorni dall'ultimo spegnimento del device
+				Log.d(MainActivity.AppName,"TimeBatteryWatcher - day index update, on boot event");	
+				
+				//si aggiorna l'indice per indicare il giorno all'interno della settimana corta
+				//salvandolo nelle shared preferences
+				int currentDayIndex=pref.getInt("artificialDayIndex", 0);
+								
+				Calendar now = Calendar.getInstance();
+				now.set(Calendar.HOUR_OF_DAY, 0);
+				now.set(Calendar.MINUTE, 0);
+				now.set(Calendar.SECOND, 0);
+				
+				Calendar before = Calendar.getInstance();
+				before.set(Calendar.HOUR_OF_DAY, 0);
+				before.set(Calendar.MINUTE, 0);
+				before.set(Calendar.SECOND, 0);
+				DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");	
+				Date date = null;
+				try {
+					date = formatter.parse(pref.getString("dateOfIndex", ""));
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				before.setTime(date);
+						
+				double diff = now.getTimeInMillis() - before.getTimeInMillis();
+				diff = diff / (24 * 60 * 60 * 1000); // hours in a day, minutes in a hour,
+				                                    // seconds in a minute, millis in a
+				                                    // second.
+				int day_diff = (int) Math.round(diff);
+				
+				System.out.println(day_diff);		
+								
+				//si aggiorna l'indice artificiale che rappresenta il giorno corrente
+				//considerando i giorni dall'ultimo spegnimento del device
+				for(int i=0; i<day_diff; i++){										
+					if(currentDayIndex==GeneralUtils.daysOfWeek-1)
+						currentDayIndex=0;
+					else
+						currentDayIndex++;
+				}
+				//l'indice che risulta alla fine del ciclo è l'indice associato 
+				//alla nuova data
+				//si salvano nuovo indice e data nelle shared preferences
+				pref.edit().putInt("artificialDayIndex", currentDayIndex).commit();
+				
+				SimpleDateFormat calFormat = new SimpleDateFormat("yyyy-MM-dd");
+		    	String dateFormatted = calFormat.format(now.getTime());
+		    	pref.edit().putString("dateOfIndex", dateFormatted).commit();
+		    	Log.d(MainActivity.AppName,"TimeBatteryWatcher - on boot, new index: "+currentDayIndex+", new date: " + dateFormatted);	
+				/////////
+				
 			}
+		}
+		else if(action.equalsIgnoreCase(UPDATE_DAY_INDEX_FOR_TESTING)){
+			//serve per incrementare l'indice artificiale che rappresenta il giorno corrente della
+			//settimana (utile per testare l'algoritmo con una settimana corta, composta ad esempio
+			//da 1,2 giorni); tale indice viene opportunamente aggiornato ogni giorno a mezzanotte
+			
+			Log.d(MainActivity.AppName,"TimeBatteryWatcher - day index update, midnight event");			
+						
+			//si aggiorna l'indice per indicare il giorno all'interno della settimana corta
+			//salvandolo nelle shared preferences
+			int currentDayIndex=pref.getInt("artificialDayIndex", 0);
+			
+			if(currentDayIndex==GeneralUtils.daysOfWeek-1)
+				pref.edit().putInt("artificialDayIndex", 0).commit();
+			else{
+				pref.edit().putInt("artificialDayIndex", currentDayIndex+1).commit();
+			}
+			
+			//si aggiorna la data corrente salvandola nelle shared preferences
+			Calendar cal = Calendar.getInstance();
+	    	SimpleDateFormat calFormat = new SimpleDateFormat("yyyy-MM-dd");
+	    	String dateFormatted = calFormat.format(cal.getTime());
+	    	System.out.println(dateFormatted);    	
+	    	pref.edit().putString("dateOfIndex", dateFormatted).commit();
+			
+	    	Log.d(MainActivity.AppName,"TimeBatteryWatcher - on update index, new index: "+pref.getInt("artificialDayIndex", 0)+", new date: " + dateFormatted);	
 		}
 		else{
 			
@@ -190,4 +285,10 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 	    	AlarmUtils.setNextAlarm(context,AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,pref.getInt("current_template", -1))));			
 		}
 	}
+	
+	
+	
+	
+	
+	
 }

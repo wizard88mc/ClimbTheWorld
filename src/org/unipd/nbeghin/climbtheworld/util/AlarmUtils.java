@@ -75,16 +75,19 @@ public class AlarmUtils {
     	//esempi    	
     	
     	//creo alarm
-    	boolean bb[] = new boolean[] {true,true,true,true,true,true,true};
-    	boolean bb1[] = new boolean[] {false,false,true,true,true,true,true};
-    	boolean noweekend[] = new boolean[] {false,true,true,true,true,true,false}; 
-    	float pf[] = new float[] {0.25f,0.25f,0.25f,0.25f,0.25f,0.25f,0.25f};
-		Alarm alm1 = new Alarm(9,55,50,true,true,bb,pf);
-		Alarm alm2 = new Alarm(9,57,50,false,true,bb,pf);
-		Alarm alm3 = new Alarm(15,01,10,true,true,bb,pf);
-		Alarm alm4 = new Alarm(15,05,50,false,true,bb,pf); 
-		Alarm alm5 = new Alarm(21,10,51,true,true,bb,pf);
-		Alarm alm6 = new Alarm(21,13,50,false,true,bb,pf);
+    	//boolean bb[] = new boolean[] {true,true,true,true,true,true,true};
+    	//boolean bb1[] = new boolean[] {false,false,true,true,true,true,true};
+    	//boolean noweekend[] = new boolean[] {false,true,true,true,true,true,false}; 
+    	boolean bb[] = new boolean[] {true,true};
+    	//float pf[] = new float[] {0.25f,0.25f,0.25f,0.25f,0.25f,0.25f,0.25f};
+    	float pf[] = new float[] {0.25f,0.25f};
+		Alarm alm1 = new Alarm(9,55,50,true,bb,pf);
+		Alarm alm2 = new Alarm(9,57,50,false,bb,pf);
+		Alarm alm3 = new Alarm(15,01,10,true,bb,pf);
+		Alarm alm4 = new Alarm(15,05,50,false,bb,pf); 
+		Alarm alm5 = new Alarm(23,15,51,true,bb,pf);
+		Alarm alm6 = new Alarm(23,16,50,false,bb,pf);
+		
 		
 		//creo template
 		
@@ -215,6 +218,10 @@ public class AlarmUtils {
 	//nell'on receive per l'on boot action e al cambiamento di template 
 	public static void setNextAlarm(Context context, List<Alarm> alarms){
 		
+		
+		int artificialIndex = context.getSharedPreferences("appPrefs", 0).getInt("artificialDayIndex", 0);
+		
+		
 		//servirà per implementare la probabilità di riconsiderare un alarm scartato
 		Random rand = new Random(); 
 		
@@ -268,7 +275,12 @@ public class AlarmUtils {
 			//il relativo alarm di stop
 			
 			
-			if(e.getRepeatingDay(currentDayOfWeek) && alarmTime.after(now)){
+			//per test algoritmo: l'indice del giorno corrente è impostato "artificialmente",
+			//in quanto lo deve rappresentare all'interno della settimana "corta";
+			//normalmente l'indice è dato dalla data corrente: e.getRepeatingDay(currentDayOfWeek)
+			
+			
+			if(e.getRepeatingDay(artificialIndex) && alarmTime.after(now)){
 				
 				//se si è arrivati qui vuol dire che l'alarm è attivo in questo
 				//giorno della settimana ed è valido per essere lanciato e, quindi, 
@@ -290,10 +302,19 @@ public class AlarmUtils {
 			alarmTime.set(Calendar.HOUR_OF_DAY, 0);
 			alarmTime.set(Calendar.MINUTE, 0);
 			alarmTime.set(Calendar.SECOND, 0);
-						
+				
+			//per testing: si inizializza l'indice artificiale 
+			int currentIndex = artificialIndex;
+			
+			
 			while(!stop){
 				
 				alarmTime.add(Calendar.DATE, 1);			
+				
+				//per testing: si aggiorna l'indice artificiale man mano che
+				//si incrementa la data
+				currentIndex=getDayIndex(currentIndex);
+				
 				
 				for(int i=0; i<alarms.size() && !stop; i++){
 					
@@ -302,10 +323,15 @@ public class AlarmUtils {
 					//TODO: aggiungere anche qui condizione nell'if per ri-considerare
 					//      un alarm scartato in precedenza
 					
-					if(e.getRepeatingDay(alarmTime.get(Calendar.DAY_OF_WEEK)-1)){ //istante di inizio sicuramente > di ora
+					
+					//per testing si fa sempre riferimento all'indice artificiale;
+					//normalmente: e.getRepeatingDay(alarmTime.get(Calendar.DAY_OF_WEEK)-1)
+					
+					if(e.getRepeatingDay(currentIndex)){ //istante di inizio sicuramente > di ora
 						nextAlarm=e;
 						stop=true;
 					}
+					
 				}
 			}
 		}
@@ -381,6 +407,15 @@ public class AlarmUtils {
 	}
 	 
 	 
+	
+	/**
+	 * 
+	 * @param i
+	 * @return
+	 */	
+	private static int getDayIndex(int i){
+		return (i == GeneralUtils.daysOfWeek-1) ? 0 : i+1;
+	}
 	
 	 
 	 

@@ -1,5 +1,9 @@
 package org.unipd.nbeghin.climbtheworld.models;
 
+import java.util.ArrayList;
+
+import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
+
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
@@ -43,10 +47,15 @@ public class Alarm {
 	private int second;
     @DatabaseField(columnName = ACTION_TYPE_FIELD_NAME) 
     private boolean actionType;    //per ora boolean (con lancio trigger: int, 0,1,-1)
-    @DatabaseField(columnName = CLASSIF_TYPE_FIELD_NAME) 
-    private boolean classificatorType; 
+   // @DatabaseField(columnName = CLASSIF_TYPE_FIELD_NAME) 
+    //private boolean classificatorType; 
+        
     @DatabaseField(dataType = DataType.SERIALIZABLE)
-    private boolean repeatingDays[] =  new boolean[7];
+    private boolean repeatingDays[] = new boolean[GeneralUtils.daysOfWeek]; // =  new boolean[7];
+    //la dimensione è decisa all'inizio a seconda del numero di giorni della settimana
+    //(per test algoritmo meno di 7 giorni, es. 1,2)
+    
+    
           
     //i valori del seguente array indicano le varie probabilità di riconsiderare
     //gli alarm scartati in precedenza; ogni valore dell'array indica la probabilità 
@@ -57,7 +66,7 @@ public class Alarm {
     //corrispondenza dell'indice relativo ad un certo giorno in cui l'alarm viene
     //considerato viene posto il valore di probabilità calcolato in base alla fitness
     @DatabaseField(dataType = DataType.SERIALIZABLE)
-    private float probabilityValues[] =  new float[7];
+    private float probabilityValues[] = new float[GeneralUtils.daysOfWeek]; // =  new float[7];
     
      
     // [ aggiungere altri due array di 7 elementi: per probabilità e numero
@@ -80,15 +89,15 @@ public class Alarm {
      * @param repeatWeekly
      * @param isEnabled
      */
-    public Alarm(int hour, int minute, int second, boolean actionType, boolean classificatorType, boolean[] repeatingDays, float[] probabilityValues) {
+    public Alarm(int hour, int minute, int second, boolean actionType, boolean[] repeatingDays, float[] probabilityValues) {
 		
     	//this.id=id;
     	this.hour=hour;
     	this.minute=minute;
     	this.second=second;
     	this.actionType=actionType;
-    	this.classificatorType= classificatorType;
-    	
+    	//this.classificatorType= classificatorType;
+    	    	
     	for(int i=0; i<repeatingDays.length; i++)
     		this.repeatingDays[i]=repeatingDays[i];
     	
@@ -104,14 +113,14 @@ public class Alarm {
      * @param type
      */
     
-    public Alarm(int hour, int minute, int second, boolean actionType, boolean classificatorType) {
+    public Alarm(int hour, int minute, int second, boolean actionType) {
 		
     	//this.id=id;
     	this.hour=hour;
     	this.minute=minute;
     	this.second=second;
     	this.actionType=actionType;
-    	this.classificatorType= classificatorType;
+    	//this.classificatorType= classificatorType;
     	
     	for(int i=0; i<repeatingDays.length; i++)
     		this.repeatingDays[i]=true;    	
@@ -163,7 +172,8 @@ public class Alarm {
 	public void set_actionType(boolean type) {
 		actionType = type;
 	}
-	
+
+	/*
 	public boolean get_classificatorType() {
 		return classificatorType;
 	}
@@ -171,6 +181,7 @@ public class Alarm {
 	public void set_classificatorType(boolean type) {
 		classificatorType = type;
 	}
+	*/
 	
 	/*
 	public boolean[] get_repeatingDays(){
