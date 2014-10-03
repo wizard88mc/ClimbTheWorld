@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Vector;
 
 import org.json.JSONException;
@@ -35,6 +36,7 @@ import org.unipd.nbeghin.climbtheworld.models.Competition;
 import org.unipd.nbeghin.climbtheworld.models.InviteNotification;
 import org.unipd.nbeghin.climbtheworld.models.Notification;
 import org.unipd.nbeghin.climbtheworld.models.Photo;
+import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
@@ -92,11 +94,13 @@ public class MainActivity extends ActionBarActivity {
 	public static List<Notification> notifications;
 	public static List<Collaboration> collaborations;
 	public static List<Competition> competitions;
+	public static List<TeamDuel> teamDuels;
 	private ActionBar ab; // reference to action bar
 	public static RuntimeExceptionDao<Building, Integer> buildingDao; // DAO for
 																		// buildings
 	public static RuntimeExceptionDao<Collaboration, Integer> collaborationDao;
 	public static RuntimeExceptionDao<Competition, Integer> competitionDao;
+	public static RuntimeExceptionDao<TeamDuel, Integer> teamDuelDao;
 	public static RuntimeExceptionDao<Climbing, Integer> climbingDao; // DAO for
 																		// climbings
 	public static RuntimeExceptionDao<Tour, Integer> tourDao; // DAO for tours
@@ -409,6 +413,15 @@ public class MainActivity extends ActionBarActivity {
 		return collaborations.get(0);
 	}
 	
+	public static TeamDuel getTeamDuelById(String id){
+		Map<String, Object> conditions = new HashMap<String, Object>();
+		conditions.put("id_online", id);
+		List<TeamDuel> duels = teamDuelDao.queryForFieldValuesArgs(conditions);
+		if(duels.size() == 0)
+			return null;
+		return duels.get(0);
+	}
+	
 	public static Collaboration getCollaborationById(String id){
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("id_online", id); // filter for building ID
@@ -478,6 +491,7 @@ public class MainActivity extends ActionBarActivity {
 		photoDao = dbHelper.getPhotoDao();
 		collaborationDao = dbHelper.getCollaborationDao();
 		competitionDao = dbHelper.getCompetitionDao();
+		teamDuelDao = dbHelper.getTeamDuelDao();
 		refresh(); // loads all buildings and tours
 	}
 
@@ -577,6 +591,28 @@ public class MainActivity extends ActionBarActivity {
 		
 	}
 	
+	public static void refreshTeamDuels(){
+		SharedPreferences pref = getContext().getSharedPreferences("UserSession", 0);
+		
+		QueryBuilder<TeamDuel, Integer> query = teamDuelDao.queryBuilder();
+		Where<TeamDuel, Integer> where = query.where();
+		// the name field must be equal to "foo"
+		try {
+			
+			where.eq("user_id", pref.getInt("local_id", -1));
+			System.out.println("climbing di " + pref.getInt("local_id", -1));
+
+			PreparedQuery<TeamDuel> preparedQuery = query.prepare();
+			List<TeamDuel> duels = teamDuelDao.query(preparedQuery);
+			teamDuels = duels;
+			System.out.println(teamDuels.size());
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			
+		}
+	}
+	
 	
 	//per ogni edificio, una sola collaborazione
 	public static Collaboration getCollaborationByBuilding(int building_id){
@@ -620,6 +656,25 @@ public class MainActivity extends ActionBarActivity {
 			return null;
 		}
 		
+	}
+	
+	public static TeamDuel getTeamDuelByBuilding(int building_id){
+		SharedPreferences pref = getContext().getSharedPreferences("UserSession", 0);
+		QueryBuilder<TeamDuel, Integer> query = teamDuelDao.queryBuilder();
+		Where<TeamDuel, Integer> where = query.where();
+		
+		try {
+			where.eq("building_id", building_id);
+			PreparedQuery<TeamDuel> preparedQuery = query.prepare();
+			List<TeamDuel> duels = teamDuelDao.query(preparedQuery);
+			if(duels.size() == 0)
+				return null;
+			else return duels.get(0);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	/**

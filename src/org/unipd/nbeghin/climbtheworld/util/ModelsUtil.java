@@ -77,4 +77,18 @@ public class ModelsUtil {
 		return 0;
 	}
 	
+	public static int sum(JSONObject json){
+		Iterator<String> keys = json.keys();
+		int sum = 0;
+		while(keys.hasNext()){
+			try {
+				sum += json.getInt(keys.next());
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return sum;
+	}
+	
 }

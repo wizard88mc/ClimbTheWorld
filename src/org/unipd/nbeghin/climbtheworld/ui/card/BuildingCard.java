@@ -265,6 +265,9 @@ public class BuildingCard extends Card {
 						break;
 					}
 				
+				}else{
+					Toast.makeText(activity.getApplicationContext(), "Connection needed", Toast.LENGTH_SHORT).show();
+
 				}
 
 			}
@@ -280,6 +283,9 @@ public class BuildingCard extends Card {
 				updateClimbingInParse();
 				gameMode.setText("Modalitˆ: " + setModeText());
 				sendRequest(GameModeType.TEAM_VS_TEAM, "");
+				}else{
+					Toast.makeText(activity.getApplicationContext(), "Connection needed", Toast.LENGTH_SHORT).show();
+
 				}
 			}
 		});
@@ -390,6 +396,8 @@ public class BuildingCard extends Card {
 				setSocialClimb();
 				sendRequest(GameModeType.SOCIAL_CLIMB, collab.getId());
 				}else{
+					collab.setSaved(false);
+					MainActivity.collaborationDao.update(collab);
 					Toast.makeText(MainActivity.getContext(), "Connection Problems: cannot create collaboration", Toast.LENGTH_SHORT).show();
 					Log.e("saveCollaboration", e.getMessage());					
 				}
@@ -442,6 +450,8 @@ public class BuildingCard extends Card {
 				setSocialChallenge();
 				sendRequest(GameModeType.SOCIAL_CHALLENGE, compet.getId_online());
 				}else{
+					compet.setSaved(false);
+					MainActivity.competitionDao.update(compet);
 					Toast.makeText(MainActivity.getContext(), "Connection Problems: cannot create competition", Toast.LENGTH_SHORT).show();
 					Log.e("saveCompetition", e.getMessage());					
 				}

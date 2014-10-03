@@ -21,6 +21,7 @@ import org.unipd.nbeghin.climbtheworld.models.Competition;
 import org.unipd.nbeghin.climbtheworld.models.Notification;
 import org.unipd.nbeghin.climbtheworld.models.NotificationType;
 import org.unipd.nbeghin.climbtheworld.models.User;
+import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -78,7 +79,7 @@ public class NotificationCard extends Card {
 
 			@Override
 			public void onClick(View arg0) {
-
+				if(FacebookUtils.isOnline(context)){
 				NotificationType type = notification.getType();
 				switch (type) {
 				case INVITE_IN_GROUP:
@@ -452,18 +453,20 @@ public class NotificationCard extends Card {
 				}
 
 			}
+			}
 		});
 
 		cancelBtn.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View arg0) {
+				if(FacebookUtils.isOnline(context)){
 				deleteRequest(String.valueOf(notification.getId()));
 				text.setText("Request Deleted");
 				cancelBtn.setEnabled(false);
 				acceptBtn.setEnabled(false);
 				notification.setRead(true);
-
+				}
 			}
 		});
 

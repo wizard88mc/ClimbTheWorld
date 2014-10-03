@@ -12,6 +12,7 @@ import org.unipd.nbeghin.climbtheworld.db.PreExistingDbLoader;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.Competition;
+import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.parse.FindCallback;
@@ -42,6 +43,7 @@ public class UpdateService extends IntentService {
 	public RuntimeExceptionDao<Collaboration, Integer> collaborationDao;
 	public RuntimeExceptionDao<Competition, Integer> competitionDao;
 	public RuntimeExceptionDao<Climbing, Integer> climbingDao; 
+	public RuntimeExceptionDao<TeamDuel, Integer> teamDuelDao;
 	
 	public boolean isOnline(Context context) {
 	    ConnectivityManager cm =
@@ -111,7 +113,7 @@ public class UpdateService extends IntentService {
 						if(collabs.size() == 0){
 							collaborationDao.delete(collaboration);
 						}else{
-							ParseObject collabParse = new ParseObject("Collaboration");
+							ParseObject collabParse = collabs.get(0);
 							JSONObject stairs = collabParse.getJSONObject("stairs");
 
 							if(collaboration.isLeaved()){
@@ -163,7 +165,7 @@ public class UpdateService extends IntentService {
 						if(collabs.size() == 0){
 							competitionDao.delete(competition);
 						}else{
-							ParseObject collabParse = new ParseObject("Competition");
+							ParseObject collabParse = collabs.get(0);
 							JSONObject stairs = collabParse.getJSONObject("stairs");
 
 							if(competition.isLeaved()){
@@ -198,6 +200,65 @@ public class UpdateService extends IntentService {
 		}
 	}
 	
+	private void saveTeamDuels(final Context context){
+		Map<String, Object> conditions = new HashMap<String, Object>();
+		conditions.put("saved", 0); 
+		List<TeamDuel> duels = teamDuelDao.queryForFieldValuesArgs(conditions);
+		Log.d("updateService", "Duels: " + duels.size());
+		for(final TeamDuel duel : duels){
+			ParseQuery<ParseObject> query = ParseQuery.getQuery("TeamDuel");
+			query.whereEqualTo("objectId", duel.getId_online());
+			query.findInBackground(new FindCallback<ParseObject>() {
+
+				@Override
+				public void done(List<ParseObject> duelsParse, ParseException e) {
+						if(e == null){
+								if(duelsParse.size() == 0){
+									teamDuelDao.delete(duel);
+								}else{
+									ParseObject parseDuel = duelsParse.get(0);
+									if(duel.isCreator()){
+										JSONObject creator = new JSONObject();
+										try {
+											creator.put(duel.getUser().getFBid(), duel.getUser().getName());
+											JSONObject stairs = parseDuel.getJSONObject("creator_stairs");
+											stairs.put(duel.getUser().getFBid(), duel.getMy_steps());
+											parseDuel.put("creator_stairs", stairs);
+										} catch (JSONException e1) {
+											// TODO Auto-generated catch block
+											e1.printStackTrace();
+										}
+										parseDuel.put("creator", creator);
+									}else{
+										JSONObject challenger = new JSONObject();
+										try {
+											challenger.put(duel.getUser().getFBid(), duel.getUser().getName());
+											JSONObject stairs = parseDuel.getJSONObject("challenger_stairs");
+											parseDuel.put(duel.getUser().getFBid(), duel.getMy_steps());
+											parseDuel.put("challeger_stairs", stairs);
+										} catch (JSONException e1) {
+											// TODO Auto-generated catch block
+											e1.printStackTrace();
+										}
+									}
+									parseDuel.saveEventually();
+									duel.setSaved(true);
+									teamDuelDao.update(duel);
+									
+								}
+						}else{
+							Toast.makeText(context, "Connection Problems", Toast.LENGTH_SHORT).show();
+							Log.e("UpdateService - duels", e.getMessage());
+						}
+				}
+				
+			});
+		}
+	}
+	
+
+	
+	
     @Override
     protected void onHandleIntent(Intent intent) {
 System.out.println("service on");
@@ -210,10 +271,12 @@ PreExistingDbLoader preExistingDbLoader = new PreExistingDbLoader(
 		climbingDao = dbHelper.getClimbingDao(); // create climbing DAO
 		collaborationDao = dbHelper.getCollaborationDao();
 		competitionDao = dbHelper.getCompetitionDao();
+		teamDuelDao = dbHelper.getTeamDuelDao();
 		if(isOnline(this)){
 			saveClimbings(this);
 			saveCollaborations(this);
 			saveCompetitions(this);
+			saveTeamDuels(this);
 		}
       
     }
