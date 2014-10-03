@@ -195,12 +195,15 @@ public class BuildingCard extends Card {
 					}
 
 					saveCollaboration();
+					climbing.setId_mode(collab.getId());
+					updateClimbingInParse();
 					
 					break;
 
 				case SOCIAL_CLIMB:
 					Log.d("onClick", "solo");
 					climbing.setGame_mode(0);
+					climbing.setId_mode("");
 					MainActivity.climbingDao.update(climbing);
 					updateClimbingInParse();
 					leaveCollaboration();
@@ -249,11 +252,13 @@ public class BuildingCard extends Card {
 						}
 
 						saveCompetition();
+						
 						break;
 
 					case SOCIAL_CHALLENGE:
 						Log.d("onClick", "solo");
 						climbing.setGame_mode(0);
+						climbing.setId_mode("");
 						MainActivity.climbingDao.update(climbing);
 						updateClimbingInParse();
 						leaveCompetition();
@@ -292,6 +297,11 @@ public class BuildingCard extends Card {
 				if (e == null) {
 					ParseObject c = climbings.get(0);
 					c.put("game_mode", climbing.getGame_mode());
+					if(climbing.getId_mode() != null)
+						c.put("id_mode", climbing.getId_mode());
+					else 						
+						c.put("id_mode", "");
+					System.out.println("climbing id mode: " + climbing.getId_mode());
 					c.saveEventually();
 					climbing.setSaved(true);
 					MainActivity.climbingDao.update(climbing);
@@ -323,6 +333,7 @@ public class BuildingCard extends Card {
 		climb.put("percentage", String.valueOf(climbing.getPercentage()));
 		climb.put("users_id", climbing.getUser().getFBid());
 		climb.put("game_mode", climbing.getGame_mode());
+		climb.put("id_mode", climbing.getId_mode());
 		climb.saveEventually();
 		climbing.setSaved(true);
 		MainActivity.climbingDao.update(climbing);
@@ -422,7 +433,10 @@ public class BuildingCard extends Card {
 				compet.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
 				compet.setCompleted(false);
 				MainActivity.competitionDao.create(compet);
-				
+				System.out.println("id compet: " + compet.getId_online());
+				climbing.setId_mode(compet.getId_online());
+				System.out.println("id salvato: " + climbing.getId_mode());
+				updateClimbingInParse();
 
 				mode = GameModeType.SOCIAL_CHALLENGE;
 				setSocialChallenge();
@@ -616,6 +630,7 @@ public class BuildingCard extends Card {
 			MainActivity.collaborationDao.delete(collab);
 
 			climbing.setGame_mode(0);
+			climbing.setId_mode("");
 			MainActivity.climbingDao.update(climbing);
 			updateClimbingInParse();
 			graphicsRollBack(type);
@@ -628,6 +643,7 @@ public class BuildingCard extends Card {
 			competParse.deleteEventually();
 			MainActivity.competitionDao.delete(compet);
 			climbing.setGame_mode(0);
+			climbing.setId_mode("");
 			MainActivity.climbingDao.update(climbing);
 			updateClimbingInParse();
 			

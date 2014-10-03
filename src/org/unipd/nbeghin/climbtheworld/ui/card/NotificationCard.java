@@ -176,6 +176,7 @@ public class NotificationCard extends Card {
 										climbing.setCompleted_steps(0);
 										climbing.setCreated(new Date().getTime());
 										climbing.setGame_mode(1);
+										climbing.setId_mode(collaborationParse.getObjectId());
 										climbing.setModified(new Date().getTime());
 										climbing.setPercentage(0);
 										climbing.setRemaining_steps(building.getSteps());
@@ -200,9 +201,11 @@ public class NotificationCard extends Card {
 										climbingParse.put("percentage", String.valueOf(climbing.getPercentage()));
 										climbingParse.put("users_id", climbing.getUser().getFBid());
 										climbingParse.put("game_mode", climbing.getGame_mode());
+										climbingParse.put("id_mode", climbing.getId_mode());
 										climbingParse.saveEventually();
 									}else{
 										climb.setGame_mode(1);
+										climb.setId_mode(collaborationParse.getObjectId());
 										if(climb.getPercentage() >= 1.00){
 											climb.setPercentage(0);
 											climb.setCompleted_steps(0);
@@ -219,6 +222,7 @@ public class NotificationCard extends Card {
 												if(e == null){
 													ParseObject climbParse = climbs.get(0);
 													climbParse.put("game_mode", 1);
+													climbParse.put("id_mode", climb.getId_mode());
 													climbParse.saveEventually();
 													MainActivity.climbingDao.update(climb);
 												}else{
@@ -342,6 +346,7 @@ public class NotificationCard extends Card {
 										climbing.setRemaining_steps(building.getSteps());
 										climbing.setUser(me);
 										climbing.setSaved(true);
+										climbing.setId_mode(collaborationParse.getObjectId());
 										MainActivity.climbingDao.create(climbing);
 										
 										ParseObject climbingParse = new ParseObject("Climbing");
@@ -364,6 +369,7 @@ public class NotificationCard extends Card {
 										climbingParse.saveEventually();
 									}else{
 										climb.setGame_mode(2);
+										climb.setId_mode(collaborationParse.getObjectId());
 										if(climb.getPercentage() >= 1.00){
 											climb.setPercentage(0);
 											climb.setCompleted_steps(0);
@@ -380,6 +386,7 @@ public class NotificationCard extends Card {
 												if(e == null){
 													ParseObject climbParse = climbs.get(0);
 													climbParse.put("game_mode", 2);
+													climbParse.put("id_mode", climb.getId_mode());
 													climbParse.saveEventually();
 													MainActivity.climbingDao.update(climb);
 												}else{

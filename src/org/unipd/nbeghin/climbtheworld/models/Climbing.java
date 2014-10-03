@@ -29,7 +29,18 @@ public class Climbing {
 	private int				game_mode;
 	@DatabaseField
 	private int 		saved;
+	@DatabaseField
+	private String id_mode;
 
+	
+
+	public String getId_mode() {
+		return id_mode;
+	}
+
+	public void setId_mode(String id_mode) {
+		this.id_mode = id_mode;
+	}
 
 	public int getGame_mode() {
 		return game_mode;

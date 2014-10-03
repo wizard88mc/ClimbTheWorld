@@ -184,6 +184,8 @@ public class SettingsActivity extends PreferenceActivity {
 		Log.d("setting activity", "loadProgressFromParse");
 		final SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
 		MainActivity.refreshClimbings();
+		MainActivity.refreshCollaborations();
+		MainActivity.refreshCompetitions();
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
 		query.whereEqualTo("users_id", pref.getString("FBid", ""));
 		query.findInBackground(new FindCallback<ParseObject>() {
@@ -199,7 +201,6 @@ public class SettingsActivity extends PreferenceActivity {
 							//save new climbing locally
 							Climbing c = new Climbing();
 							c.setBuilding(MainActivity.getBuildingById(climb.getInt("building")));
-							System.out.println("building " + c.getBuilding().get_id());
 							c.setCompleted(climb.getDate("completedAt").getTime());
 							c.setCompleted_steps(climb.getInt("completed_steps"));
 							c.setCreated(climb.getDate("created").getTime());
@@ -208,9 +209,24 @@ public class SettingsActivity extends PreferenceActivity {
 							c.setRemaining_steps(climb.getInt("remaining_steps"));
 							c.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
 							c.setSaved(true);
-							System.out.println("user " + c.getUser().get_id());
+							c.setId_mode(climb.getString("id_mode"));
 							c.setGame_mode(climb.getInt("game_mode"));
 							MainActivity.climbingDao.create(c);
+
+							System.out.println("getgamemode" + c.getGame_mode());
+							switch(c.getGame_mode()){
+							case 1:
+								loadCollaborationsFromParse(c.getId_mode());
+								break;
+							case 2:
+								loadCompetitionsFromParse(c.getId_mode());
+								break;
+							case 3:
+								break;
+							default:
+								break;
+							}
+							System.out.println("user " + c.getUser().get_id());
 						}else{
 							System.out.println("modifica");
 							long localTime = localClimb.getModified();
@@ -225,11 +241,28 @@ public class SettingsActivity extends PreferenceActivity {
 								localClimb.setRemaining_steps(climb.getInt("remaining_steps"));
 								localClimb.setGame_mode(climb.getInt("game_mode"));
 								localClimb.setSaved(true);
+								localClimb.setId_mode(climb.getString("id_mode"));
 								MainActivity.climbingDao.update(localClimb);
 							}
+							switch(localClimb.getGame_mode()){
+							case 1:
+								loadCollaborationsFromParse(localClimb.getId_mode());
+								break;
+							case 2:
+								loadCompetitionsFromParse(localClimb.getId_mode());
+								break;
+							case 3:
+								break;
+							default:
+								break;
+							}
 						}
+						
 					}
 					MainActivity.refreshClimbings();
+					MainActivity.refreshCollaborations();
+					MainActivity.refreshCompetitions();
+
 				}else{
 					Toast.makeText(getApplicationContext(), "Connetction problems", Toast.LENGTH_SHORT).show();
 					Log.e("loadProgressFromParse", e.getMessage());
@@ -255,22 +288,23 @@ public class SettingsActivity extends PreferenceActivity {
 		return sum;
 	}
 	
-	private void loadCollaborationsFromParse(){
+	private void loadCollaborationsFromParse(String id){
 		final SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
-		MainActivity.refreshCollaborations();
+		//MainActivity.refreshCollaborations();
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("Collaboration");
-		query.whereEqualTo("collaborators." + pref.getString("FBid", ""), pref.getString("username", ""));
+		//query.whereEqualTo("collaborators." + pref.getString("FBid", ""), pref.getString("username", ""));
+		query.whereEqualTo("objectId", id);
+		System.out.println("loadCollabortion: " + id);
 		query.findInBackground(new FindCallback<ParseObject>() {
 
 			@Override
 			public void done(List<ParseObject> collabs, ParseException e) {
 					if(e == null){
-						for(ParseObject collaboration : collabs){
+							ParseObject collaboration = collabs.get(0);
 							JSONObject others_steps = collaboration.getJSONObject("stairs");
 							boolean completed = collaboration.getBoolean("completed");
 							Collaboration local_collab = MainActivity.getCollaborationById(collaboration.getObjectId());
 							if(local_collab == null){
-								if(!completed){ // altrim l'ho già vista e non mi serve più
 								//crea nuova collaborazione
 								Collaboration coll = new Collaboration();
 								coll.setBuilding(MainActivity.getBuildingById(collaboration.getInt("building")));
@@ -281,7 +315,7 @@ public class SettingsActivity extends PreferenceActivity {
 								coll.setSaved(true);
 								coll.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
 								MainActivity.collaborationDao.create(coll);
-								}
+								
 								
 							}else{//update collaborazione esistente
 								if(local_collab.getMy_stairs() < collaboration.getInt("my_stairs"))
@@ -293,8 +327,7 @@ public class SettingsActivity extends PreferenceActivity {
 								MainActivity.collaborationDao.update(local_collab);
 								
 							}
-						}
-						MainActivity.refreshCollaborations();
+						
 					}else{
 						Toast.makeText(getApplicationContext(), "Connetction problems", Toast.LENGTH_SHORT).show();
 						Log.e("loadCollaborationsFromParse", e.getMessage());
@@ -305,22 +338,22 @@ public class SettingsActivity extends PreferenceActivity {
 	
 	
 	
-	private void loadCompetitionsFromParse(){
+	private void loadCompetitionsFromParse(String id){
 		final SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
-		MainActivity.refreshCompetitions();
+	//	MainActivity.refreshCompetitions();
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("Competition");
-		query.whereEqualTo("competitors." + pref.getString("FBid", ""), pref.getString("username", ""));
+		//query.whereEqualTo("competitors." + pref.getString("FBid", ""), pref.getString("username", ""));
+		query.whereEqualTo("objectId", id);
 		query.findInBackground(new FindCallback<ParseObject>() {
 
 			@Override
 			public void done(List<ParseObject> compets, ParseException e) {
 					if(e == null){
-						for(ParseObject competition : compets){
-							JSONObject others_steps = competition.getJSONObject("stairs");
+						ParseObject competition = compets.get(0);
+						JSONObject others_steps = competition.getJSONObject("stairs");
 							boolean completed = competition.getBoolean("completed");
 							Competition local_compet = MainActivity.getCompetitionById(competition.getObjectId());
 							if(local_compet == null){
-								if(!completed){
 								//crea nuova collaborazione
 								Competition comp = new Competition();
 								comp.setBuilding(MainActivity.getBuildingById(competition.getInt("building")));
@@ -333,7 +366,7 @@ public class SettingsActivity extends PreferenceActivity {
 								
 								comp.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
 								MainActivity.competitionDao.create(comp);
-								}
+								
 							}else{//update collaborazione esistente
 								if(local_compet.getMy_stairs() < competition.getInt("my_stairs"))
 									local_compet.setMy_stairs(competition.getInt("my_stairs"));
@@ -344,8 +377,7 @@ public class SettingsActivity extends PreferenceActivity {
 								MainActivity.competitionDao.update(local_compet);
 								
 							}
-						}
-						MainActivity.refreshCompetitions();
+						
 					}else{
 						Toast.makeText(getApplicationContext(), "Connetction problems", Toast.LENGTH_SHORT).show();
 						Log.e("loadCompetitionsFromParse", e.getMessage());
@@ -490,8 +522,8 @@ public class SettingsActivity extends PreferenceActivity {
 		    		    if (user != null) {
 		    		      // Hooray! The user is logged in.
 				    		loadProgressFromParse();
-				    		loadCollaborationsFromParse();
-				    		loadCompetitionsFromParse();
+				    		//loadCollaborationsFromParse();
+				    		//loadCompetitionsFromParse();
 
 		    		    } else {
 		    		      // Signup failed. Look at the ParseException to see what happened.

@@ -251,10 +251,10 @@ public class ClimbActivity extends ActionBarActivity {
 						stopClassify(); // stop classifier service service
 						apply_win();
 					}
-					if(mode == GameModeType.SOCIAL_CLIMB && ((num_steps + sumOthersStep()) >= building.getSteps()) && (threshold - num_steps > 0)){
+					/*if(mode == GameModeType.SOCIAL_CLIMB && ((num_steps + sumOthersStep()) >= building.getSteps()) && (threshold - num_steps > 0)){
 						System.out.println("Social Penalty");
 						socialPenalty();
-					}
+					}*/
 				}
 			}
 
@@ -709,7 +709,7 @@ public class ClimbActivity extends ActionBarActivity {
 	}
 
 	private void loadCollaboration() {
-		collaboration = MainActivity.getCollaborationForBuilding(building.get_id());
+		collaboration = MainActivity.getCollaborationById(climbing.getId_mode());//MainActivity.getCollaborationForBuilding(building.get_id());
 		others_steps = new HashMap<String, Integer>();
 		if (collaboration == null) {
 			Toast.makeText(this, "No collaboration available for this building", Toast.LENGTH_SHORT).show();
@@ -863,6 +863,8 @@ public class ClimbActivity extends ActionBarActivity {
 			df.setTimeZone(new SimpleTimeZone(0, "GMT"));
 			ParseObject climb = new ParseObject("Climbing");
 			climb.put("building", climbing.getBuilding().get_id());
+			climb.put("id_mode", climbing.getId_mode());
+			
 			try {
 				climb.put("created", df.parse(df.format(climbing.getCreated())));
 				climb.put("modified", df.parse(df.format(climbing.getModified())));
@@ -905,6 +907,8 @@ public class ClimbActivity extends ActionBarActivity {
 						c.put("completed_steps", climbing.getCompleted_steps());
 						c.put("remaining_steps", climbing.getRemaining_steps());
 						c.put("percentage", String.valueOf(climbing.getPercentage()));
+						c.put("id_mode", climbing.getId_mode());
+						c.put("game_mode", climbing.getGame_mode());
 						c.saveEventually();
 						climbing.setSaved(true);
 						MainActivity.climbingDao.update(climbing);
@@ -949,6 +953,19 @@ public class ClimbActivity extends ActionBarActivity {
 				climbing.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
 			else
 				climbing.setUser(MainActivity.getUserByFBId(FBid));
+			switch(GameModeType.values()[climbing.getGame_mode()]){
+			case SOLO_CLIMB:
+				climbing.setId_mode("");
+				break;
+			case SOCIAL_CLIMB:
+				climbing.setId_mode(collaboration.getId());
+				break;
+			case SOCIAL_CHALLENGE:
+				climbing.setId_mode(competition.getId_online());
+				break;
+			case TEAM_VS_TEAM:
+				break;
+			}
 
 			MainActivity.climbingDao.create(climbing);
 
@@ -1116,7 +1133,9 @@ public class ClimbActivity extends ActionBarActivity {
 			((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.social_share);
 			mode = GameModeType.SOLO_CLIMB;
 			climbing.setGame_mode(0);
+			climbing.setId_mode("");
 			updateClimbingInParse(climbing);
+			saveCollaborationData();
 			MainActivity.collaborationDao.delete(collaboration);
 	}
 
@@ -1137,8 +1156,22 @@ public class ClimbActivity extends ActionBarActivity {
 																		// steps
 		if (percentage >= 1.00 && (mode != GameModeType.SOCIAL_CHALLENGE) && (mode != GameModeType.TEAM_VS_TEAM))
 			climbing.setCompleted(new Date().getTime());
-		if(percentage >= 1.00)
-			climbing.setGame_mode(0);
+		if(percentage >= 1.00){
+			switch(mode){
+			case SOCIAL_CLIMB:
+				updateOthers();
+				break;
+			case SOCIAL_CHALLENGE:
+				updateChart();
+				break;
+			case TEAM_VS_TEAM:
+				break;
+			case SOLO_CLIMB:
+				break;
+			}
+			/*climbing.setGame_mode(0);
+			climbing.setId_mode("");*/
+		}
 		MainActivity.climbingDao.update(climbing); // save to db
 		updateClimbingInParse(climbing);
 		Log.i(MainActivity.AppName, "Updated climbing #" + climbing.get_id());
@@ -1324,16 +1357,18 @@ public class ClimbActivity extends ActionBarActivity {
 	}
 	
 	private void endCompetition(){
+		Log.d("END COMPETITION", "fineeee");
 		if(climbing.getCompleted() != 0){
 			//ho giˆ scalato l'edificio una volta, quindi lo lascio scalato per intero
 			climbing.setCompleted_steps(building.getSteps());
 			climbing.setRemaining_steps(0);
 			climbing.setPercentage(100);
 			
-		}else{
-			//salvo i dati di climbing che ho e tengo buoni i miei passi
 		}
+			//else salvo i dati di climbing che ho e tengo buoni i miei passi
+		
 		climbing.setGame_mode(0);
+		climbing.setId_mode("");
 		MainActivity.climbingDao.update(climbing);
 		updateClimbingInParse(climbing);
 		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.social_share);		
@@ -1366,11 +1401,11 @@ public class ClimbActivity extends ActionBarActivity {
 								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
+							compet_parse.put("stairs", others);
+							compet_parse.saveEventually();
 							Iterator members = others.keys();
 							int i = 0;
 							chart = ModelsUtil.fromJsonToChart(others);
-							System.out.println("key size: " + others.length());
-							System.out.println("chart size" +  chart.size());
 							for (ChartMember entry : chart){
 								String key = entry.getId();
 									System.out.println(key);
@@ -1392,11 +1427,10 @@ public class ClimbActivity extends ActionBarActivity {
 									group_members.get(i).setBackgroundColor(Color.parseColor("#dcdcdc"));
 									group_steps.get(i).setBackgroundColor(Color.parseColor("#dcdcdc"));
 
-									i++;
 							
 							if (key.equalsIgnoreCase(pref.getString("FBid", ""))) {
-								group_members.get(i - 1).setBackgroundColor(Color.parseColor("#f7fe2e"));
-								group_steps.get(i - 1).setBackgroundColor(Color.parseColor("#f7fe2e"));
+								group_members.get(i).setBackgroundColor(Color.parseColor("#f7fe2e"));
+								group_steps.get(i).setBackgroundColor(Color.parseColor("#f7fe2e"));
 								if(steps >= building.getSteps()){
 									endCompetition();
 									Toast.makeText(getApplicationContext(),  "Yeah!!!! You won this challenge", Toast.LENGTH_SHORT).show();
@@ -1407,7 +1441,8 @@ public class ClimbActivity extends ActionBarActivity {
 									Toast.makeText(getApplicationContext(), name + " won this challenge", Toast.LENGTH_SHORT).show();
 								}
 							}
-							
+							i++;
+
 							}
 							if(i < group_members.size() && i <= ClimbApplication.N_MEMBERS_PER_GROUP){
 								group_steps.get(i).setVisibility(View.INVISIBLE);
