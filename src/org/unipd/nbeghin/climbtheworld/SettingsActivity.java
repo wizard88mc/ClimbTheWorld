@@ -196,7 +196,11 @@ public class SettingsActivity extends PreferenceActivity {
 				if(e == null){
 					//save results locally
 					for(ParseObject climb : climbings){
-						Climbing localClimb = MainActivity.getClimbingForBuildingAndUser(climb.getInt("building"), pref.getInt("local_id", -1));
+						Climbing localClimb;
+						if(climb.getString("id_mode").equalsIgnoreCase("paused"))
+							localClimb = MainActivity.getClimbingForBuildingAndUserPaused(climb.getInt("building"), pref.getInt("local_id", -1));
+						else
+							localClimb = MainActivity.getClimbingForBuildingAndUserNotPaused(climb.getInt("building"), pref.getInt("local_id", -1));
 						System.out.println("cerco building " + climb.getInt("building") + " e user " + pref.getInt("local_id", -1));
 						if(localClimb == null){ System.out.println("creo nuovo");
 							//save new climbing locally

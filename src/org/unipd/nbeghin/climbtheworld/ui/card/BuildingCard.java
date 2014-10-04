@@ -244,7 +244,7 @@ public class BuildingCard extends Card {
 						climbing.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
 						MainActivity.climbingDao.create(climbing);
 						saveClimbingInParse();
-						
+						saveCompetition();
 						/*if (climbing == null) {
 							// crea nuovo
 							climbing = new Climbing();
@@ -271,7 +271,7 @@ public class BuildingCard extends Card {
 							updateClimbingInParse();
 						}*/
 
-						saveCompetition();
+						
 						
 						break;
 
@@ -471,10 +471,10 @@ public class BuildingCard extends Card {
 				compet.setLeaved(false);
 				compet.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
 				compet.setCompleted(false);
-				
-				climbing.setId_mode(compet.getId_online());
 				System.out.println("id salvato: " + climbing.getId_mode());
 				MainActivity.competitionDao.create(compet);
+				climbing.setId_mode(compet.getId_online());
+				MainActivity.climbingDao.update(climbing);
 				System.out.println("id compet: " + compet.getId_online());
 				updateClimbingInParse();
 

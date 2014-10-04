@@ -389,6 +389,7 @@ public class NotificationCard extends Card {
 										climbingParse.put("percentage", String.valueOf(climbing.getPercentage()));
 										climbingParse.put("users_id", climbing.getUser().getFBid());
 										climbingParse.put("game_mode", climbing.getGame_mode());
+										climbingParse.put("id_mode", climbing.getId_mode());
 										climbingParse.saveEventually();
 										/*}else{
 										climb.setGame_mode(2);
