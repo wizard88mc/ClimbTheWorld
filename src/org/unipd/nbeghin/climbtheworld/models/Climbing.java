@@ -31,7 +31,8 @@ public class Climbing {
 	private int 		saved;
 	@DatabaseField
 	private String id_mode;
-
+	@DatabaseField
+	private int deleted;
 	
 
 	public String getId_mode() {
@@ -151,6 +152,21 @@ public class Climbing {
 	
 	public boolean isSaved(){
 		if(saved == 1)
+			return true;
+		else
+			return false;
+	}
+	
+	public void setDeleted(boolean deleted){
+		if(deleted){
+			this.deleted = 1;
+		}else{
+			this.deleted = 0;
+		}
+	}
+	
+	public boolean isDeleted(){
+		if(deleted == 1)
 			return true;
 		else
 			return false;

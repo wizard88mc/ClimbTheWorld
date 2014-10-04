@@ -239,7 +239,7 @@ public class SettingsActivity extends PreferenceActivity {
 								localClimb.setCompleted_steps(climb.getInt("completed_steps"));
 								localClimb.setCreated(climb.getDate("created").getTime());
 								localClimb.setModified(climb.getDate("modified").getTime());
-								localClimb.setPercentage(Float.valueOf(climb.getString("percecntage")));
+								localClimb.setPercentage(Float.valueOf(climb.getString("percentage")));
 								localClimb.setRemaining_steps(climb.getInt("remaining_steps"));
 								localClimb.setGame_mode(climb.getInt("game_mode"));
 								localClimb.setSaved(true);

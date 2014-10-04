@@ -13,6 +13,32 @@ public class AskTeamDuelNotification extends Notification{
 		read = false;
 		
 	}
+
+	public String getTeamDuelId() {
+		return teamDuelId;
+	}
+
+	public void setTeamDuelId(String teamDuelId) {
+		this.teamDuelId = teamDuelId;
+	}
+
+	public int getBuilding_id() {
+		return building_id;
+	}
+
+	public void setBuilding_id(int building_id) {
+		this.building_id = building_id;
+	}
+
+	public String getBuilding_name() {
+		return building_name;
+	}
+
+	public void setBuilding_name(String building_name) {
+		this.building_name = building_name;
+	}
+	
+	
 	
 	
 }

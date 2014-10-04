@@ -319,7 +319,7 @@ public class NotificationCard extends Card {
 									
 										
 										
-									try {// mi aggiungo alla collaborazione
+									try {// mi aggiungo alla competizione
 										collaborators.put(pref.getString("FBid", ""), pref.getString("username", ""));
 										stairs.put(pref.getString("FBid", ""), 0);
 									} catch (JSONException e1) {
@@ -334,7 +334,29 @@ public class NotificationCard extends Card {
 									Building building = MainActivity.getBuildingById(current1.getBuilding_id());
 									int my_stairs = 0;
 									final Climbing climb = MainActivity.getClimbingForBuilding(building.get_id());
-									if(climb == null){
+									if(climb != null){
+										climb.setId_mode("paused");
+										MainActivity.climbingDao.update(climb);
+										ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
+										query.whereEqualTo("building", building.get_id());
+										query.whereEqualTo("users_id", pref.getString("FBid", ""));
+										query.findInBackground(new FindCallback<ParseObject>() {
+
+											@Override
+											public void done(List<ParseObject> climbs, ParseException e) {
+												if(e == null){
+													ParseObject c = climbs.get(0);
+													c.put("id_mode", climb.getId_mode());
+													c.saveEventually();
+												}else{
+													Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
+													Log.d("Connection problem", "Error: " + e.getMessage());
+												}
+											}
+											});
+										}
+										
+									
 										//creo climbing e salvo in locale e non
 										Climbing climbing = new Climbing();
 										climbing.setBuilding(building);
@@ -368,7 +390,7 @@ public class NotificationCard extends Card {
 										climbingParse.put("users_id", climbing.getUser().getFBid());
 										climbingParse.put("game_mode", climbing.getGame_mode());
 										climbingParse.saveEventually();
-									}else{
+										/*}else{
 										climb.setGame_mode(2);
 										climb.setId_mode(collaborationParse.getObjectId());
 										if(climb.getPercentage() >= 1.00){
@@ -396,8 +418,9 @@ public class NotificationCard extends Card {
 												}
 											}
 										});
-									}
-									
+									}*/
+									my_stairs = climb.getCompleted_steps();
+
 									//salvo collaboration in locale
 									Competition competitionLocal = new Competition();
 									competitionLocal.setId_online(collaborationParse.getObjectId());
@@ -413,11 +436,14 @@ public class NotificationCard extends Card {
 									
 									
 									
-									text.setText("Request Accepted");}
-									else{
+									text.setText("Request Accepted");
+									
+									
+									
+								}else{
 										text.setText("Collaboration completed");
 										Toast.makeText(MainActivity.getContext(), "Too Late: competition completed", Toast.LENGTH_SHORT).show();
-									}
+								}
 									}else{
 										text.setText("You are already in this competition");
 									}

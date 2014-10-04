@@ -9,6 +9,7 @@ import java.util.SimpleTimeZone;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.db.PreExistingDbLoader;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
@@ -78,6 +79,7 @@ public class UpdateService extends IntentService {
 							if(climbs.size() == 0){
 								climbingDao.delete(climbing);
 							}else{
+								if(!climbing.isDeleted()){
 								DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 								df.setTimeZone(new SimpleTimeZone(0, "GMT"));
 								ParseObject climbOnline = climbs.get(0);
@@ -97,6 +99,10 @@ public class UpdateService extends IntentService {
 								climbOnline.saveEventually();
 								climbing.setSaved(true);
 								climbingDao.update(climbing);
+								}else{
+									climbs.get(0).deleteEventually();
+									climbingDao.delete(climbing);
+								}
 							}
 						}else{
 							Toast.makeText(context, "Connection Problems", Toast.LENGTH_SHORT).show();

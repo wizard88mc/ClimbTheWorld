@@ -121,6 +121,7 @@ public class ClimbActivity extends ActionBarActivity {
 	private double percentage = 0.0; // current progress percentage
 	private Building building; // current building
 	private Climbing climbing; // current climbing
+	private Climbing soloClimb;
 	private VerticalSeekBar seekbarIndicator; // reference to vertical seekbar
 	private int vstep_for_rstep = 1;
 	private boolean used_bonus = false;
@@ -881,6 +882,33 @@ public class ClimbActivity extends ActionBarActivity {
 			climb.saveEventually();
 		}
 	}
+	
+	private void deleteClimbingInParse(final Climbing climbing){
+		if(FacebookUtils.isOnline(this)){
+			ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
+			query.whereEqualTo("users_id", climbing.getUser().getFBid());
+			query.whereEqualTo("building", climbing.getBuilding().get_id());
+			query.whereEqualTo("id_mode", climbing.getId_mode());
+			query.findInBackground(new FindCallback<ParseObject>() {
+
+				@Override
+				public void done(List<ParseObject> climbs, ParseException e) {
+					if(e == null){ System.out.println("climb size" + climbs.size());
+						if(climbs.size() != 0){ 
+							climbs.get(0).deleteEventually();
+						}
+					}else{
+						climbing.setSaved(false);
+						climbing.setDeleted(true);
+						MainActivity.climbingDao.update(climbing);
+						Toast.makeText(getApplicationContext(), "Connection Problem", Toast.LENGTH_SHORT).show();
+						Log.e("updateClimbingInParse", e.getMessage());
+					}
+				}
+				
+			});
+		}
+	}
 
 	private void updateClimbingInParse(final Climbing climbing) {
 		final SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
@@ -935,8 +963,9 @@ public class ClimbActivity extends ActionBarActivity {
 	 */
 	private void loadPreviousClimbing() {
 		SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
-		climbing = MainActivity.getClimbingForBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
-		if (climbing == null) { // no climbing found
+		climbing = MainActivity.getClimbingForBuildingAndUserNotPaused(building.get_id(), pref.getInt("local_id", -1));
+		soloClimb = MainActivity.getClimbingForBuildingAndUserPaused(building.get_id(), pref.getInt("local_id", -1));
+		if (climbing == null) { // no climbing found (è la prima volta che scalo questo edificio)
 			Log.i(MainActivity.AppName, "No previous climbing found");
 			num_steps = 0;
 			percentage = 0;
@@ -970,10 +999,14 @@ public class ClimbActivity extends ActionBarActivity {
 			MainActivity.climbingDao.create(climbing);
 
 			saveClimbingToParse(climbing);
-			
 			Log.i(MainActivity.AppName, "Created new climbing #" + climbing.get_id());
 		} else {
 			Log.d(MainActivity.AppName, "uno vecchio trovato");
+			System.out.println("paused? " + climbing.getId_mode());
+		/*	if(climbing.getId_mode().equalsIgnoreCase("paused")){ System.out.println("yes");
+				climbing = MainActivity.getClimbingForBuildingAndUserNotPaused(building.get_id(), pref.getInt("local_id", -1));
+				System.out.println("now: " + climbing.getId_mode().equalsIgnoreCase("paused"));
+			}*/
 			num_steps = climbing.getCompleted_steps();
 			percentage = climbing.getPercentage();
 			Log.i(MainActivity.AppName, "Loaded existing climbing (#" + climbing.get_id() + ")");
@@ -1358,20 +1391,30 @@ public class ClimbActivity extends ActionBarActivity {
 	
 	private void endCompetition(){
 		Log.d("END COMPETITION", "fineeee");
-		if(climbing.getCompleted() != 0){
+
+		if(soloClimb != null){ System.out.println("non scalato per la prima volta");
+			deleteClimbingInParse(climbing);
+			MainActivity.climbingDao.delete(climbing);
+			/*if(climbing.getCompleted() != 0){
 			//ho già scalato l'edificio una volta, quindi lo lascio scalato per intero
 			climbing.setCompleted_steps(building.getSteps());
 			climbing.setRemaining_steps(0);
 			climbing.setPercentage(100);
 			
-		}
+			}*/
+			soloClimb.setGame_mode(0);
+			soloClimb.setId_mode("");
+			MainActivity.climbingDao.update(soloClimb);
+			updateClimbingInParse(soloClimb);
+		}else{
 			//else salvo i dati di climbing che ho e tengo buoni i miei passi
-		
+		System.out.println("scalato x prima volta");
 		climbing.setGame_mode(0);
 		climbing.setId_mode("");
 		MainActivity.climbingDao.update(climbing);
 		updateClimbingInParse(climbing);
 		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.social_share);		
+		}
 	}
 	
 	private void updateChart() {
