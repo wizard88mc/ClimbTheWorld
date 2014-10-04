@@ -103,21 +103,29 @@ public class GeneralUtils {
     	
     	/////////		
     	//per test algoritmo
-    	editor.putInt("artificialDayIndex", 0).commit();    	
+    	editor.putInt("artificialDayIndex", 0);    	
     	Calendar cal = Calendar.getInstance();
     	SimpleDateFormat calFormat = new SimpleDateFormat("yyyy-MM-dd");
     	String dateFormatted = calFormat.format(cal.getTime());
-    	editor.putString("dateOfIndex", dateFormatted).commit();
+    	editor.putString("dateOfIndex", dateFormatted);
+    	editor.commit();
     	Log.d(MainActivity.AppName,"GeneralUtils - init index: 0, init date: " + dateFormatted);	
     	
     	alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     	Intent intent = new Intent(context, TimeBatteryWatcher.class);
     	intent.setAction("UPDATE_DAY_INDEX_TESTING");    	
     	Calendar calendar = Calendar.getInstance();
-    	calendar.setTimeInMillis(System.currentTimeMillis());
+    	calendar.add(Calendar.DATE, 1);
     	calendar.set(Calendar.HOUR_OF_DAY, 0);
     	calendar.set(Calendar.MINUTE, 0);
     	calendar.set(Calendar.SECOND, 0); 
+    	
+    	int month =calendar.get(Calendar.MONTH)+1;    	
+    	Log.d(MainActivity.AppName, "UPDATE ALARM: h:m:s=" 
+				+ calendar.get(Calendar.HOUR_OF_DAY)+":"+ calendar.get(Calendar.MINUTE)+":"+ calendar.get(Calendar.SECOND) +
+				"  "+calendar.get(Calendar.DATE)+"/"+month+"/"+calendar.get(Calendar.YEAR));
+    	
+    	
     	alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
     			AlarmManager.INTERVAL_DAY, PendingIntent.getBroadcast(context, 0, intent, 0));
     	Log.d(MainActivity.AppName,"GeneralUtils - set update index alarm");	

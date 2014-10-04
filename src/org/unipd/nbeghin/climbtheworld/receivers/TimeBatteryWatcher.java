@@ -202,14 +202,24 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			//settimana (utile per testare l'algoritmo con una settimana corta, composta ad esempio
 			//da 1,2 giorni); tale indice viene opportunamente aggiornato ogni giorno a mezzanotte
 			
+			/*
+			//innanzitutto si ferma il servizio di activity recognition, in quanto può partire
+			//per un alarm settato in precedenza con tempo di inizio già passato (che, quindi,
+			//si avvia subito); in teoria, il problema si presenta quando si porta avanti la
+			//data manualmente per provare più velocemente
+			Intent activityRecognitionIntent = new Intent(context, ActivityRecognitionRecordService.class);
+		   	context.stopService(activityRecognitionIntent);
+			*/			
+		   	
 			Log.d(MainActivity.AppName,"TimeBatteryWatcher - day index update, midnight event");			
-						
+									
 			//si aggiorna l'indice per indicare il giorno all'interno della settimana corta
 			//salvandolo nelle shared preferences
 			int currentDayIndex=pref.getInt("artificialDayIndex", 0);
 			
-			if(currentDayIndex==GeneralUtils.daysOfWeek-1)
+			if(currentDayIndex==GeneralUtils.daysOfWeek-1){
 				pref.edit().putInt("artificialDayIndex", 0).commit();
+			}
 			else{
 				pref.edit().putInt("artificialDayIndex", currentDayIndex+1).commit();
 			}
@@ -222,8 +232,20 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 	    	pref.edit().putString("dateOfIndex", dateFormatted).commit();
 			
 	    	Log.d(MainActivity.AppName,"TimeBatteryWatcher - on update index, new index: "+pref.getInt("artificialDayIndex", 0)+", new date: " + dateFormatted);	
+		   	
+	    	/*
+	    	//utile settare il prossimo alarm se si porta avanti l'ora manualmente, saltando
+	    	//degli alarm in mezzo
+	    	
+			//si cancella il next alarm settato in precedenza
+	    	int aa_id = pref.getInt("alarm_id", -1);
+			System.out.println("ID da cancellare " + aa_id);
+			AlarmUtils.cancelAlarm(context, AlarmUtils.getAlarm(context,aa_id));			
+			//si imposta e si lancia il prossimo alarm
+	    	AlarmUtils.setNextAlarm(context,AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,pref.getInt("current_template", -1))));	
+			*/
 		}
-		else{
+		else{				
 			
 			//se tale receiver riceve un intent che rappresenta un'azione di start del processo
 			//di registrazione dell'attività utente allora si controlla se questo processo è
@@ -233,7 +255,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			//di start ce ne sia uno di stop) e, quindi, non serve attivarlo; in entrambi i casi
 			//viene abilitato il receiver per la per la registrazione dell'attività utente
 			//(receiver 'UserMotionReceiver')			
-			if(action.equalsIgnoreCase(ACTIVITY_RECOGNITION_START_ACTION)){						
+			if(action.equalsIgnoreCase(ACTIVITY_RECOGNITION_START_ACTION)){				
 				
 				if(!GeneralUtils.isActivityRecognitionServiceRunning(context)){
 					
@@ -261,8 +283,6 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				if(GeneralUtils.isActivityRecognitionServiceRunning(context)){
 					
 					System.out.println("STOP - Service di activity recognition");
-										
-					//System.out.println("");
 					
 					Intent activityRecognitionIntent = new Intent(context, ActivityRecognitionRecordService.class);
 				   	context.stopService(activityRecognitionIntent);
@@ -285,10 +305,5 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 	    	AlarmUtils.setNextAlarm(context,AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,pref.getInt("current_template", -1))));			
 		}
 	}
-	
-	
-	
-	
-	
 	
 }

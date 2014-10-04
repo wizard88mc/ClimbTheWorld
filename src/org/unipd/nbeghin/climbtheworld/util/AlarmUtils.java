@@ -78,15 +78,15 @@ public class AlarmUtils {
     	//boolean bb[] = new boolean[] {true,true,true,true,true,true,true};
     	//boolean bb1[] = new boolean[] {false,false,true,true,true,true,true};
     	//boolean noweekend[] = new boolean[] {false,true,true,true,true,true,false}; 
-    	boolean bb[] = new boolean[] {true,true};
+    	boolean bb[] = new boolean[] {false,true};
     	//float pf[] = new float[] {0.25f,0.25f,0.25f,0.25f,0.25f,0.25f,0.25f};
     	float pf[] = new float[] {0.25f,0.25f};
 		Alarm alm1 = new Alarm(9,55,50,true,bb,pf);
 		Alarm alm2 = new Alarm(9,57,50,false,bb,pf);
-		Alarm alm3 = new Alarm(15,01,10,true,bb,pf);
-		Alarm alm4 = new Alarm(15,05,50,false,bb,pf); 
-		Alarm alm5 = new Alarm(23,15,51,true,bb,pf);
-		Alarm alm6 = new Alarm(23,16,50,false,bb,pf);
+		Alarm alm3 = new Alarm(15,01,10,true,bb,pf); 
+		Alarm alm4 = new Alarm(15,05,50,false,bb,pf);
+		Alarm alm5 = new Alarm(16,15,51,true,bb,pf);
+		Alarm alm6 = new Alarm(16,16,50,false,bb,pf);
 		
 		
 		//creo template
