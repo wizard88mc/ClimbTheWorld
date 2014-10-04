@@ -1,9 +1,11 @@
 package org.unipd.nbeghin.climbtheworld.services;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SimpleTimeZone;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -76,12 +78,21 @@ public class UpdateService extends IntentService {
 							if(climbs.size() == 0){
 								climbingDao.delete(climbing);
 							}else{
+								DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+								df.setTimeZone(new SimpleTimeZone(0, "GMT"));
 								ParseObject climbOnline = climbs.get(0);
 								climbOnline.put("completed_steps", climbing.getCompleted_steps());
 								climbOnline.put("remaining_steps", climbing.getRemaining_steps());
-								climbOnline.put("modified", climbing.getModified());
+								try {
+									climbOnline.put("modified", df.parse(df.format(climbing.getModified())));
+									climbOnline.put("created", df.parse(df.format(climbing.getCreated())));
+									climbOnline.put("completedAt", df.parse(df.format(climbing.getCompleted())));
+								} catch (java.text.ParseException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
 								climbOnline.put("compleatedAt", climbing.getCompleted());
-								climbOnline.put("percentage", climbing.getPercentage());
+								climbOnline.put("percentage", String.valueOf(climbing.getPercentage()));
 								climbOnline.put("game_mode", climbing.getGame_mode());
 								climbOnline.saveEventually();
 								climbing.setSaved(true);
