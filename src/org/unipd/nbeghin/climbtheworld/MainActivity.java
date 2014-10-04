@@ -404,6 +404,33 @@ public class MainActivity extends ActionBarActivity {
 		
 	}
 	
+	public static Climbing getClimbingForParseId(int id) {
+		/*Map<String, Object> conditions = new HashMap<String, Object>();
+		conditions.put("building_id", building_id); // filter for building ID
+		conditions.put("users_id", user_id);
+		Log.d("cerco", String.valueOf(user_id));
+		List<Climbing> climbings = climbingDao
+				.queryForFieldValuesArgs(conditions);*/
+		QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
+		Where<Climbing, Integer> where = query.where();
+		// the name field must be equal to "foo"
+		try {
+			where.eq("online_id", id);
+			PreparedQuery<Climbing> preparedQuery = query.prepare();
+			List<Climbing> climbings = climbingDao.query(preparedQuery);
+			if (climbings.size() == 0)
+				return null;
+			return climbings.get(0);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		
+		
+		
+	}
+	
 	public static Climbing getClimbingForBuildingAndUserNotPaused(int building_id, int user_id) {
 		/*Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("building_id", building_id); // filter for building ID

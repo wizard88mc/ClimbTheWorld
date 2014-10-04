@@ -187,6 +187,7 @@ public class SettingsActivity extends PreferenceActivity {
 		MainActivity.refreshClimbings();
 		MainActivity.refreshCollaborations();
 		MainActivity.refreshCompetitions();
+		
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
 		query.whereEqualTo("users_id", pref.getString("FBid", ""));
 		query.findInBackground(new FindCallback<ParseObject>() {
@@ -216,8 +217,9 @@ public class SettingsActivity extends PreferenceActivity {
 							c.setSaved(true);
 							c.setId_mode(climb.getString("id_mode"));
 							c.setGame_mode(climb.getInt("game_mode"));
+							c.setId_online(climb.getObjectId());
 							MainActivity.climbingDao.create(c);
-
+							System.out.println("set id online" + c.getId_online());
 							System.out.println("getgamemode" + c.getGame_mode());
 							switch(c.getGame_mode()){
 							case 1:
@@ -248,6 +250,8 @@ public class SettingsActivity extends PreferenceActivity {
 								localClimb.setGame_mode(climb.getInt("game_mode"));
 								localClimb.setSaved(true);
 								localClimb.setId_mode(climb.getString("id_mode"));
+								localClimb.setId_online(climb.getObjectId());
+								System.out.println("set id online" + localClimb.getId_online());
 								MainActivity.climbingDao.update(localClimb);
 							}
 							switch(localClimb.getGame_mode()){

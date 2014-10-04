@@ -33,6 +33,8 @@ public class Climbing {
 	private String id_mode;
 	@DatabaseField
 	private int deleted;
+	@DatabaseField
+	private String id_online;
 	
 
 	public String getId_mode() {
@@ -170,6 +172,14 @@ public class Climbing {
 			return true;
 		else
 			return false;
+	}
+
+	public String getId_online() {
+		return id_online;
+	}
+
+	public void setId_online(String id_online) {
+		this.id_online = id_online;
 	}
 	
 	

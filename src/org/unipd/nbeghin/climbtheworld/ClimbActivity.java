@@ -70,6 +70,7 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.SaveCallback;
 
 //competizioni: se vinco ma senza altri partecipanti, no punti extra vittoria ne badge
 
@@ -129,6 +130,7 @@ public class ClimbActivity extends ActionBarActivity {
 	private boolean climbedYesterday = false;
 	private int new_steps = 0;
 
+	SharedPreferences pref;
 	// logic for social mode
 	private GameModeType mode;
 	
@@ -545,6 +547,7 @@ public class ClimbActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_climb);
 		setupActionBar();
+		pref = getSharedPreferences("UserSession", 0);
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		final View contentView = findViewById(R.id.lblReadyToClimb);
 		// Set up an instance of SystemUiHider to control the system UI for
@@ -856,15 +859,18 @@ public class ClimbActivity extends ActionBarActivity {
 		return sum;
 	}
 
-	private void saveClimbingToParse(Climbing climbing) {
+	private void saveClimbingToParse(final Climbing climbing) {
 		SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
 		// save climbing to parse
 		if (!pref.getString("FBid", "none").equals("none")) {
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 			df.setTimeZone(new SimpleTimeZone(0, "GMT"));
-			ParseObject climb = new ParseObject("Climbing");
+			final ParseObject climb = new ParseObject("Climbing");
 			climb.put("building", climbing.getBuilding().get_id());
-			climb.put("id_mode", climbing.getId_mode());
+			if(climbing.getId_mode() != null)
+				climb.put("id_mode", climbing.getId_mode());
+			else
+				climb.put("id_mode", "");
 			
 			try {
 				climb.put("created", df.parse(df.format(climbing.getCreated())));
@@ -879,7 +885,22 @@ public class ClimbActivity extends ActionBarActivity {
 			climb.put("percentage", String.valueOf(climbing.getPercentage()));
 			climb.put("users_id", climbing.getUser().getFBid());
 			climb.put("game_mode", climbing.getGame_mode());
-			climb.saveEventually();
+			climb.saveInBackground(new SaveCallback() {
+				
+				@Override
+				public void done(ParseException e) {
+					if(e == null){
+						climbing.setId_online(climb.getObjectId());
+						climbing.setSaved(true);
+						MainActivity.climbingDao.update(climbing);
+					}else{
+						climbing.setSaved(false);
+						MainActivity.climbingDao.update(climbing);
+						Toast.makeText(getApplicationContext(), "Connection not available: your progresses will be saved during next reconnection", Toast.LENGTH_SHORT).show();
+					}
+					
+				}
+			});
 		}
 	}
 	
@@ -912,23 +933,25 @@ public class ClimbActivity extends ActionBarActivity {
 	}
 
 	private void updateClimbingInParse(final Climbing myclimbing, boolean paused) {
-		System.out.println("updateClimbingInParse" + myclimbing.getId_mode());
+		System.out.println("updateClimbingInParse " + myclimbing.getId_online());
+		System.out.println(pref.getString("FBid", "none"));
 		final SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
 		if (FacebookUtils.isOnline(this)) {
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
-			query.whereEqualTo("users_id", myclimbing.getUser().getFBid());
+		/*	query.whereEqualTo("users_id", myclimbing.getUser().getFBid());
 			query.whereEqualTo("building", myclimbing.getBuilding().get_id());
 			if(!paused)
 				query.whereEqualTo("id_mode", myclimbing.getId_mode());
 			else
 				query.whereEqualTo("id_mode", "paused");
 
-			System.out.println("CERCO: " + myclimbing.getId_mode());
+			System.out.println("CERCO: " + myclimbing.getId_mode());*/
+			query.whereEqualTo("objectId", myclimbing.getId_online());
 			query.findInBackground(new FindCallback<ParseObject>() {
 
 				@Override
 				public void done(List<ParseObject> climbs, ParseException e) {
-					if (e == null) {
+					if (e == null && climbs.size() > 0) {
 						ParseObject c = climbs.get(0);
 						DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 						df.setTimeZone(new SimpleTimeZone(0, "GMT"));
@@ -943,7 +966,10 @@ public class ClimbActivity extends ActionBarActivity {
 						c.put("completed_steps", myclimbing.getCompleted_steps());
 						c.put("remaining_steps", myclimbing.getRemaining_steps());
 						c.put("percentage", String.valueOf(myclimbing.getPercentage()));
-						c.put("id_mode", myclimbing.getId_mode());
+						if(myclimbing.getId_mode() == null)
+							c.put("id_mode", "");
+						else
+							c.put("id_mode", myclimbing.getId_mode());
 						c.put("game_mode", myclimbing.getGame_mode());
 						c.saveEventually();
 						myclimbing.setSaved(true);
@@ -972,10 +998,10 @@ public class ClimbActivity extends ActionBarActivity {
 	private void loadPreviousClimbing() {
 		SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
 		climbing = MainActivity.getClimbingForBuildingAndUserNotPaused(building.get_id(), pref.getInt("local_id", -1));
-		System.out.println(climbing.getId_mode());
+		//System.out.println(climbing.getId_mode());
 		soloClimb = MainActivity.getClimbingForBuildingAndUserPaused(building.get_id(), pref.getInt("local_id", -1));
-		System.out.println(soloClimb.getId_mode());
-		if (climbing == null) { // no climbing found (è la prima volta che scalo questo edificio)
+		//System.out.println(soloClimb.getId_mode());
+		if (climbing == null) { // no climbing found 
 			Log.i(MainActivity.AppName, "No previous climbing found");
 			num_steps = 0;
 			percentage = 0;
@@ -987,12 +1013,13 @@ public class ClimbActivity extends ActionBarActivity {
 			climbing.setCompleted_steps(num_steps);
 			climbing.setCreated(new Date().getTime());
 			climbing.setModified(new Date().getTime());
+			climbing.setGame_mode(0);
 			String FBid = pref.getString("FBid", "");
 			if (FBid.equals(""))
 				climbing.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
 			else
 				climbing.setUser(MainActivity.getUserByFBId(FBid));
-			switch(GameModeType.values()[climbing.getGame_mode()]){
+		/*	switch(GameModeType.values()[climbing.getGame_mode()]){
 			case SOLO_CLIMB:
 				climbing.setId_mode("");
 				break;
@@ -1004,7 +1031,7 @@ public class ClimbActivity extends ActionBarActivity {
 				break;
 			case TEAM_VS_TEAM:
 				break;
-			}
+			}*/
 
 			MainActivity.climbingDao.create(climbing);
 
@@ -1013,10 +1040,7 @@ public class ClimbActivity extends ActionBarActivity {
 		} else {
 			Log.d(MainActivity.AppName, "uno vecchio trovato");
 			System.out.println("paused? " + climbing.getId_mode());
-		/*	if(climbing.getId_mode().equalsIgnoreCase("paused")){ System.out.println("yes");
-				climbing = MainActivity.getClimbingForBuildingAndUserNotPaused(building.get_id(), pref.getInt("local_id", -1));
-				System.out.println("now: " + climbing.getId_mode().equalsIgnoreCase("paused"));
-			}*/
+
 			num_steps = climbing.getCompleted_steps();
 			percentage = climbing.getPercentage();
 			Log.i(MainActivity.AppName, "Loaded existing climbing (#" + climbing.get_id() + ")");
@@ -1185,7 +1209,8 @@ public class ClimbActivity extends ActionBarActivity {
 	/**
 	 * Stop background classifier service
 	 */
-	public void stopClassify() {System.out.println("stop: " + climbing.getId_mode());
+	public void stopClassify() {
+		
 		stopService(backgroundClassifySampler); // stop background service
 		samplingEnabled = false;
 		unregisterReceiver(classifierReceiver); // unregister listener
@@ -1203,6 +1228,10 @@ public class ClimbActivity extends ActionBarActivity {
 			switch(mode){
 			case SOCIAL_CLIMB:
 				updateOthers();
+				climbing.setGame_mode(0);
+				climbing.setId_mode("");
+				MainActivity.climbingDao.update(climbing); // save to db
+				if(!pref.getString("FBid", "none").equalsIgnoreCase("none")) updateClimbingInParse(climbing, false);
 				break;
 			case SOCIAL_CHALLENGE:
 				updateChart();		
@@ -1211,14 +1240,14 @@ public class ClimbActivity extends ActionBarActivity {
 				break;
 			case SOLO_CLIMB:
 				MainActivity.climbingDao.update(climbing); // save to db
-				updateClimbingInParse(climbing, false);
+				if(!pref.getString("FBid", "none").equalsIgnoreCase("none")) updateClimbingInParse(climbing, false);
 				break;
 			}
 			/*climbing.setGame_mode(0);
 			climbing.setId_mode("");*/
 		}else{
 			MainActivity.climbingDao.update(climbing); // save to db
-			updateClimbingInParse(climbing, false);
+			if(!pref.getString("FBid", "none").equalsIgnoreCase("none")) updateClimbingInParse(climbing, false);
 		}
 		
 		Log.i(MainActivity.AppName, "Updated climbing #" + climbing.get_id());
