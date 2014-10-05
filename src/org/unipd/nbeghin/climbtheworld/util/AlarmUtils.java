@@ -78,15 +78,15 @@ public class AlarmUtils {
     	//boolean bb[] = new boolean[] {true,true,true,true,true,true,true};
     	//boolean bb1[] = new boolean[] {false,false,true,true,true,true,true};
     	//boolean noweekend[] = new boolean[] {false,true,true,true,true,true,false}; 
-    	boolean bb[] = new boolean[] {false,true};
+    	boolean bb[] = new boolean[] {true,true};
     	//float pf[] = new float[] {0.25f,0.25f,0.25f,0.25f,0.25f,0.25f,0.25f};
     	float pf[] = new float[] {0.25f,0.25f};
 		Alarm alm1 = new Alarm(9,55,50,true,bb,pf);
 		Alarm alm2 = new Alarm(9,57,50,false,bb,pf);
-		Alarm alm3 = new Alarm(15,01,10,true,bb,pf); 
-		Alarm alm4 = new Alarm(15,05,50,false,bb,pf);
-		Alarm alm5 = new Alarm(16,15,51,true,bb,pf);
-		Alarm alm6 = new Alarm(16,16,50,false,bb,pf);
+		Alarm alm3 = new Alarm(10,01,10,true,bb,pf); 
+		Alarm alm4 = new Alarm(10,05,50,false,bb,pf);
+		Alarm alm5 = new Alarm(15,14,51,true,bb,pf);
+		Alarm alm6 = new Alarm(15,30,50,false,bb,pf);
 		
 		
 		//creo template
@@ -226,7 +226,7 @@ public class AlarmUtils {
 		Random rand = new Random(); 
 		
 		if(MainActivity.logEnabled){
-			Log.d(MainActivity.AppName, "SetNextAlarm: lista prima di collection sort");
+			Log.d(MainActivity.AppName, "AlarmUtils - SetNextAlarm: lista prima di collection sort");
 			for (Alarm e : alarms) {		    
 				Log.d(MainActivity.AppName,"Alarm id: " + e.get_id() + " - hms: " + e.get_hour() + "," + e.get_minute() + "," + e.get_second());			
 			}
@@ -243,7 +243,7 @@ public class AlarmUtils {
 		
 		
 		if(MainActivity.logEnabled){
-			Log.d(MainActivity.AppName, "SetNextAlarm: lista dopo collection sort");
+			Log.d(MainActivity.AppName, "AlarmUtils - SetNextAlarm: lista dopo collection sort");
 			for (Alarm e : alarms) {		    
 				Log.d(MainActivity.AppName,"Alarm id: " + e.get_id() + " - hms: " + e.get_hour() + "," + e.get_minute() + "," + e.get_second());			
 			}
@@ -251,7 +251,8 @@ public class AlarmUtils {
 		
 		Calendar now = Calendar.getInstance();
 		Calendar alarmTime=Calendar.getInstance();			
-		int currentDayOfWeek = alarmTime.get(Calendar.DAY_OF_WEEK)-1;
+		int today = alarmTime.get(Calendar.DAY_OF_WEEK)-1;
+				
 		
 		boolean stop=false;
 		
@@ -259,7 +260,8 @@ public class AlarmUtils {
 			
 			Alarm e = alarms.get(i);
 			
-			//Calendar alarmTime=Calendar.getInstance();			
+			//Calendar alarmTime=Calendar.getInstance();	
+			//si impostano ora, minuti e secondi prendendo tali parametri dall'alarm salvato
 			alarmTime.set(Calendar.HOUR_OF_DAY, e.get_hour());
 			alarmTime.set(Calendar.MINUTE, e.get_minute());
 			alarmTime.set(Calendar.SECOND, e.get_second());
@@ -271,14 +273,17 @@ public class AlarmUtils {
 			//allora si attua la mutazione in base alla sua probabilità impostata
 			//con il calcolo della fitness in una generazione precedente
 			
+			//TODO: rivedere queste definizioni a seconda della formalizzazione che si farà
+						
 			//se un alarm di start rimane disattivato, si deve disattivare anche
 			//il relativo alarm di stop
 			
 			
-			//per test algoritmo: l'indice del giorno corrente è impostato "artificialmente",
+			/////////
+			//PER TEST ALGORITMO: l'indice del giorno corrente è impostato "artificialmente",
 			//in quanto lo deve rappresentare all'interno della settimana "corta";
-			//normalmente l'indice è dato dalla data corrente: e.getRepeatingDay(currentDayOfWeek)
-			
+			//normalmente l'indice è dato dalla data corrente: e.getRepeatingDay(today)
+			/////////
 			
 			if(e.getRepeatingDay(artificialIndex) && alarmTime.after(now)){
 				
@@ -299,22 +304,45 @@ public class AlarmUtils {
 		
 		if(nextAlarm==null)	{
 			
+			//si resettano ora, minuti e secondi
 			alarmTime.set(Calendar.HOUR_OF_DAY, 0);
 			alarmTime.set(Calendar.MINUTE, 0);
 			alarmTime.set(Calendar.SECOND, 0);
 				
-			//per testing: si inizializza l'indice artificiale 
+			/////////
+			//PER TEST ALGORITMO: si inizializza l'indice artificiale 
 			int currentIndex = artificialIndex;
 			
+			if(MainActivity.logEnabled){
+				int al_m=alarmTime.get(Calendar.MONTH)+1;    	
+				Log.d(MainActivity.AppName, "AlarmUtils - next alarm reset hms: h:m:s=" 
+						+ alarmTime.get(Calendar.HOUR_OF_DAY)+":"+ alarmTime.get(Calendar.MINUTE)+":"+ alarmTime.get(Calendar.SECOND) +
+						"  "+alarmTime.get(Calendar.DATE)+"/"+al_m+"/"+alarmTime.get(Calendar.YEAR));		    	
+				Log.d(MainActivity.AppName, "AlarmUtils - milliseconds of the resetted alarm: " + alarmTime.getTimeInMillis());
+			}
+			/////////	
 			
+						
 			while(!stop){
 				
-				alarmTime.add(Calendar.DATE, 1);			
+				//si incrementa il giorno in quanto un opportuno alarm non è stato trovato nel
+				//giorno precedente
+				alarmTime.add(Calendar.DATE, 1);
 				
-				//per testing: si aggiorna l'indice artificiale man mano che
+				if(MainActivity.logEnabled){
+					int alr_m=alarmTime.get(Calendar.MONTH)+1;    	
+					Log.d(MainActivity.AppName, "AlarmUtils - next alarm add 1 day: h:m:s=" 
+							+ alarmTime.get(Calendar.HOUR_OF_DAY)+":"+ alarmTime.get(Calendar.MINUTE)+":"+ alarmTime.get(Calendar.SECOND) +
+							"  "+alarmTime.get(Calendar.DATE)+"/"+alr_m+"/"+alarmTime.get(Calendar.YEAR));
+			    	Log.d(MainActivity.AppName, "AlarmUtils - milliseconds of the alarm added 1 day: " + alarmTime.getTimeInMillis());
+				}
+				
+				
+		    	/////////	
+				//PER TEST ALGORITMO: si aggiorna l'indice artificiale man mano che
 				//si incrementa la data
-				currentIndex=getDayIndex(currentIndex);
-				
+				currentIndex=getNextDayIndex(currentIndex);
+				/////////
 				
 				for(int i=0; i<alarms.size() && !stop; i++){
 					
@@ -324,8 +352,10 @@ public class AlarmUtils {
 					//      un alarm scartato in precedenza
 					
 					
-					//per testing si fa sempre riferimento all'indice artificiale;
+					/////////
+					//PER TEST ALGORITMO: si fa sempre riferimento all'indice artificiale;
 					//normalmente: e.getRepeatingDay(alarmTime.get(Calendar.DAY_OF_WEEK)-1)
+					/////////
 					
 					if(e.getRepeatingDay(currentIndex)){ //istante di inizio sicuramente > di ora
 						nextAlarm=e;
@@ -335,14 +365,19 @@ public class AlarmUtils {
 				}
 			}
 		}
-		
-		int month =alarmTime.get(Calendar.MONTH)+1;
-		
-		
+				
+		//si impostano ora, minuti e secondi prendendo tali parametri dall'alarm selezionato;
+		//quest'ultimo sarà il prossimo alarm che verrà lanciato attraverso l'alarm manager
+		alarmTime.set(Calendar.HOUR_OF_DAY, nextAlarm.get_hour());
+		alarmTime.set(Calendar.MINUTE, nextAlarm.get_minute());
+		alarmTime.set(Calendar.SECOND, nextAlarm.get_second());
+					
 		if(MainActivity.logEnabled){
-			Log.d(MainActivity.AppName, "NEXT ALARM: id=" + nextAlarm.get_id() + "  h:m:s=" 
-					+ nextAlarm.get_hour()+":"+ nextAlarm.get_minute()+":"+ nextAlarm.get_second() +
-					"  "+alarmTime.get(Calendar.DATE)+"/"+month+"/"+alarmTime.get(Calendar.YEAR));
+			int month=alarmTime.get(Calendar.MONTH)+1;	
+			Log.d(MainActivity.AppName, "AlarmUtils - NEXT ALARM: id=" + nextAlarm.get_id() + "  h:m:s=" 
+					+ alarmTime.get(Calendar.HOUR_OF_DAY)+":"+ alarmTime.get(Calendar.MINUTE)+":"+ alarmTime.get(Calendar.SECOND) +
+					"  "+alarmTime.get(Calendar.DATE)+"/"+month+"/"+alarmTime.get(Calendar.YEAR));		
+			Log.d(MainActivity.AppName, "AlarmUtils - MILLISECONDS OF THE NEXT ALARM: " + alarmTime.getTimeInMillis());		
 		}		
 		
 		//nell'oggetto shared preferences si imposta l'id del prossimo alarm e degli interi che indicano il giorno, il mese e 
@@ -366,7 +401,7 @@ public class AlarmUtils {
  	    alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime.getTimeInMillis(), pi);
  	    
  	   if(MainActivity.logEnabled){
-			Log.d(MainActivity.AppName,"Creato pending intent e settato nell'alarm manager");		
+			Log.d(MainActivity.AppName,"AlarmUtils - pending intent for next alarm set in the alarm manager");		
  	   }
 	}
 	
@@ -406,17 +441,18 @@ public class AlarmUtils {
 		return PendingIntent.getBroadcast(context, alarm.get_id(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 	}
 	 
-	 
-	
+	/////////
+	//PER TEST ALGORITMO
 	/**
-	 * 
-	 * @param i
-	 * @return
+	 * Metodo che ritorna l'indice "artificiale" che rappresenta il prossimo giorno 
+	 * considerando una settimana corta, composta da un numero di giorni inferiore a 7.
+	 * @param i indice che rappresenta il giorno corrente
+	 * @return indice che rappresenta il prossimo giorno
 	 */	
-	private static int getDayIndex(int i){
+	private static int getNextDayIndex(int i){
 		return (i == GeneralUtils.daysOfWeek-1) ? 0 : i+1;
 	}
-	
+	/////////
 	 
 	 
 	 

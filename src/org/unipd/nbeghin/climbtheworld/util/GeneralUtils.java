@@ -102,33 +102,38 @@ public class GeneralUtils {
     	editor.commit();  
     	
     	/////////		
-    	//per test algoritmo
+    	//PER TEST ALGORITMO
     	editor.putInt("artificialDayIndex", 0);    	
     	Calendar cal = Calendar.getInstance();
     	SimpleDateFormat calFormat = new SimpleDateFormat("yyyy-MM-dd");
     	String dateFormatted = calFormat.format(cal.getTime());
     	editor.putString("dateOfIndex", dateFormatted);
-    	editor.commit();
-    	Log.d(MainActivity.AppName,"GeneralUtils - init index: 0, init date: " + dateFormatted);	
+    	editor.commit();    	
     	
+    	//si imposta l'alarm per aggiornare l'indice artificiale che rappresenta il giorno
+    	//all'interno della settimana corta
     	alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     	Intent intent = new Intent(context, TimeBatteryWatcher.class);
     	intent.setAction("UPDATE_DAY_INDEX_TESTING");    	
     	Calendar calendar = Calendar.getInstance();
-    	calendar.add(Calendar.DATE, 1);
+    	//si imposta a partire dalla mezzanotte del giorno successivo
+    	calendar.add(Calendar.DATE, 1); 
     	calendar.set(Calendar.HOUR_OF_DAY, 0);
     	calendar.set(Calendar.MINUTE, 0);
     	calendar.set(Calendar.SECOND, 0); 
-    	
-    	int month =calendar.get(Calendar.MONTH)+1;    	
-    	Log.d(MainActivity.AppName, "UPDATE ALARM: h:m:s=" 
-				+ calendar.get(Calendar.HOUR_OF_DAY)+":"+ calendar.get(Calendar.MINUTE)+":"+ calendar.get(Calendar.SECOND) +
-				"  "+calendar.get(Calendar.DATE)+"/"+month+"/"+calendar.get(Calendar.YEAR));
-    	
-    	
+    	//si ripete l'alarm ogni giorno a mezzanotte
     	alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
     			AlarmManager.INTERVAL_DAY, PendingIntent.getBroadcast(context, 0, intent, 0));
-    	Log.d(MainActivity.AppName,"GeneralUtils - set update index alarm");	
+    	    	
+    	if(MainActivity.logEnabled){
+    		Log.d(MainActivity.AppName + " - TEST","GeneralUtils - init index: 0, init date: " + dateFormatted);	
+    		Log.d(MainActivity.AppName + " - TEST","GeneralUtils - set update day index alarm");
+    		int month =calendar.get(Calendar.MONTH)+1;    	
+        	Log.d(MainActivity.AppName + " - TEST", "GeneralUtils - UPDATE DAY INDEX ALARM: h:m:s=" 
+    				+ calendar.get(Calendar.HOUR_OF_DAY)+":"+ calendar.get(Calendar.MINUTE)+":"+ calendar.get(Calendar.SECOND) +
+    				"  "+calendar.get(Calendar.DATE)+"/"+month+"/"+calendar.get(Calendar.YEAR));        	
+        	Log.d(MainActivity.AppName + " - TEST", "GeneralUtils - milliseconds of the update day index alarm: " + calendar.getTimeInMillis());
+    	}
     	/////////
     	
     	
@@ -138,5 +143,6 @@ public class GeneralUtils {
 		AlarmUtils.createAlarmsAndTemplates(context);     	    	
     	//si imposta e si lancia il prossimo alarm
     	AlarmUtils.setNextAlarm(context,AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,1)));    	 
+    
     }   
 }

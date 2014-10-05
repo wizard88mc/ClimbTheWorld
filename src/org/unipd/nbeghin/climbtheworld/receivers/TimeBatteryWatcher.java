@@ -12,7 +12,6 @@ import org.unipd.nbeghin.climbtheworld.services.ActivityRecognitionRecordService
 import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
 import org.unipd.nbeghin.climbtheworld.util.AlarmUtils;
 import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
-import org.unipd.nbeghin.climbtheworld.weka.WekaClassifier;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -139,12 +138,15 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				}
 				
 				/////////				
-				//per test algoritmo: si aggiorna l'indice artificiale che rappresenta il giorno 
-				//corrente della settimana (utile per testare l'algoritmo con una settimana
-				//corta, composta ad esempio da 1,2 giorni); tale indice viene opportunamente 
-				//aggiornato considerando i giorni dall'ultimo spegnimento del device
-				Log.d(MainActivity.AppName,"TimeBatteryWatcher - day index update, on boot event");	
-				
+				//PER TEST ALGORITMO 
+				//si aggiorna l'indice artificiale che rappresenta il giorno corrente della 
+				//settimana (utile per testare l'algoritmo con una settimana corta, composta ad 
+				//esempio da 1,2 giorni); tale indice viene opportunamente aggiornato considerando
+				//i giorni passati dall'ultimo spegnimento del device
+				if(MainActivity.logEnabled){
+					Log.d(MainActivity.AppName + " - TEST","TimeBatteryWatcher - day index update, on boot event");
+				}
+									
 				//si aggiorna l'indice per indicare il giorno all'interno della settimana corta
 				//salvandolo nelle shared preferences
 				int currentDayIndex=pref.getInt("artificialDayIndex", 0);
@@ -163,18 +165,14 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				try {
 					date = formatter.parse(pref.getString("dateOfIndex", ""));
 				} catch (ParseException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				before.setTime(date);
 						
 				double diff = now.getTimeInMillis() - before.getTimeInMillis();
-				diff = diff / (24 * 60 * 60 * 1000); // hours in a day, minutes in a hour,
-				                                    // seconds in a minute, millis in a
-				                                    // second.
+				diff = diff / (24 * 60 * 60 * 1000); //hours in a day, minutes in a hour,
+				                                     //seconds in a minute, millis in a second
 				int day_diff = (int) Math.round(diff);
-				
-				System.out.println(day_diff);		
 								
 				//si aggiorna l'indice artificiale che rappresenta il giorno corrente
 				//considerando i giorni dall'ultimo spegnimento del device
@@ -192,27 +190,26 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				SimpleDateFormat calFormat = new SimpleDateFormat("yyyy-MM-dd");
 		    	String dateFormatted = calFormat.format(now.getTime());
 		    	pref.edit().putString("dateOfIndex", dateFormatted).commit();
-		    	Log.d(MainActivity.AppName,"TimeBatteryWatcher - on boot, new index: "+currentDayIndex+", new date: " + dateFormatted);	
+		    	
+		    	if(MainActivity.logEnabled){
+		    		Log.d(MainActivity.AppName + " - TEST","TimeBatteryWatcher - on boot, days since the last device shutdown: " + day_diff);	
+		    		Log.d(MainActivity.AppName + " - TEST","TimeBatteryWatcher - on boot, new index: "+currentDayIndex+", new date: " + dateFormatted);	
+		    	}		    	
 				/////////
 				
 			}
 		}
+		/////////
+		//PER TEST ALGORITMO
 		else if(action.equalsIgnoreCase(UPDATE_DAY_INDEX_FOR_TESTING)){
 			//serve per incrementare l'indice artificiale che rappresenta il giorno corrente della
 			//settimana (utile per testare l'algoritmo con una settimana corta, composta ad esempio
 			//da 1,2 giorni); tale indice viene opportunamente aggiornato ogni giorno a mezzanotte
-			
-			/*
-			//innanzitutto si ferma il servizio di activity recognition, in quanto può partire
-			//per un alarm settato in precedenza con tempo di inizio già passato (che, quindi,
-			//si avvia subito); in teoria, il problema si presenta quando si porta avanti la
-			//data manualmente per provare più velocemente
-			Intent activityRecognitionIntent = new Intent(context, ActivityRecognitionRecordService.class);
-		   	context.stopService(activityRecognitionIntent);
-			*/			
-		   	
-			Log.d(MainActivity.AppName,"TimeBatteryWatcher - day index update, midnight event");			
-									
+					   	
+			if(MainActivity.logEnabled){
+				Log.d(MainActivity.AppName + " - TEST","TimeBatteryWatcher - day index update, midnight event");
+			}
+												
 			//si aggiorna l'indice per indicare il giorno all'interno della settimana corta
 			//salvandolo nelle shared preferences
 			int currentDayIndex=pref.getInt("artificialDayIndex", 0);
@@ -228,14 +225,21 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			Calendar cal = Calendar.getInstance();
 	    	SimpleDateFormat calFormat = new SimpleDateFormat("yyyy-MM-dd");
 	    	String dateFormatted = calFormat.format(cal.getTime());
-	    	System.out.println(dateFormatted);    	
 	    	pref.edit().putString("dateOfIndex", dateFormatted).commit();
 			
-	    	Log.d(MainActivity.AppName,"TimeBatteryWatcher - on update index, new index: "+pref.getInt("artificialDayIndex", 0)+", new date: " + dateFormatted);	
-		   	
+	    	if(MainActivity.logEnabled){
+	    		Log.d(MainActivity.AppName + " - TEST","TimeBatteryWatcher - on update index, new index: "+pref.getInt("artificialDayIndex", 0)+", new date: " + dateFormatted);
+	    	}
+	    			   	
 	    	/*
 	    	//utile settare il prossimo alarm se si porta avanti l'ora manualmente, saltando
-	    	//degli alarm in mezzo
+	    	//degli alarm in mezzo; prima si cerca di fermare il servizio di activity recognition,
+	    	//se questo è attivo, in quanto può partire per un alarm di start settato in precedenza,
+	    	//non ancora consumato, il cui tempo di inizio è già passato per lo spostamento 
+	    	//d'orario (quindi, si avvia subito)
+	    	
+	    	Intent activityRecognitionIntent = new Intent(context, ActivityRecognitionRecordService.class);
+		    context.stopService(activityRecognitionIntent);
 	    	
 			//si cancella il next alarm settato in precedenza
 	    	int aa_id = pref.getInt("alarm_id", -1);
@@ -245,6 +249,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 	    	AlarmUtils.setNextAlarm(context,AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,pref.getInt("current_template", -1))));	
 			*/
 		}
+		/////////
 		else{				
 			
 			//se tale receiver riceve un intent che rappresenta un'azione di start del processo
@@ -290,10 +295,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					//context.getApplicationContext().unregisterReceiver(userMotionReceiver);
 					//context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
 				}
-				
-				
-				
-				
+								
 			}
 			
 			int aa_id = pref.getInt("alarm_id", -1);
