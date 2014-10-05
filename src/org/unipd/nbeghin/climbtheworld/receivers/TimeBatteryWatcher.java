@@ -13,6 +13,8 @@ import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
 import org.unipd.nbeghin.climbtheworld.util.AlarmUtils;
 import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -30,8 +32,10 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 	private final String ACTIVITY_RECOGNITION_START_ACTION = "ACTIVITY_RECOGNITION_START";
 	private final String ACTIVITY_RECOGNITION_STOP_ACTION = "ACTIVITY_RECOGNITION_STOP";
 	
-	//per test algoritmo
+	/////////	
+	//PER TEST ALGORITMO
 	private final String UPDATE_DAY_INDEX_FOR_TESTING = "UPDATE_DAY_INDEX_TESTING";
+	/////////	
 	
 	//campi utili a registrare il receiver che "ascolta" l'attività utente; quest'ultimo sarà
 	//chiamato con qualsiasi broadcast intent che matcha con l'azione descritta dal seguente
@@ -194,9 +198,36 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    	if(MainActivity.logEnabled){
 		    		Log.d(MainActivity.AppName + " - TEST","TimeBatteryWatcher - on boot, days since the last device shutdown: " + day_diff);	
 		    		Log.d(MainActivity.AppName + " - TEST","TimeBatteryWatcher - on boot, new index: "+currentDayIndex+", new date: " + dateFormatted);	
-		    	}		    	
-				/////////
+		    	}	
+		    	
+		    	//si reimposta il repeating alarm per l'update dell'indice artificiale, in quanto
+		    	//dopo un reboot del device quello impostato in precedenza non viene lanciato; 
+		    	//quest'ultimo viene prima cancellato attraverso l'alarm manager		    	
+		    	Intent update_index_intent = new Intent(context, TimeBatteryWatcher.class);
+		    	update_index_intent.setAction("UPDATE_DAY_INDEX_TESTING");  		    	
+		    	AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+				alarmManager.cancel(PendingIntent.getBroadcast(context, 0, update_index_intent, 0));
+		    	//si reimposta l'alarm per l'update dell'indice artificiale
+				Calendar calendar = Calendar.getInstance();
+		    	//si imposta a partire dalla mezzanotte del giorno successivo
+		    	calendar.add(Calendar.DATE, 1); 
+		    	calendar.set(Calendar.HOUR_OF_DAY, 0);
+		    	calendar.set(Calendar.MINUTE, 0);
+		    	calendar.set(Calendar.SECOND, 0); 
+		    	//si ripete l'alarm ogni giorno a mezzanotte
+		    	alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+		    			AlarmManager.INTERVAL_DAY, PendingIntent.getBroadcast(context, 0, update_index_intent, 0));
 				
+		    	if(MainActivity.logEnabled){
+		    		Log.d(MainActivity.AppName + " - TEST","TimeBatteryWatcher - init index: 0, init date: " + dateFormatted);	
+		    		Log.d(MainActivity.AppName + " - TEST","TimeBatteryWatcher - set update day index alarm");
+		    		int month =calendar.get(Calendar.MONTH)+1;    	
+		        	Log.d(MainActivity.AppName + " - TEST", "TimeBatteryWatcher - UPDATE DAY INDEX ALARM: h:m:s=" 
+		    				+ calendar.get(Calendar.HOUR_OF_DAY)+":"+ calendar.get(Calendar.MINUTE)+":"+ calendar.get(Calendar.SECOND) +
+		    				"  "+calendar.get(Calendar.DATE)+"/"+month+"/"+calendar.get(Calendar.YEAR));        	
+		        	Log.d(MainActivity.AppName + " - TEST", "TimeBatteryWatcher - milliseconds of the update day index alarm: " + calendar.getTimeInMillis());
+		    	}
+		    	/////////
 			}
 		}
 		/////////
