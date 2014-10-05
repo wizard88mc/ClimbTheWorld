@@ -147,7 +147,6 @@ public class ClimbActivity extends ActionBarActivity {
 	private VerticalSeekBar secondSeekbar;
 	private TextView current;
 
-	// for teams
 	private List<TextView> group_members = new ArrayList<TextView>();
 	private List<TextView> group_steps = new ArrayList<TextView>();
 
@@ -238,11 +237,12 @@ public class ClimbActivity extends ActionBarActivity {
 																					// the
 																					// progress
 																					// percentage
-					boolean win = false;
+					boolean win = false; //user wins?
 					if (mode == GameModeType.SOCIAL_CLIMB){
-						win = ((num_steps + sumOthersStep()) >= building.getSteps()) && (threshold - num_steps <= 0); // user
-						setThresholdText();																// wins?
-					}else
+						//consider also my friend' steps
+						win = ((num_steps + sumOthersStep()) >= building.getSteps()) && (threshold - num_steps <= 0); 
+						setThresholdText();																
+					}else //consider only my steps
 						win = ((num_steps) >= building.getSteps());
 					if (win) { // ensure it did not exceed the number of steps
 								// (when multiple steps-at-once are detected)
@@ -308,7 +308,6 @@ public class ClimbActivity extends ActionBarActivity {
 			setThresholdText();
 			break;
 		case 2:
-			Toast.makeText(getApplicationContext(), "Update to see if you have won the competition", Toast.LENGTH_SHORT).show();
 			break;
 		default:
 			break;
@@ -471,6 +470,10 @@ public class ClimbActivity extends ActionBarActivity {
 			current.setText(getString(R.string.threshold) + ": " + stepsToThreshold);
 	}
 	
+	/**
+	 * Sets Graphics in case of social mode.
+	 * Shows name and steps of my friends
+	 */
 	private void setGraphicsSocialMode() {
 
 		secondSeekbar = (VerticalSeekBar) findViewById(R.id.seekBarPosition2);
@@ -483,6 +486,7 @@ public class ClimbActivity extends ActionBarActivity {
 						return true;
 					}
 				});
+		
 		current = (TextView) findViewById(R.id.textPosition);
 		for (int i = 1; i <= ClimbApplication.N_MEMBERS_PER_GROUP; i++) {
 			System.out.println("qui " + i);
@@ -496,7 +500,6 @@ public class ClimbActivity extends ActionBarActivity {
 		switch (GameModeType.values()[climbing.getGame_mode()]) {
 		case SOCIAL_CLIMB:
 			secondSeekbar.setVisibility(View.GONE);
-			// textTeam.setVisibility(View.VISIBLE);
 			for (int i = 0; i < group_members.size() - 1; i++) {
 				group_members.get(i).setVisibility(View.VISIBLE);
 				group_steps.get(i).setVisibility(View.VISIBLE);
@@ -693,6 +696,9 @@ public class ClimbActivity extends ActionBarActivity {
 
 	}
 
+	/**
+	 * Load the object with info about the current social mode
+	 */
 	private void loadSocialMode() {
 		System.out.println("mode: " + mode);
 		switch (mode) {
@@ -712,12 +718,16 @@ public class ClimbActivity extends ActionBarActivity {
 		}
 	}
 
+	/**
+	 * Loads the Collaboration object corresponding to the current climbing
+	 */
 	private void loadCollaboration() {
 		collaboration = MainActivity.getCollaborationById(climbing.getId_mode());//MainActivity.getCollaborationForBuilding(building.get_id());
 		others_steps = new HashMap<String, Integer>();
 		if (collaboration == null) {
 			Toast.makeText(this, "No collaboration available for this building", Toast.LENGTH_SHORT).show();
 		} else {
+			collaboration.setMy_stairs(climbing.getCompleted_steps());
 			updateOthers();
 		}
 
@@ -732,6 +742,9 @@ public class ClimbActivity extends ActionBarActivity {
 		}
 	}
 
+	/**
+	 * Update graphics to let user see the latest update about my friends' steps
+	 */
 	private void updateOthers() {
 		System.out.println("update others");
 		if (!(mode == GameModeType.SOLO_CLIMB) && FacebookUtils.isOnline(this)) {
@@ -743,10 +756,10 @@ public class ClimbActivity extends ActionBarActivity {
 				public void done(List<ParseObject> collabs, ParseException e) {
 					if (e == null) {
 						if (collabs == null || collabs.size() == 0) {
-							Toast.makeText(getApplicationContext(), "This Collaboration does not exists", Toast.LENGTH_SHORT).show();
+							Toast.makeText(getApplicationContext(), "This Collaboration is not yet available", Toast.LENGTH_SHORT).show();
 							Log.e("loadCollaboration", "Collaboration " + collaboration.getId() + " not present in Parse");
 							// delete this collaboration
-							MainActivity.collaborationDao.delete(collaboration);
+							//MainActivity.collaborationDao.delete(collaboration);
 						} else {
 							SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
 							collab_parse = collabs.get(0);
@@ -832,6 +845,7 @@ public class ClimbActivity extends ActionBarActivity {
 							System.out.println("num_steps " + num_steps);
 							System.out.println("sum other steps " + sumOthersStep());
 							if((num_steps + sumOthersStep() >= building.getSteps()) && (num_steps < threshold)){
+								//if I and my friend have finished climbing this building, but I didn't pass the threshold
 								System.out.println("social penalty");
 								socialPenalty();
 							}
@@ -859,6 +873,9 @@ public class ClimbActivity extends ActionBarActivity {
 		return sum;
 	}
 
+	/**
+	 * Saves the new Climbing object in Parse
+	 */
 	private void saveClimbingToParse(final Climbing climbing) {
 		SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
 		// save climbing to parse
@@ -932,6 +949,11 @@ public class ClimbActivity extends ActionBarActivity {
 		}
 	}
 
+	/**
+	 * Update the given Climbing object in Parse
+	 * @param myclimbing the given Climbing object
+	 * 
+	 */
 	private void updateClimbingInParse(final Climbing myclimbing, boolean paused) {
 		System.out.println("updateClimbingInParse " + myclimbing.getId_online());
 		System.out.println(pref.getString("FBid", "none"));
@@ -1198,6 +1220,10 @@ public class ClimbActivity extends ActionBarActivity {
 		}
 	}
 	
+	/**
+	 * Called when Collabration ended and the user didn't pass the threshold.
+	 * It modifies the game mode in 'Solo Climb' and deletes locally the Collaboration object
+	 */
 	//la collaborazione si  conclusa e non ho superato la soglia minima
 	//quindi torno in social climb e elimino la collab localmente
 	private void socialPenalty(){
@@ -1232,7 +1258,7 @@ public class ClimbActivity extends ActionBarActivity {
 			climbing.setCompleted(new Date().getTime());
 		if(percentage >= 1.00){
 			switch(mode){
-			case SOCIAL_CLIMB:
+			case SOCIAL_CLIMB: //come back in Solo Climb
 				updateOthers();
 				climbing.setGame_mode(0);
 				climbing.setId_mode("");
@@ -1268,13 +1294,16 @@ public class ClimbActivity extends ActionBarActivity {
 																																			// bar
 		findViewById(R.id.progressBarClimbing).setVisibility(View.INVISIBLE);
 
-		if (mode == GameModeType.SOCIAL_CLIMB)
+		if (mode == GameModeType.SOCIAL_CLIMB && collaboration != null)
 			saveCollaborationData();
 		else if (mode == GameModeType.SOCIAL_CHALLENGE)
 			saveCompetitionData();
 	}
 
-	//elimino localmente la collabrazione se l'ho completata
+	/**
+	 * Saves the data about current Collaboration object in Parse if possible, 
+	 * otherwise it remembers to save the updates when connetction return available.
+	 */
 	private void saveCollaborationData() {
 		collaboration.setMy_stairs(climbing.getCompleted_steps());
 		if (collab_parse == null) {
@@ -1425,6 +1454,10 @@ public class ClimbActivity extends ActionBarActivity {
 		return true;
 	}
 
+	/**
+	 * Action for update button pressed
+	 * @param v
+	 */
 	public void onUpdate(MenuItem v) {
 		switch(climbing.getGame_mode()){
 		case 0:
