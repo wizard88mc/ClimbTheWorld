@@ -22,6 +22,7 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.SaveCallback;
 
 import android.app.IntentService;
 import android.content.Context;
@@ -71,18 +72,55 @@ public class UpdateService extends IntentService {
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
 			query.whereEqualTo("building", climbing.getBuilding().get_id());
 			query.whereEqualTo("users_id", climbing.getUser().getFBid());
+				if(climbing.getGame_mode() == 3)
+					query.whereEqualTo("game_mode", 3);
+			
 			query.findInBackground(new FindCallback<ParseObject>() {
 				
 				@Override
 				public void done(List<ParseObject> climbs, ParseException e) {
-						if(e == null){
+						if(e == null){ 
 							if(climbs.size() == 0){
-								climbingDao.delete(climbing);
-							}else{
+									final ParseObject climbOnline = new ParseObject("Climbing");
+									climbOnline.put("building", climbing.getBuilding().get_id());
+									climbOnline.put("users_id", climbing.getUser().getFBid());
+									climbOnline.put("completed_steps", climbing.getCompleted_steps());
+									climbOnline.put("remaining_steps", climbing.getRemaining_steps());
+									DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+									df.setTimeZone(new SimpleTimeZone(0, "GMT"));
+									try {
+										climbOnline.put("modified", df.parse(df.format(climbing.getModified())));
+										climbOnline.put("created", df.parse(df.format(climbing.getCreated())));
+										climbOnline.put("completedAt", df.parse(df.format(climbing.getCompleted())));
+									} catch (java.text.ParseException e1) {
+										// TODO Auto-generated catch block
+										e1.printStackTrace();
+									}
+									climbOnline.put("percentage", String.valueOf(climbing.getPercentage()));
+									climbOnline.put("game_mode", climbing.getGame_mode());
+									climbOnline.saveInBackground(new SaveCallback() {
+										
+										@Override
+										public void done(ParseException e) {
+											if(e == null){
+												climbing.setId_online(climbOnline.getObjectId());
+												climbing.setSaved(true);
+												climbingDao.update(climbing);
+											}else{
+												climbing.setSaved(false);
+												climbingDao.update(climbing);
+												Toast.makeText(context, "Connection Problems: your data will be saved during next reconnection", Toast.LENGTH_SHORT).show();
+											}
+										}
+									});
+								
+									
+								
+							}else{System.out.println(climbs.size());
 								if(!climbing.isDeleted()){
 								DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 								df.setTimeZone(new SimpleTimeZone(0, "GMT"));
-								ParseObject climbOnline = climbs.get(0);
+								ParseObject climbOnline = climbs.get(0); System.out.println(climbOnline.getObjectId());
 								climbOnline.put("completed_steps", climbing.getCompleted_steps());
 								climbOnline.put("remaining_steps", climbing.getRemaining_steps());
 								try {
@@ -93,9 +131,9 @@ public class UpdateService extends IntentService {
 									// TODO Auto-generated catch block
 									e1.printStackTrace();
 								}
-								climbOnline.put("compleatedAt", climbing.getCompleted());
 								climbOnline.put("percentage", String.valueOf(climbing.getPercentage()));
 								climbOnline.put("game_mode", climbing.getGame_mode());
+								climbOnline.put("id_mode", climbing.getId_mode());
 								climbOnline.saveEventually();
 								climbing.setSaved(true);
 								climbingDao.update(climbing);

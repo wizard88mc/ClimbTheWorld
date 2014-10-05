@@ -41,6 +41,7 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.SaveCallback;
 
 public class NotificationCard extends Card {
 
@@ -79,407 +80,510 @@ public class NotificationCard extends Card {
 
 			@Override
 			public void onClick(View arg0) {
-				if(FacebookUtils.isOnline(context)){
-				NotificationType type = notification.getType();
-				switch (type) {
-				case INVITE_IN_GROUP:
-					ParseQuery<ParseObject> query = ParseQuery.getQuery("Group");
-					query.whereEqualTo("name", notification.getGroupName());
-					query.findInBackground(new FindCallback<ParseObject>() {
-						public void done(List<ParseObject> group, ParseException e) {
-							if (e == null) {
-								if (group.size() == 0) {
-									Toast.makeText(MainActivity.getContext(), "The group does not exists anymore", Toast.LENGTH_SHORT).show();
-									text.setText("Request expired");
+				if (FacebookUtils.isOnline(context)) {
+					NotificationType type = notification.getType();
+					switch (type) {
+					case INVITE_IN_GROUP:
+						ParseQuery<ParseObject> query = ParseQuery.getQuery("Group");
+						query.whereEqualTo("name", notification.getGroupName());
+						query.findInBackground(new FindCallback<ParseObject>() {
+							public void done(List<ParseObject> group, ParseException e) {
+								if (e == null) {
+									if (group.size() == 0) {
+										Toast.makeText(MainActivity.getContext(), "The group does not exists anymore", Toast.LENGTH_SHORT).show();
+										text.setText("Request expired");
 
-								} else {
-									SharedPreferences pref = context.getSharedPreferences("UserSession", 0);
-									JSONObject members = group.get(0).getJSONObject("members");
-									if (members.has(pref.getString("FBid", ""))) {
-										Toast.makeText(MainActivity.getContext(), "You are already part of " + notification.getGroupName(), Toast.LENGTH_SHORT).show();
-										text.setText("Already a member");
 									} else {
-										updateGroup(group.get(0));
-										text.setText("Request Accepted");
-									}
-
-								}
-								deleteRequest(String.valueOf(notification.getId()));
-
-								cancelBtn.setEnabled(false);
-								acceptBtn.setEnabled(false);
-								notification.setRead(true);
-							} else {
-								Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
-
-								Log.d("Connection problem", "Error: " + e.getMessage());
-
-							}
-						}
-
-					});
-					break;
-				case ASK_COLLABORATION:
-
-					final AskCollaborationNotification current = ((AskCollaborationNotification) notification);
-
-					Collaboration collabs = MainActivity.getCollaborationByBuilding(current.getBuilding_id());
-					Competition compet = MainActivity.getCompetitionByBuilding(current.getBuilding_id());
-					//stessa per team
-					if(collabs == null && compet == null /* add team*/){
-					
-					//prendi collaborazione da parse
-					ParseQuery<ParseObject> queryColl = ParseQuery.getQuery("Collaboration");
-					queryColl.whereEqualTo("objectId", current.getCollaborationId());
-					queryColl.findInBackground(new FindCallback<ParseObject>() {
-
-						@Override
-						public void done(List<ParseObject> collabs, ParseException e) {
-							if(e == null){
-								if(collabs.size() == 0){
-									Toast.makeText(MainActivity.getContext(), "This collaboration does not exists anymore", Toast.LENGTH_SHORT).show();
-									text.setText("This collaboration not exists");
-								}else{
-									//se c'è la collaborazione
-									ParseObject collaborationParse = collabs.get(0);
-									JSONObject collaborators = collaborationParse.getJSONObject("collaborators");
-									JSONObject stairs = collaborationParse.getJSONObject("stairs");
-									
-									boolean meIn = collaborators.has(pref.getString("FBid", ""));
-									
-									if(!meIn){
-									
-									int n_collaborators = collaborators.length();
-									if(n_collaborators < ClimbApplication.N_MEMBERS_PER_GROUP){
-									
-										
-										
-									try {// mi aggiungo alla collaborazione
-										collaborators.put(pref.getString("FBid", ""), pref.getString("username", ""));
-										stairs.put(pref.getString("FBid", ""), 0);
-									} catch (JSONException e1) {
-										// TODO Auto-generated catch block
-										e1.printStackTrace();
-									}
-									collaborationParse.put("collaborators", collaborators);
-									collaborationParse.put("stairs", stairs);
-									collaborationParse.saveEventually();
-									
-									User me = MainActivity.getUserById(pref.getInt("local_id", -1));
-									Building building = MainActivity.getBuildingById(current.getBuilding_id());
-									int my_stairs = 0;
-									final Climbing climb = MainActivity.getClimbingForBuilding(building.get_id());
-									if(climb == null){
-										//creo climbing e salvo in locale e non
-										Climbing climbing = new Climbing();
-										climbing.setBuilding(building);
-										climbing.setCompleted(0);
-										climbing.setCompleted_steps(0);
-										climbing.setCreated(new Date().getTime());
-										climbing.setGame_mode(1);
-										climbing.setId_mode(collaborationParse.getObjectId());
-										climbing.setModified(new Date().getTime());
-										climbing.setPercentage(0);
-										climbing.setRemaining_steps(building.getSteps());
-										climbing.setUser(me);
-										climbing.setSaved(true);
-										MainActivity.climbingDao.create(climbing);
-										
-										ParseObject climbingParse = new ParseObject("Climbing");
-										DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-										df.setTimeZone(new SimpleTimeZone(0, "GMT"));
-										climbingParse.put("building", climbing.getBuilding().get_id());
-										try {
-											climbingParse.put("created", df.parse(df.format(climbing.getCreated())));
-											climbingParse.put("modified", df.parse(df.format(climbing.getModified())));		
-											climbingParse.put("completedAt", df.parse(df.format(climbing.getCompleted())));
-										} catch (java.text.ParseException ex) {
-											// TODO Auto-generated catch block
-											ex.printStackTrace();
+										SharedPreferences pref = context.getSharedPreferences("UserSession", 0);
+										JSONObject members = group.get(0).getJSONObject("members");
+										if (members.has(pref.getString("FBid", ""))) {
+											Toast.makeText(MainActivity.getContext(), "You are already part of " + notification.getGroupName(), Toast.LENGTH_SHORT).show();
+											text.setText("Already a member");
+										} else {
+											updateGroup(group.get(0));
+											text.setText("Request Accepted");
 										}
-										climbingParse.put("completed_steps", climbing.getCompleted_steps());
-										climbingParse.put("remaining_steps", climbing.getRemaining_steps());
-										climbingParse.put("percentage", String.valueOf(climbing.getPercentage()));
-										climbingParse.put("users_id", climbing.getUser().getFBid());
-										climbingParse.put("game_mode", climbing.getGame_mode());
-										climbingParse.put("id_mode", climbing.getId_mode());
-										climbingParse.saveEventually();
-									}else{
-										climb.setGame_mode(1);
-										climb.setId_mode(collaborationParse.getObjectId());
-										if(climb.getPercentage() >= 1.00){
-											climb.setPercentage(0);
-											climb.setCompleted_steps(0);
-											climb.setRemaining_steps(building.getSteps());
-										}
-										my_stairs = climb.getCompleted_steps();
-										ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
-										query.whereEqualTo("building", building.get_id());
-										query.whereEqualTo("users_id", pref.getString("FBid", ""));
-										query.findInBackground(new FindCallback<ParseObject>() {
 
-											@Override
-											public void done(List<ParseObject> climbs, ParseException e) {
-												if(e == null){
-													ParseObject climbParse = climbs.get(0);
-													climbParse.put("game_mode", 1);
-													climbParse.put("id_mode", climb.getId_mode());
-													climbParse.saveEventually();
-													MainActivity.climbingDao.update(climb);
-												}else{
-													Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
-													Log.d("Connection problem", "Error: " + e.getMessage());
-												}
-											}
-										});
 									}
-									
-									//salvo collaboration in locale
-									Collaboration collaborationLocal = new Collaboration();
-									collaborationLocal.setId(collaborationParse.getObjectId());
-									collaborationLocal.setBuilding(MainActivity.getBuildingById(current.getBuilding_id()));
-									collaborationLocal.setMy_stairs(my_stairs);
-									collaborationLocal.setOthers_stairs(0);
-									collaborationLocal.setSaved(true);
-									collaborationLocal.setLeaved(false);
-									collaborationLocal.setUser(me);
-									collaborationLocal.setCompleted(false);
-									MainActivity.collaborationDao.create(collaborationLocal);
-									
-									
-									
-									
-									text.setText("Request Accepted");}
-									else{
-										text.setText("Collaboration completed");
-										Toast.makeText(MainActivity.getContext(), "Too Late: collaboration completed", Toast.LENGTH_SHORT).show();
-									}
-									}else{
-										text.setText("You are already in this collaboration");
-									}
-									
 									deleteRequest(String.valueOf(notification.getId()));
 
 									cancelBtn.setEnabled(false);
 									acceptBtn.setEnabled(false);
 									notification.setRead(true);
+								} else {
+									Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
+
+									Log.d("Connection problem", "Error: " + e.getMessage());
+
 								}
-							}else{
-								Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
-								Log.d("Connection problem", "Error: " + e.getMessage());
 							}
+
+						});
+						break;
+					case ASK_COLLABORATION:
+
+						final AskCollaborationNotification current = ((AskCollaborationNotification) notification);
+
+						Collaboration collabs = MainActivity.getCollaborationByBuilding(current.getBuilding_id());
+						Competition compet = MainActivity.getCompetitionByBuilding(current.getBuilding_id());
+						// stessa per team
+						if (collabs == null && compet == null /* add team */) {
 							
-						}
-					});
-					deleteRequest(String.valueOf(notification.getId()));
+							//pick collaboration from Parse (use the id in the notification)
+							ParseQuery<ParseObject> queryColl = ParseQuery.getQuery("Collaboration");
+							queryColl.whereEqualTo("objectId", current.getCollaborationId());
+							queryColl.findInBackground(new FindCallback<ParseObject>() {
 
-					cancelBtn.setEnabled(false);
-					acceptBtn.setEnabled(false);
-					notification.setRead(true);
-					}else{
-						text.setText("Unable to take part");
-						deleteRequest(String.valueOf(notification.getId()));
+								@Override
+								public void done(List<ParseObject> collabs, ParseException e) {
+									if (e == null) {
+										if (collabs.size() == 0) {//this collaboration has been deleted by someone else
+											Toast.makeText(MainActivity.getContext(), "This collaboration does not exists anymore", Toast.LENGTH_SHORT).show();
+											text.setText("This collaboration not exists");
+											deleteRequest(String.valueOf(notification.getId()));
 
-						cancelBtn.setEnabled(false);
-						acceptBtn.setEnabled(false);
-						notification.setRead(true);
-					}
-					break;
-				case ASK_COMPETITION:
-					final AskCompetitionNotification current1 = ((AskCompetitionNotification) notification);
-					
-					Collaboration collabs1 = MainActivity.getCollaborationByBuilding(current1.getBuilding_id());
-					Competition compet1 = MainActivity.getCompetitionByBuilding(current1.getBuilding_id());
-					//stessa per team
-					if(collabs1 == null && compet1 == null /* add team*/){
+											cancelBtn.setEnabled(false);
+											acceptBtn.setEnabled(false);
+											notification.setRead(true);
+										} else {
+											//collaboration object found in parse
+											final ParseObject collaborationParse = collabs.get(0);
+											JSONObject collaborators = collaborationParse.getJSONObject("collaborators");
+											JSONObject stairs = collaborationParse.getJSONObject("stairs");
 
-					//prendi competizione da parse
-					ParseQuery<ParseObject> queryComp = ParseQuery.getQuery("Competition");
-					queryComp.whereEqualTo("objectId", current1.getCompetitionId());
-					queryComp.findInBackground(new FindCallback<ParseObject>() {
+											boolean meIn = collaborators.has(pref.getString("FBid", ""));
 
-						@Override
-						public void done(List<ParseObject> compets, ParseException e) {
-							if(e == null){
-								if(compets.size() == 0){
-									Toast.makeText(MainActivity.getContext(), "This competition does not exists anymore", Toast.LENGTH_SHORT).show();
-									text.setText("This competition not exists");
-								}else{
-									//se c'è la competizione
-									ParseObject collaborationParse = compets.get(0);
-									JSONObject collaborators = collaborationParse.getJSONObject("competitors");
-									JSONObject stairs = collaborationParse.getJSONObject("stairs");
-									
-									boolean meIn = collaborators.has(pref.getString("FBid", ""));
-									
-									if(!meIn){
-									
-									int n_collaborators = collaborators.length();
-									if(n_collaborators < ClimbApplication.N_MEMBERS_PER_GROUP){
-									
-										
-										
-									try {// mi aggiungo alla competizione
-										collaborators.put(pref.getString("FBid", ""), pref.getString("username", ""));
-										stairs.put(pref.getString("FBid", ""), 0);
-									} catch (JSONException e1) {
-										// TODO Auto-generated catch block
-										e1.printStackTrace();
-									}
-									collaborationParse.put("competitors", collaborators);
-									collaborationParse.put("stairs", stairs);
-									collaborationParse.saveEventually();
-									
-									User me = MainActivity.getUserById(pref.getInt("local_id", -1));
-									Building building = MainActivity.getBuildingById(current1.getBuilding_id());
-									int my_stairs = 0;
-									final Climbing climb = MainActivity.getClimbingForBuilding(building.get_id());
-									if(climb != null){
-										climb.setId_mode("paused");
-										MainActivity.climbingDao.update(climb);
-										ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
-										query.whereEqualTo("building", building.get_id());
-										query.whereEqualTo("users_id", pref.getString("FBid", ""));
-										query.findInBackground(new FindCallback<ParseObject>() {
+											if (!meIn) {//I am not already part of the collaboration
 
-											@Override
-											public void done(List<ParseObject> climbs, ParseException e) {
-												if(e == null){
-													ParseObject c = climbs.get(0);
-													c.put("id_mode", climb.getId_mode());
-													c.saveEventually();
-												}else{
-													Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
-													Log.d("Connection problem", "Error: " + e.getMessage());
+												int n_collaborators = collaborators.length();
+												if (n_collaborators < ClimbApplication.N_MEMBERS_PER_GROUP) {
+													
+													final User me = MainActivity.getUserById(pref.getInt("local_id", -1));
+													final Building building = MainActivity.getBuildingById(current.getBuilding_id());
+													final Climbing climb = MainActivity.getClimbingForBuilding(building.get_id());
+													if(climb != null && (climb.getGame_mode() != 0 || climb.getId_mode().equalsIgnoreCase("paused"))){
+														Toast.makeText(context, "Building occupied", Toast.LENGTH_SHORT).show();
+														text.setText("Building occupied");
+													}else{	
+													
+													
+
+													try {//Collaboration  is not full, I can add myself				
+														collaborators.put(pref.getString("FBid", ""), pref.getString("username", ""));
+														stairs.put(pref.getString("FBid", ""), 0);
+													} catch (JSONException e1) {
+														// TODO Auto-generated
+														// catch block
+														e1.printStackTrace();
+													}
+													collaborationParse.put("collaborators", collaborators);
+													collaborationParse.put("stairs", stairs);
+													collaborationParse.saveInBackground(new SaveCallback() {
+														
+														@Override
+														public void done(ParseException e) {
+															if(e == null){
+																int my_stairs = 0;	
+																if (climb == null) {
+																	
+																	final Climbing climbing = new Climbing();
+																	climbing.setBuilding(building);
+																	climbing.setCompleted(0);
+																	climbing.setCompleted_steps(0);
+																	climbing.setCreated(new Date().getTime());
+																	climbing.setGame_mode(1);
+																	climbing.setId_mode(collaborationParse.getObjectId());
+																	climbing.setModified(new Date().getTime());
+																	climbing.setPercentage(0);
+																	climbing.setRemaining_steps(building.getSteps());
+																	climbing.setUser(me);
+																	climbing.setSaved(true);
+																	MainActivity.climbingDao.create(climbing);
+																	my_stairs = climbing.getCompleted_steps();
+																	final ParseObject climbingParse = new ParseObject("Climbing");
+																	DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+																	df.setTimeZone(new SimpleTimeZone(0, "GMT"));
+																	climbingParse.put("building", climbing.getBuilding().get_id());
+																	try {
+																		climbingParse.put("created", df.parse(df.format(climbing.getCreated())));
+																		climbingParse.put("modified", df.parse(df.format(climbing.getModified())));
+																		climbingParse.put("completedAt", df.parse(df.format(climbing.getCompleted())));
+																	} catch (java.text.ParseException ex) {
+																		// TODO
+																		// Auto-generated
+																		// catch block
+																		ex.printStackTrace();
+																	}
+																	climbingParse.put("completed_steps", climbing.getCompleted_steps());
+																	climbingParse.put("remaining_steps", climbing.getRemaining_steps());
+																	climbingParse.put("percentage", String.valueOf(climbing.getPercentage()));
+																	climbingParse.put("users_id", climbing.getUser().getFBid());
+																	climbingParse.put("game_mode", climbing.getGame_mode());
+																	climbingParse.put("id_mode", climbing.getId_mode());
+																	climbingParse.saveInBackground(new SaveCallback() {
+																		
+																		@Override
+																		public void done(ParseException e) {
+																			if(e == null){
+																				climbing.setId_online(climbingParse.getObjectId());
+																				climbing.setSaved(true);
+																				MainActivity.climbingDao.update(climbing);
+																			}else{
+																				climbing.setSaved(false);
+																				MainActivity.climbingDao.update(climbing);
+																				Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
+																				Log.d("Connection problem", "Error: " + e.getMessage());
+																			}
+																			
+																		}
+																	});
+																} else {
+																	climb.setGame_mode(1);
+																	climb.setId_mode(collaborationParse.getObjectId());
+																	if (climb.getPercentage() >= 1.00) {
+																		climb.setPercentage(0);
+																		climb.setCompleted_steps(0);
+																		climb.setRemaining_steps(building.getSteps());
+																	}
+																	my_stairs = climb.getCompleted_steps();
+																	ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
+																	query.whereEqualTo("objectId", climb.getId_online());
+//																	query.whereEqualTo("building", building.get_id());
+//																	query.whereEqualTo("users_id", pref.getString("FBid", ""));
+																	query.findInBackground(new FindCallback<ParseObject>() {
+
+																		@Override
+																		public void done(List<ParseObject> climbs, ParseException e) {
+																			if (e == null) {
+																				ParseObject climbParse = climbs.get(0);
+																				climbParse.put("game_mode", 1);
+																				climbParse.put("id_mode", climb.getId_mode());
+																				climbParse.put("percentage", String.valueOf(climb.getPercentage()));
+																				climbParse.put("completed_steps", climb.getCompleted_steps());
+																				climbParse.put("remaining_steps", climb.getRemaining_steps());
+																				climbParse.saveEventually();
+//																				climbParse.saveInBackground(new SaveCallback() {
+//																					
+//																					@Override
+//																					public void done(ParseException e) {
+//																						if(e == null){
+//																							climbing.setId_online(climbingParse.getObjectId());
+//																							climbing.setSaved(true);
+//																							MainActivity.climbingDao.update(climbing);
+//																						}else{
+//																							climbing.setSaved(false);
+//																							MainActivity.climbingDao.update(climbing);
+//																							Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
+//																							Log.d("Connection problem", "Error: " + e.getMessage());
+//																						}
+//																						
+//																					}
+//																				});
+																			} else {
+																				climb.setSaved(false);
+																				MainActivity.climbingDao.update(climb);
+																				Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
+																				Log.d("Connection problem", "Error: " + e.getMessage());
+																			}
+																		}
+																	});
+																}
+
+																// salvo collaboration in
+																// locale
+																Collaboration collaborationLocal = new Collaboration();
+																collaborationLocal.setId(collaborationParse.getObjectId());
+																collaborationLocal.setBuilding(MainActivity.getBuildingById(current.getBuilding_id()));
+																collaborationLocal.setMy_stairs(my_stairs);
+																collaborationLocal.setOthers_stairs(0);
+																collaborationLocal.setSaved(true);
+																collaborationLocal.setLeaved(false);
+																collaborationLocal.setUser(me);
+																collaborationLocal.setCompleted(false);
+																MainActivity.collaborationDao.create(collaborationLocal);
+
+																text.setText("Request Accepted");
+																
+																deleteRequest(String.valueOf(notification.getId()));
+
+																cancelBtn.setEnabled(false);
+																acceptBtn.setEnabled(false);
+																notification.setRead(true);
+															}else{
+																Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
+																Log.d("Connection problem", "Error: " + e.getMessage());
+															}
+															
+														}
+													});
+													}
+													
+												} else {
+													text.setText("Collaboration completed");
+													Toast.makeText(MainActivity.getContext(), "Too Late: collaboration completed", Toast.LENGTH_SHORT).show();
+													deleteRequest(String.valueOf(notification.getId()));
+
+													cancelBtn.setEnabled(false);
+													acceptBtn.setEnabled(false);
+													notification.setRead(true);
 												}
-											}
-											});
-										}
-										
-									
-										//creo climbing e salvo in locale e non
-										Climbing climbing = new Climbing();
-										climbing.setBuilding(building);
-										climbing.setCompleted(0);
-										climbing.setCompleted_steps(0);
-										climbing.setCreated(new Date().getTime());
-										climbing.setGame_mode(2);
-										climbing.setModified(new Date().getTime());
-										climbing.setPercentage(0);
-										climbing.setRemaining_steps(building.getSteps());
-										climbing.setUser(me);
-										climbing.setSaved(true);
-										climbing.setId_mode(collaborationParse.getObjectId());
-										MainActivity.climbingDao.create(climbing);
-										
-										ParseObject climbingParse = new ParseObject("Climbing");
-										DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-										df.setTimeZone(new SimpleTimeZone(0, "GMT"));
-										climbingParse.put("building", climbing.getBuilding().get_id());
-										try {
-											climbingParse.put("created", df.parse(df.format(climbing.getCreated())));
-											climbingParse.put("modified", df.parse(df.format(climbing.getModified())));		
-											climbingParse.put("completedAt", df.parse(df.format(climbing.getCompleted())));
-										} catch (java.text.ParseException ex) {
-											// TODO Auto-generated catch block
-											ex.printStackTrace();
-										}
-										climbingParse.put("completed_steps", climbing.getCompleted_steps());
-										climbingParse.put("remaining_steps", climbing.getRemaining_steps());
-										climbingParse.put("percentage", String.valueOf(climbing.getPercentage()));
-										climbingParse.put("users_id", climbing.getUser().getFBid());
-										climbingParse.put("game_mode", climbing.getGame_mode());
-										climbingParse.put("id_mode", climbing.getId_mode());
-										climbingParse.saveEventually();
-										/*}else{
-										climb.setGame_mode(2);
-										climb.setId_mode(collaborationParse.getObjectId());
-										if(climb.getPercentage() >= 1.00){
-											climb.setPercentage(0);
-											climb.setCompleted_steps(0);
-											climb.setRemaining_steps(building.getSteps());
-										}
-										my_stairs = climb.getCompleted_steps();
-										ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
-										query.whereEqualTo("building", building.get_id());
-										query.whereEqualTo("users_id", pref.getString("FBid", ""));
-										query.findInBackground(new FindCallback<ParseObject>() {
+											} else {
+												text.setText("You are already in this collaboration");
+												deleteRequest(String.valueOf(notification.getId()));
 
-											@Override
-											public void done(List<ParseObject> climbs, ParseException e) {
-												if(e == null){
-													ParseObject climbParse = climbs.get(0);
-													climbParse.put("game_mode", 2);
-													climbParse.put("id_mode", climb.getId_mode());
-													climbParse.saveEventually();
-													MainActivity.climbingDao.update(climb);
-												}else{
-													Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
-													Log.d("Connection problem", "Error: " + e.getMessage());
-												}
+												cancelBtn.setEnabled(false);
+												acceptBtn.setEnabled(false);
+												notification.setRead(true);
 											}
-										});
-									}*/
-									my_stairs = climb.getCompleted_steps();
 
-									//salvo collaboration in locale
-									Competition competitionLocal = new Competition();
-									competitionLocal.setId_online(collaborationParse.getObjectId());
-									competitionLocal.setBuilding(MainActivity.getBuildingById(current1.getBuilding_id()));
-									competitionLocal.setMy_stairs(my_stairs);
-									competitionLocal.setCurrent_position(0);
-									competitionLocal.setSaved(true);
-									competitionLocal.setLeaved(false);
-									competitionLocal.setUser(me);
-									competitionLocal.setCompleted(false);
-									MainActivity.competitionDao.create(competitionLocal);
-									
-									
-									
-									
-									text.setText("Request Accepted");
-									
-									
-									
-								}else{
-										text.setText("Collaboration completed");
-										Toast.makeText(MainActivity.getContext(), "Too Late: competition completed", Toast.LENGTH_SHORT).show();
-								}
-									}else{
-										text.setText("You are already in this competition");
+											
+										}
+//										deleteRequest(String.valueOf(notification.getId()));
+//
+//										cancelBtn.setEnabled(false);
+//										acceptBtn.setEnabled(false);
+//										notification.setRead(true);
+									} else {
+										Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
+										Log.d("Connection problem", "Error: " + e.getMessage());
 									}
-									
-									deleteRequest(String.valueOf(notification.getId()));
 
-									cancelBtn.setEnabled(false);
-									acceptBtn.setEnabled(false);
-									notification.setRead(true);
 								}
-							}else{
-								Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
-								Log.d("Connection problem", "Error: " + e.getMessage());
-							}
+							});
 							
+						} else {
+							//I'm already part of another collaboration/competition/team duel
+							text.setText("Unable to take part");
+							deleteRequest(String.valueOf(notification.getId()));
+
+							cancelBtn.setEnabled(false);
+							acceptBtn.setEnabled(false);
+							notification.setRead(true);
 						}
-					});
-					deleteRequest(String.valueOf(notification.getId()));
+						break;
+					case ASK_COMPETITION:
+						final AskCompetitionNotification current1 = ((AskCompetitionNotification) notification);
 
-					cancelBtn.setEnabled(false);
-					acceptBtn.setEnabled(false);
-					notification.setRead(true);
-					}else{
-						text.setText("Unable to take part");
-						deleteRequest(String.valueOf(notification.getId()));
+						Collaboration collabs1 = MainActivity.getCollaborationByBuilding(current1.getBuilding_id());
+						Competition compet1 = MainActivity.getCompetitionByBuilding(current1.getBuilding_id());
+						// stessa per team
+						if (collabs1 == null && compet1 == null /* add team */) {
 
-						cancelBtn.setEnabled(false);
-						acceptBtn.setEnabled(false);
-						notification.setRead(true);
+							// prendi competizione da parse
+							ParseQuery<ParseObject> queryComp = ParseQuery.getQuery("Competition");
+							queryComp.whereEqualTo("objectId", current1.getCompetitionId());
+							queryComp.findInBackground(new FindCallback<ParseObject>() {
+
+								@Override
+								public void done(List<ParseObject> compets, ParseException e) {
+									if (e == null) {
+										if (compets.size() == 0) {
+											Toast.makeText(MainActivity.getContext(), "This competition does not exists anymore", Toast.LENGTH_SHORT).show();
+											text.setText("This competition not exists");
+										} else {
+											// se c'è la competizione
+											ParseObject collaborationParse = compets.get(0);
+											JSONObject collaborators = collaborationParse.getJSONObject("competitors");
+											JSONObject stairs = collaborationParse.getJSONObject("stairs");
+
+											boolean meIn = collaborators.has(pref.getString("FBid", ""));
+
+											if (!meIn) {
+
+												int n_collaborators = collaborators.length();
+												if (n_collaborators < ClimbApplication.N_MEMBERS_PER_GROUP) {
+
+													try {// mi aggiungo alla
+															// competizione
+														collaborators.put(pref.getString("FBid", ""), pref.getString("username", ""));
+														stairs.put(pref.getString("FBid", ""), 0);
+													} catch (JSONException e1) {
+														// TODO Auto-generated
+														// catch block
+														e1.printStackTrace();
+													}
+													collaborationParse.put("competitors", collaborators);
+													collaborationParse.put("stairs", stairs);
+													collaborationParse.saveEventually();
+
+													User me = MainActivity.getUserById(pref.getInt("local_id", -1));
+													Building building = MainActivity.getBuildingById(current1.getBuilding_id());
+													int my_stairs = 0;
+													final Climbing climb = MainActivity.getClimbingForBuilding(building.get_id());
+													if (climb != null) {
+														climb.setId_mode("paused");
+														MainActivity.climbingDao.update(climb);
+														ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
+														query.whereEqualTo("building", building.get_id());
+														query.whereEqualTo("users_id", pref.getString("FBid", ""));
+														query.findInBackground(new FindCallback<ParseObject>() {
+
+															@Override
+															public void done(List<ParseObject> climbs, ParseException e) {
+																if (e == null) {
+																	ParseObject c = climbs.get(0);
+																	c.put("id_mode", climb.getId_mode());
+																	c.saveEventually();
+																} else {
+																	Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
+																	Log.d("Connection problem", "Error: " + e.getMessage());
+																}
+															}
+														});
+													}
+
+													// creo climbing e salvo in
+													// locale e non
+													Climbing climbing = new Climbing();
+													climbing.setBuilding(building);
+													climbing.setCompleted(0);
+													climbing.setCompleted_steps(0);
+													climbing.setCreated(new Date().getTime());
+													climbing.setGame_mode(2);
+													climbing.setModified(new Date().getTime());
+													climbing.setPercentage(0);
+													climbing.setRemaining_steps(building.getSteps());
+													climbing.setUser(me);
+													climbing.setSaved(true);
+													climbing.setId_mode(collaborationParse.getObjectId());
+													MainActivity.climbingDao.create(climbing);
+
+													ParseObject climbingParse = new ParseObject("Climbing");
+													DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+													df.setTimeZone(new SimpleTimeZone(0, "GMT"));
+													climbingParse.put("building", climbing.getBuilding().get_id());
+													try {
+														climbingParse.put("created", df.parse(df.format(climbing.getCreated())));
+														climbingParse.put("modified", df.parse(df.format(climbing.getModified())));
+														climbingParse.put("completedAt", df.parse(df.format(climbing.getCompleted())));
+													} catch (java.text.ParseException ex) {
+														// TODO Auto-generated
+														// catch block
+														ex.printStackTrace();
+													}
+													climbingParse.put("completed_steps", climbing.getCompleted_steps());
+													climbingParse.put("remaining_steps", climbing.getRemaining_steps());
+													climbingParse.put("percentage", String.valueOf(climbing.getPercentage()));
+													climbingParse.put("users_id", climbing.getUser().getFBid());
+													climbingParse.put("game_mode", climbing.getGame_mode());
+													climbingParse.put("id_mode", climbing.getId_mode());
+													climbingParse.saveEventually();
+													/*
+													 * }else{
+													 * climb.setGame_mode(2);
+													 * climb.setId_mode(
+													 * collaborationParse
+													 * .getObjectId());
+													 * if(climb.getPercentage()
+													 * >= 1.00){
+													 * climb.setPercentage(0);
+													 * climb
+													 * .setCompleted_steps(0);
+													 * climb
+													 * .setRemaining_steps(building
+													 * .getSteps()); } my_stairs
+													 * =
+													 * climb.getCompleted_steps
+													 * ();
+													 * ParseQuery<ParseObject>
+													 * query =
+													 * ParseQuery.getQuery
+													 * ("Climbing");
+													 * query.whereEqualTo
+													 * ("building",
+													 * building.get_id());
+													 * query.
+													 * whereEqualTo("users_id",
+													 * pref.getString("FBid",
+													 * ""));
+													 * query.findInBackground
+													 * (new
+													 * FindCallback<ParseObject
+													 * >() {
+													 * 
+													 * @Override public void
+													 * done(List<ParseObject>
+													 * climbs, ParseException e)
+													 * { if(e == null){
+													 * ParseObject climbParse =
+													 * climbs.get(0);
+													 * climbParse.
+													 * put("game_mode", 2);
+													 * climbParse.put("id_mode",
+													 * climb.getId_mode());
+													 * climbParse
+													 * .saveEventually();
+													 * MainActivity
+													 * .climbingDao.update
+													 * (climb); }else{
+													 * Toast.makeText
+													 * (MainActivity
+													 * .getContext(),
+													 * "Connection problem",
+													 * Toast
+													 * .LENGTH_SHORT).show();
+													 * Log
+													 * .d("Connection problem",
+													 * "Error: " +
+													 * e.getMessage()); } } });
+													 * }
+													 */
+													my_stairs = climb.getCompleted_steps();
+
+													// salvo collaboration in
+													// locale
+													Competition competitionLocal = new Competition();
+													competitionLocal.setId_online(collaborationParse.getObjectId());
+													competitionLocal.setBuilding(MainActivity.getBuildingById(current1.getBuilding_id()));
+													competitionLocal.setMy_stairs(my_stairs);
+													competitionLocal.setCurrent_position(0);
+													competitionLocal.setSaved(true);
+													competitionLocal.setLeaved(false);
+													competitionLocal.setUser(me);
+													competitionLocal.setCompleted(false);
+													MainActivity.competitionDao.create(competitionLocal);
+
+													text.setText("Request Accepted");
+
+												} else {
+													text.setText("Collaboration completed");
+													Toast.makeText(MainActivity.getContext(), "Too Late: competition completed", Toast.LENGTH_SHORT).show();
+												}
+											} else {
+												text.setText("You are already in this competition");
+											}
+
+											deleteRequest(String.valueOf(notification.getId()));
+
+											cancelBtn.setEnabled(false);
+											acceptBtn.setEnabled(false);
+											notification.setRead(true);
+										}
+									} else {
+										Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
+										Log.d("Connection problem", "Error: " + e.getMessage());
+									}
+
+								}
+							});
+							deleteRequest(String.valueOf(notification.getId()));
+
+							cancelBtn.setEnabled(false);
+							acceptBtn.setEnabled(false);
+							notification.setRead(true);
+						} else {
+							text.setText("Unable to take part");
+							deleteRequest(String.valueOf(notification.getId()));
+
+							cancelBtn.setEnabled(false);
+							acceptBtn.setEnabled(false);
+							notification.setRead(true);
+						}
+						break;
+
 					}
-					break;
 
 				}
-
-			}
 			}
 		});
 
@@ -487,12 +591,12 @@ public class NotificationCard extends Card {
 
 			@Override
 			public void onClick(View arg0) {
-				if(FacebookUtils.isOnline(context)){
-				deleteRequest(String.valueOf(notification.getId()));
-				text.setText("Request Deleted");
-				cancelBtn.setEnabled(false);
-				acceptBtn.setEnabled(false);
-				notification.setRead(true);
+				if (FacebookUtils.isOnline(context)) {
+					deleteRequest(String.valueOf(notification.getId()));
+					text.setText("Request Deleted");
+					cancelBtn.setEnabled(false);
+					acceptBtn.setEnabled(false);
+					notification.setRead(true);
 				}
 			}
 		});

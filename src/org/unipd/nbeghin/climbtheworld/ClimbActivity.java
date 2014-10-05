@@ -946,7 +946,13 @@ public class ClimbActivity extends ActionBarActivity {
 				query.whereEqualTo("id_mode", "paused");
 
 			System.out.println("CERCO: " + myclimbing.getId_mode());*/
-			query.whereEqualTo("objectId", myclimbing.getId_online());
+			if(!(myclimbing.getId_online() == null) || !myclimbing.getId_online().equalsIgnoreCase(""))
+				query.whereEqualTo("objectId", myclimbing.getId_online());
+			else{
+				query.whereEqualTo("users_id", myclimbing.getUser().getFBid());
+				query.whereEqualTo("building", myclimbing.getBuilding().get_id());
+				query.whereEqualTo("game_mode", myclimbing.getGame_mode());
+			}
 			query.findInBackground(new FindCallback<ParseObject>() {
 
 				@Override
