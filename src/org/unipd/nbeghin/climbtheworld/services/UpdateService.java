@@ -176,7 +176,11 @@ public class UpdateService extends IntentService {
 									switch(climbing.getGame_mode()){
 									case 1:
 										Collaboration coll = getCollaborationByBuildingAndUser(climbing.getBuilding().get_id(), climbing.getUser().get_id());
-										climbing.setId_mode(coll.getId());
+										if(coll != null) climbing.setId_mode(coll.getId());
+										else{
+											climbing.setGame_mode(0);
+											climbing.setId_mode("");
+										}
 										climbingDao.update(climbing);
 										break;
 									}

@@ -289,10 +289,11 @@ public class BuildingCard extends Card {
 							updateClimbingInParse(climbing, true);
 
 						}else{
-							deleteClimbingInParse(climbing);
-							soloClimbing.setId_mode("");
-							MainActivity.climbingDao.update(soloClimbing);
+							Climbing del = climbing;
 							climbing = soloClimbing;
+							deleteClimbingInParse(del);
+							climbing.setId_mode("");
+							MainActivity.climbingDao.update(climbing);
 							updateClimbingInParse(climbing, true);
 						}	
 						leaveCompetition();
@@ -343,9 +344,10 @@ public class BuildingCard extends Card {
 
 	private void deleteClimbingInParse(final Climbing climb){
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
-		query.whereEqualTo("building", climb.getBuilding().get_id());
-		query.whereEqualTo("users_id", climb.getUser().getFBid());	
-		query.whereEqualTo("id_mode", climb.getId_mode());
+		query.whereEqualTo("objectId", climb.getId_online());
+//		query.whereEqualTo("building", climb.getBuilding().get_id());
+//		query.whereEqualTo("users_id", climb.getUser().getFBid());	
+//		query.whereEqualTo("id_mode", climb.getId_mode());
 		query.findInBackground(new FindCallback<ParseObject>() {
 
 			@Override
@@ -357,7 +359,10 @@ public class BuildingCard extends Card {
 
 					}
 				}else{
-					Toast.makeText(activity.getApplicationContext(), "Connection needed", Toast.LENGTH_SHORT).show();
+					climb.setDeleted(true);
+					climb.setSaved(false);
+					MainActivity.climbingDao.update(climb);
+					Toast.makeText(activity.getApplicationContext(), " 6 Connection needed", Toast.LENGTH_SHORT).show();
 				}
 			}
 		});
@@ -418,6 +423,8 @@ public class BuildingCard extends Card {
 										climbing.setGame_mode(0);
 										climbing.setId_mode("");
 									}
+									if(climbing.getId_mode().equals("paused"))
+										climbing.setId_mode("");
 									climbing.setSaved(false);
 									MainActivity.climbingDao.update(climbing);
 								}
@@ -432,6 +439,8 @@ public class BuildingCard extends Card {
 						climbing.setGame_mode(0);
 						climbing.setId_mode("");
 					}
+					if(climbing.getId_mode().equals("paused"))
+						climbing.setId_mode("");
 					climbing.setSaved(false);
 					MainActivity.climbingDao.update(climbing);
 				}
@@ -486,6 +495,18 @@ public class BuildingCard extends Card {
 					//unable to save the collaboration, save only the climbing
 					climbing.setGame_mode(0);
 					climbing.setId_mode("");
+					}
+					if(climbing.getGame_mode() == 2){
+						if(soloClimbing == null){
+							climbing.setGame_mode(0);
+							climbing.setId_mode("");						
+						}else{
+							Climbing del = climbing;
+							climbing = soloClimbing;
+							climbing.setGame_mode(0);
+							climbing.setId_mode("");
+							MainActivity.climbingDao.delete(del);
+						}
 					}
 					climbing.setSaved(false);
 					MainActivity.climbingDao.update(climbing);
@@ -682,7 +703,9 @@ public class BuildingCard extends Card {
 				sendRequest(GameModeType.SOCIAL_CHALLENGE, compet.getId_online());
 				}else{
 					compet.setSaved(false);
+					climbing.setSaved(false);
 					MainActivity.competitionDao.update(compet);
+					MainActivity.climbingDao.update(climbing);
 					Toast.makeText(MainActivity.getContext(), "5 Connection Problems: cannot create competition", Toast.LENGTH_SHORT).show();
 					Log.e("saveCompetition", e.getMessage());					
 				}
@@ -773,6 +796,20 @@ public class BuildingCard extends Card {
 						collab.setSaved(true);
 						MainActivity.collaborationDao.update(collab);*/
 						MainActivity.competitionDao.delete(competit);
+						if(soloClimbing == null){
+							climbing.setId_mode("");
+							climbing.setGame_mode(0);
+							MainActivity.climbingDao.update(climbing);
+							updateClimbingInParse(climbing, true);
+						}else{
+							Climbing del = climbing;
+							climbing = soloClimbing;
+							climbing.setId_mode("");
+							MainActivity.climbingDao.update(climbing);
+							updateClimbingInParse(climbing, true);
+						
+							deleteClimbingInParse(del);	
+						}
 						/*climbing.setGame_mode(0);
 						MainActivity.climbingDao.update(climbing);
 						updateClimbingInParse();*/
@@ -895,11 +932,14 @@ public class BuildingCard extends Card {
 			MainActivity.competitionDao.delete(compet);
 			
 			if(soloClimbing != null){
-			soloClimbing.setId_mode("");
-			MainActivity.climbingDao.update(soloClimbing);
-			updateClimbingInParse(soloClimbing, true);
+				Climbing del = climbing;
+				climbing = soloClimbing;
+				climbing.setId_mode("");
+				MainActivity.climbingDao.update(climbing);
+				updateClimbingInParse(climbing, true);
 			
-			deleteClimbingInParse(climbing);		}
+				deleteClimbingInParse(del);		
+			}
 			else{
 				climbing.setGame_mode(0);
 				climbing.setId_mode("");

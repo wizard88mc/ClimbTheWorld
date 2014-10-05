@@ -389,9 +389,20 @@ public class NotificationCard extends Card {
 											boolean meIn = collaborators.has(pref.getString("FBid", ""));
 
 											if (!meIn) {
+												
 
 												int n_collaborators = collaborators.length();
 												if (n_collaborators < ClimbApplication.N_MEMBERS_PER_GROUP) {
+													
+													final User me = MainActivity.getUserById(pref.getInt("local_id", -1));
+												final Building building = MainActivity.getBuildingById(current1.getBuilding_id());
+												final Climbing climb = MainActivity.getClimbingForBuilding(building.get_id());
+
+												if(climb != null && (climb.getGame_mode() != 0 || climb.getId_mode().equalsIgnoreCase("paused"))){
+													Toast.makeText(context, "Building occupied", Toast.LENGTH_SHORT).show();
+													text.setText("Building occupied");
+												}else{	
+												
 
 													try {// mi aggiungo alla
 															// competizione
@@ -406,10 +417,8 @@ public class NotificationCard extends Card {
 													collaborationParse.put("stairs", stairs);
 													collaborationParse.saveEventually();
 
-													User me = MainActivity.getUserById(pref.getInt("local_id", -1));
-													Building building = MainActivity.getBuildingById(current1.getBuilding_id());
+													
 													int my_stairs = 0;
-													final Climbing climb = MainActivity.getClimbingForBuilding(building.get_id());
 													if (climb != null) {
 														climb.setId_mode("paused");
 														MainActivity.climbingDao.update(climb);
@@ -544,7 +553,7 @@ public class NotificationCard extends Card {
 													MainActivity.competitionDao.create(competitionLocal);
 
 													text.setText("Request Accepted");
-
+												}
 												} else {
 													text.setText("Collaboration completed");
 													Toast.makeText(MainActivity.getContext(), "Too Late: competition completed", Toast.LENGTH_SHORT).show();
