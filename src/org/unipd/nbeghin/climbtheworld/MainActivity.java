@@ -491,10 +491,28 @@ public class MainActivity extends ActionBarActivity {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
-		}
-		
-		
-		
+		}	
+	}
+	
+	public static List<Climbing> getClimbingListForBuildingAndUser(int building_id, int user_id) {
+	
+		QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
+		Where<Climbing, Integer> where = query.where();
+		// the name field must be equal to "foo"
+		try {
+			where.eq("building_id", building_id);
+			// and
+			where.and();
+			// the password field must be equal to "_secret"
+			where.eq("users_id", user_id);
+			PreparedQuery<Climbing> preparedQuery = query.prepare();
+			List<Climbing> climbings = climbingDao.query(preparedQuery);
+			return climbings;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}	
 	}
 	
 	public static Collaboration getCollaborationForBuilding(int building_id) {

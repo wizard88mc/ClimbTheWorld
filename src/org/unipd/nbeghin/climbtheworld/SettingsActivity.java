@@ -197,12 +197,19 @@ public class SettingsActivity extends PreferenceActivity {
 				if(e == null){
 					//save results locally
 					for(ParseObject climb : climbings){
-						Climbing localClimb;
-						if(climb.getString("id_mode").equalsIgnoreCase("paused"))
-							localClimb = MainActivity.getClimbingForBuildingAndUserPaused(climb.getInt("building"), pref.getInt("local_id", -1));
-						else
-							localClimb = MainActivity.getClimbingForBuildingAndUserNotPaused(climb.getInt("building"), pref.getInt("local_id", -1));
-						System.out.println("cerco building " + climb.getInt("building") + " e user " + pref.getInt("local_id", -1));
+						Climbing localClimb = null;
+//						if(climb.getString("id_mode").equalsIgnoreCase("paused"))
+//							localClimb = MainActivity.getClimbingForBuildingAndUserPaused(climb.getInt("building"), pref.getInt("local_id", -1));
+//						else
+//							localClimb = MainActivity.getClimbingForBuildingAndUserNotPaused(climb.getInt("building"), pref.getInt("local_id", -1));
+//						//System.out.println("cerco building " + climb.getInt("building") + " e user " + pref.getInt("local_id", -1));
+						List<Climbing> climbs = MainActivity.getClimbingListForBuildingAndUser(climb.getInt("building"), pref.getInt("local_id", -1));
+						if(climbs.size() > 0){
+							for(Climbing c : climbs){
+								if(c.getGame_mode() == climb.getInt("game_mode"))
+									localClimb = c;
+							}
+						}
 						if(localClimb == null){ System.out.println("creo nuovo");
 							//save new climbing locally
 							Climbing c = new Climbing();

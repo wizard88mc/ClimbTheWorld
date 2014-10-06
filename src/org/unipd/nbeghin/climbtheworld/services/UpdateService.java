@@ -78,12 +78,29 @@ public class UpdateService extends IntentService {
 					return null;
 				else return collabs.get(0);
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return null;
-			}
+			}					
+	}
+	
+	private Competition getCompetitionByBuildingAndUser(int building_id, int user_id){
+		//per ogni edificio, una sola competizione
+			QueryBuilder<Competition, Integer> query = competitionDao.queryBuilder();
+			Where<Competition, Integer> where = query.where();
 			
-		
+			try {
+				where.eq("building_id", building_id);
+				where.and();
+				where.eq("user_id", user_id);
+				PreparedQuery<Competition> preparedQuery = query.prepare();
+				List<Competition> collabs = competitionDao.query(preparedQuery);
+				if(collabs.size() == 0)
+					return null;
+				else return collabs.get(0);
+			} catch (SQLException e) {
+				e.printStackTrace();
+				return null;
+			}					
 	}
 	
 	private void saveClimbings(final Context context, int mode) throws SQLException{
@@ -101,15 +118,16 @@ public class UpdateService extends IntentService {
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
 			query.whereEqualTo("building", climbing.getBuilding().get_id());
 			query.whereEqualTo("users_id", climbing.getUser().getFBid());
-				if(climbing.getGame_mode() == 3)
-					query.whereEqualTo("game_mode", 3);
+			query.whereEqualTo("game_mode", mode);
+				/*if(climbing.getGame_mode() == 3)
+					query.whereEqualTo("game_mode", 3);*/
 			
 			query.findInBackground(new FindCallback<ParseObject>() {
 				
 				@Override
 				public void done(List<ParseObject> climbs, ParseException e) {
 						if(e == null){ 
-							if(climbs.size() == 0){
+							if(climbs.size() == 0 && !climbing.isDeleted()){
 									final ParseObject climbOnline = new ParseObject("Climbing");
 									climbOnline.put("building", climbing.getBuilding().get_id());
 									climbOnline.put("users_id", climbing.getUser().getFBid());
@@ -134,6 +152,10 @@ public class UpdateService extends IntentService {
 											climbing.setId_mode(coll.getId());
 											climbingDao.update(climbing);
 											break;
+										case 2:
+											Competition comp = getCompetitionByBuildingAndUser(climbing.getBuilding().get_id(), climbing.getUser().get_id());
+											climbing.setId_mode(comp.getId_online());
+											climbingDao.update(climbing);
 										}
 									}
 									climbOnline.put("id_mode", climbing.getId_mode());
@@ -155,7 +177,11 @@ public class UpdateService extends IntentService {
 								
 									
 								
-							}else{System.out.println(climbs.size());
+							}else
+							if(climbs.size() == 0 && climbing.isDeleted()){
+								climbingDao.delete(climbing);
+							}else
+							{System.out.println(climbs.size());
 								if(!climbing.isDeleted()){
 								DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 								df.setTimeZone(new SimpleTimeZone(0, "GMT"));
@@ -183,9 +209,26 @@ public class UpdateService extends IntentService {
 										}
 										climbingDao.update(climbing);
 										break;
+									case 2:
+										System.out.println("cerco id");
+										Competition comp = getCompetitionByBuildingAndUser(climbing.getBuilding().get_id(), climbing.getUser().get_id());
+										if(comp != null){
+											System.out.println("trovato setto " + comp.getId_online());
+											climbing.setId_mode(comp.getId_online());
+											climbOnline.put("id_mode", climbing.getId_mode());
+										}
+										else{ System.out.println("non trovato resta nullo");
+											climbing.setGame_mode(0);
+											climbing.setId_mode("");
+											climbOnline.put("id_mode", climbing.getId_mode());
+											climbOnline.put("game_mode", climbing.getGame_mode());
+										}
+										climbingDao.update(climbing);
+										break;
 									}
+								} else{ System.out.println("no switch");
+									climbOnline.put("id_mode", climbing.getId_mode());
 								}
-								climbOnline.put("id_mode", climbing.getId_mode());
 								climbOnline.saveEventually();
 								climbing.setSaved(true);
 								climbingDao.update(climbing);
@@ -202,49 +245,12 @@ public class UpdateService extends IntentService {
 			});
 		}
 	}
-	
-//	//devo settare il suo id online
-//	private String saveSingleCollaboration(final Collaboration coll){
-//		final ParseObject collabParse = new ParseObject("Collaboration");
-//		
-//		JSONObject stairs = new JSONObject();
-//		JSONObject collaborators = new JSONObject();
-//
-//		try {
-//			collaborators.put(coll.getUser().getFBid(), coll.getUser().getName());
-//			stairs.put(coll.getUser().getFBid(), 0);
-//		} catch (JSONException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//
-//		collabParse.put("building", coll.getBuilding().get_id());
-//		collabParse.put("stairs", stairs);
-//		collabParse.put("collaborators", collaborators);
-//		collabParse.put("completed", false);
-//		collabParse.saveInBackground(new SaveCallback() {
-//			
-//			@Override
-//			public void done(ParseException e) {
-//				if(e == null){
-//					coll.setId(collabParse.getObjectId());
-//					coll.setSaved(true);
-//					collaborationDao.update(coll);
-//				}else{
-//					coll.setSaved(false);
-//					collaborationDao.update(coll);
-//				}
-//				
-//			}
-//		});
-//		
-//	}
-	
+
 	private void saveCollaborations(final Context context){
 		//salvo tutti i climbing online
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("saved", 0); 
-		List<Collaboration> collaborations = collaborationDao.queryForFieldValuesArgs(conditions);
+		final List<Collaboration> collaborations = collaborationDao.queryForFieldValuesArgs(conditions);
 		Log.d("updateService", "Collaborations: " + collaborations.size());
 		for(final Collaboration collaboration : collaborations){
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("Collaboration");
@@ -259,7 +265,7 @@ public class UpdateService extends IntentService {
 				@Override
 				public void done(List<ParseObject> collabs, ParseException e) {
 					if(e == null){
-						if(collabs.size() == 0){
+						if(collabs.size() == 0 && ! collaboration.isLeaved()){
 							//collaborationDao.delete(collaboration);
 							JSONObject stairs = new JSONObject();
 							JSONObject collaborators = new JSONObject();
@@ -285,15 +291,25 @@ public class UpdateService extends IntentService {
 										collaboration.setId(collabParse.getObjectId());
 										collaboration.setSaved(true);
 										collaborationDao.update(collaboration);
+										
 									}else{
 										collaboration.setSaved(false);
 										collaborationDao.update(collaboration);
 										Log.e("load collab", e.getMessage());
 									}
+									if(collaborations.indexOf(collaboration) == (collaborations.size() - 1)){
+										try {
+											System.out.println("save climbs 1");
+											saveClimbings(context, 2);
+										} catch (SQLException ex) {
+											// TODO Auto-generated catch block
+											ex.printStackTrace();
+										}
+									}
 									
 								}
 							});
-						}else{
+						}else if(collabs.size() != 0){
 							ParseObject collabParse = collabs.get(0);
 							JSONObject stairs = collabParse.getJSONObject("stairs");
 							
@@ -319,6 +335,18 @@ public class UpdateService extends IntentService {
 									e1.printStackTrace();
 								}
 							}
+							if(collaborations.indexOf(collaboration) == (collaborations.size() - 1)){
+								try {
+									System.out.println("save climbs 1");
+									saveClimbings(context, 2);
+								} catch (SQLException ex) {
+									// TODO Auto-generated catch block
+									ex.printStackTrace();
+								}
+							}
+						}else if(collabs.size() == 0 && collaboration.isLeaved())
+						{
+							collaborationDao.delete(collaboration);
 						}
 					}else{
 						Toast.makeText(context, "Connection Problems", Toast.LENGTH_SHORT).show();
@@ -328,11 +356,13 @@ public class UpdateService extends IntentService {
 				
 			});
 		}
+		if(collaborations.size() == 0){
 		try {
 			saveClimbings(context, 1);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
 		}
 	}
     
@@ -340,19 +370,64 @@ public class UpdateService extends IntentService {
 		//salvo tutti i climbing online
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("saved", 0); 
-		List<Competition> competitions = competitionDao.queryForFieldValuesArgs(conditions);
-		Log.d("updateService", "Collaborations: " + competitions.size());
+		final List<Competition> competitions = competitionDao.queryForFieldValuesArgs(conditions);
+		Log.d("updateService", "Competitions: " + competitions.size());
 		for(final Competition competition : competitions){
-			ParseQuery<ParseObject> query = ParseQuery.getQuery("Collaboration");
-			query.whereEqualTo("objectId", competition.getId_online());
+			ParseQuery<ParseObject> query = ParseQuery.getQuery("Competition");
+			if(competition.getId_online() == null || competition.getId_online().equals("")){
+				query.whereEqualTo("competitors." + competition.getUser().getFBid(), competition.getUser().getName());
+				query.whereEqualTo("building", competition.getBuilding().get_id());
+				query.whereEqualTo("completed", false);
+			}else
+				query.whereEqualTo("objectId", competition.getId_online());
 			query.findInBackground(new FindCallback<ParseObject>() {
 				
 				@Override
 				public void done(List<ParseObject> collabs, ParseException e) {
 					if(e == null){
-						if(collabs.size() == 0){
-							competitionDao.delete(competition);
-						}else{
+						if(collabs.size() == 0 && !competition.isLeaved()){
+							//competitionDao.delete(competition);
+							final ParseObject comp = new ParseObject("Competition");
+							JSONObject competitors = new JSONObject();
+							JSONObject stairs = new JSONObject();
+							try {
+								competitors.put(competition.getUser().getFBid(), competition.getUser().getName());
+								stairs.put(competition.getUser().getFBid(), 0);
+							} catch (JSONException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+							comp.put("competitors", competitors);
+							comp.put("stairs", stairs);
+							comp.put("building", competition.getBuilding().get_id());
+							comp.put("completed", false);
+							comp.saveInBackground(new SaveCallback() {
+								
+								@Override
+								public void done(ParseException e) {
+									if(e == null){ System.out.println("collab saved " + comp.getObjectId());
+										competition.setId_online(comp.getObjectId());
+										competition.setSaved(true);
+										competitionDao.update(competition);
+										if(competitions.indexOf(competition) == (competitions.size() - 1)){
+											try {
+												System.out.println("save climbs 2");
+												saveClimbings(context, 2);
+											} catch (SQLException ex) {
+												// TODO Auto-generated catch block
+												ex.printStackTrace();
+											}
+										}
+											
+									}else{ System.out.println("collab not saved");
+										competition.setSaved(false);
+										competitionDao.update(competition);
+										Log.e("load comp", e.getMessage());
+									}
+									
+								}
+							});
+						}else if(collabs.size() != 0){
 							ParseObject collabParse = collabs.get(0);
 							JSONObject stairs = collabParse.getJSONObject("stairs");
 
@@ -364,19 +439,32 @@ public class UpdateService extends IntentService {
 								collabParse.put("stairs", stairs);
 								collabParse.saveEventually();
 								competition.setSaved(true);
-								competitionDao.update(competition);
+								competitionDao.delete(competition);
 							}else{
 								try {
 									stairs.put(competition.getUser().getFBid(), competition.getMy_stairs());
 									collabParse.put("stairs", stairs);
 									collabParse.saveEventually();
+									competition.setId_online(collabParse.getObjectId());
 									competition.setSaved(true);
 									competitionDao.update(competition);
+									if(competitions.indexOf(competition) == (competitions.size() - 1)){
+										try {
+											System.out.println("save climbs 2");
+											saveClimbings(context, 2);
+										} catch (SQLException ex) {
+											// TODO Auto-generated catch block
+											ex.printStackTrace();
+										}
+									}
 								} catch (JSONException e1) {
 									// TODO Auto-generated catch block
 									e1.printStackTrace();
 								}
 							}
+						}else if(collabs.size() == 0 && competition.isLeaved())
+						{
+							competitionDao.delete(competition);
 						}
 					}else{
 						Toast.makeText(context, "Connection Problems", Toast.LENGTH_SHORT).show();
@@ -386,11 +474,14 @@ public class UpdateService extends IntentService {
 				
 			});
 		}
+		if(competitions.size() == 0){
 		try {
+			System.out.println("save climbs 1");
 			saveClimbings(context, 2);
-		} catch (SQLException e) {
+		} catch (SQLException ex) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			ex.printStackTrace();
+		}
 		}
 	}
 	

@@ -734,10 +734,11 @@ public class ClimbActivity extends ActionBarActivity {
 	}
 	
 	private void loadCompetition() {
-		competition = MainActivity.getCompetitionByBuilding(building.get_id());
+		competition = MainActivity.getCompetitionById(climbing.getId_mode());//MainActivity.getCompetitionByBuilding(building.get_id());
 		if(competition == null){
 			Toast.makeText(this, "No competition available for this building", Toast.LENGTH_SHORT).show();
 		}else{
+			competition.setMy_stairs(climbing.getCompleted_steps());
 			updateChart();
 		}
 	}
@@ -1029,6 +1030,20 @@ public class ClimbActivity extends ActionBarActivity {
 		//System.out.println(climbing.getId_mode());
 		soloClimb = MainActivity.getClimbingForBuildingAndUserPaused(building.get_id(), pref.getInt("local_id", -1));
 		//System.out.println(soloClimb.getId_mode());
+		
+		List<Climbing> climbs = MainActivity.getClimbingListForBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
+		if(climbs.size() == 1){
+			climbing = climbs.get(0);
+		} else if(climbs.size() == 2){
+			for(Climbing c : climbs){
+				if(c.getGame_mode() == 0)
+					soloClimb = c;
+				else if(c.getGame_mode() == 2)
+					climbing = c;
+			}
+		}
+		
+		
 		if (climbing == null) { // no climbing found 
 			Log.i(MainActivity.AppName, "No previous climbing found");
 			num_steps = 0;
@@ -1296,7 +1311,7 @@ public class ClimbActivity extends ActionBarActivity {
 
 		if (mode == GameModeType.SOCIAL_CLIMB && collaboration != null)
 			saveCollaborationData();
-		else if (mode == GameModeType.SOCIAL_CHALLENGE)
+		else if (mode == GameModeType.SOCIAL_CHALLENGE && competition != null)
 			saveCompetitionData();
 	}
 
