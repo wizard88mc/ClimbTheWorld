@@ -14,7 +14,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <ImageButton
-        android:id="@+id/imageButton1"
+        android:id="@+id/addMyTeamBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/textOtherTeam"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/imageButton1"
+        android:layout_below="@+id/textCreator"
         android:layout_marginRight="10dp" >
 
         <TableRow
@@ -111,81 +111,13 @@
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <ImageButton
-        android:id="@+id/imageButton2"
+        android:id="@+id/addChallengerBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignRight="@+id/tableLayout1"
         android:layout_alignTop="@+id/textOtherTeam"
         android:layout_marginTop="10dp"
         android:src="@drawable/social_person" />
-
-     <TableLayout
-         android:id="@+id/table2Layout1"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:layout_alignLeft="@+id/textOtherTeam"
-         android:layout_alignRight="@+id/imageButton2"
-         android:layout_below="@+id/imageButton2" >
-
-         <TableRow
-             android:id="@+id/table2Row1"
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content" >
-
-             <TextView
-                 android:id="@+id/textOtherMember1"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_weight="1"
-                 android:paddingTop="10dp"
-                 android:text="Member" />
-
-             <TextView
-                 android:id="@+id/textOtherMember2"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_weight="1"
-                 android:paddingTop="10dp"
-                 android:text="Member" />
-         </TableRow>
-
-         <TableRow
-             android:id="@+id/table2Row2"
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content" >
-
-             <TextView
-                 android:id="@+id/textOtherMember3"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_weight="1"
-                 android:paddingTop="10dp"
-                 android:text="Member" />
-
-             <TextView
-                 android:id="@+id/textOtherMember4"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_weight="1"
-                 android:paddingTop="10dp"
-                 android:text="Member" />
-         </TableRow>
-
-         <TableRow
-             android:id="@+id/table2Row3"
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content" >
-
-             <TextView
-                 android:id="@+id/textOtherMember5"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_weight="1"
-                 android:paddingBottom="10dp"
-                 android:paddingTop="10dp"
-                 android:text="Member" />
-         </TableRow>
-     </TableLayout>
 
       <ImageButton
           android:id="@+id/btnStartClimbing"
@@ -196,5 +128,99 @@
           android:layout_alignParentRight="true"
           android:layout_weight="1"
           android:src="@drawable/av_play" />
+
+      <TextView
+          android:id="@+id/textChallenger"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignLeft="@+id/table2Layout1"
+          android:layout_alignRight="@+id/textOtherTeam"
+          android:layout_below="@+id/textOtherTeam"
+          android:paddingTop = "10dp"
+          android:paddingBottom="10dp"
+          android:layout_marginLeft="10dp"
+          android:text="Challenger: "
+          android:textAppearance="?android:attr/textAppearanceMedium" />
+
+      <TableLayout
+          android:id="@+id/table2Layout1"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignParentLeft="true"
+          android:layout_marginLeft="10dp"
+          android:layout_alignRight="@+id/addChallengerBtn"
+          android:layout_below="@+id/textChallenger" >
+
+          <TableRow
+              android:id="@+id/table2Row1"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content" >
+
+              <TextView
+                  android:id="@+id/textOtherMember1"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_weight="1"
+                  android:paddingTop="10dp"
+                  android:text="Member" />
+
+              <TextView
+                  android:id="@+id/textOtherMember2"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_weight="1"
+                  android:paddingTop="10dp"
+                  android:text="Member" />
+          </TableRow>
+
+          <TableRow
+              android:id="@+id/table2Row2"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content" >
+
+              <TextView
+                  android:id="@+id/textOtherMember3"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_weight="1"
+                  android:paddingTop="10dp"
+                  android:text="Member" />
+
+              <TextView
+                  android:id="@+id/textOtherMember4"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_weight="1"
+                  android:paddingTop="10dp"
+                  android:text="Member" />
+          </TableRow>
+
+          <TableRow
+              android:id="@+id/table2Row3"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content" >
+
+              <TextView
+                  android:id="@+id/textOtherMember5"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_weight="1"
+                  android:paddingBottom="10dp"
+                  android:paddingTop="10dp"
+                  android:text="Member" />
+          </TableRow>
+      </TableLayout>
+
+      <TextView
+          android:id="@+id/textCreator"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignLeft="@+id/textChallenger"
+          android:layout_below="@+id/textMyTeam"
+          android:text="Creator: "
+          android:paddingTop = "10dp"
+          android:paddingBottom="10dp"
+          android:layout_marginLeft="10dp"
+          android:textAppearance="?android:attr/textAppearanceMedium" />
       
 </RelativeLayout>

@@ -1,16 +1,12 @@
 package org.unipd.nbeghin.climbtheworld.fragments;
 
-import org.unipd.nbeghin.climbtheworld.ClimbActivity;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.R;
-import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.Notification;
-import org.unipd.nbeghin.climbtheworld.ui.card.BuildingCard;
 import org.unipd.nbeghin.climbtheworld.ui.card.NotificationCard;
 
 import com.fima.cardsui.views.CardUI;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,7 +14,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
 
 public class NotificationFragment extends Fragment{
 	public CardUI	notificationCards;

@@ -3,8 +3,8 @@ package org.unipd.nbeghin.climbtheworld.ui.card;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.SimpleTimeZone;
 
 import org.json.JSONException;
@@ -14,12 +14,15 @@ import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.models.AskCollaborationNotification;
 import org.unipd.nbeghin.climbtheworld.models.AskCompetitionNotification;
+import org.unipd.nbeghin.climbtheworld.models.AskTeamDuelNotification;
 import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.Competition;
+import org.unipd.nbeghin.climbtheworld.models.Group;
 import org.unipd.nbeghin.climbtheworld.models.Notification;
 import org.unipd.nbeghin.climbtheworld.models.NotificationType;
+import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 
@@ -124,10 +127,11 @@ public class NotificationCard extends Card {
 
 						final AskCollaborationNotification current = ((AskCollaborationNotification) notification);
 
-						Collaboration collabs = MainActivity.getCollaborationByBuilding(current.getBuilding_id());
-						Competition compet = MainActivity.getCompetitionByBuilding(current.getBuilding_id());
+						Collaboration collabs = MainActivity.getCollaborationByBuildingAndUser(current.getBuilding_id(), pref.getInt("local_id",-1));
+						Competition compet = MainActivity.getCompetitionByBuildingAndUser(current.getBuilding_id(), pref.getInt("local_id",-1));
+						TeamDuel duel = MainActivity.getTeamDuelByBuildingAndUser(current.getBuilding_id(), pref.getInt("local_id",-1));
 						// stessa per team
-						if (collabs == null && compet == null /* add team */) {
+						if (collabs == null && compet == null && duel == null) {
 							
 							//pick collaboration from Parse (use the id in the notification)
 							ParseQuery<ParseObject> queryColl = ParseQuery.getQuery("Collaboration");
@@ -364,10 +368,10 @@ public class NotificationCard extends Card {
 					case ASK_COMPETITION:
 						final AskCompetitionNotification current1 = ((AskCompetitionNotification) notification);
 
-						Collaboration collabs1 = MainActivity.getCollaborationByBuilding(current1.getBuilding_id());
-						Competition compet1 = MainActivity.getCompetitionByBuilding(current1.getBuilding_id());
-						// stessa per team
-						if (collabs1 == null && compet1 == null /* add team */) {
+						Collaboration collabs1 = MainActivity.getCollaborationByBuildingAndUser(current1.getBuilding_id(), pref.getInt("local_id",-1));
+						Competition compet1 = MainActivity.getCompetitionByBuildingAndUser(current1.getBuilding_id(), pref.getInt("local_id",-1));
+						TeamDuel duel1 = MainActivity.getTeamDuelByBuildingAndUser(current1.getBuilding_id(), pref.getInt("local_id",-1));
+						if (collabs1 == null && compet1 == null && duel1 == null) {
 
 							//look for competition object in Parse
 							ParseQuery<ParseObject> queryComp = ParseQuery.getQuery("Competition");
@@ -582,6 +586,434 @@ public class NotificationCard extends Card {
 							notification.setRead(true);
 						}
 						break;
+					case ASK_TEAM_COMPETITION_CHALLENGER:
+						final AskTeamDuelNotification current2 = ((AskTeamDuelNotification) notification);
+
+						Collaboration collabs2 = MainActivity.getCollaborationByBuildingAndUser(current2.getBuilding_id(), pref.getInt("local_id",-1));
+						Competition compet2 = MainActivity.getCompetitionByBuildingAndUser(current2.getBuilding_id(), pref.getInt("local_id",-1));
+						TeamDuel duel2 = MainActivity.getTeamDuelByBuildingAndUser(current2.getBuilding_id(), pref.getInt("local_id",-1));
+						if (collabs2 == null && compet2 == null && duel2 == null) {
+
+							//look for team duel object in Parse
+							ParseQuery<ParseObject> queryComp = ParseQuery.getQuery("TeamDuel");
+							queryComp.whereEqualTo("objectId", current2.getTeamDuelId());
+							queryComp.findInBackground(new FindCallback<ParseObject>() {
+
+								@Override
+								public void done(List<ParseObject> duels, ParseException e) {
+									if (e == null) {
+										if (duels.size() == 0) {
+											Toast.makeText(MainActivity.getContext(), "This team duel does not exists anymore", Toast.LENGTH_SHORT).show();
+											text.setText("This team duel not exists");
+											deleteRequest(String.valueOf(notification.getId()));
+											cancelBtn.setEnabled(false);
+											acceptBtn.setEnabled(false);
+											notification.setRead(true);
+										} else {
+											// if team duel exists
+											final ParseObject teamDuelParse = duels.get(0);
+											JSONObject challenger = teamDuelParse.getJSONObject("challenger");
+											JSONObject challenger_stairs = teamDuelParse.getJSONObject("challenger_stairs");
+
+											boolean meIn = challenger.has(pref.getString("FBid", ""));
+
+											if (!meIn) {
+												
+
+												int n_collaborators = challenger.length();
+												if (n_collaborators < 1) {
+													
+												final User me = MainActivity.getUserById(pref.getInt("local_id", -1));
+												final Building building = MainActivity.getBuildingById(current2.getBuilding_id());
+												final Climbing climb = MainActivity.getClimbingForBuilding(building.get_id());
+
+												if(climb != null && (climb.getGame_mode() != 0 /*|| climb.getId_mode().equalsIgnoreCase("paused")*/)){
+													Toast.makeText(context, "Building occupied", Toast.LENGTH_SHORT).show();
+													text.setText("Building occupied");
+												}else{	
+												
+
+													try {//add myself as challenger
+														challenger.put(pref.getString("FBid", ""), pref.getString("username", ""));
+														challenger_stairs.put(pref.getString("FBid", ""), 0);
+													} catch (JSONException e1) {
+														// TODO Auto-generated
+														// catch block
+														e1.printStackTrace();
+													}
+													teamDuelParse.put("challenger", challenger);
+													teamDuelParse.put("challenger_stairs", challenger_stairs);
+													teamDuelParse.saveInBackground(new SaveCallback() {
+														
+														@Override
+														public void done(ParseException e) {
+															if(e == null){
+																int my_stairs = 0;
+															
+																final Climbing climbing = new Climbing();
+																climbing.setBuilding(building);
+																climbing.setCompleted(0);
+																climbing.setCompleted_steps(0);
+																climbing.setCreated(new Date().getTime());
+																climbing.setGame_mode(3);
+																climbing.setModified(new Date().getTime());
+																climbing.setPercentage(0);
+																climbing.setRemaining_steps(building.getSteps());
+																climbing.setUser(me);
+																climbing.setSaved(true);
+																climbing.setId_mode(teamDuelParse.getObjectId());
+																MainActivity.climbingDao.create(climbing);
+
+																final ParseObject climbingParse = new ParseObject("Climbing");
+																DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+																df.setTimeZone(new SimpleTimeZone(0, "GMT"));
+																climbingParse.put("building", climbing.getBuilding().get_id());
+																try {
+																	climbingParse.put("created", df.parse(df.format(climbing.getCreated())));
+																	climbingParse.put("modified", df.parse(df.format(climbing.getModified())));
+																	climbingParse.put("completedAt", df.parse(df.format(climbing.getCompleted())));
+																} catch (java.text.ParseException ex) {
+																	// TODO Auto-generated
+																	// catch block
+																	ex.printStackTrace();
+																}
+																climbingParse.put("completed_steps", climbing.getCompleted_steps());
+																climbingParse.put("remaining_steps", climbing.getRemaining_steps());
+																climbingParse.put("percentage", String.valueOf(climbing.getPercentage()));
+																climbingParse.put("users_id", climbing.getUser().getFBid());
+																climbingParse.put("game_mode", climbing.getGame_mode());
+																climbingParse.put("id_mode", climbing.getId_mode());
+																climbingParse.saveInBackground(new SaveCallback() {
+																	
+																	@Override
+																	public void done(ParseException e) {
+																		if(e == null){
+																			climbing.setId_online(climbingParse.getObjectId());
+																			climbing.setSaved(true);
+																			MainActivity.climbingDao.update(climbing);
+																			
+																		}else{
+																			climbing.setSaved(false);
+																			MainActivity.climbingDao.update(climbing);
+																			Toast.makeText(context, "Connection problem", Toast.LENGTH_SHORT).show();
+																			Log.e("1 Connection Problem", e.getMessage());
+																		}
+																	}
+																});
+																JSONObject creator = teamDuelParse.getJSONObject("creator");
+																Iterator<String> it = creator.keys();
+																String creator_name = "";
+																try {
+																	creator_name = creator.getString(it.next());
+																} catch (JSONException e1) {
+																	// TODO Auto-generated catch block
+																	e1.printStackTrace();
+																}
+
+																// save team duel locally
+																TeamDuel teamDuelLocal = new TeamDuel();
+																teamDuelLocal.setId_online(teamDuelParse.getObjectId());
+																teamDuelLocal.setBuilding(MainActivity.getBuildingById(current2.getBuilding_id()));
+																teamDuelLocal.setMy_steps(0);
+																teamDuelLocal.setSaved(true);
+																teamDuelLocal.setUser(me);
+																teamDuelLocal.setCreator_name(creator_name);
+																teamDuelLocal.setChallenger_name(pref.getString("username", ""));
+																teamDuelLocal.setMygroup(Group.CHALLENGER);
+																teamDuelLocal.setCreator(false);
+																teamDuelLocal.setDeleted(false);
+																teamDuelLocal.setSteps_my_group(0);
+																teamDuelLocal.setSteps_other_group(0);
+																MainActivity.teamDuelDao.create(teamDuelLocal);
+
+																text.setText("Request Accepted");
+																deleteRequest(String.valueOf(notification.getId()));
+
+																cancelBtn.setEnabled(false);
+																acceptBtn.setEnabled(false);
+																notification.setRead(true);
+															}else{
+																TeamDuel teamDuelLocal = new TeamDuel();
+																teamDuelLocal.setBuilding(MainActivity.getBuildingById(current2.getBuilding_id()));
+																teamDuelLocal.setSaved(false);
+																teamDuelLocal.setDeleted(true);
+																teamDuelLocal.setUser(me);
+																MainActivity.teamDuelDao.create(teamDuelLocal);
+																Toast.makeText(context, "Connection Problems", Toast.LENGTH_SHORT).show();
+																Log.e("2 Connection Problem adding me in team duel", "Error: " + e.getMessage());
+															}
+														}
+															
+															
+														
+													});
+												
+												}	
+													
+												} else {
+													text.setText("Challenger already chosen");
+													Toast.makeText(MainActivity.getContext(), "Too Late: Challenger already chosen", Toast.LENGTH_SHORT).show();
+
+													deleteRequest(String.valueOf(notification.getId()));
+
+													cancelBtn.setEnabled(false);
+													acceptBtn.setEnabled(false);
+													notification.setRead(true);
+												}
+											} else {
+												text.setText("You are already the challenger");
+												deleteRequest(String.valueOf(notification.getId()));
+
+												cancelBtn.setEnabled(false);
+												acceptBtn.setEnabled(false);
+												notification.setRead(true);
+											}
+
+										}
+									} else {
+										Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
+										Log.d("Connection problem", "Error: " + e.getMessage());
+									}
+
+								}
+							});
+							
+						} else {
+							text.setText("Unable to take part");
+							deleteRequest(String.valueOf(notification.getId()));
+
+							cancelBtn.setEnabled(false);
+							acceptBtn.setEnabled(false);
+							notification.setRead(true);
+						}
+						break;
+					case ASK_TEAM_COMPETITION_TEAM:
+						final AskTeamDuelNotification current3 = ((AskTeamDuelNotification) notification);
+
+						Collaboration collabs3 = MainActivity.getCollaborationByBuildingAndUser(current3.getBuilding_id(), pref.getInt("local_id",-1));
+						Competition compet3 = MainActivity.getCompetitionByBuildingAndUser(current3.getBuilding_id(), pref.getInt("local_id",-1));
+						TeamDuel duel3 = MainActivity.getTeamDuelByBuildingAndUser(current3.getBuilding_id(), pref.getInt("local_id",-1));
+						if (collabs3 == null && compet3 == null && duel3 == null) {
+
+							//look for team duel object in Parse
+							ParseQuery<ParseObject> queryComp = ParseQuery.getQuery("TeamDuel");
+							queryComp.whereEqualTo("objectId", current3.getTeamDuelId());
+							queryComp.findInBackground(new FindCallback<ParseObject>() {
+
+								@Override
+								public void done(List<ParseObject> duels, ParseException e) {
+									if (e == null) {
+										if (duels.size() == 0) {
+											Toast.makeText(MainActivity.getContext(), "This team duel does not exists anymore", Toast.LENGTH_SHORT).show();
+											text.setText("This team duel not exists");
+											deleteRequest(String.valueOf(notification.getId()));
+											cancelBtn.setEnabled(false);
+											acceptBtn.setEnabled(false);
+											notification.setRead(true);
+										} else {
+											// if team duel exists
+											final ParseObject teamDuelParse = duels.get(0);
+											JSONObject stairs;
+											JSONObject team;
+											if(current3.isSenderCreator()){
+												team = teamDuelParse.getJSONObject("creator_team");
+												stairs = teamDuelParse.getJSONObject("creator_stairs");
+											}else{
+												team = teamDuelParse.getJSONObject("challenger_team");
+												stairs = teamDuelParse.getJSONObject("challenger_stairs");
+											}
+
+											boolean meIn = team.has(pref.getString("FBid", ""));
+
+											if (!meIn) {
+												
+
+												int n_collaborators = team.length();
+												if (n_collaborators < ClimbApplication.N_MEMBERS_PER_GROUP - 1) {
+													
+												final User me = MainActivity.getUserById(pref.getInt("local_id", -1));
+												final Building building = MainActivity.getBuildingById(current3.getBuilding_id());
+												final Climbing climb = MainActivity.getClimbingForBuilding(building.get_id());
+
+												if(climb != null && (climb.getGame_mode() != 0 /*|| climb.getId_mode().equalsIgnoreCase("paused")*/)){
+													Toast.makeText(context, "Building occupied", Toast.LENGTH_SHORT).show();
+													text.setText("Building occupied");
+												}else{	
+												
+
+													try {//add myself as challenger
+														team.put(pref.getString("FBid", ""), pref.getString("username", ""));
+														stairs.put(pref.getString("FBid", ""), 0);
+													} catch (JSONException e1) {
+														// TODO Auto-generated
+														// catch block
+														e1.printStackTrace();
+													}
+													if(current3.isSenderCreator()){
+														teamDuelParse.put("creator_team", team);
+														teamDuelParse.put("creator_stairs", stairs);
+													}else{
+														teamDuelParse.put("challenger_team", team);
+														teamDuelParse.put("challenger_stairs", stairs);
+													}
+													teamDuelParse.saveInBackground(new SaveCallback() {
+														
+														@Override
+														public void done(ParseException e) {
+															if(e == null){
+																int my_stairs = 0;
+															
+																final Climbing climbing = new Climbing();
+																climbing.setBuilding(building);
+																climbing.setCompleted(0);
+																climbing.setCompleted_steps(0);
+																climbing.setCreated(new Date().getTime());
+																climbing.setGame_mode(3);
+																climbing.setModified(new Date().getTime());
+																climbing.setPercentage(0);
+																climbing.setRemaining_steps(building.getSteps());
+																climbing.setUser(me);
+																climbing.setSaved(true);
+																climbing.setId_mode(teamDuelParse.getObjectId());
+																MainActivity.climbingDao.create(climbing);
+
+																final ParseObject climbingParse = new ParseObject("Climbing");
+																DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+																df.setTimeZone(new SimpleTimeZone(0, "GMT"));
+																climbingParse.put("building", climbing.getBuilding().get_id());
+																try {
+																	climbingParse.put("created", df.parse(df.format(climbing.getCreated())));
+																	climbingParse.put("modified", df.parse(df.format(climbing.getModified())));
+																	climbingParse.put("completedAt", df.parse(df.format(climbing.getCompleted())));
+																} catch (java.text.ParseException ex) {
+																	// TODO Auto-generated
+																	// catch block
+																	ex.printStackTrace();
+																}
+																climbingParse.put("completed_steps", climbing.getCompleted_steps());
+																climbingParse.put("remaining_steps", climbing.getRemaining_steps());
+																climbingParse.put("percentage", String.valueOf(climbing.getPercentage()));
+																climbingParse.put("users_id", climbing.getUser().getFBid());
+																climbingParse.put("game_mode", climbing.getGame_mode());
+																climbingParse.put("id_mode", climbing.getId_mode());
+																climbingParse.saveInBackground(new SaveCallback() {
+																	
+																	@Override
+																	public void done(ParseException e) {
+																		if(e == null){
+																			climbing.setId_online(climbingParse.getObjectId());
+																			climbing.setSaved(true);
+																			MainActivity.climbingDao.update(climbing);
+																			
+																		}else{
+																			climbing.setSaved(false);
+																			MainActivity.climbingDao.update(climbing);
+																			Toast.makeText(context, "Connection problem", Toast.LENGTH_SHORT).show();
+																			Log.e("1 Connection Problem", e.getMessage());
+																		}
+																	}
+																});
+																//salva creator nome localm
+																JSONObject challenger = teamDuelParse.getJSONObject("challenger");
+																Iterator<String> it = challenger.keys();
+																String challenger_name = "";
+																try {
+																	challenger_name = challenger.getString(it.next());
+																} catch (JSONException e1) {
+																	// TODO Auto-generated catch block
+																	e1.printStackTrace();
+																}
+																JSONObject creator = teamDuelParse.getJSONObject("creator");
+																Iterator<String> it1 = creator.keys();
+																String creator_name = "";
+																try {
+																	creator_name = creator.getString(it1.next());
+																} catch (JSONException e1) {
+																	// TODO Auto-generated catch block
+																	e1.printStackTrace();
+																}
+
+																// save team duel locally
+																TeamDuel teamDuelLocal = new TeamDuel();
+																teamDuelLocal.setId_online(teamDuelParse.getObjectId());
+																teamDuelLocal.setBuilding(MainActivity.getBuildingById(current3.getBuilding_id()));
+																teamDuelLocal.setMy_steps(0);
+																teamDuelLocal.setSaved(true);
+																teamDuelLocal.setUser(me);
+																teamDuelLocal.setCreator_name(creator_name);
+																teamDuelLocal.setChallenger_name(challenger_name);
+																teamDuelLocal.setCreator(false);
+																if(current3.isSenderCreator())
+																	teamDuelLocal.setMygroup(Group.CREATOR);
+																else
+																	teamDuelLocal.setMygroup(Group.CHALLENGER);
+																teamDuelLocal.setDeleted(false);
+																teamDuelLocal.setSteps_my_group(0);
+																teamDuelLocal.setSteps_other_group(0);
+																MainActivity.teamDuelDao.create(teamDuelLocal);
+
+																text.setText("Request Accepted");
+																deleteRequest(String.valueOf(notification.getId()));
+
+																cancelBtn.setEnabled(false);
+																acceptBtn.setEnabled(false);
+																notification.setRead(true);
+															}else{
+																TeamDuel teamDuelLocal = new TeamDuel();
+																teamDuelLocal.setBuilding(MainActivity.getBuildingById(current3.getBuilding_id()));
+																teamDuelLocal.setSaved(false);
+																teamDuelLocal.setDeleted(true);
+																teamDuelLocal.setUser(me);
+																MainActivity.teamDuelDao.create(teamDuelLocal);
+																Toast.makeText(context, "Connection Problems", Toast.LENGTH_SHORT).show();
+																Log.e("2 Connection Problem adding me in team duel", "Error: " + e.getMessage());
+															}
+														}
+															
+															
+														
+													});
+												
+												}	
+													
+												} else {
+													text.setText("Challenger already chosen");
+													Toast.makeText(MainActivity.getContext(), "Too Late: Challenger already chosen", Toast.LENGTH_SHORT).show();
+
+													deleteRequest(String.valueOf(notification.getId()));
+
+													cancelBtn.setEnabled(false);
+													acceptBtn.setEnabled(false);
+													notification.setRead(true);
+												}
+											} else {
+												text.setText("You are already the challenger");
+												deleteRequest(String.valueOf(notification.getId()));
+
+												cancelBtn.setEnabled(false);
+												acceptBtn.setEnabled(false);
+												notification.setRead(true);
+											}
+
+										}
+									} else {
+										Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
+										Log.d("Connection problem", "Error: " + e.getMessage());
+									}
+
+								}
+							});
+							
+						} else {
+							text.setText("Unable to take part");
+							deleteRequest(String.valueOf(notification.getId()));
+
+							cancelBtn.setEnabled(false);
+							acceptBtn.setEnabled(false);
+							notification.setRead(true);
+						}
+						break;
+						
 
 					}
 

@@ -28,6 +28,7 @@ import org.unipd.nbeghin.climbtheworld.fragments.NotificationFragment;
 import org.unipd.nbeghin.climbtheworld.fragments.ToursFragment;
 import org.unipd.nbeghin.climbtheworld.models.AskCollaborationNotification;
 import org.unipd.nbeghin.climbtheworld.models.AskCompetitionNotification;
+import org.unipd.nbeghin.climbtheworld.models.AskTeamDuelNotification;
 import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.BuildingTour;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
@@ -35,6 +36,7 @@ import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.Competition;
 import org.unipd.nbeghin.climbtheworld.models.InviteNotification;
 import org.unipd.nbeghin.climbtheworld.models.Notification;
+import org.unipd.nbeghin.climbtheworld.models.NotificationType;
 import org.unipd.nbeghin.climbtheworld.models.Photo;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
@@ -89,7 +91,10 @@ public class MainActivity extends ActionBarActivity {
 	private static final String APP_TITLE = "Climb the world";
 	public static final String AppName = "ClimbTheWorld";
 	public static List<Building> buildings;
-	public static List<Climbing> climbings /*= new ArrayList<Climbing>()*/; // list of loaded climbings
+	public static List<Climbing> climbings /* = new ArrayList<Climbing>() */; // list
+																				// of
+																				// loaded
+																				// climbings
 	public static List<Tour> tours; // list of loaded tours
 	public static List<Notification> notifications;
 	public static List<Collaboration> collaborations;
@@ -121,6 +126,8 @@ public class MainActivity extends ActionBarActivity {
 																													// sending
 																													// building
 																													// id
+	public static final String duel_intent_object = "org.unipd.nbeghin.climbtheworld.intents.object.teamDuel";
+
 	private ViewPager mPager;
 	private static Context sContext;
 	private DbHelper dbHelper;
@@ -134,20 +141,19 @@ public class MainActivity extends ActionBarActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState); Log.d("MainActivity", "inizio");
-		setContentView(R.layout.activity_main); Log.d("MainActivity", "dopo layout");
+		super.onCreate(savedInstanceState);
+		Log.d("MainActivity", "inizio");
+		setContentView(R.layout.activity_main);
+		Log.d("MainActivity", "dopo layout");
 		pref = getSharedPreferences("UserSession", 0);
-		
+
 		try {
-			PackageInfo info = getPackageManager().getPackageInfo(
-					"org.unipd.nbeghin.climbtheworld",
-					PackageManager.GET_SIGNATURES);
+			PackageInfo info = getPackageManager().getPackageInfo("org.unipd.nbeghin.climbtheworld", PackageManager.GET_SIGNATURES);
 			for (Signature signature : info.signatures) {
 				System.out.println("qui");
 				MessageDigest md = MessageDigest.getInstance("SHA");
 				md.update(signature.toByteArray());
-				Log.d("KeyHash:",
-						Base64.encodeToString(md.digest(), Base64.DEFAULT));
+				Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
 			}
 		} catch (NameNotFoundException e) {
 
@@ -155,169 +161,187 @@ public class MainActivity extends ActionBarActivity {
 
 		}
 
+		notifications = new ArrayList<Notification>();
+
 		loadDb(); // instance db connection
-		
-		
-		// prendere dati richiesta, vedere se è valida e salvare su db
-				// Check for an incoming notification. Save the info
-				notifications = new ArrayList<Notification>();
-				Uri intentUri = getIntent().getData();
-				if (intentUri != null) {
-					String requestIdParam = intentUri.getQueryParameter("request_ids");
-					if (requestIdParam != null) {
-						String array[] = requestIdParam.split(","); System.out.println("array " + array.length);
-						for(int i = 0; i < array.length; i++){
-							requestId = array[i];
-							Log.i("onActivityCreated", "Request id: " + requestId);
-							//deleteRequest(requestId);
-							getRequestData(requestId);
-						}
-					}
-					
-					System.out.println("notf " + notifications.size());
-				}
-		
+
+		onUpdateNotifications(); // get FB notifications
+
 		// loading fragments
-		fragments.add(Fragment.instantiate(this,
-				BuildingsFragment.class.getName())); // instance building
-														// fragments
-		fragments
-				.add(Fragment.instantiate(this, ToursFragment.class.getName())); // instance
+		fragments.add(Fragment.instantiate(this, BuildingsFragment.class.getName())); // instance
+																						// building
+																						// fragments
+		fragments.add(Fragment.instantiate(this, ToursFragment.class.getName())); // instance
 																					// tours
 																					// fragments
 		fragments.add(Fragment.instantiate(this, NotificationFragment.class.getName()));
-		
-		mPagerAdapter = new PagerAdapter(super.getSupportFragmentManager(),
-				fragments);
+
+		mPagerAdapter = new PagerAdapter(super.getSupportFragmentManager(), fragments);
 		mPager = (ViewPager) super.findViewById(R.id.pager);
 		mPager.setAdapter(this.mPagerAdapter);
 		sContext = getApplicationContext();
 
 		try {
-			WekaClassifier.initializeParameters(getResources().openRawResource(
-					R.raw.modelvsw30osl0));
+			WekaClassifier.initializeParameters(getResources().openRawResource(R.raw.modelvsw30osl0));
 		} catch (IOException exc) {
 			this.finish();
 		}
 
-		
-
-		
 	}
 
+	/**
+	 * Check for an incoming notifications. If there's any and if they're valid,
+	 * then create the corresponding Notification object and add it to the
+	 * Nofitication list.
+	 */
+	public void onUpdateNotifications() {
+		// prendere dati richiesta, vedere se è valida e salvare su db
+		// Check for an incoming notification. Save the info
+		Uri intentUri = getIntent().getData();
+		if (intentUri != null) {
+			String requestIdParam = intentUri.getQueryParameter("request_ids");
+			if (requestIdParam != null) {
+				String array[] = requestIdParam.split(",");
+				System.out.println("array " + array.length);
+				for (int i = 0; i < array.length; i++) {
+					requestId = array[i];
+					Log.i("onActivityCreated", "Request id: " + requestId);
+					// deleteRequest(requestId);
+					getRequestData(requestId);
+				}
+			}
+
+			System.out.println("notf " + notifications.size());
+		}
+	}
+
+	/**
+	 * Examines the request with given id and create the corrispondent
+	 * Notification object
+	 * 
+	 * @param inRequestId
+	 *            the id of the request to examine
+	 */
 	private void getRequestData(final String inRequestId) {
 		// Create a new request for an HTTP GET with the
 		// request ID as the Graph path.
-		Request request = new Request(Session.getActiveSession(), inRequestId,
-				null, HttpMethod.GET, new Request.Callback() {
+		Request request = new Request(Session.getActiveSession(), inRequestId, null, HttpMethod.GET, new Request.Callback() {
 
-					@Override
-					public void onCompleted(Response response) {
-						// Process the returned response
-						GraphObject graphObject = response.getGraphObject();
-						FacebookRequestError error = response.getError();
-						// Default message
-						String message = "Incoming request";
-						if (graphObject != null) {
-							Log.d("graph obj not null", graphObject.toString());
+			@Override
+			public void onCompleted(Response response) {
+				// Process the returned response
+				GraphObject graphObject = response.getGraphObject();
+				FacebookRequestError error = response.getError();
+				String message = "";
+				if (graphObject != null) {
+					Log.d("graph obj not null", graphObject.toString());
 
-							// Get the data, parse info to get the key/value
-							// info
-							JSONObject dataObject;
-							JSONObject fromObject;
-							JSONObject toObject;
-							String groupName = "";
-							String sender = "";
-							String toId = "noId";
-							int type = -1;
-							String id = "";
-							
-							int building_id = -1;
-							String building_name ="";
-							String collaboration_id = "";
+					// Get the data, parse info to get the key/value
+					// info
+					JSONObject dataObject;
+					JSONObject fromObject;
+					JSONObject toObject;
+					String groupName = "";
+					String sender = "";
+					String toId = "noId";
+					int type = -1;
+					String id = "";
 
-							try {
-								dataObject = new JSONObject((String) graphObject.getProperty("data"));
-								fromObject = (JSONObject)graphObject.getProperty("from");
-								toObject = (JSONObject)graphObject.getProperty("to");
-								type = dataObject.getInt("type");
-								sender = fromObject.getString("name");
-								toId = toObject.getString("id");
-								id = ((String) graphObject.getProperty("id")) ;
-								
-								System.out.println("type " + type);
-								
-								if(type == 1 || type == 2){
-									building_id =	dataObject.getInt("idBuilding");									
-									building_name = dataObject.getString("nameBuilding");
-									collaboration_id = dataObject.getString("idCollab");
-								}
-								
+					int building_id = -1;
+					String building_name = "";
+					String collaboration_id = "";
+					boolean isReceiverChallenged = false;
+					boolean isSenderCreator = false;
+					String duel_id = "";
 
-							} catch (JSONException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-								
-							}
-							
-							
-							message += " " + groupName;
+					try {
+						dataObject = new JSONObject((String) graphObject.getProperty("data"));
+						fromObject = (JSONObject) graphObject.getProperty("from");
+						toObject = (JSONObject) graphObject.getProperty("to");
+						type = dataObject.getInt("type");
+						sender = fromObject.getString("name");
+						toId = toObject.getString("id");
+						id = ((String) graphObject.getProperty("id"));
 
-							String time = (String) graphObject
-									.getProperty("created_time");
-							message += " " + time;
-							if (isValid(time) && toId.equalsIgnoreCase(pref.getString("FBid", ""))) {
-								Log.d("qui", "request valida");
-								switch (type) {
-								case 0:
-									Notification notf = new InviteNotification(id, sender, groupName, type);
-									notifications.add(notf);
-									break;
+						System.out.println("type " + type);
 
-								case 1:					
-									Notification notfA = new AskCollaborationNotification(id, sender, groupName, type);
-									((AskCollaborationNotification)notfA).setBuilding_id(building_id);
-									((AskCollaborationNotification)notfA).setBuilding_name(building_name);
-									((AskCollaborationNotification)notfA).setCollaborationId(collaboration_id);
-									notifications.add(notfA);
-									
-									break;
-									
-								case 2:
-									Notification notfB = new AskCompetitionNotification(id, sender, groupName, type);
-									((AskCompetitionNotification)notfB).setBuilding_id(building_id);
-									((AskCompetitionNotification)notfB).setBuilding_name(building_name);
-									((AskCompetitionNotification)notfB).setCompetitionId(collaboration_id);
-									notifications.add(notfB);
-									
-								}
-								
-								
-								
-											
-										
-									
-								
-							}
-
-							String title = "";
-							// Create the text for the alert based on the sender
-							// and the data
-							message = title;
-
+						if (type == 1 || type == 2) {
+							building_id = dataObject.getInt("idBuilding");
+							building_name = dataObject.getString("nameBuilding");
+							collaboration_id = dataObject.getString("idCollab");
+						} else if (type == 3) {
+							isReceiverChallenged = dataObject.getBoolean("challenger");
+							isSenderCreator = dataObject.getBoolean("isSenderCreator");
+							duel_id = dataObject.getString("idCollab");
+							building_id = dataObject.getInt("idBuilding");
+							building_name = dataObject.getString("nameBuilding");
 						}
-						Toast.makeText(getApplicationContext(), "Richiesta arrivata",
-								Toast.LENGTH_SHORT).show();
-						//deleteRequest(inRequestId);//da chiamare solo se non ci sono errori
+
+					} catch (JSONException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+
 					}
-				});
+
+					message += " " + groupName;
+
+					String time = (String) graphObject.getProperty("created_time");
+					message += " " + time;
+					if (isValid(time) && toId.equalsIgnoreCase(pref.getString("FBid", ""))) {
+						Log.d("qui", "request valida");
+						switch (type) {
+						case 0:
+							Notification notf = new InviteNotification(id, sender, groupName, type);
+							notifications.add(notf);
+							break;
+
+						case 1:
+							Notification notfA = new AskCollaborationNotification(id, sender, groupName, type);
+							((AskCollaborationNotification) notfA).setBuilding_id(building_id);
+							((AskCollaborationNotification) notfA).setBuilding_name(building_name);
+							((AskCollaborationNotification) notfA).setCollaborationId(collaboration_id);
+							notifications.add(notfA);
+							break;
+
+						case 2:
+							Notification notfB = new AskCompetitionNotification(id, sender, groupName, type);
+							((AskCompetitionNotification) notfB).setBuilding_id(building_id);
+							((AskCompetitionNotification) notfB).setBuilding_name(building_name);
+							((AskCompetitionNotification) notfB).setCompetitionId(collaboration_id);
+							notifications.add(notfB);
+							break;
+						case 3:
+							Notification notfC = new AskTeamDuelNotification(id, sender, duel_id, type, isReceiverChallenged, isSenderCreator);
+							((AskTeamDuelNotification) notfC).setBuilding_id(building_id);
+							((AskTeamDuelNotification) notfC).setBuilding_name(building_name);
+							if(isReceiverChallenged)
+								((AskTeamDuelNotification) notfC).setType(NotificationType.ASK_TEAM_COMPETITION_CHALLENGER);
+							else
+								((AskTeamDuelNotification) notfC).setType(NotificationType.ASK_TEAM_COMPETITION_TEAM);
+							
+							notifications.add(notfC);
+							break;
+						}
+
+					}
+
+					String title = "";
+					// Create the text for the alert based on the sender
+					// and the data
+					message = title;
+
+				}
+				Toast.makeText(getApplicationContext(), "Richiesta arrivata", Toast.LENGTH_SHORT).show();
+				// deleteRequest(inRequestId);//da chiamare solo se non ci sono
+				// errori
+			}
+		});
 		// Execute the request asynchronously.
 		Request.executeBatchAsync(request);
 	}
 
 	private boolean isValid(String creation_time) {
-		SimpleDateFormat ISO8601DATEFORMAT = new SimpleDateFormat(
-				"yyyy-MM-dd'T'HH:mm:ssZ", Locale.ITALY);
+		SimpleDateFormat ISO8601DATEFORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.ITALY);
 		Date now = new Date();
 		Date olderDate = null;
 
@@ -336,10 +360,6 @@ public class MainActivity extends ActionBarActivity {
 		else
 			return true;
 	}
-
-	
-	
-	
 
 	/**
 	 * Helper method to access application context
@@ -366,20 +386,20 @@ public class MainActivity extends ActionBarActivity {
 	public static Climbing getClimbingForBuilding(int building_id) {
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("building_id", building_id); // filter for building ID
-		List<Climbing> climbings = climbingDao
-				.queryForFieldValuesArgs(conditions);
+		List<Climbing> climbings = climbingDao.queryForFieldValuesArgs(conditions);
 		if (climbings.size() == 0)
 			return null;
 		return climbings.get(0);
 	}
-	
+
 	public static Climbing getClimbingForBuildingAndUser(int building_id, int user_id) {
-		/*Map<String, Object> conditions = new HashMap<String, Object>();
-		conditions.put("building_id", building_id); // filter for building ID
-		conditions.put("users_id", user_id);
-		Log.d("cerco", String.valueOf(user_id));
-		List<Climbing> climbings = climbingDao
-				.queryForFieldValuesArgs(conditions);*/
+		/*
+		 * Map<String, Object> conditions = new HashMap<String, Object>();
+		 * conditions.put("building_id", building_id); // filter for building ID
+		 * conditions.put("users_id", user_id); Log.d("cerco",
+		 * String.valueOf(user_id)); List<Climbing> climbings = climbingDao
+		 * .queryForFieldValuesArgs(conditions);
+		 */
 		QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
 		Where<Climbing, Integer> where = query.where();
 		// the name field must be equal to "foo"
@@ -399,18 +419,17 @@ public class MainActivity extends ActionBarActivity {
 			e.printStackTrace();
 			return null;
 		}
-		
-		
-		
+
 	}
-	
+
 	public static Climbing getClimbingForParseId(int id) {
-		/*Map<String, Object> conditions = new HashMap<String, Object>();
-		conditions.put("building_id", building_id); // filter for building ID
-		conditions.put("users_id", user_id);
-		Log.d("cerco", String.valueOf(user_id));
-		List<Climbing> climbings = climbingDao
-				.queryForFieldValuesArgs(conditions);*/
+		/*
+		 * Map<String, Object> conditions = new HashMap<String, Object>();
+		 * conditions.put("building_id", building_id); // filter for building ID
+		 * conditions.put("users_id", user_id); Log.d("cerco",
+		 * String.valueOf(user_id)); List<Climbing> climbings = climbingDao
+		 * .queryForFieldValuesArgs(conditions);
+		 */
 		QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
 		Where<Climbing, Integer> where = query.where();
 		// the name field must be equal to "foo"
@@ -426,18 +445,17 @@ public class MainActivity extends ActionBarActivity {
 			e.printStackTrace();
 			return null;
 		}
-		
-		
-		
+
 	}
-	
+
 	public static Climbing getClimbingForBuildingAndUserNotPaused(int building_id, int user_id) {
-		/*Map<String, Object> conditions = new HashMap<String, Object>();
-		conditions.put("building_id", building_id); // filter for building ID
-		conditions.put("users_id", user_id);
-		Log.d("cerco", String.valueOf(user_id));
-		List<Climbing> climbings = climbingDao
-				.queryForFieldValuesArgs(conditions);*/
+		/*
+		 * Map<String, Object> conditions = new HashMap<String, Object>();
+		 * conditions.put("building_id", building_id); // filter for building ID
+		 * conditions.put("users_id", user_id); Log.d("cerco",
+		 * String.valueOf(user_id)); List<Climbing> climbings = climbingDao
+		 * .queryForFieldValuesArgs(conditions);
+		 */
 		QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
 		Where<Climbing, Integer> where = query.where();
 		// the name field must be equal to "foo"
@@ -459,18 +477,17 @@ public class MainActivity extends ActionBarActivity {
 			e.printStackTrace();
 			return null;
 		}
-		
-		
-		
+
 	}
-	
+
 	public static Climbing getClimbingForBuildingAndUserPaused(int building_id, int user_id) {
-		/*Map<String, Object> conditions = new HashMap<String, Object>();
-		conditions.put("building_id", building_id); // filter for building ID
-		conditions.put("users_id", user_id);
-		Log.d("cerco", String.valueOf(user_id));
-		List<Climbing> climbings = climbingDao
-				.queryForFieldValuesArgs(conditions);*/
+		/*
+		 * Map<String, Object> conditions = new HashMap<String, Object>();
+		 * conditions.put("building_id", building_id); // filter for building ID
+		 * conditions.put("users_id", user_id); Log.d("cerco",
+		 * String.valueOf(user_id)); List<Climbing> climbings = climbingDao
+		 * .queryForFieldValuesArgs(conditions);
+		 */
 		QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
 		Where<Climbing, Integer> where = query.where();
 		// the name field must be equal to "foo"
@@ -491,11 +508,11 @@ public class MainActivity extends ActionBarActivity {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
-		}	
+		}
 	}
-	
+
 	public static List<Climbing> getClimbingListForBuildingAndUser(int building_id, int user_id) {
-	
+
 		QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
 		Where<Climbing, Integer> where = query.where();
 		// the name field must be equal to "foo"
@@ -512,68 +529,68 @@ public class MainActivity extends ActionBarActivity {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
-		}	
+		}
 	}
-	
+
 	public static Collaboration getCollaborationForBuilding(int building_id) {
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("building_id", building_id); // filter for building ID
 		List<Collaboration> collaborations = collaborationDao.queryForFieldValuesArgs(conditions);
-		if(collaborations.size() == 0)
+		if (collaborations.size() == 0)
 			return null;
 		return collaborations.get(0);
 	}
-	
-	public static TeamDuel getTeamDuelById(String id){
+
+	public static TeamDuel getTeamDuelById(String id) {
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("id_online", id);
 		List<TeamDuel> duels = teamDuelDao.queryForFieldValuesArgs(conditions);
-		if(duels.size() == 0)
+		if (duels.size() == 0)
 			return null;
 		return duels.get(0);
 	}
-	
-	public static Collaboration getCollaborationById(String id){
+
+	public static Collaboration getCollaborationById(String id) {
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("id_online", id); // filter for building ID
 		List<Collaboration> collaborations = collaborationDao.queryForFieldValuesArgs(conditions);
-		if(collaborations.size() == 0)
+		if (collaborations.size() == 0)
 			return null;
 		return collaborations.get(0);
 	}
-	
-	public static Competition getCompetitionById(String id){
+
+	public static Competition getCompetitionById(String id) {
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("id_online", id); // filter for building ID
 		List<Competition> collaborations = competitionDao.queryForFieldValuesArgs(conditions);
-		if(collaborations.size() == 0)
+		if (collaborations.size() == 0)
 			return null;
 		return collaborations.get(0);
 	}
-	
+
 	public static User getUserById(int id) {
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("_id", id); // filter for building ID
 		List<User> users = userDao.queryForFieldValuesArgs(conditions);
-		if(users.size() == 0)
+		if (users.size() == 0)
 			return null;
 		return users.get(0);
 	}
-	
+
 	public static User getUserByFBId(String id) {
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("FBid", id); // filter for building ID
 		List<User> users = userDao.queryForFieldValuesArgs(conditions);
-		if(users.size() == 0)
+		if (users.size() == 0)
 			return null;
 		return users.get(0);
 	}
-	
+
 	public static Building getBuildingById(int id) {
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("_id", id); // filter for building ID
 		List<Building> buildings = buildingDao.queryForFieldValuesArgs(conditions);
-		if(buildings.size() == 0)
+		if (buildings.size() == 0)
 			return null;
 		return buildings.get(0);
 	}
@@ -584,9 +601,10 @@ public class MainActivity extends ActionBarActivity {
 	 */
 	private void loadDb() {
 		Log.d("Load normal db", "inizio");
-		PreExistingDbLoader preExistingDbLoader = new PreExistingDbLoader(
-				getApplicationContext()); // extract db from zip
-		Log.d("Load normal db", "fine");
+		PreExistingDbLoader preExistingDbLoader = new PreExistingDbLoader(getApplicationContext()); // extract
+																									// db
+																									// from
+																									// zip
 		SQLiteDatabase db = preExistingDbLoader.getReadableDatabase();
 		db.close(); // close connection to extracted db
 		dbHelper = new DbHelper(getApplicationContext()); // instance new db
@@ -607,20 +625,17 @@ public class MainActivity extends ActionBarActivity {
 	}
 
 	public void onShowActionProfile(MenuItem v) {
-		Intent intent = new Intent(getApplicationContext(),
-				ProfileActivity.class);
+		Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
 		startActivity(intent);
 	}
 
 	public void onShowSettings(MenuItem v) {
-		Intent intent = new Intent(getApplicationContext(),
-				SettingsActivity.class);
+		Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
 		startActivity(intent);
 	}
 
 	public void onShowGroups(MenuItem v) {
-		Intent intent = new Intent(getApplicationContext(),
-				GroupsActivity.class);
+		Intent intent = new Intent(getApplicationContext(), GroupsActivity.class);
 		startActivity(intent);
 	}
 
@@ -630,14 +645,14 @@ public class MainActivity extends ActionBarActivity {
 	public static void refreshBuildings() {
 		buildings = buildingDao.queryForAll();
 	}
-	
-	public static void refreshCollaborations(){
+
+	public static void refreshCollaborations() {
 		SharedPreferences pref = getContext().getSharedPreferences("UserSession", 0);
 		QueryBuilder<Collaboration, Integer> query = collaborationDao.queryBuilder();
 		Where<Collaboration, Integer> where = query.where();
 		// the name field must be equal to "foo"
 		try {
-			
+
 			where.eq("user_id", pref.getInt("local_id", -1));
 			System.out.println("collaborations di " + pref.getInt("local_id", -1));
 
@@ -648,17 +663,17 @@ public class MainActivity extends ActionBarActivity {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			
+
 		}
 	}
-	
-	public static void refreshCompetitions(){
+
+	public static void refreshCompetitions() {
 		SharedPreferences pref = getContext().getSharedPreferences("UserSession", 0);
 		QueryBuilder<Competition, Integer> query = competitionDao.queryBuilder();
 		Where<Competition, Integer> where = query.where();
 		// the name field must be equal to "foo"
 		try {
-			
+
 			where.eq("user_id", pref.getInt("local_id", -1));
 			System.out.println("competition di " + pref.getInt("local_id", -1));
 
@@ -669,23 +684,27 @@ public class MainActivity extends ActionBarActivity {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			
+
 		}
 	}
-	
-	public static void refreshClimbings(){ System.out.println("refreshClimbings");
+
+	public static void refreshClimbings() {
+		System.out.println("refreshClimbings");
 		SharedPreferences pref = getContext().getSharedPreferences("UserSession", 0);
-		/*Map<String, Object> conditions = new HashMap<String, Object>();
-		conditions.put("users_id", pref.getInt("local_id", -1)); // filter for building ID
-		System.out.println("climbing di " + pref.getInt("local_id", -1));
-		climbings = climbingDao.queryForFieldValuesArgs(conditions);
-		System.out.println(climbings.size());*/
-		
+		/*
+		 * Map<String, Object> conditions = new HashMap<String, Object>();
+		 * conditions.put("users_id", pref.getInt("local_id", -1)); // filter
+		 * for building ID System.out.println("climbing di " +
+		 * pref.getInt("local_id", -1)); climbings =
+		 * climbingDao.queryForFieldValuesArgs(conditions);
+		 * System.out.println(climbings.size());
+		 */
+
 		QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
 		Where<Climbing, Integer> where = query.where();
 		// the name field must be equal to "foo"
 		try {
-			
+
 			where.eq("users_id", pref.getInt("local_id", -1));
 			System.out.println("climbing di " + pref.getInt("local_id", -1));
 
@@ -696,20 +715,19 @@ public class MainActivity extends ActionBarActivity {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			
+
 		}
-		
-		
+
 	}
-	
-	public static void refreshTeamDuels(){
+
+	public static void refreshTeamDuels() {
 		SharedPreferences pref = getContext().getSharedPreferences("UserSession", 0);
-		
+
 		QueryBuilder<TeamDuel, Integer> query = teamDuelDao.queryBuilder();
 		Where<TeamDuel, Integer> where = query.where();
 		// the name field must be equal to "foo"
 		try {
-			
+
 			where.eq("user_id", pref.getInt("local_id", -1));
 			System.out.println("climbing di " + pref.getInt("local_id", -1));
 
@@ -720,67 +738,75 @@ public class MainActivity extends ActionBarActivity {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			
+
 		}
 	}
-	
-	
-	//per ogni edificio, una sola collaborazione
-	public static Collaboration getCollaborationByBuilding(int building_id){
+
+	// per ogni edificio, una sola collaborazione
+	public static Collaboration getCollaborationByBuildingAndUser(int building_id, int user_id) {
 		SharedPreferences pref = getContext().getSharedPreferences("UserSession", 0);
 		QueryBuilder<Collaboration, Integer> query = collaborationDao.queryBuilder();
 		Where<Collaboration, Integer> where = query.where();
-		
+
 		try {
 			where.eq("building_id", building_id);
+			where.and();
+			where.eq("user_id", user_id);
 			PreparedQuery<Collaboration> preparedQuery = query.prepare();
 			List<Collaboration> collabs = collaborationDao.query(preparedQuery);
-			if(collabs.size() == 0)
+			if (collabs.size() == 0)
 				return null;
-			else return collabs.get(0);
+			else
+				return collabs.get(0);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}
-		
+
 	}
-	
-	//per ogni edificio, una sola collaborazione
-	public static Competition getCompetitionByBuilding(int building_id){
+
+	// per ogni edificio, una sola collaborazione
+	public static Competition getCompetitionByBuildingAndUser(int building_id, int user_id) {
 		SharedPreferences pref = getContext().getSharedPreferences("UserSession", 0);
 		QueryBuilder<Competition, Integer> query = competitionDao.queryBuilder();
 		Where<Competition, Integer> where = query.where();
-		
+
 		try {
 			where.eq("building_id", building_id);
 			where.and();
 			where.eq("completed", 0);
+			where.and();
+			where.eq("user_id", user_id);
 			PreparedQuery<Competition> preparedQuery = query.prepare();
 			List<Competition> collabs = competitionDao.query(preparedQuery);
-			if(collabs.size() == 0)
+			if (collabs.size() == 0)
 				return null;
-			else return collabs.get(0);
+			else
+				return collabs.get(0);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}
-		
+
 	}
-	
-	public static TeamDuel getTeamDuelByBuilding(int building_id){
+
+	public static TeamDuel getTeamDuelByBuildingAndUser(int building_id, int user_id) {
 		SharedPreferences pref = getContext().getSharedPreferences("UserSession", 0);
 		QueryBuilder<TeamDuel, Integer> query = teamDuelDao.queryBuilder();
 		Where<TeamDuel, Integer> where = query.where();
-		
+
 		try {
 			where.eq("building_id", building_id);
+			where.and();
+			where.eq("user_id", user_id);
 			PreparedQuery<TeamDuel> preparedQuery = query.prepare();
 			List<TeamDuel> duels = teamDuelDao.query(preparedQuery);
-			if(duels.size() == 0)
+			if (duels.size() == 0)
 				return null;
-			else return duels.get(0);
+			else
+				return duels.get(0);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -819,8 +845,7 @@ public class MainActivity extends ActionBarActivity {
 	}
 
 	public static int getBuildingImageResource(Building building) {
-		return getContext().getResources().getIdentifier(building.getPhoto(),
-				"drawable", getContext().getPackageName());
+		return getContext().getResources().getIdentifier(building.getPhoto(), "drawable", getContext().getPackageName());
 	}
 
 	public static List<Integer> getBuildingPhotosForTour(int tour_id) {
@@ -865,8 +890,7 @@ public class MainActivity extends ActionBarActivity {
 		if (FacebookUtils.isOnline(this))
 			sendCustomChallenge();
 		else
-			Toast.makeText(getApplicationContext(),
-					"Check your intenet connection", Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), "Check your intenet connection", Toast.LENGTH_LONG).show();
 	}
 
 	// -----NEW-------
@@ -919,43 +943,32 @@ public class MainActivity extends ActionBarActivity {
 
 	private void showDialogWithoutNotificationBar(String action, Bundle params) {
 		// Create the dialog
-		dialog = new WebDialog.Builder(this, Session.getActiveSession(),
-				action, params).setOnCompleteListener(
-				new WebDialog.OnCompleteListener() {
+		dialog = new WebDialog.Builder(this, Session.getActiveSession(), action, params).setOnCompleteListener(new WebDialog.OnCompleteListener() {
 
-					@Override
-					public void onComplete(Bundle values,
-							FacebookException error) {
-						if (error != null) {
-							if (error instanceof FacebookOperationCanceledException) {
-								Toast.makeText(getApplicationContext(),
-										"Request cancelled", Toast.LENGTH_SHORT)
-										.show();
-							} /*
-							 * else { Toast.makeText(getApplicationContext(),
-							 * "Network Error", Toast.LENGTH_SHORT).show(); }
-							 */
-						} else {
-							final String requestId = values
-									.getString("request");
-							if (requestId != null) {
-								Toast.makeText(getApplicationContext(),
-										"Request sent", Toast.LENGTH_SHORT)
-										.show();
-							} else {
-								Toast.makeText(getApplicationContext(),
-										"Request cancelled", Toast.LENGTH_SHORT)
-										.show();
-							}
-						}
+			@Override
+			public void onComplete(Bundle values, FacebookException error) {
+				if (error != null) {
+					if (error instanceof FacebookOperationCanceledException) {
+						Toast.makeText(getApplicationContext(), "Request cancelled", Toast.LENGTH_SHORT).show();
+					} /*
+					 * else { Toast.makeText(getApplicationContext(),
+					 * "Network Error", Toast.LENGTH_SHORT).show(); }
+					 */
+				} else {
+					final String requestId = values.getString("request");
+					if (requestId != null) {
+						Toast.makeText(getApplicationContext(), "Request sent", Toast.LENGTH_SHORT).show();
+					} else {
+						Toast.makeText(getApplicationContext(), "Request cancelled", Toast.LENGTH_SHORT).show();
 					}
+				}
+			}
 
-				}).build();
+		}).build();
 
 		// Hide the notification bar and resize to full screen
 		Window dialog_window = dialog.getWindow();
-		dialog_window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		dialog_window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		// Store the dialog information in attributes
 		dialogAction = action;
@@ -975,26 +988,23 @@ public class MainActivity extends ActionBarActivity {
 														// reference
 			if (file.exists() == false || file.length() == 0)
 				throw new Exception("Empty DB");
-			this.copyFile(new FileInputStream(file),
-					this.openFileOutput(output_name, MODE_WORLD_READABLE));
+			this.copyFile(new FileInputStream(file), this.openFileOutput(output_name, MODE_WORLD_READABLE));
 			file = this.getFileStreamPath(output_name);
 			Intent i = new Intent(Intent.ACTION_SEND);
 			i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
 			i.setType("*/*");
 			startActivity(Intent.createChooser(i, "Share to"));
 		} catch (Exception e) {
-			Toast.makeText(getApplicationContext(),
-					"Unable to export db: " + e.getMessage(),
-					Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), "Unable to export db: " + e.getMessage(), Toast.LENGTH_SHORT).show();
 			Log.e(AppName, e.getMessage());
 		}
 	}
-	
-	public static void emptyNotificationList(){
+
+	public static void emptyNotificationList() {
 		notifications.clear();
 	}
-	
-	//ONLY FOR DEBUG
+
+	// ONLY FOR DEBUG
 	private void deleteRequest(String inRequestId) {
 		// Create a new request for an HTTP delete with the
 		// request ID as the Graph path.

@@ -4,13 +4,17 @@ public class AskTeamDuelNotification extends Notification{
 	private String teamDuelId;
 	private int building_id;
 	private String building_name;
+	private boolean challenger;
+	private boolean isSenderCreator;
 	
-	public AskTeamDuelNotification(String _id, String _sender, String _collabIb, int _type) {
+	public AskTeamDuelNotification(String _id, String _sender, String _collabIb, int _type, boolean challenger, boolean isSenderCreator) {
 		id = _id;
 		sender = _sender;
 		teamDuelId = _collabIb;
 		type = NotificationType.values()[_type];
 		read = false;
+		this.challenger = challenger;
+		this.isSenderCreator = isSenderCreator;
 		
 	}
 
@@ -36,6 +40,22 @@ public class AskTeamDuelNotification extends Notification{
 
 	public void setBuilding_name(String building_name) {
 		this.building_name = building_name;
+	}
+
+	public boolean isChallenger() {
+		return challenger;
+	}
+
+	public void setChallenger(boolean challenger) {
+		this.challenger = challenger;
+	}
+
+	public boolean isSenderCreator() {
+		return isSenderCreator;
+	}
+
+	public void setSenderCreator(boolean isSenderCreator) {
+		this.isSenderCreator = isSenderCreator;
 	}
 	
 	

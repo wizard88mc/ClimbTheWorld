@@ -17,8 +17,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/textView1"
-        android:layout_below="@+id/textView1"
+        android:layout_alignRight="@+id/textCreator"
+        android:layout_below="@+id/textCreator"
         android:ems="10" />
 
     <ExpandableListView
@@ -31,7 +31,7 @@
     </ExpandableListView>
 
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/textCreator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"

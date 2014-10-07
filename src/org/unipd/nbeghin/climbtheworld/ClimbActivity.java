@@ -26,6 +26,8 @@ import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.Competition;
 import org.unipd.nbeghin.climbtheworld.models.GameModeType;
+import org.unipd.nbeghin.climbtheworld.models.Group;
+import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 import org.unipd.nbeghin.climbtheworld.util.ModelsUtil;
@@ -142,6 +144,10 @@ public class ClimbActivity extends ActionBarActivity {
 	private Competition competition;
 	private List<ChartMember> chart;
 	ParseObject compet_parse;
+	
+	private TeamDuel teamDuel;
+	private List<Integer> myTeamScores;
+	ParseObject teamDuel_parse;
 
 	// Graphics for Social Mode
 	private VerticalSeekBar secondSeekbar;
@@ -231,6 +237,9 @@ public class ClimbActivity extends ActionBarActivity {
 					if (mode == GameModeType.SOCIAL_CLIMB){
 						seekbarIndicator.setProgress(num_steps + sumOthersStep());
 						setThresholdText();
+					}else if(mode == GameModeType.TEAM_VS_TEAM){
+						seekbarIndicator.setProgress(myTeamScore());
+						setThresholdText();
 					}else
 						seekbarIndicator.setProgress(num_steps);
 					percentage = (double) num_steps / (double) building.getSteps(); // increase
@@ -242,8 +251,11 @@ public class ClimbActivity extends ActionBarActivity {
 						//consider also my friend' steps
 						win = ((num_steps + sumOthersStep()) >= building.getSteps()) && (threshold - num_steps <= 0); 
 						setThresholdText();																
-					}else //consider only my steps
-						win = ((num_steps) >= building.getSteps());
+					}else if(mode == GameModeType.TEAM_VS_TEAM){
+						win = ((myTeamScore()) >= building.getSteps());
+						setThresholdText();	
+					}else
+						win = ((num_steps) >= building.getSteps()); //consider only my steps
 					if (win) { // ensure it did not exceed the number of steps
 								// (when multiple steps-at-once are detected)
 						num_steps = building.getSteps();
@@ -521,7 +533,12 @@ public class ClimbActivity extends ActionBarActivity {
 			break;
 		case TEAM_VS_TEAM:
 			secondSeekbar.setVisibility(View.VISIBLE);
-		    current.setVisibility(View.GONE);
+			secondSeekbar.setProgressDrawable(getResources()
+					.getDrawable(R.drawable.progress_bar_red));
+			seekbarIndicator.setProgressDrawable(getResources()
+					.getDrawable(R.drawable.progress_bar_green));
+		    current.setVisibility(View.VISIBLE);
+		    setThresholdText();
 			for (int i = 0; i < 2; i++) {
 				group_members.get(i).setVisibility(View.VISIBLE);
 				group_steps.get(i).setVisibility(View.VISIBLE);
@@ -712,6 +729,8 @@ public class ClimbActivity extends ActionBarActivity {
 			loadCollaboration();
 			break;
 		case TEAM_VS_TEAM:
+			mode = GameModeType.TEAM_VS_TEAM;
+			loadTeamDuel();
 			break;
 		case SOLO_CLIMB:
 			break;
@@ -733,6 +752,27 @@ public class ClimbActivity extends ActionBarActivity {
 
 	}
 	
+	private void loadTeamDuel(){
+		teamDuel = MainActivity.getTeamDuelById(climbing.getId_mode());
+		if(teamDuel == null){
+			Toast.makeText(this, "No team duel available for this building", Toast.LENGTH_SHORT).show();
+		}else{
+			teamDuel.setMy_steps(climbing.getCompleted_steps());
+			teamDuel.setSteps_my_group(teamDuel.getSteps_my_group() + climbing.getCompleted_steps());
+			updateTeams();
+		}
+	}
+	
+	private int myTeamScore(){
+		int scoreTot = 0;
+		for(Integer score : myTeamScores)
+			scoreTot += score;
+		return scoreTot + num_steps;
+	}
+	
+	/**
+	 * Loads the Competition object corresponding to the current climbing
+	 */
 	private void loadCompetition() {
 		competition = MainActivity.getCompetitionById(climbing.getId_mode());//MainActivity.getCompetitionByBuilding(building.get_id());
 		if(competition == null){
@@ -1026,9 +1066,9 @@ public class ClimbActivity extends ActionBarActivity {
 	 */
 	private void loadPreviousClimbing() {
 		SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
-		climbing = MainActivity.getClimbingForBuildingAndUserNotPaused(building.get_id(), pref.getInt("local_id", -1));
+		//climbing = MainActivity.getClimbingForBuildingAndUserNotPaused(building.get_id(), pref.getInt("local_id", -1));
 		//System.out.println(climbing.getId_mode());
-		soloClimb = MainActivity.getClimbingForBuildingAndUserPaused(building.get_id(), pref.getInt("local_id", -1));
+		//soloClimb = MainActivity.getClimbingForBuildingAndUserPaused(building.get_id(), pref.getInt("local_id", -1));
 		//System.out.println(soloClimb.getId_mode());
 		
 		List<Climbing> climbs = MainActivity.getClimbingListForBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
@@ -1038,7 +1078,7 @@ public class ClimbActivity extends ActionBarActivity {
 			for(Climbing c : climbs){
 				if(c.getGame_mode() == 0)
 					soloClimb = c;
-				else if(c.getGame_mode() == 2)
+				else if(c.getGame_mode() == 2 || c.getGame_mode() == 3)
 					climbing = c;
 			}
 		}
@@ -1092,6 +1132,8 @@ public class ClimbActivity extends ActionBarActivity {
 		seekbarIndicator.setMax(building.getSteps());
 		if (mode == GameModeType.SOCIAL_CLIMB)
 			seekbarIndicator.setProgress(climbing.getCompleted_steps() + sumOthersStep());
+		else if(mode == GameModeType.TEAM_VS_TEAM)
+			seekbarIndicator.setProgress(climbing.getCompleted_steps() + myTeamScore());
 		else
 			seekbarIndicator.setProgress(climbing.getCompleted_steps());
 
@@ -1284,6 +1326,7 @@ public class ClimbActivity extends ActionBarActivity {
 				updateChart();		
 				break;
 			case TEAM_VS_TEAM:
+				updateTeams();
 				break;
 			case SOLO_CLIMB:
 				MainActivity.climbingDao.update(climbing); // save to db
@@ -1313,6 +1356,8 @@ public class ClimbActivity extends ActionBarActivity {
 			saveCollaborationData();
 		else if (mode == GameModeType.SOCIAL_CHALLENGE && competition != null)
 			saveCompetitionData();
+		else if (mode == GameModeType.TEAM_VS_TEAM && teamDuel != null)
+			saveTeamDuelData();
 	}
 
 	/**
@@ -1379,7 +1424,33 @@ public class ClimbActivity extends ActionBarActivity {
 			MainActivity.competitionDao.update(competition);
 
 	}
-
+	
+	private void saveTeamDuelData(){
+		teamDuel.setMy_steps(climbing.getCompleted_steps());
+		if (teamDuel_parse == null) {
+			teamDuel.setSaved(false);
+			Toast.makeText(getApplicationContext(), "Connection unavailable. Yout data will be saved during next connection", Toast.LENGTH_SHORT).show();
+		} else {
+			SharedPreferences pref = getSharedPreferences("UserSession", 0);
+			JSONObject myteam;
+			if(teamDuel.getMygroup() == Group.CHALLENGER)
+				myteam = teamDuel_parse.getJSONObject("challenger_stairs");
+			else
+				myteam = teamDuel_parse.getJSONObject("creator_stairs");
+			try {
+				myteam.put(pref.getString("FBid", ""),  teamDuel.getMy_steps());
+				teamDuel_parse.saveEventually();
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			teamDuel.setSaved(true);
+		}
+		if(percentage >= 1.00)
+			MainActivity.teamDuelDao.delete(teamDuel);
+		else
+			MainActivity.teamDuelDao.update(teamDuel);
+	}
 
 	/**
 	 * Start background classifier service
@@ -1482,6 +1553,10 @@ public class ClimbActivity extends ActionBarActivity {
 			break;
 		case 2:
 			updateChart();
+			break;
+		case 3:
+			updateTeams();
+			break;
 				
 		}
 	}
@@ -1509,6 +1584,119 @@ public class ClimbActivity extends ActionBarActivity {
 		MainActivity.climbingDao.update(climbing);
 		updateClimbingInParse(climbing, false);
 		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.social_share);		
+		}
+	}
+	
+	private void endTeamCompetition(){
+		if(soloClimb != null){
+			deleteClimbingInParse(climbing);
+			soloClimb.setGame_mode(0);
+			soloClimb.setId_mode("");
+			MainActivity.climbingDao.update(soloClimb);
+			updateClimbingInParse(soloClimb, true);
+		}else{
+		System.out.println("scalato x prima volta");
+		climbing.setGame_mode(0);
+		climbing.setId_mode("");
+		MainActivity.climbingDao.update(climbing);
+		updateClimbingInParse(climbing, false);
+		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.social_share);	
+		}
+	}
+	
+	//non ho superato la threshold
+	private void socialTeamPenality(){
+		Toast.makeText(this.getApplicationContext(), "Move up next time!!!!", Toast.LENGTH_SHORT).show();
+	}
+	
+	private void updateTeams(){
+		if (!(mode == GameModeType.SOLO_CLIMB) && FacebookUtils.isOnline(this)) {
+			ParseQuery<ParseObject> query = ParseQuery.getQuery("Competition");
+			query.whereEqualTo("objectId", competition.getId_online());
+			query.findInBackground(new FindCallback<ParseObject>() {
+
+				@Override
+				public void done(List<ParseObject> tds, ParseException e) {
+					if(e == null){
+						if (tds == null || tds.size() == 0) {
+							Toast.makeText(getApplicationContext(), "This team duel does not exists", Toast.LENGTH_SHORT).show();
+							Log.e("updateTeams", "TeamDuel not present in Parse");
+							// TODO: la elimino????	
+						} else {
+							SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
+							teamDuel_parse = tds.get(0);
+							JSONObject myTeam;
+							JSONObject otherTeam;
+							if(teamDuel.getMygroup() == Group.CHALLENGER){
+								myTeam = teamDuel_parse.getJSONObject("challenger_stairs");
+								otherTeam = teamDuel_parse.getJSONObject("creator_stairs");
+								try {
+									myTeam.put(pref.getString("FBid", ""), num_steps);
+								} catch (JSONException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+								teamDuel_parse.put("challenger_stairs", myTeam);
+								teamDuel_parse.saveEventually();
+							}else{
+								myTeam = teamDuel_parse.getJSONObject("creator_stairs");
+								otherTeam = teamDuel_parse.getJSONObject("challenger_stairs");
+								try {
+									myTeam.put(pref.getString("FBid", ""), num_steps);
+								} catch (JSONException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+								teamDuel_parse.put("creator_stairs", myTeam);
+								teamDuel_parse.saveEventually();
+							}
+							
+							int myGroupScore = ModelsUtil.sum(myTeam);
+							int otherGroupScore = ModelsUtil.sum(otherTeam);
+							teamDuel.setSteps_my_group(myGroupScore);
+							teamDuel.setSteps_other_group(otherGroupScore);
+							teamDuel.setMy_steps(num_steps);
+							MainActivity.teamDuelDao.update(teamDuel);
+							if(teamDuel.getMygroup() == Group.CHALLENGER){
+								group_members.get(0).setText("Team of " + teamDuel.getChallenger_name());
+								group_steps.get(0).setText(String.valueOf(teamDuel.getSteps_my_group()));
+								group_members.get(1).setText("Team of " + teamDuel.getCreator_name());
+								group_steps.get(1).setText(String.valueOf(teamDuel.getSteps_other_group()));
+							}else{
+								group_members.get(0).setText("Team of " + teamDuel.getCreator_name());
+								group_steps.get(0).setText(String.valueOf(teamDuel.getSteps_my_group()));
+								group_members.get(1).setText("Team of " + teamDuel.getChallenger_name());
+								group_steps.get(1).setText(String.valueOf(teamDuel.getSteps_other_group()));
+							}
+							group_members.get(0).setBackgroundColor(Color.parseColor("#adeead"));
+							group_steps.get(0).setBackgroundColor(Color.parseColor("#adeead"));
+							group_members.get(1).setBackgroundColor(Color.parseColor("#ef9d9d"));
+							group_steps.get(1).setBackgroundColor(Color.parseColor("#ef9d9d"));
+							
+							if(myGroupScore >= building.getSteps()){
+								Toast.makeText(getApplicationContext(), "Your team has won!!!!", Toast.LENGTH_SHORT).show();
+								endTeamCompetition();
+								if (teamDuel.getMy_steps() < threshold)
+									socialTeamPenality();
+							}else if(otherGroupScore >= building.getSteps()){
+								Toast.makeText(getApplicationContext(), "The challenger's team has won", Toast.LENGTH_SHORT).show();
+								endTeamCompetition();
+								if (teamDuel.getMy_steps() < threshold)
+									socialTeamPenality();
+							}
+
+							
+						}
+					}else if(!(mode == GameModeType.TEAM_VS_TEAM)) {
+						Toast.makeText(getApplicationContext(), "Connections Problem", Toast.LENGTH_SHORT).show();
+						Log.e("updateTeams", e.getMessage());
+					}
+					
+				}
+				
+			});
+		} else {
+			Toast.makeText(getApplicationContext(), "No Connection Available", Toast.LENGTH_SHORT).show();
 		}
 	}
 	

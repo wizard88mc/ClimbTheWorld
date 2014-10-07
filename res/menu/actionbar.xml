@@ -41,6 +41,12 @@
         android:title="Groups"
         climbtheworld:showAsAction="never">
     </item>
+    <item
+        android:id="@+id/itemNotifications"
+        android:onClick="onUpdateNotifications"
+        android:title="get FB Notification"
+        climbtheworld:showAsAction="never">
+    </item>
     
 
 </menu>

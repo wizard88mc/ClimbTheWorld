@@ -25,6 +25,15 @@ public class TeamDuel {
 	private User user;
 	@DatabaseField
 	private int my_steps;
+	@DatabaseField
+	private int deleted;
+	@DatabaseField
+	private String creator_name;
+	@DatabaseField
+	private int challenger;
+	@DatabaseField
+	private int mygroup; // 0 -> user belongs to creator's group
+						 // 1 -> user belongs to challenger's group
 	
 	
 	public TeamDuel(){}
@@ -116,6 +125,56 @@ public class TeamDuel {
 	public void setMy_steps(int my_steps) {
 		this.my_steps = my_steps;
 	}
+	public void setDeleted(boolean deleted){
+		if(deleted){
+			this.deleted = 1;
+		}else{
+			this.deleted = 0;
+		}
+	}
+	
+	public boolean isDeleted(){
+		if(deleted == 1)
+			return true;
+		else
+			return false;
+	}
+
+	public String getCreator_name() {
+		return creator_name;
+	}
+
+	public void setCreator_name(String creator_name) {
+		this.creator_name = creator_name;
+	}
+	
+	public void setChallenger(boolean challenger){
+		if(challenger){
+			this.challenger = 1;
+		}else{
+			this.challenger = 0;
+		}
+	}
+	
+	public boolean isChallenger(){
+		if(challenger == 1)
+			return true;
+		else
+			return false;
+	}
+	
+	public void setMygroup(Group group){
+		if(group == Group.CHALLENGER)
+			mygroup = 1;
+		else mygroup = 0;
+	}
+	
+	public Group getMygroup(){
+		if(mygroup == 0)
+			return Group.CREATOR;
+		else return Group.CHALLENGER;
+	}
+	
 	
 	
 }
