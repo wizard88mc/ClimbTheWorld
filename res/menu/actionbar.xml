@@ -44,7 +44,7 @@
     <item
         android:id="@+id/itemNotifications"
         android:onClick="onUpdateNotifications"
-        android:title="get FB Notification"
+        android:title="FB Notification"
         climbtheworld:showAsAction="never">
     </item>
     

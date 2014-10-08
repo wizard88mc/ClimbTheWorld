@@ -34,7 +34,10 @@ public class TeamDuel {
 	@DatabaseField
 	private int mygroup; // 0 -> user belongs to creator's group
 						 // 1 -> user belongs to challenger's group
-	
+	@DatabaseField
+	private int completed;
+	@DatabaseField
+	private int ready_to_play;
 	
 	public TeamDuel(){}
 	
@@ -174,7 +177,35 @@ public class TeamDuel {
 			return Group.CREATOR;
 		else return Group.CHALLENGER;
 	}
+	public void setCompleted(boolean completed){
+		if(completed){
+			this.completed = 1;
+		}else{
+			this.completed = 0;
+		}
+	}
 	
+	public boolean isCompleted(){
+		if(completed == 1)
+			return true;
+		else
+			return false;
+	}
+	
+	public void setReadyToPlay(boolean ready_to_play){
+		if(ready_to_play){
+			this.ready_to_play = 1;
+		}else{
+			this.ready_to_play = 0;
+		}
+	}
+	
+	public boolean isReadyToPlay(){
+		if(ready_to_play == 1)
+			return true;
+		else
+			return false;
+	}
 	
 	
 }

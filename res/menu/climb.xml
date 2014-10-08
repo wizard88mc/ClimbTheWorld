@@ -6,9 +6,10 @@
     <item
         android:id="@+id/itemUpdate"
         android:icon="@drawable/ic_action_refresh"
-        android:onClick="onUpdate"
         android:title="Update"
         climbtheworld:showAsAction="ifRoom">
     </item>
+    <!--         android:onClick="onUpdate"
+     -->
 
 </menu>

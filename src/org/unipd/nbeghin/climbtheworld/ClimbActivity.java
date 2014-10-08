@@ -33,6 +33,7 @@ import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 import org.unipd.nbeghin.climbtheworld.util.ModelsUtil;
 import org.unipd.nbeghin.climbtheworld.util.StatUtils;
 import org.unipd.nbeghin.climbtheworld.util.SystemUiHider;
+import org.xml.sax.DTDHandler;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -47,8 +48,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -148,13 +151,16 @@ public class ClimbActivity extends ActionBarActivity {
 	private TeamDuel teamDuel;
 	private List<Integer> myTeamScores;
 	ParseObject teamDuel_parse;
-
+	JSONObject totScores;
 	// Graphics for Social Mode
 	private VerticalSeekBar secondSeekbar;
 	private TextView current;
 
 	private List<TextView> group_members = new ArrayList<TextView>();
 	private List<TextView> group_steps = new ArrayList<TextView>();
+	
+	// Our created menu to use
+		private Menu mymenu;
 
 	// number of virtual step for each real step
 	/**
@@ -498,7 +504,7 @@ public class ClimbActivity extends ActionBarActivity {
 						return true;
 					}
 				});
-		
+		secondSeekbar.setMax(building.getSteps());
 		current = (TextView) findViewById(R.id.textPosition);
 		for (int i = 1; i <= ClimbApplication.N_MEMBERS_PER_GROUP; i++) {
 			System.out.println("qui " + i);
@@ -747,19 +753,20 @@ public class ClimbActivity extends ActionBarActivity {
 			Toast.makeText(this, "No collaboration available for this building", Toast.LENGTH_SHORT).show();
 		} else {
 			collaboration.setMy_stairs(climbing.getCompleted_steps());
-			updateOthers();
+			updateOthers(false);
 		}
 
 	}
 	
 	private void loadTeamDuel(){
 		teamDuel = MainActivity.getTeamDuelById(climbing.getId_mode());
+		myTeamScores = new ArrayList<Integer>();
 		if(teamDuel == null){
 			Toast.makeText(this, "No team duel available for this building", Toast.LENGTH_SHORT).show();
 		}else{
 			teamDuel.setMy_steps(climbing.getCompleted_steps());
 			teamDuel.setSteps_my_group(teamDuel.getSteps_my_group() + climbing.getCompleted_steps());
-			updateTeams();
+			updateTeams(false);
 		}
 	}
 	
@@ -779,14 +786,14 @@ public class ClimbActivity extends ActionBarActivity {
 			Toast.makeText(this, "No competition available for this building", Toast.LENGTH_SHORT).show();
 		}else{
 			competition.setMy_stairs(climbing.getCompleted_steps());
-			updateChart();
+			updateChart(false);
 		}
 	}
 
 	/**
 	 * Update graphics to let user see the latest update about my friends' steps
 	 */
-	private void updateOthers() {
+	private void updateOthers(boolean isUpdate) {
 		System.out.println("update others");
 		if (!(mode == GameModeType.SOLO_CLIMB) && FacebookUtils.isOnline(this)) {
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("Collaboration");
@@ -903,6 +910,8 @@ public class ClimbActivity extends ActionBarActivity {
 		} else {
 			Toast.makeText(getApplicationContext(), "No Connection Available", Toast.LENGTH_SHORT).show();
 		}
+		if(isUpdate)
+			resetUpdating();
 	}
 
 	private int sumOthersStep() {
@@ -1132,8 +1141,10 @@ public class ClimbActivity extends ActionBarActivity {
 		seekbarIndicator.setMax(building.getSteps());
 		if (mode == GameModeType.SOCIAL_CLIMB)
 			seekbarIndicator.setProgress(climbing.getCompleted_steps() + sumOthersStep());
-		else if(mode == GameModeType.TEAM_VS_TEAM)
+		else if(mode == GameModeType.TEAM_VS_TEAM){
 			seekbarIndicator.setProgress(climbing.getCompleted_steps() + myTeamScore());
+			secondSeekbar.setMax(building.getSteps());
+		}
 		else
 			seekbarIndicator.setProgress(climbing.getCompleted_steps());
 
@@ -1179,6 +1190,15 @@ public class ClimbActivity extends ActionBarActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+		case R.id.itemUpdate:
+			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			ImageView iv = (ImageView) inflater.inflate(R.layout.refresh, null);
+			Animation rotation = AnimationUtils.loadAnimation(this, R.anim.rotate_refresh);
+			rotation.setRepeatCount(Animation.INFINITE);
+			iv.startAnimation(rotation);
+			MenuItemCompat.setActionView(item, iv);
+			onUpdate();
+			return true;
 		case android.R.id.home:
 			// This ID represents the Home or Up button. In the case of this
 			// activity, the Up button is shown. Use NavUtils to allow users
@@ -1316,17 +1336,17 @@ public class ClimbActivity extends ActionBarActivity {
 		if(percentage >= 1.00){
 			switch(mode){
 			case SOCIAL_CLIMB: //come back in Solo Climb
-				updateOthers();
+				updateOthers(false);
 				climbing.setGame_mode(0);
 				climbing.setId_mode("");
 				MainActivity.climbingDao.update(climbing); // save to db
 				if(!pref.getString("FBid", "none").equalsIgnoreCase("none")) updateClimbingInParse(climbing, false);
 				break;
 			case SOCIAL_CHALLENGE:
-				updateChart();		
+				updateChart(false);		
 				break;
 			case TEAM_VS_TEAM:
-				updateTeams();
+				updateTeams(false);
 				break;
 			case SOLO_CLIMB:
 				MainActivity.climbingDao.update(climbing); // save to db
@@ -1439,6 +1459,11 @@ public class ClimbActivity extends ActionBarActivity {
 				myteam = teamDuel_parse.getJSONObject("creator_stairs");
 			try {
 				myteam.put(pref.getString("FBid", ""),  teamDuel.getMy_steps());
+				if(percentage >= 1.00){
+					System.out.println("elimino team duel");
+					teamDuel_parse.put("completed", true);
+					teamDuel.setCompleted(true);
+				}
 				teamDuel_parse.saveEventually();
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
@@ -1446,7 +1471,7 @@ public class ClimbActivity extends ActionBarActivity {
 			}
 			teamDuel.setSaved(true);
 		}
-		if(percentage >= 1.00)
+		if(teamDuel.isCompleted())
 			MainActivity.teamDuelDao.delete(teamDuel);
 		else
 			MainActivity.teamDuelDao.update(teamDuel);
@@ -1537,6 +1562,8 @@ public class ClimbActivity extends ActionBarActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.climb, menu);
+		// We should save our menu so we can use it to reset our updater.
+				mymenu = menu;
 		return true;
 	}
 
@@ -1544,20 +1571,30 @@ public class ClimbActivity extends ActionBarActivity {
 	 * Action for update button pressed
 	 * @param v
 	 */
-	public void onUpdate(MenuItem v) {
+	public void onUpdate(/*MenuItem v*/) {
 		switch(climbing.getGame_mode()){
 		case 0:
 			break;
 		case 1:
-			updateOthers();
+			updateOthers(true);
 			break;
 		case 2:
-			updateChart();
+			updateChart(true);
 			break;
 		case 3:
-			updateTeams();
+			updateTeams(true);
 			break;
 				
+		}
+	}
+	
+	public void resetUpdating() {
+		// Get our refresh item from the menu
+		MenuItem m = mymenu.findItem(R.id.itemUpdate);
+		if (MenuItemCompat.getActionView(m) != null) {
+			// Remove the animation.
+			MenuItemCompat.getActionView(m).clearAnimation();
+			MenuItemCompat.setActionView(m, null);
 		}
 	}
 	
@@ -1609,10 +1646,10 @@ public class ClimbActivity extends ActionBarActivity {
 		Toast.makeText(this.getApplicationContext(), "Move up next time!!!!", Toast.LENGTH_SHORT).show();
 	}
 	
-	private void updateTeams(){
+	private void updateTeams(boolean isUpdate){
 		if (!(mode == GameModeType.SOLO_CLIMB) && FacebookUtils.isOnline(this)) {
-			ParseQuery<ParseObject> query = ParseQuery.getQuery("Competition");
-			query.whereEqualTo("objectId", competition.getId_online());
+			ParseQuery<ParseObject> query = ParseQuery.getQuery("TeamDuel");
+			query.whereEqualTo("objectId", teamDuel.getId_online());
 			query.findInBackground(new FindCallback<ParseObject>() {
 
 				@Override
@@ -1650,7 +1687,18 @@ public class ClimbActivity extends ActionBarActivity {
 								teamDuel_parse.put("creator_stairs", myTeam);
 								teamDuel_parse.saveEventually();
 							}
-							
+							Iterator<String> keys = myTeam.keys();
+							while(keys.hasNext()){
+								String key = keys.next();
+								if(key != pref.getString("FBid", "")){
+									try {
+										myTeamScores.add(myTeam.getInt(key));
+									} catch (JSONException e1) {
+										// TODO Auto-generated catch block
+										e1.printStackTrace();
+									}
+								}
+							}
 							int myGroupScore = ModelsUtil.sum(myTeam);
 							int otherGroupScore = ModelsUtil.sum(otherTeam);
 							teamDuel.setSteps_my_group(myGroupScore);
@@ -1672,6 +1720,8 @@ public class ClimbActivity extends ActionBarActivity {
 							group_steps.get(0).setBackgroundColor(Color.parseColor("#adeead"));
 							group_members.get(1).setBackgroundColor(Color.parseColor("#ef9d9d"));
 							group_steps.get(1).setBackgroundColor(Color.parseColor("#ef9d9d"));
+							seekbarIndicator.setProgress(myTeamScore());
+							secondSeekbar.setProgress(ModelsUtil.sum(otherTeam));
 							
 							if(myGroupScore >= building.getSteps()){
 								Toast.makeText(getApplicationContext(), "Your team has won!!!!", Toast.LENGTH_SHORT).show();
@@ -1698,9 +1748,12 @@ public class ClimbActivity extends ActionBarActivity {
 		} else {
 			Toast.makeText(getApplicationContext(), "No Connection Available", Toast.LENGTH_SHORT).show();
 		}
+		
+		if(isUpdate)
+			resetUpdating();
 	}
 	
-	private void updateChart() {
+	private void updateChart(boolean isUpdate) {
 		System.out.println("update chart");
 		if (!(mode == GameModeType.SOLO_CLIMB) && FacebookUtils.isOnline(this)) {
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("Competition");
@@ -1833,5 +1886,7 @@ public class ClimbActivity extends ActionBarActivity {
 		} else {
 			Toast.makeText(getApplicationContext(), "No Connection Available", Toast.LENGTH_SHORT).show();
 		}
+		if(isUpdate)
+			resetUpdating();
 	}
 }

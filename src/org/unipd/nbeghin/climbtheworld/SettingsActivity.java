@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.Competition;
+import org.unipd.nbeghin.climbtheworld.models.Group;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
@@ -187,7 +188,7 @@ public class SettingsActivity extends PreferenceActivity {
 		MainActivity.refreshClimbings();
 		MainActivity.refreshCollaborations();
 		MainActivity.refreshCompetitions();
-		
+		MainActivity.refreshTeamDuels();
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
 		query.whereEqualTo("users_id", pref.getString("FBid", ""));
 		query.findInBackground(new FindCallback<ParseObject>() {
@@ -280,6 +281,7 @@ public class SettingsActivity extends PreferenceActivity {
 					MainActivity.refreshClimbings();
 					MainActivity.refreshCollaborations();
 					MainActivity.refreshCompetitions();
+					MainActivity.refreshTeamDuels();
 
 				}else{
 					Toast.makeText(getApplicationContext(), "Connetction problems", Toast.LENGTH_SHORT).show();
@@ -315,75 +317,97 @@ public class SettingsActivity extends PreferenceActivity {
 			@Override
 			public void done(List<ParseObject> duels, ParseException e) {
 				if(e == null){
+					boolean created = false;
 					ParseObject duel = duels.get(0);
 					TeamDuel local_duel = MainActivity.getTeamDuelById(duel.getObjectId());
 					if(local_duel == null){
 						local_duel = new TeamDuel();
+						created = true;
+					}
+						User me = MainActivity.getUserById(pref.getInt("local_id", -1));
 						local_duel.setId_online(duel.getObjectId());
 						local_duel.setBuilding(MainActivity.getBuildingById(duel.getInt("building")));
-						local_duel.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
-						JSONObject challenger = duel.getJSONObject("challenger");
-						JSONObject creator = duel.getJSONObject("creator");
-						JSONObject stairs = duel.getJSONObject("creator_stairs");
-						JSONObject other_stairs = duel.getJSONObject("challenger_stairs");
-						Iterator<String> it;
-						if(creator.has(pref.getString("FBid", ""))){
-							local_duel.setCreator(true);
-							local_duel.setSteps_my_group(ModelsUtil.sum(stairs));
-							local_duel.setSteps_other_group(ModelsUtil.sum(other_stairs));
-							it = challenger.keys();
-							local_duel.setChallenger_name(it.next());
-							
-						}else{
-							local_duel.setCreator(false);
-							local_duel.setSteps_my_group(ModelsUtil.sum(other_stairs));
-							local_duel.setSteps_my_group(ModelsUtil.sum(stairs));
-							it = creator.keys();
-							local_duel.setChallenger_name(it.next());
-							
-						}
-						try {
-							local_duel.setMy_steps(stairs.getInt(pref.getString("FBid", "")));
-						} catch (JSONException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-						local_duel.setSaved(true);
-						MainActivity.teamDuelDao.create(local_duel);
-					}else{
+						local_duel.setUser(me);
+						local_duel.setDeleted(false);
+						local_duel.setCompleted(duel.getBoolean("completed"));
 						JSONObject challenger = duel.getJSONObject("challenger");
 						JSONObject creator = duel.getJSONObject("creator");
 						JSONObject creator_stairs = duel.getJSONObject("creator_stairs");
 						JSONObject challenger_stairs = duel.getJSONObject("challenger_stairs");
-						if(local_duel.isCreator()){
-							
-							Iterator<String> it = challenger.keys();
-							try {
-								local_duel.setChallenger_name(challenger.getString(it.next()));
-								local_duel.setMy_steps(creator_stairs.getInt(pref.getString("FBid", "")));
-
-							} catch (JSONException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
+						try{
+						Iterator<String> it;
+						if(creator.has(pref.getString("FBid", ""))){
+							local_duel.setCreator(true);
+							local_duel.setMygroup(Group.CREATOR);
 							local_duel.setSteps_my_group(ModelsUtil.sum(creator_stairs));
 							local_duel.setSteps_other_group(ModelsUtil.sum(challenger_stairs));
-						}else{
-							Iterator<String> it = creator.keys();
-							try {
-								local_duel.setChallenger_name(creator.getString(it.next()));
-								local_duel.setMy_steps(challenger_stairs.getInt(pref.getString("FBid", "")));
-							} catch (JSONException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
+							if(challenger.length() > 0){
+								it = challenger.keys();
+								if(it.hasNext()) local_duel.setChallenger_name(challenger.getString(it.next()));
+								else local_duel.setChallenger_name("");
 							}
+							local_duel.setChallenger(false);
+							local_duel.setCreator_name(me.getName());
+							local_duel.setMy_steps(creator_stairs.getInt(me.getFBid()));
+							
+						}else if(challenger.has(pref.getString("FBid", ""))) {
+							local_duel.setCreator(false);
+							local_duel.setChallenger_name(me.getName());
+							local_duel.setChallenger(true);
+							if(creator.length() > 0){
+								it = creator.keys();
+								if(it.hasNext()) local_duel.setCreator_name(creator.getString(it.next()));
+								else local_duel.setCreator_name("");}
+							local_duel.setMygroup(Group.CHALLENGER);
 							local_duel.setSteps_my_group(ModelsUtil.sum(challenger_stairs));
-							local_duel.setSteps_other_group(ModelsUtil.sum(creator_stairs));
+							local_duel.setSteps_my_group(ModelsUtil.sum(creator_stairs));
+							local_duel.setMy_steps(challenger_stairs.getInt(me.getFBid()));
+							local_duel.setChallenger_name(me.getName());
+							
+						}else{
+							if(creator_stairs.has(pref.getString("FBid", ""))){
+								local_duel.setCreator(false);
+								local_duel.setMygroup(Group.CREATOR);
+								local_duel.setSteps_my_group(ModelsUtil.sum(creator_stairs));
+								local_duel.setSteps_other_group(ModelsUtil.sum(challenger_stairs));
+								if(challenger.length() > 0){
+									it = challenger.keys();
+									if(it.hasNext()) local_duel.setChallenger_name(challenger.getString(it.next()));
+									else local_duel.setChallenger_name("");}
+								local_duel.setChallenger(false);
+								
+								if(creator.length() > 0){
+									it = creator.keys();
+									if(it.hasNext()) local_duel.setCreator_name(creator.getString(it.next()));
+									else local_duel.setCreator_name("");}
+								local_duel.setMy_steps(creator_stairs.getInt(me.getFBid()));	
+							}else{
+								local_duel.setCreator(false);
+								if(challenger.length() > 0){
+									it = challenger.keys();
+									if(it.hasNext()) local_duel.setChallenger_name(challenger.getString(it.next()));
+									else local_duel.setChallenger_name("");}
+								local_duel.setChallenger(false);
+								if(creator.length() > 0){
+									it = creator.keys();
+									if(it.hasNext()) local_duel.setCreator_name(creator.getString(it.next()));
+									else local_duel.setCreator_name("");}
+								local_duel.setMygroup(Group.CHALLENGER);
+								local_duel.setSteps_my_group(ModelsUtil.sum(challenger_stairs));
+								local_duel.setSteps_my_group(ModelsUtil.sum(creator_stairs));
+								local_duel.setMy_steps(challenger_stairs.getInt(me.getFBid()));
+							}
 						}
+						}catch(JSONException ex){
+							ex.printStackTrace();
+						}
+						if(challenger_stairs.length() == ClimbApplication.N_MEMBERS_PER_GROUP && creator_stairs.length() == ClimbApplication.N_MEMBERS_PER_GROUP)
+							local_duel.setReadyToPlay(true);
+						else local_duel.setReadyToPlay(false);
 						local_duel.setSaved(true);
-						MainActivity.teamDuelDao.update(local_duel);
-
-					}
+						if (created) MainActivity.teamDuelDao.create(local_duel);
+						else MainActivity.teamDuelDao.update(local_duel);
+					
 				}else{
 					Toast.makeText(getApplicationContext(), "Connetction problems", Toast.LENGTH_SHORT).show();
 					Log.e("loadTeamDuelsFromParse", e.getMessage());

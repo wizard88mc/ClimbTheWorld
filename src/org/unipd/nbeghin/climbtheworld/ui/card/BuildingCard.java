@@ -422,9 +422,20 @@ public class BuildingCard extends Card {
 									case 2:
 										
 										break;
+									case 3:
+										break;
 									default:
 										break;
 									}
+									}
+									if(climbing.getGame_mode() == 3 && !rollback){
+										mode = GameModeType.TEAM_VS_TEAM;
+										setTeamChallenge();
+										
+										Log.i(MainActivity.AppName, "Building id clicked: "+building.get_id());
+										Intent intent = new Intent(activity.getApplicationContext(), TeamPreparationActivity.class);
+										intent.putExtra(MainActivity.building_intent_object, building.get_id());
+										activity.startActivity(intent);
 									}
 								}else{
 									Toast.makeText(MainActivity.getContext(), " 1 Connection Problems", Toast.LENGTH_SHORT).show();
@@ -689,9 +700,11 @@ public class BuildingCard extends Card {
 		duel.setChallenger_name("");
 		duel.setCreator_name(me.getName());
 		duel.setMygroup(Group.CREATOR);
+		duel.setCompleted(false);
 		duel.setCreator(true);
 		duel.setDeleted(false);
 		duel.setCreator_name(me.getName());
+		duel.setReadyToPlay(false);
 		MainActivity.teamDuelDao.create(duel);
 
 		
@@ -700,9 +713,10 @@ public class BuildingCard extends Card {
 		JSONObject challenger_stairs = new JSONObject();
 		JSONObject challenger_team = new JSONObject();
 		JSONObject creator = new JSONObject();
+		JSONObject challenger = new JSONObject();
 
 		try {
-			creator_team.put(pref.getString("FBid", ""), pref.getString("username", ""));
+			//creator_team.put(pref.getString("FBid", ""), pref.getString("username", ""));
 			creator_stairs.put(pref.getString("FBid", ""), 0);
 			creator.put(pref.getString("FBid", ""), pref.getString("username", ""));
 		} catch (JSONException e) {
@@ -712,7 +726,9 @@ public class BuildingCard extends Card {
 
 		teamDuelParse = new ParseObject("TeamDuel");
 		teamDuelParse.put("creator", creator);
+		teamDuelParse.put("challenger", challenger);
 		teamDuelParse.put("building", building.get_id());
+		teamDuelParse.put("completed", false);
 		teamDuelParse.put("creator_stairs", creator_stairs);
 		teamDuelParse.put("creator_team", creator_team);
 		teamDuelParse.put("challenger_team", challenger_team);
@@ -723,23 +739,18 @@ public class BuildingCard extends Card {
 			public void done(ParseException e) {
 				if(e == null){
 				
-					duel.setId_online(teamDuelParse.getObjectId());
+					duel.setId_online(teamDuelParse.getObjectId());				System.out.println("id duel: " + teamDuelParse.getObjectId());
+
 					duel.setSaved(true);
 					MainActivity.teamDuelDao.update(duel);
 
 				climbing.setId_mode(duel.getId_online());
 				MainActivity.climbingDao.update(climbing);
-				System.out.println("id duel: " + compet.getId_online());
+				System.out.println("id duel: " + duel.getId_online());
 				
 				updateClimbingInParse(climbing, false);
 
-				mode = GameModeType.SOCIAL_CHALLENGE;
-				setTeamChallenge();
 				
-				Log.i(MainActivity.AppName, "Building id clicked: "+building.get_id());
-				Intent intent = new Intent(activity.getApplicationContext(), TeamPreparationActivity.class);
-				intent.putExtra(MainActivity.building_intent_object, building.get_id());
-				activity.startActivity(intent);
 				
 				}else{
 					duel.setSaved(false);

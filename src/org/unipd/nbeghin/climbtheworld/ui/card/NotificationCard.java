@@ -64,9 +64,14 @@ public class NotificationCard extends Card {
 		case INVITE_IN_GROUP:
 			return notification.getSender() + " asked you to Join new group: " + notification.getGroupName();
 		case ASK_COLLABORATION:
-			return notification.getSender() + " asks help to " + notification.getGroupName() + " to climb " + ((AskCollaborationNotification) notification).getBuilding_name();
+			return notification.getSender() + " asks help to climb " + ((AskCollaborationNotification) notification).getBuilding_name();
 		case ASK_COMPETITION:
-			return notification.getSender() + " asks help to " + notification.getGroupName() + " to climb " + ((AskCompetitionNotification) notification).getBuilding_name();
+			return notification.getSender() + " challenges you to climb " + ((AskCompetitionNotification) notification).getBuilding_name();
+		case ASK_TEAM_COMPETITION_CHALLENGER:
+			return notification.getSender() + " challenges you in a team duel to climb " + ((AskTeamDuelNotification) notification).getBuilding_name();
+		case ASK_TEAM_COMPETITION_TEAM:
+			return notification.getSender() + " asks help to win the duel with his team in climbing " + ((AskTeamDuelNotification) notification).getBuilding_name();
+
 		default:
 			return "";
 		}
@@ -614,9 +619,11 @@ public class NotificationCard extends Card {
 											final ParseObject teamDuelParse = duels.get(0);
 											JSONObject challenger = teamDuelParse.getJSONObject("challenger");
 											JSONObject challenger_stairs = teamDuelParse.getJSONObject("challenger_stairs");
-
-											boolean meIn = challenger.has(pref.getString("FBid", ""));
-
+											JSONObject challenger_team = teamDuelParse.getJSONObject("challenger_team");
+											JSONObject creator_stairs = teamDuelParse.getJSONObject("creator_stairs");
+											
+											boolean meIn = challenger_stairs.has(pref.getString("FBid", "")) && creator_stairs.has(pref.getString("FBid", ""));
+											
 											if (!meIn) {
 												
 
@@ -643,6 +650,7 @@ public class NotificationCard extends Card {
 													}
 													teamDuelParse.put("challenger", challenger);
 													teamDuelParse.put("challenger_stairs", challenger_stairs);
+													//teamDuelParse.put("challenger_team", challenger_team);
 													teamDuelParse.saveInBackground(new SaveCallback() {
 														
 														@Override
@@ -720,8 +728,10 @@ public class NotificationCard extends Card {
 																teamDuelLocal.setCreator_name(creator_name);
 																teamDuelLocal.setChallenger_name(pref.getString("username", ""));
 																teamDuelLocal.setMygroup(Group.CHALLENGER);
+																teamDuelLocal.setCompleted(false);
 																teamDuelLocal.setCreator(false);
 																teamDuelLocal.setDeleted(false);
+																teamDuelLocal.setReadyToPlay(false);
 																teamDuelLocal.setSteps_my_group(0);
 																teamDuelLocal.setSteps_other_group(0);
 																MainActivity.teamDuelDao.create(teamDuelLocal);
@@ -735,6 +745,7 @@ public class NotificationCard extends Card {
 															}else{
 																TeamDuel teamDuelLocal = new TeamDuel();
 																teamDuelLocal.setBuilding(MainActivity.getBuildingById(current2.getBuilding_id()));
+																teamDuelLocal.setCompleted(true);
 																teamDuelLocal.setSaved(false);
 																teamDuelLocal.setDeleted(true);
 																teamDuelLocal.setUser(me);
@@ -815,15 +826,18 @@ public class NotificationCard extends Card {
 											final ParseObject teamDuelParse = duels.get(0);
 											JSONObject stairs;
 											JSONObject team;
+											JSONObject challenger_stairs;
 											if(current3.isSenderCreator()){
 												team = teamDuelParse.getJSONObject("creator_team");
 												stairs = teamDuelParse.getJSONObject("creator_stairs");
+												challenger_stairs = teamDuelParse.getJSONObject("challenger_stairs");
 											}else{
 												team = teamDuelParse.getJSONObject("challenger_team");
 												stairs = teamDuelParse.getJSONObject("challenger_stairs");
+												challenger_stairs = teamDuelParse.getJSONObject("creator_stairs");
 											}
 
-											boolean meIn = team.has(pref.getString("FBid", ""));
+											boolean meIn = stairs.has(pref.getString("FBid", "")) && challenger_stairs.has(pref.getString("FBid", ""));
 
 											if (!meIn) {
 												
@@ -940,6 +954,7 @@ public class NotificationCard extends Card {
 																teamDuelLocal.setMy_steps(0);
 																teamDuelLocal.setSaved(true);
 																teamDuelLocal.setUser(me);
+																teamDuelLocal.setReadyToPlay(false);
 																teamDuelLocal.setCreator_name(creator_name);
 																teamDuelLocal.setChallenger_name(challenger_name);
 																teamDuelLocal.setCreator(false);
@@ -947,6 +962,7 @@ public class NotificationCard extends Card {
 																	teamDuelLocal.setMygroup(Group.CREATOR);
 																else
 																	teamDuelLocal.setMygroup(Group.CHALLENGER);
+																teamDuelLocal.setCompleted(false);
 																teamDuelLocal.setDeleted(false);
 																teamDuelLocal.setSteps_my_group(0);
 																teamDuelLocal.setSteps_other_group(0);
@@ -961,6 +977,7 @@ public class NotificationCard extends Card {
 															}else{
 																TeamDuel teamDuelLocal = new TeamDuel();
 																teamDuelLocal.setBuilding(MainActivity.getBuildingById(current3.getBuilding_id()));
+																teamDuelLocal.setCompleted(true);
 																teamDuelLocal.setSaved(false);
 																teamDuelLocal.setDeleted(true);
 																teamDuelLocal.setUser(me);

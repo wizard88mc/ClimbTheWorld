@@ -16,6 +16,7 @@ import org.unipd.nbeghin.climbtheworld.db.PreExistingDbLoader;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.Competition;
+import org.unipd.nbeghin.climbtheworld.models.Group;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 
 import com.j256.ormlite.dao.RuntimeExceptionDao;
@@ -103,6 +104,26 @@ public class UpdateService extends IntentService {
 			}					
 	}
 	
+	private TeamDuel getTeamDuelByBuildingAndUser(int building_id, int user_id){
+		//per ogni edificio, una sola competizione
+			QueryBuilder<TeamDuel, Integer> query = teamDuelDao.queryBuilder();
+			Where<TeamDuel, Integer> where = query.where();
+			
+			try {
+				where.eq("building_id", building_id);
+				where.and();
+				where.eq("user_id", user_id);
+				PreparedQuery<TeamDuel> preparedQuery = query.prepare();
+				List<TeamDuel> collabs = teamDuelDao.query(preparedQuery);
+				if(collabs.size() == 0)
+					return null;
+				else return collabs.get(0);
+			} catch (SQLException e) {
+				e.printStackTrace();
+				return null;
+			}					
+	}
+	
 	private void saveClimbings(final Context context, int mode) throws SQLException{
 		//salvo tutti i climbing online
 		QueryBuilder<Climbing, Integer> query1 = climbingDao.queryBuilder();
@@ -155,6 +176,11 @@ public class UpdateService extends IntentService {
 										case 2:
 											Competition comp = getCompetitionByBuildingAndUser(climbing.getBuilding().get_id(), climbing.getUser().get_id());
 											climbing.setId_mode(comp.getId_online());
+											climbingDao.update(climbing);
+											break;
+										case 3:
+											TeamDuel duel = getTeamDuelByBuildingAndUser(climbing.getBuilding().get_id(), climbing.getUser().get_id());
+											climbing.setId_mode(duel.getId_online());
 											climbingDao.update(climbing);
 										}
 									}
@@ -218,6 +244,19 @@ public class UpdateService extends IntentService {
 											climbOnline.put("id_mode", climbing.getId_mode());
 										}
 										else{ System.out.println("non trovato resta nullo");
+											climbing.setGame_mode(0);
+											climbing.setId_mode("");
+											climbOnline.put("id_mode", climbing.getId_mode());
+											climbOnline.put("game_mode", climbing.getGame_mode());
+										}
+										climbingDao.update(climbing);
+										break;
+									case 3:
+										TeamDuel duel = getTeamDuelByBuildingAndUser(climbing.getBuilding().get_id(), climbing.getUser().get_id());
+										if(duel != null){
+											climbing.setId_mode(duel.getId_online());
+											climbOnline.put("id_mode", climbing.getId_mode());
+										}else{
 											climbing.setGame_mode(0);
 											climbing.setId_mode("");
 											climbOnline.put("id_mode", climbing.getId_mode());
@@ -488,63 +527,200 @@ public class UpdateService extends IntentService {
 	private void saveTeamDuels(final Context context){
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("saved", 0); 
-		List<TeamDuel> duels = teamDuelDao.queryForFieldValuesArgs(conditions);
+		final List<TeamDuel> duels = teamDuelDao.queryForFieldValuesArgs(conditions);
 		Log.d("updateService", "Duels: " + duels.size());
 		for(final TeamDuel duel : duels){
-			ParseQuery<ParseObject> query = ParseQuery.getQuery("TeamDuel");
-			query.whereEqualTo("objectId", duel.getId_online());
-			query.findInBackground(new FindCallback<ParseObject>() {
+			ParseQuery<ParseObject> main_query = ParseQuery.getQuery("TeamDuel");
+			if(duel.getId_online() == null || duel.getId_online().equals("")){
+				if(duel.getMygroup() == Group.CHALLENGER){
+					main_query.whereEqualTo("challenger_team." + duel.getUser().getFBid(), duel.getUser().getName());
+				}else{
+					main_query.whereEqualTo("creator_team." + duel.getUser().getFBid(), duel.getUser().getName());
+				}
+				main_query.whereEqualTo("building", duel.getBuilding().get_id());
+				main_query.whereEqualTo("completed", false);
+			}else
+				main_query.whereEqualTo("objectId", duel.getId_online());
+			main_query.findInBackground(new FindCallback<ParseObject>() {
 
 				@Override
 				public void done(List<ParseObject> duelsParse, ParseException e) {
-						if(e == null){
-								if(duelsParse.size() == 0){
-									teamDuelDao.delete(duel);
+					if(e == null){
+						if(duelsParse.size() == 0 && !duel.isDeleted()){
+							//inserisci
+							final ParseObject newDuelParse = new ParseObject("TeamDuel");
+							JSONObject creator = new JSONObject();
+							JSONObject creator_team = new JSONObject();
+							JSONObject creator_stairs = new JSONObject();
+							JSONObject challenger = new JSONObject();
+							JSONObject challenger_team = new JSONObject();
+							JSONObject challenger_stairs = new JSONObject();
+							if(duel.isCreator()){
+								try {
+									creator.put(duel.getUser().getFBid(), duel.getUser().getName());
+									creator_stairs.put(duel.getUser().getFBid(), 0);
+								} catch (JSONException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+							}else if(duel.isChallenger()){
+								try {
+									challenger.put(duel.getUser().getFBid(), duel.getUser().getName());
+									challenger_stairs.put(duel.getUser().getFBid(), 0);
+								} catch (JSONException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+							}else{
+								if(duel.getMygroup() == Group.CHALLENGER){
+									try {
+										challenger_team.put(duel.getUser().getFBid(), duel.getUser().getName());
+										challenger_stairs.put(duel.getUser().getFBid(), 0);
+									} catch (JSONException e1) {
+										// TODO Auto-generated catch block
+										e1.printStackTrace();
+									}
 								}else{
-									ParseObject parseDuel = duelsParse.get(0);
-									if(duel.isCreator()){
-										JSONObject creator = new JSONObject();
+									try {
+										creator_team.put(duel.getUser().getFBid(), duel.getUser().getName());
+										creator_stairs.put(duel.getUser().getFBid(), 0);
+									} catch (JSONException e1) {
+										// TODO Auto-generated catch block
+										e1.printStackTrace();
+									}
+								}
+							}
+							newDuelParse.put("creator", creator);
+							newDuelParse.put("challenger", challenger);
+							newDuelParse.put("challenger_team", challenger_team);
+							newDuelParse.put("creator_team", creator_team);
+							newDuelParse.put("challenger_stairs", challenger_stairs);
+							newDuelParse.put("creator_stairs", creator_stairs);
+							newDuelParse.put("building", duel.getBuilding().get_id());
+							newDuelParse.put("completed", duel.isCompleted());
+							newDuelParse.saveInBackground(new SaveCallback() {
+								
+								@Override
+								public void done(ParseException e) {
+									if(e == null){ //System.out.println("collab saved " + comp.getObjectId());
+										duel.setId_online(newDuelParse.getObjectId());
+										duel.setSaved(true);
+										teamDuelDao.update(duel);
+										if(duels.indexOf(duel) == (duels.size() - 1)){
+											try {
+												System.out.println("save climbs 3");
+												saveClimbings(context, 3);
+											} catch (SQLException ex) {
+												// TODO Auto-generated catch block
+												ex.printStackTrace();
+											}
+										}
+											
+									}else{ System.out.println("duel not saved");
+										duel.setSaved(false);
+										teamDuelDao.update(duel);
+										Log.e("load duels", e.getMessage());
+									}
+									
+								}
+							});
+	
+						}else if(duelsParse.size() != 0){
+							ParseObject duelParse = duelsParse.get(0);
+							if(duel.isDeleted()){
+								//elimina
+								duelParse.deleteEventually();
+								teamDuelDao.delete(duel);
+							}else{
+								//aggiorna
+								JSONObject creator = new JSONObject();
+								JSONObject creator_team = new JSONObject();
+								JSONObject creator_stairs = new JSONObject();
+								JSONObject challenger = new JSONObject();
+								JSONObject challenger_team = new JSONObject();
+								JSONObject challenger_stairs = new JSONObject();
+								if(duel.isCreator()){
+									try {
+										creator.put(duel.getUser().getFBid(), duel.getUser().getName());
+										creator_stairs.put(duel.getUser().getFBid(), duel.getMy_steps());
+									} catch (JSONException e1) {
+										// TODO Auto-generated catch block
+										e1.printStackTrace();
+									}
+								}else if(duel.isChallenger()){
+									try {
+										challenger.put(duel.getUser().getFBid(), duel.getUser().getName());
+										challenger_stairs.put(duel.getUser().getFBid(), duel.getMy_steps());
+									} catch (JSONException e1) {
+										// TODO Auto-generated catch block
+										e1.printStackTrace();
+									}
+								}else{
+									if(duel.getMygroup() == Group.CHALLENGER){
 										try {
-											creator.put(duel.getUser().getFBid(), duel.getUser().getName());
-											JSONObject stairs = parseDuel.getJSONObject("creator_stairs");
-											stairs.put(duel.getUser().getFBid(), duel.getMy_steps());
-											parseDuel.put("creator_stairs", stairs);
+											challenger_team.put(duel.getUser().getFBid(), duel.getUser().getName());
+											challenger_stairs.put(duel.getUser().getFBid(), duel.getMy_steps());
 										} catch (JSONException e1) {
 											// TODO Auto-generated catch block
 											e1.printStackTrace();
 										}
-										parseDuel.put("creator", creator);
 									}else{
-										JSONObject challenger = new JSONObject();
 										try {
-											challenger.put(duel.getUser().getFBid(), duel.getUser().getName());
-											JSONObject stairs = parseDuel.getJSONObject("challenger_stairs");
-											parseDuel.put(duel.getUser().getFBid(), duel.getMy_steps());
-											parseDuel.put("challeger_stairs", stairs);
+											creator_team.put(duel.getUser().getFBid(), duel.getUser().getName());
+											creator_stairs.put(duel.getUser().getFBid(), duel.getMy_steps());
 										} catch (JSONException e1) {
 											// TODO Auto-generated catch block
 											e1.printStackTrace();
 										}
 									}
-									parseDuel.saveEventually();
-									duel.setSaved(true);
-									teamDuelDao.update(duel);
-									
 								}
-						}else{
-							Toast.makeText(context, "Connection Problems", Toast.LENGTH_SHORT).show();
-							Log.e("UpdateService - duels", e.getMessage());
+								duelParse.put("creator", creator);
+								duelParse.put("challenger", challenger);
+								duelParse.put("challenger_team", challenger_team);
+								duelParse.put("creator_team", creator_team);
+								duelParse.put("challenger_stairs", challenger_stairs);
+								duelParse.put("creator_stairs", creator_stairs);
+								duelParse.put("building", duel.getBuilding().get_id());
+								duelParse.put("completed", duel.isCompleted());
+								duelParse.saveEventually();
+								duel.setId_online(duelParse.getObjectId());
+								duel.setSaved(true);
+								teamDuelDao.update(duel);
+								if(duels.indexOf(duel) == (duels.size() - 1)){
+									try {
+										System.out.println("save climbs 3");
+										saveClimbings(context, 3);
+									} catch (SQLException ex) {
+										// TODO Auto-generated catch block
+										ex.printStackTrace();
+									}
+								}
+								
+							}
+
+						} else if(duelsParse.size() == 0 && duel.isDeleted())
+						{
+							teamDuelDao.delete(duel);
 						}
+					}else{
+						Toast.makeText(context, "Connection Problems", Toast.LENGTH_SHORT).show();
+						Log.e("UpdateService - team duels", e.getMessage());
+					}
+					
 				}
 				
 			});
 		}
-		try {
-			saveClimbings(context, 3);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		if(duels.size() == 0){
+			try {
+				System.out.println("save climbs 3");
+				saveClimbings(context, 3);
+			} catch (SQLException ex) {
+				// TODO Auto-generated catch block
+				ex.printStackTrace();
+			}
+			}
+		
 	}
 	
 

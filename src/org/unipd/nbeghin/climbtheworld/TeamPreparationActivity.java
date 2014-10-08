@@ -24,7 +24,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,9 +44,10 @@ public class TeamPreparationActivity extends ActionBarActivity {
 	// Our created menu to use
 	private Menu mymenu;
 
-	Button addMyMembersBtn;
-	Button addChallengerBtn;
-	Button startPlay;
+	ImageButton addMyMembersBtn;
+	ImageButton addChallengerBtn;
+	ImageButton startPlay;
+	ImageButton addChallengerTeamBtn;
 	List<TextView> myMembers = new ArrayList<TextView>();
 	List<TextView> theirMembers = new ArrayList<TextView>();
 	TextView challengerName;
@@ -63,10 +64,12 @@ public class TeamPreparationActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_preparation_teams);
 		SharedPreferences pref = getSharedPreferences("UserSession", 0);
+		building_id = getIntent().getIntExtra(MainActivity.building_intent_object, 0);
 		building = MainActivity.getBuildingById(building_id);
-		addMyMembersBtn = (Button) findViewById(R.id.addMyTeamBtn);
-		addChallengerBtn = (Button) findViewById(R.id.addChallengerBtn);
-		startPlay = (Button) findViewById(R.id.btnStartClimbing);
+		addMyMembersBtn = (ImageButton) findViewById(R.id.addMyTeamBtn);
+		addChallengerBtn = (ImageButton) findViewById(R.id.addChallengerBtn);
+		startPlay = (ImageButton) findViewById(R.id.btnStartClimbing);
+		addChallengerTeamBtn = (ImageButton) findViewById(R.id.addChallengerTeam);
 		challengerName = (TextView) findViewById(R.id.textChallenger);
 		creatorName = (TextView) findViewById(R.id.textCreator);
 		
@@ -94,6 +97,14 @@ public class TeamPreparationActivity extends ActionBarActivity {
 			}
 		});
 		
+		addChallengerTeamBtn.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				onAddChallengerMemberBtn();
+			}
+		});
+		
 		addMyMembersBtn.setEnabled(false);
 		addChallengerBtn.setEnabled(false);
 		startPlay.setEnabled(false);
@@ -107,11 +118,25 @@ public class TeamPreparationActivity extends ActionBarActivity {
 			theirMembers.add((TextView) findViewById(id));
 		}
 
-		int building_id = getIntent().getIntExtra(MainActivity.building_intent_object, 0);
-		int team_online_id = getIntent().getIntExtra(MainActivity.duel_intent_object, 0);
+		//int team_online_id = getIntent().getIntExtra(MainActivity.duel_intent_object, 0);
 
 		duel = MainActivity.getTeamDuelByBuildingAndUser(building_id, pref.getInt("local_id", -1));
 		// quando arrivo qui, id online di duel deve essere settato
+		
+		if(duel.isCreator()){
+			addChallengerBtn.setVisibility(View.VISIBLE);
+			addChallengerTeamBtn.setVisibility(View.GONE);
+			addMyMembersBtn.setVisibility(View.VISIBLE);
+		}else if(duel.isChallenger()){
+			addChallengerBtn.setVisibility(View.GONE);
+			addChallengerTeamBtn.setVisibility(View.VISIBLE);
+			addMyMembersBtn.setVisibility(View.GONE);
+		}else if(!duel.isCreator() && !duel.isChallenger()){
+			addChallengerBtn.setVisibility(View.GONE);
+			addChallengerTeamBtn.setVisibility(View.GONE);
+			addMyMembersBtn.setVisibility(View.GONE);
+		}
+		
 		getTeams(false);
 
 	}
@@ -119,7 +144,7 @@ public class TeamPreparationActivity extends ActionBarActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.actionbar, menu);
+		getMenuInflater().inflate(R.menu.team_preparation, menu);
 
 		// We should save our menu so we can use it to reset our updater.
 		mymenu = menu;
@@ -169,11 +194,21 @@ public class TeamPreparationActivity extends ActionBarActivity {
 						JSONObject creator = obj.getJSONObject("creator");
 						if (duel.getChallenger_name() == null || duel.getChallenger_name().equals("")) {
 								Iterator<String> it = challenger.keys();
-								duel.setChallenger_name(challenger.getString(it.next()));
+								if(it.hasNext()){
+									duel.setChallenger_name(challenger.getString(it.next()));
+									addChallengerBtn.setEnabled(false);
+								}else{
+									addChallengerBtn.setEnabled(true);
+								}
+						}else{
+							addChallengerBtn.setEnabled(false);
+
 						}
 						if (duel.getCreator_name() == null || duel.getCreator_name().equals("")) {
 								Iterator<String> it = creator.keys();
-								if(it.hasNext()) duel.setCreator_name(creator.getString(it.next()));	
+								if(it.hasNext()){
+									duel.setCreator_name(creator.getString(it.next()));	
+								}
 								
 						}
 						
@@ -199,20 +234,29 @@ public class TeamPreparationActivity extends ActionBarActivity {
 	 * @throws JSONException
 	 */
 	private void showTeams(ParseObject duelParse, boolean isUpdate) throws JSONException{
-		creatorName.setText("Creator: " + duel.getCreator_name());
+		if(duel.getCreator_name() != null && !duel.getCreator_name().equals(""))
+			creatorName.setText("Creator: " + duel.getCreator_name());
+		else
+			creatorName.setText("Creator: - ");
 		if ((duel.getChallenger_name() != null && !duel.getChallenger_name().equals("")) )
 			challengerName.setText("Challenger: " + duel.getChallenger_name());
-		else if(duel.isCreator())
+		else
+			challengerName.setText("Challenger: - ");
+		if(duel.isCreator()){
+			if(duel.getChallenger_name() != null && !duel.getChallenger_name().equals(""))
+			addChallengerBtn.setEnabled(false);
+		else
 			addChallengerBtn.setEnabled(true);
+		}
 		JSONObject myTeam;
 		JSONObject challengerTeam;
-		if(duel.getMygroup() == Group.CREATOR){			
+//		if(duel.getMygroup() == Group.CREATOR){			
 			myTeam = duelParse.getJSONObject("creator_team");
 			challengerTeam = duelParse.getJSONObject("challenger_team");
-		}else{
-			challengerTeam = duelParse.getJSONObject("creator_team");
-			myTeam = duelParse.getJSONObject("challenger_team");
-		}
+//		}else{
+//			challengerTeam = duelParse.getJSONObject("creator_team");
+//			myTeam = duelParse.getJSONObject("challenger_team");
+//		}
 		
 		showTeam(myTeam, myMembers);
 		showTeam(challengerTeam, theirMembers);
@@ -222,10 +266,16 @@ public class TeamPreparationActivity extends ActionBarActivity {
 			else
 				addMyMembersBtn.setEnabled(false);
 		}
-		if(myTeam.length() == 5 && challengerTeam.length() == 5)
+		if(myTeam.length() == 5 && challengerTeam.length() == 5){
 			startPlay.setEnabled(true);
-		else
+			duel.setReadyToPlay(true);
+			MainActivity.teamDuelDao.update(duel);
+		}	
+		else{
 			startPlay.setEnabled(false);
+			duel.setReadyToPlay(false);
+			MainActivity.teamDuelDao.update(duel);
+		}
 		
 		if(isUpdate)
 			// Change the menu back
@@ -265,7 +315,7 @@ public class TeamPreparationActivity extends ActionBarActivity {
 	 */
 	public void onAddChallengerBtn(){
 		Bundle params = new Bundle();
-		params.putString("data", "{\"idCollab\":\"" + team_online_id + "\","
+		params.putString("data", "{\"idCollab\":\"" + duel.getId_online() + "\","
 				+ "" + "\"idBuilding\":\"" + building_id + "\","
 				+ "\"nameBuilding\":\"" + building.getName() + "\","
 				+ " \"type\": \"3\","
@@ -284,7 +334,7 @@ public class TeamPreparationActivity extends ActionBarActivity {
 	public void onAddMyMembersBtn(){
 		
 			Bundle params = new Bundle();
-				params.putString("data", "{\"idCollab\":\"" + team_online_id + "\","
+				params.putString("data", "{\"idCollab\":\"" + duel.getId_online() + "\","
 						+ "" + "\"idBuilding\":\"" + building_id + "\","
 						+ "\"nameBuilding\":\"" + building.getName() + "\","
 						+ " \"type\": \"3\","
@@ -296,6 +346,21 @@ public class TeamPreparationActivity extends ActionBarActivity {
 
 			sendRequests(params);
 		
+	}
+	
+	public void onAddChallengerMemberBtn(){
+		Bundle params = new Bundle();
+		params.putString("data", "{\"idCollab\":\"" + duel.getId_online() + "\","
+				+ "" + "\"idBuilding\":\"" + building_id + "\","
+				+ "\"nameBuilding\":\"" + building.getName() + "\","
+				+ " \"type\": \"3\","
+				+ "\"challenger\": \""+  false + "\","	//you will not be my challenger
+				+ "\"isSenderCreator\": \"" + duel.isCreator() + "\"" //enter in my team
+				+ "}");
+		params.putString("message", "team challenge");
+
+
+	sendRequests(params);
 	}
 
 	/**

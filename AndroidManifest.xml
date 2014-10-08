@@ -127,6 +127,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.unipd.nbeghin.climbtheworld.MainActivity" />
         </activity>
+        <activity
+            android:name=".TeamPreparationActivity"
+            android:label="@string/title_activity_team_preparation" 
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.unipd.nbeghin.climbtheworld.MainActivity" />
+        </activity>
+        
     </application>
 
 </manifest>

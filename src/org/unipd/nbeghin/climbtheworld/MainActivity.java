@@ -165,7 +165,7 @@ public class MainActivity extends ActionBarActivity {
 
 		loadDb(); // instance db connection
 
-		onUpdateNotifications(); // get FB notifications
+		onUpdateNotifications(null); // get FB notifications
 
 		// loading fragments
 		fragments.add(Fragment.instantiate(this, BuildingsFragment.class.getName())); // instance
@@ -194,7 +194,7 @@ public class MainActivity extends ActionBarActivity {
 	 * then create the corresponding Notification object and add it to the
 	 * Nofitication list.
 	 */
-	public void onUpdateNotifications() {
+	public void onUpdateNotifications(MenuItem v) {
 		// prendere dati richiesta, vedere se è valida e salvare su db
 		// Check for an incoming notification. Save the info
 		Uri intentUri = getIntent().getData();
@@ -214,6 +214,8 @@ public class MainActivity extends ActionBarActivity {
 			System.out.println("notf " + notifications.size());
 		}
 	}
+	
+
 
 	/**
 	 * Examines the request with given id and create the corrispondent
@@ -330,6 +332,8 @@ public class MainActivity extends ActionBarActivity {
 					// and the data
 					message = title;
 
+				}else{
+					System.out.println("graph obj null");
 				}
 				Toast.makeText(getApplicationContext(), "Richiesta arrivata", Toast.LENGTH_SHORT).show();
 				// deleteRequest(inRequestId);//da chiamare solo se non ci sono
