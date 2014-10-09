@@ -691,7 +691,7 @@ public class BuildingCard extends Card {
 		});
 	}
 	
-	private void saveTeamDuel() {
+	private void saveTeamDuel() {System.out.println("save team duel");
 		User me = MainActivity.getUserById(pref.getInt("local_id", -1));
 		duel.setBuilding(building);
 		duel.setUser(me);

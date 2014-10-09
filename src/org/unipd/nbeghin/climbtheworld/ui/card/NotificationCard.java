@@ -28,6 +28,7 @@ import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,6 +40,8 @@ import com.facebook.HttpMethod;
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
+import com.fima.cardsui.SwipeDismissTouchListener;
+import com.fima.cardsui.SwipeDismissTouchListener.OnDismissCallback;
 import com.fima.cardsui.objects.Card;
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -53,10 +56,12 @@ public class NotificationCard extends Card {
 	ImageButton acceptBtn;
 	ImageButton cancelBtn;
 	TextView text;
+	boolean enabled;
 
-	public NotificationCard(Notification notification) {
+	public NotificationCard(Notification notification, boolean enabled) {
 		super(notification.getId());
 		this.notification = notification;
+		this.enabled = enabled;
 	}
 
 	private String setMessage() {
@@ -83,12 +88,38 @@ public class NotificationCard extends Card {
 		cancelBtn = ((ImageButton) view.findViewById(R.id.cancelButton));
 		acceptBtn = (ImageButton) view.findViewById(R.id.acceptButton);
 		text = ((TextView) view.findViewById(R.id.text));
+		 
 		text.setText(setMessage());
+		/*if (enabled){
+			acceptBtn.setVisibility(View.VISIBLE);
+			acceptBtn.setEnabled(true);
+			cancelBtn.setVisibility(View.VISIBLE);
+			cancelBtn.setEnabled(true);
+			view.setBackgroundColor(Color.parseColor("#fffb94"));
+		}else{
+			acceptBtn.setVisibility(View.INVISIBLE);
+			acceptBtn.setEnabled(false);
+			cancelBtn.setVisibility(View.INVISIBLE);
+			cancelBtn.setEnabled(false);
+			view.setBackgroundColor(Color.parseColor("#ffffff"));
+		}*/
+		
+		view.setOnTouchListener(new SwipeDismissTouchListener(view, null, new OnDismissCallback() {
+			
+			@Override
+			public void onDismiss(View view, Object token) {
+				System.out.println("swipe");
+			}
+		}));
+			 
+		
 		acceptBtn.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View arg0) {
-				if (FacebookUtils.isOnline(context)) {
+				boolean busy = ClimbApplication.BUSY;
+				if (FacebookUtils.isOnline(context) && !busy) {
+					ClimbApplication.BUSY = true;
 					NotificationType type = notification.getType();
 					switch (type) {
 					case INVITE_IN_GROUP:
@@ -118,12 +149,15 @@ public class NotificationCard extends Card {
 									cancelBtn.setEnabled(false);
 									acceptBtn.setEnabled(false);
 									notification.setRead(true);
+									
+
 								} else {
 									Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
 
 									Log.d("Connection problem", "Error: " + e.getMessage());
 
 								}
+								ClimbApplication.BUSY = false;
 							}
 
 						});
@@ -154,6 +188,7 @@ public class NotificationCard extends Card {
 											cancelBtn.setEnabled(false);
 											acceptBtn.setEnabled(false);
 											notification.setRead(true);
+											ClimbApplication.BUSY = false;
 										} else {
 											//collaboration object found in parse
 											final ParseObject collaborationParse = collabs.get(0);
@@ -318,11 +353,13 @@ public class NotificationCard extends Card {
 																cancelBtn.setEnabled(false);
 																acceptBtn.setEnabled(false);
 																notification.setRead(true);
+																ClimbApplication.BUSY = false;
+
 															}else{
 																Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
 																Log.d("Connection problem", "Error: " + e.getMessage());
+																ClimbApplication.BUSY = false;
 															}
-															
 														}
 													});
 													}
@@ -335,6 +372,8 @@ public class NotificationCard extends Card {
 													cancelBtn.setEnabled(false);
 													acceptBtn.setEnabled(false);
 													notification.setRead(true);
+													ClimbApplication.BUSY = false;
+
 												}
 											} else {
 												text.setText("You are already in this collaboration");
@@ -343,6 +382,8 @@ public class NotificationCard extends Card {
 												cancelBtn.setEnabled(false);
 												acceptBtn.setEnabled(false);
 												notification.setRead(true);
+												ClimbApplication.BUSY = false;
+
 											}
 
 											
@@ -355,8 +396,8 @@ public class NotificationCard extends Card {
 									} else {
 										Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
 										Log.d("Connection problem", "Error: " + e.getMessage());
+										ClimbApplication.BUSY = false;
 									}
-
 								}
 							});
 							
@@ -368,6 +409,8 @@ public class NotificationCard extends Card {
 							cancelBtn.setEnabled(false);
 							acceptBtn.setEnabled(false);
 							notification.setRead(true);
+							ClimbApplication.BUSY = false;
+
 						}
 						break;
 					case ASK_COMPETITION:
@@ -393,6 +436,8 @@ public class NotificationCard extends Card {
 											cancelBtn.setEnabled(false);
 											acceptBtn.setEnabled(false);
 											notification.setRead(true);
+											ClimbApplication.BUSY = false;
+
 										} else {
 											// se c'è la competizione
 											final ParseObject collaborationParse = compets.get(0);
@@ -535,6 +580,8 @@ public class NotificationCard extends Card {
 																cancelBtn.setEnabled(false);
 																acceptBtn.setEnabled(false);
 																notification.setRead(true);
+																ClimbApplication.BUSY = false;
+
 															}else{
 																Competition competitionLocal = new Competition();
 																competitionLocal.setBuilding(MainActivity.getBuildingById(current1.getBuilding_id()));
@@ -545,6 +592,8 @@ public class NotificationCard extends Card {
 																MainActivity.competitionDao.create(competitionLocal);
 																Toast.makeText(context, "Connection Problems", Toast.LENGTH_SHORT).show();
 																Log.e("2 Connection Problem adding me in competition", "Error: " + e.getMessage());
+																ClimbApplication.BUSY = false;
+
 															}
 														}
 															
@@ -563,6 +612,8 @@ public class NotificationCard extends Card {
 													cancelBtn.setEnabled(false);
 													acceptBtn.setEnabled(false);
 													notification.setRead(true);
+													ClimbApplication.BUSY = false;
+
 												}
 											} else {
 												text.setText("You are already in this competition");
@@ -571,12 +622,15 @@ public class NotificationCard extends Card {
 												cancelBtn.setEnabled(false);
 												acceptBtn.setEnabled(false);
 												notification.setRead(true);
+												ClimbApplication.BUSY = false;
 											}
 
 										}
 									} else {
 										Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
 										Log.d("Connection problem", "Error: " + e.getMessage());
+										ClimbApplication.BUSY = false;
+
 									}
 
 								}
@@ -589,6 +643,8 @@ public class NotificationCard extends Card {
 							cancelBtn.setEnabled(false);
 							acceptBtn.setEnabled(false);
 							notification.setRead(true);
+							ClimbApplication.BUSY = false;
+
 						}
 						break;
 					case ASK_TEAM_COMPETITION_CHALLENGER:
@@ -614,6 +670,8 @@ public class NotificationCard extends Card {
 											cancelBtn.setEnabled(false);
 											acceptBtn.setEnabled(false);
 											notification.setRead(true);
+											ClimbApplication.BUSY = false;
+
 										} else {
 											// if team duel exists
 											final ParseObject teamDuelParse = duels.get(0);
@@ -712,7 +770,7 @@ public class NotificationCard extends Card {
 																Iterator<String> it = creator.keys();
 																String creator_name = "";
 																try {
-																	creator_name = creator.getString(it.next());
+																	if(it.hasNext()) creator_name = creator.getString(it.next());
 																} catch (JSONException e1) {
 																	// TODO Auto-generated catch block
 																	e1.printStackTrace();
@@ -742,6 +800,8 @@ public class NotificationCard extends Card {
 																cancelBtn.setEnabled(false);
 																acceptBtn.setEnabled(false);
 																notification.setRead(true);
+																ClimbApplication.BUSY = false;
+
 															}else{
 																TeamDuel teamDuelLocal = new TeamDuel();
 																teamDuelLocal.setBuilding(MainActivity.getBuildingById(current2.getBuilding_id()));
@@ -752,6 +812,7 @@ public class NotificationCard extends Card {
 																MainActivity.teamDuelDao.create(teamDuelLocal);
 																Toast.makeText(context, "Connection Problems", Toast.LENGTH_SHORT).show();
 																Log.e("2 Connection Problem adding me in team duel", "Error: " + e.getMessage());
+																ClimbApplication.BUSY = false;
 															}
 														}
 															
@@ -770,6 +831,8 @@ public class NotificationCard extends Card {
 													cancelBtn.setEnabled(false);
 													acceptBtn.setEnabled(false);
 													notification.setRead(true);
+													ClimbApplication.BUSY = false;
+
 												}
 											} else {
 												text.setText("You are already the challenger");
@@ -778,12 +841,15 @@ public class NotificationCard extends Card {
 												cancelBtn.setEnabled(false);
 												acceptBtn.setEnabled(false);
 												notification.setRead(true);
+												ClimbApplication.BUSY = false;
+
 											}
 
 										}
 									} else {
 										Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
 										Log.d("Connection problem", "Error: " + e.getMessage());
+										ClimbApplication.BUSY = false;
 									}
 
 								}
@@ -796,6 +862,8 @@ public class NotificationCard extends Card {
 							cancelBtn.setEnabled(false);
 							acceptBtn.setEnabled(false);
 							notification.setRead(true);
+							ClimbApplication.BUSY = false;
+
 						}
 						break;
 					case ASK_TEAM_COMPETITION_TEAM:
@@ -821,6 +889,8 @@ public class NotificationCard extends Card {
 											cancelBtn.setEnabled(false);
 											acceptBtn.setEnabled(false);
 											notification.setRead(true);
+											ClimbApplication.BUSY = false;
+
 										} else {
 											// if team duel exists
 											final ParseObject teamDuelParse = duels.get(0);
@@ -852,6 +922,8 @@ public class NotificationCard extends Card {
 												if(climb != null && (climb.getGame_mode() != 0 /*|| climb.getId_mode().equalsIgnoreCase("paused")*/)){
 													Toast.makeText(context, "Building occupied", Toast.LENGTH_SHORT).show();
 													text.setText("Building occupied");
+													
+
 												}else{	
 												
 
@@ -932,7 +1004,7 @@ public class NotificationCard extends Card {
 																Iterator<String> it = challenger.keys();
 																String challenger_name = "";
 																try {
-																	challenger_name = challenger.getString(it.next());
+																	if(it.hasNext()) challenger_name = challenger.getString(it.next());
 																} catch (JSONException e1) {
 																	// TODO Auto-generated catch block
 																	e1.printStackTrace();
@@ -941,7 +1013,7 @@ public class NotificationCard extends Card {
 																Iterator<String> it1 = creator.keys();
 																String creator_name = "";
 																try {
-																	creator_name = creator.getString(it1.next());
+																	if(it1.hasNext()) creator_name = creator.getString(it1.next());
 																} catch (JSONException e1) {
 																	// TODO Auto-generated catch block
 																	e1.printStackTrace();
@@ -974,6 +1046,8 @@ public class NotificationCard extends Card {
 																cancelBtn.setEnabled(false);
 																acceptBtn.setEnabled(false);
 																notification.setRead(true);
+																ClimbApplication.BUSY = false;
+
 															}else{
 																TeamDuel teamDuelLocal = new TeamDuel();
 																teamDuelLocal.setBuilding(MainActivity.getBuildingById(current3.getBuilding_id()));
@@ -984,6 +1058,7 @@ public class NotificationCard extends Card {
 																MainActivity.teamDuelDao.create(teamDuelLocal);
 																Toast.makeText(context, "Connection Problems", Toast.LENGTH_SHORT).show();
 																Log.e("2 Connection Problem adding me in team duel", "Error: " + e.getMessage());
+																ClimbApplication.BUSY = false;
 															}
 														}
 															
@@ -1002,6 +1077,8 @@ public class NotificationCard extends Card {
 													cancelBtn.setEnabled(false);
 													acceptBtn.setEnabled(false);
 													notification.setRead(true);
+													ClimbApplication.BUSY = false;
+
 												}
 											} else {
 												text.setText("You are already the challenger");
@@ -1010,12 +1087,15 @@ public class NotificationCard extends Card {
 												cancelBtn.setEnabled(false);
 												acceptBtn.setEnabled(false);
 												notification.setRead(true);
+												ClimbApplication.BUSY = false;
+
 											}
 
 										}
 									} else {
 										Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
 										Log.d("Connection problem", "Error: " + e.getMessage());
+										ClimbApplication.BUSY = false;
 									}
 
 								}
@@ -1028,12 +1108,16 @@ public class NotificationCard extends Card {
 							cancelBtn.setEnabled(false);
 							acceptBtn.setEnabled(false);
 							notification.setRead(true);
+							ClimbApplication.BUSY = false;
+
 						}
 						break;
 						
 
 					}
 
+				}if(busy){
+					Toast.makeText(context, "Wait for notification to be saved", Toast.LENGTH_SHORT).show();
 				}
 			}
 		});
@@ -1042,13 +1126,22 @@ public class NotificationCard extends Card {
 
 			@Override
 			public void onClick(View arg0) {
-				if (FacebookUtils.isOnline(context)) {
+				boolean busy = ClimbApplication.BUSY;
+				if (FacebookUtils.isOnline(context) && !busy) {									
+					ClimbApplication.BUSY = true;
+
 					deleteRequest(String.valueOf(notification.getId()));
 					text.setText("Request Deleted");
 					cancelBtn.setEnabled(false);
 					acceptBtn.setEnabled(false);
 					notification.setRead(true);
+					ClimbApplication.BUSY = false;
+
+				}if(busy){
+					Toast.makeText(context, "Wait for notification to be saved", Toast.LENGTH_SHORT).show();
 				}
+				
+
 			}
 		});
 

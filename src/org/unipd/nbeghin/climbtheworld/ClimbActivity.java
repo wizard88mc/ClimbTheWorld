@@ -793,7 +793,7 @@ public class ClimbActivity extends ActionBarActivity {
 	/**
 	 * Update graphics to let user see the latest update about my friends' steps
 	 */
-	private void updateOthers(boolean isUpdate) {
+	private void updateOthers(final boolean isUpdate) {
 		System.out.println("update others");
 		if (!(mode == GameModeType.SOLO_CLIMB) && FacebookUtils.isOnline(this)) {
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("Collaboration");
@@ -903,15 +903,22 @@ public class ClimbActivity extends ActionBarActivity {
 						Toast.makeText(getApplicationContext(), "Connections Problem", Toast.LENGTH_SHORT).show();
 						Log.e("loadCollaboration", e.getMessage());
 					}
+					if(isUpdate){
+						System.out.println("animaz off");
+						resetUpdating();
+					}
 				}
 			});
 			
 				
 		} else {
 			Toast.makeText(getApplicationContext(), "No Connection Available", Toast.LENGTH_SHORT).show();
+			if(isUpdate){
+				System.out.println("animaz off");
+				resetUpdating();
+			}
 		}
-		if(isUpdate)
-			resetUpdating();
+		
 	}
 
 	private int sumOthersStep() {
@@ -1197,6 +1204,7 @@ public class ClimbActivity extends ActionBarActivity {
 			rotation.setRepeatCount(Animation.INFINITE);
 			iv.startAnimation(rotation);
 			MenuItemCompat.setActionView(item, iv);
+			System.out.println("animaz on");
 			onUpdate();
 			return true;
 		case android.R.id.home:
@@ -1647,7 +1655,7 @@ public class ClimbActivity extends ActionBarActivity {
 		Toast.makeText(this.getApplicationContext(), "Move up next time!!!!", Toast.LENGTH_SHORT).show();
 	}
 	
-	private void updateTeams(boolean isUpdate){
+	private void updateTeams(final boolean isUpdate){
 		if (!(mode == GameModeType.SOLO_CLIMB) && FacebookUtils.isOnline(this)) {
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("TeamDuel");
 			query.whereEqualTo("objectId", teamDuel.getId_online());
@@ -1742,19 +1750,26 @@ public class ClimbActivity extends ActionBarActivity {
 						Toast.makeText(getApplicationContext(), "Connections Problem", Toast.LENGTH_SHORT).show();
 						Log.e("updateTeams", e.getMessage());
 					}
+					if(isUpdate){
+						System.out.println("animaz off");
+						resetUpdating();
+					}
 					
 				}
 				
 			});
 		} else {
 			Toast.makeText(getApplicationContext(), "No Connection Available", Toast.LENGTH_SHORT).show();
+			if(isUpdate){
+				System.out.println("animaz off");
+				resetUpdating();
+			}
 		}
 		
-		if(isUpdate)
-			resetUpdating();
+		
 	}
 	
-	private void updateChart(boolean isUpdate) {
+	private void updateChart(final boolean isUpdate) {
 		System.out.println("update chart");
 		if (!(mode == GameModeType.SOLO_CLIMB) && FacebookUtils.isOnline(this)) {
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("Competition");
@@ -1882,12 +1897,19 @@ public class ClimbActivity extends ActionBarActivity {
 						Toast.makeText(getApplicationContext(), "Connections Problem", Toast.LENGTH_SHORT).show();
 						Log.e("updateChart", e.getMessage());
 					}
+					if(isUpdate){
+						System.out.println("animaz off");
+						resetUpdating();
+					}
 				}
 			});
 		} else {
 			Toast.makeText(getApplicationContext(), "No Connection Available", Toast.LENGTH_SHORT).show();
+			if(isUpdate){
+				System.out.println("animaz off");
+				resetUpdating();
+			}
 		}
-		if(isUpdate)
-			resetUpdating();
+		
 	}
 }
