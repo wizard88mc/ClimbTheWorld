@@ -130,8 +130,8 @@ public class BuildingCard extends Card {
 			climbing = null;
 		else if( climbs.size() == 1)
 			climbing = climbs.get(0);
-		else if(climbs.size() == 2){ //if there are both a solo climbed 'paused' Climbing and a social-mode Climbing, show the Social-mode Climbing
-			if(climbs.get(0).getGame_mode() ==2){
+		else if(climbs.size() == 2 || climbs.size() == 3){ //if there are both a solo climbed 'paused' Climbing and a social-mode Climbing, show the Social-mode Climbing
+			if(climbs.get(0).getGame_mode() ==2 || climbs.get(0).getGame_mode() ==3){
 				climbing = climbs.get(0);
 				soloClimbing = climbs.get(1);}
 			else{
@@ -604,6 +604,7 @@ public class BuildingCard extends Card {
 				if(e == null){
 				collab.setId(collabParse.getObjectId());
 				collab.setSaved(true);
+				MainActivity.collaborationDao.update(collab);
 				climbing.setId_mode(collab.getId());
 				MainActivity.climbingDao.update(climbing);
 				updateClimbingInParse(climbing, false);

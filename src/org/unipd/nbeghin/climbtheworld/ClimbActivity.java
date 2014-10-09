@@ -1574,6 +1574,7 @@ public class ClimbActivity extends ActionBarActivity {
 	public void onUpdate(/*MenuItem v*/) {
 		switch(climbing.getGame_mode()){
 		case 0:
+			resetUpdating();
 			break;
 		case 1:
 			updateOthers(true);
