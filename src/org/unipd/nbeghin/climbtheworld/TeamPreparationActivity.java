@@ -307,6 +307,7 @@ public class TeamPreparationActivity extends ActionBarActivity {
 		Log.i(MainActivity.AppName, "Building id clicked: " + String.valueOf(building_id));
 		Intent intent = new Intent(getApplicationContext(), ClimbActivity.class);
 		intent.putExtra(MainActivity.building_intent_object, building_id);
+		finish();
 		startActivity(intent);
 	}
 	
@@ -368,6 +369,8 @@ public class TeamPreparationActivity extends ActionBarActivity {
 	 * @param params the given parameters
 	 */
 	private void sendRequests(Bundle params){
+		if(Session.getActiveSession() != null && Session.getActiveSession().isOpened()){
+
 		WebDialog requestsDialog = (new WebDialog.RequestsDialogBuilder(TeamPreparationActivity.this, Session.getActiveSession(), params)).setOnCompleteListener(new OnCompleteListener() {
 
 			@Override
@@ -390,5 +393,8 @@ public class TeamPreparationActivity extends ActionBarActivity {
 
 		}).build();
 		requestsDialog.show();
+		}else{
+			Toast.makeText(getApplicationContext(), "Currently not logged to FB", Toast.LENGTH_SHORT).show();
+		}
 	}
 }

@@ -66,7 +66,7 @@ public class BuildingCard extends Card {
 	final Collaboration collab = new Collaboration();
 	final Competition compet = new Competition();
 	final TeamDuel duel = new TeamDuel();
-	
+
 	TextView gameMode;
 	TextView climbingStatus;
 	Button socialClimbButton;
@@ -81,6 +81,7 @@ public class BuildingCard extends Card {
 
 	/**
 	 * Set modality text
+	 * 
 	 * @return the string to be shown
 	 */
 	private String setModeText() {
@@ -126,22 +127,33 @@ public class BuildingCard extends Card {
 		// final SharedPreferences pref =
 		// MainActivity.getContext().getSharedPreferences("UserSession", 0);
 		List<Climbing> climbs = MainActivity.getClimbingListForBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
-		if(climbs.size() == 0)
+		if (climbs.size() == 0)
 			climbing = null;
-		else if( climbs.size() == 1)
+		else if (climbs.size() == 1)
 			climbing = climbs.get(0);
-		else if(climbs.size() == 2 || climbs.size() == 3){ //if there are both a solo climbed 'paused' Climbing and a social-mode Climbing, show the Social-mode Climbing
-			if(climbs.get(0).getGame_mode() ==2 || climbs.get(0).getGame_mode() ==3){
+		else if (climbs.size() == 2 || climbs.size() == 3) { // if there are
+																// both a solo
+																// climbed
+																// 'paused'
+																// Climbing and
+																// a social-mode
+																// Climbing,
+																// show the
+																// Social-mode
+																// Climbing
+			if (climbs.get(0).getGame_mode() == 2 || climbs.get(0).getGame_mode() == 3) {
 				climbing = climbs.get(0);
-				soloClimbing = climbs.get(1);}
-			else{
+				soloClimbing = climbs.get(1);
+			} else {
 				climbing = climbs.get(1);
 				soloClimbing = climbs.get(0);
 			}
 		}
-		//climbing = MainActivity.getClimbingForBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
+		// climbing =
+		// MainActivity.getClimbingForBuildingAndUser(building.get_id(),
+		// pref.getInt("local_id", -1));
 		gameMode.setText("Modalitˆ: " + setModeText());
-		if(climbing != null){
+		if (climbing != null) {
 			switch (climbing.getGame_mode()) {
 			case 1:
 				setSocialClimb();
@@ -156,8 +168,8 @@ public class BuildingCard extends Card {
 				break;
 			}
 		}
-			
-		updateStatus();	
+
+		updateStatus();
 		if (climbing != null && climbing.getGame_mode() == 0) {
 			if (climbing.getPercentage() >= 1.00) {
 				socialClimbButton.setEnabled(false);
@@ -168,129 +180,159 @@ public class BuildingCard extends Card {
 				socialChallengeButton.setEnabled(true);
 				teamVsTeamButton.setEnabled(true);
 			}
-		} else if(climbing == null){
+		} else if (climbing == null) {
 			climbingStatus.setText("Not climbed yet");
 			socialClimbButton.setEnabled(true);
 			socialChallengeButton.setEnabled(true);
 			teamVsTeamButton.setEnabled(true);
 		}
 
-		
-
 		socialClimbButton.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				if(FacebookUtils.isOnline(activity)){
-				
-				switch (mode) {
-				case SOLO_CLIMB: //from Solo Climb to Social Climb
-					if (climbing == null) {
-						// create new collaboration if none exists for current building
-						climbing = new Climbing();
-						climbing.setBuilding(building);
-						climbing.setCompleted(0);
-						climbing.setCompleted_steps(0);
-						climbing.setRemaining_steps(building.getSteps());
-						climbing.setCreated(new Date().getTime());
-						climbing.setModified(new Date().getTime());
-						climbing.setGame_mode(1);
-						climbing.setPercentage(0);
-						climbing.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
-						MainActivity.climbingDao.create(climbing);
-						saveClimbingInParse();
-					} else {
-						// update existing Climbing object
-						climbing.setGame_mode(1);
-						if(climbing.getPercentage() >= 1.00){ // if I have already climbed this building, keep in memory that I have completed it once then reuse it for current collaboration
-							climbing.setPercentage(0);
-							climbing.setCompleted_steps(0);
-							climbing.setRemaining_steps(building.getSteps());
-						}
-						MainActivity.climbingDao.update(climbing);
-						updateClimbingInParse(climbing, false);
-					}
+				if (!pref.getString("FBid", "none").equalsIgnoreCase("none")) {
+					if (FacebookUtils.isOnline(activity)) {
 
-					
-					
-					break;
+						switch (mode) {
+						case SOLO_CLIMB: // from Solo Climb to Social Climb
+							if (climbing == null) {
+								// create new collaboration if none exists for
+								// current building
+								climbing = new Climbing();
+								climbing.setBuilding(building);
+								climbing.setCompleted(0);
+								climbing.setCompleted_steps(0);
+								climbing.setRemaining_steps(building.getSteps());
+								climbing.setCreated(new Date().getTime());
+								climbing.setModified(new Date().getTime());
+								climbing.setGame_mode(1);
+								climbing.setPercentage(0);
+								climbing.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
+								MainActivity.climbingDao.create(climbing);
+								saveClimbingInParse();
+							} else {
+								// update existing Climbing object
+								climbing.setGame_mode(1);
+								if (climbing.getPercentage() >= 1.00) { // if I
+																		// have
+																		// already
+																		// climbed
+																		// this
+																		// building,
+																		// keep
+																		// in
+																		// memory
+																		// that
+																		// I
+																		// have
+																		// completed
+																		// it
+																		// once
+																		// then
+																		// reuse
+																		// it
+																		// for
+																		// current
+																		// collaboration
+									climbing.setPercentage(0);
+									climbing.setCompleted_steps(0);
+									climbing.setRemaining_steps(building.getSteps());
+								}
+								MainActivity.climbingDao.update(climbing);
+								updateClimbingInParse(climbing, false);
+							}
 
-				case SOCIAL_CLIMB: //back to solo climb
-					Log.d("onClick", "solo");
-					climbing.setGame_mode(0);
-					climbing.setId_mode("");
-					MainActivity.climbingDao.update(climbing);
-					updateClimbingInParse(climbing, true);
-					leaveCollaboration();
-					break;
-				}
+							break;
 
-			
-			}else{
-				Toast.makeText(activity.getApplicationContext(), "Connection needed", Toast.LENGTH_SHORT).show();
-			}
-			}
-		});
-
-		
-		socialChallengeButton.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View arg0) {
-				if(FacebookUtils.isOnline(activity)){
-					
-					switch (mode) {
-					case SOLO_CLIMB: 
-						if(climbing != null){
-							//if there is an existing Climbing object with game mode as 0
-							//then 'pause' it and create a new Climbing object with game mode as 2
-							//when the social challenge has finished, delete the last Climbing object and 'resume' the first one in solo climb
-							//climbing.setId_mode("paused");
-							//climbing.setSaved(false);
-							//MainActivity.climbingDao.update(climbing);
-							//updateClimbingInParse(climbing, false);
-							soloClimbing = climbing;
-						}
-						//otherwise create a new Climbing object with game mode as 2
-						climbing = new Climbing();
-						climbing.setBuilding(building);
-						climbing.setCompleted(0);
-						climbing.setCompleted_steps(0);
-						climbing.setRemaining_steps(building.getSteps());
-						climbing.setCreated(new Date().getTime());
-						climbing.setModified(new Date().getTime());
-						climbing.setGame_mode(2);
-						climbing.setPercentage(0);
-						climbing.setId_mode("");
-						climbing.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
-						MainActivity.climbingDao.create(climbing);
-						saveClimbingInParse();
-						break;
-
-					case SOCIAL_CHALLENGE: //back to Solo Climb
-						Log.d("onClick", "solo");
-						/*climbing.setGame_mode(0);
-						climbing.setId_mode("");
-						MainActivity.climbingDao.update(climbing);*/
-						if(soloClimbing == null){
+						case SOCIAL_CLIMB: // back to solo climb
+							Log.d("onClick", "solo");
 							climbing.setGame_mode(0);
 							climbing.setId_mode("");
 							MainActivity.climbingDao.update(climbing);
 							updateClimbingInParse(climbing, true);
+							leaveCollaboration();
+							break;
+						}
 
-						}else{
-							Climbing del = climbing;
-							deleteClimbingInParse(del);
-							climbing = soloClimbing;
-						}	
-						leaveCompetition();
-						
-						break;
+					} else {
+						Toast.makeText(activity.getApplicationContext(), "Connection needed", Toast.LENGTH_SHORT).show();
 					}
-				
-				}else{
-					Toast.makeText(activity.getApplicationContext(), "Connection needed", Toast.LENGTH_SHORT).show();
+				} else {
+					Toast.makeText(activity.getApplicationContext(), "You're not conneted to FB", Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
 
+		socialChallengeButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				if (!pref.getString("FBid", "none").equalsIgnoreCase("none")) {
+					if (FacebookUtils.isOnline(activity)) {
+
+						switch (mode) {
+						case SOLO_CLIMB:
+							if (climbing != null) {
+								// if there is an existing Climbing object with
+								// game mode as 0
+								// then 'pause' it and create a new Climbing
+								// object with game mode as 2
+								// when the social challenge has finished,
+								// delete the last Climbing object and 'resume'
+								// the first one in solo climb
+								// climbing.setId_mode("paused");
+								// climbing.setSaved(false);
+								// MainActivity.climbingDao.update(climbing);
+								// updateClimbingInParse(climbing, false);
+								soloClimbing = climbing;
+							}
+							// otherwise create a new Climbing object with game
+							// mode as 2
+							climbing = new Climbing();
+							climbing.setBuilding(building);
+							climbing.setCompleted(0);
+							climbing.setCompleted_steps(0);
+							climbing.setRemaining_steps(building.getSteps());
+							climbing.setCreated(new Date().getTime());
+							climbing.setModified(new Date().getTime());
+							climbing.setGame_mode(2);
+							climbing.setPercentage(0);
+							climbing.setId_mode("");
+							climbing.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
+							MainActivity.climbingDao.create(climbing);
+							saveClimbingInParse();
+							break;
+
+						case SOCIAL_CHALLENGE: // back to Solo Climb
+							Log.d("onClick", "solo");
+							/*
+							 * climbing.setGame_mode(0);
+							 * climbing.setId_mode("");
+							 * MainActivity.climbingDao.update(climbing);
+							 */
+							if (soloClimbing == null) {
+								climbing.setGame_mode(0);
+								climbing.setId_mode("");
+								MainActivity.climbingDao.update(climbing);
+								updateClimbingInParse(climbing, true);
+
+							} else {
+								Climbing del = climbing;
+								deleteClimbingInParse(del);
+								climbing = soloClimbing;
+							}
+							leaveCompetition();
+
+							break;
+						}
+
+					} else {
+						Toast.makeText(activity.getApplicationContext(), "Connection needed", Toast.LENGTH_SHORT).show();
+
+					}
+				} else {
+					Toast.makeText(activity.getApplicationContext(), "You're not conneted to FB", Toast.LENGTH_SHORT).show();
 				}
 
 			}
@@ -300,74 +342,85 @@ public class BuildingCard extends Card {
 
 			@Override
 			public void onClick(View arg0) {
-				switch(mode){
-				case SOLO_CLIMB:
-				if(FacebookUtils.isOnline(activity)){
-					if(climbing != null){
-						//if there is an existing Climbing object with game mode as 0
-						//then 'pause' it and create a new Climbing object with game mode as 3
-						//when the social challenge has finished, delete the last Climbing object and 'resume' the first one in solo climb
-						soloClimbing = climbing;
-					}
-					//otherwise create a new Climbing object with game mode as 2
-					climbing = new Climbing();
-					climbing.setBuilding(building);
-					climbing.setCompleted(0);
-					climbing.setCompleted_steps(0);
-					climbing.setRemaining_steps(building.getSteps());
-					climbing.setCreated(new Date().getTime());
-					climbing.setModified(new Date().getTime());
-					climbing.setGame_mode(3);
-					climbing.setPercentage(0);
-					climbing.setId_mode("");
-					climbing.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
-					MainActivity.climbingDao.create(climbing);
-					saveClimbingInParse();
-					
-					
-					
-					
-				}else{
-					Toast.makeText(activity.getApplicationContext(), "Connection needed", Toast.LENGTH_SHORT).show();
+				if (!pref.getString("FBid", "none").equalsIgnoreCase("none")) {
 
-				}
-				break;
-				case TEAM_VS_TEAM:
-					TeamDuel currentDuel = MainActivity.getTeamDuelByBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
-					if(currentDuel.getId_online() == null || currentDuel.getId_online().equals(""))
-						Toast.makeText(activity.getApplicationContext(), "Duel not yet saved. Connect to save it", Toast.LENGTH_SHORT).show();
-					else{
-						Log.i(MainActivity.AppName, "Building id clicked: "+building.get_id());
-						Intent intent = new Intent(activity.getApplicationContext(), TeamPreparationActivity.class);
-						intent.putExtra(MainActivity.building_intent_object, building.get_id());
-						intent.putExtra(MainActivity.duel_intent_object, currentDuel.get_id());
-						activity.startActivity(intent);
+					switch (mode) {
+					case SOLO_CLIMB:
+						if (FacebookUtils.isOnline(activity)) {
+							if (climbing != null) {
+								// if there is an existing Climbing object with
+								// game mode as 0
+								// then 'pause' it and create a new Climbing
+								// object with game mode as 3
+								// when the social challenge has finished,
+								// delete the last Climbing object and 'resume'
+								// the first one in solo climb
+								soloClimbing = climbing;
+							}
+							// otherwise create a new Climbing object with game
+							// mode as 2
+							climbing = new Climbing();
+							climbing.setBuilding(building);
+							climbing.setCompleted(0);
+							climbing.setCompleted_steps(0);
+							climbing.setRemaining_steps(building.getSteps());
+							climbing.setCreated(new Date().getTime());
+							climbing.setModified(new Date().getTime());
+							climbing.setGame_mode(3);
+							climbing.setPercentage(0);
+							climbing.setId_mode("");
+							climbing.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
+							MainActivity.climbingDao.create(climbing);
+							saveClimbingInParse();
+
+						} else {
+							Toast.makeText(activity.getApplicationContext(), "Connection needed", Toast.LENGTH_SHORT).show();
+
+						}
+						break;
+					case TEAM_VS_TEAM:
+						TeamDuel currentDuel = MainActivity.getTeamDuelByBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
+						if (currentDuel.getId_online() == null || currentDuel.getId_online().equals(""))
+							Toast.makeText(activity.getApplicationContext(), "Duel not yet saved. Connect to save it", Toast.LENGTH_SHORT).show();
+						else {
+							Log.i(MainActivity.AppName, "Building id clicked: " + building.get_id());
+							Intent intent = new Intent(activity.getApplicationContext(), TeamPreparationActivity.class);
+							intent.putExtra(MainActivity.building_intent_object, building.get_id());
+							intent.putExtra(MainActivity.duel_intent_object, currentDuel.get_id());
+							activity.startActivity(intent);
+						}
+						break;
 					}
-					break;
-			}
+				} else {
+					Toast.makeText(activity.getApplicationContext(), "You're not conneted to FB", Toast.LENGTH_SHORT).show();
+				}
 			}
 		});
 		return view;
 	}
 
 	/**
-	 * Delete the given Climbing object from Parse. If the elimination is not successfull, remember locally to delete it later.
-	 * @param climb the Climbing object to be removed
+	 * Delete the given Climbing object from Parse. If the elimination is not
+	 * successfull, remember locally to delete it later.
+	 * 
+	 * @param climb
+	 *            the Climbing object to be removed
 	 */
-	private void deleteClimbingInParse(final Climbing climb){ System.out.println("delete " + climb.getId_online());
+	private void deleteClimbingInParse(final Climbing climb) {
+		System.out.println("delete " + climb.getId_online());
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
 		query.whereEqualTo("objectId", climb.getId_online());
 		query.findInBackground(new FindCallback<ParseObject>() {
 
 			@Override
 			public void done(List<ParseObject> climbs, ParseException e) {
-				if(e == null){
-					if(climbs.size() != 0){
+				if (e == null) {
+					if (climbs.size() != 0) {
 						climbs.get(0).deleteEventually();
 						MainActivity.climbingDao.delete(climb);
 
 					}
-				}else{
+				} else {
 					climb.setDeleted(true);
 					climb.setSaved(false);
 					MainActivity.climbingDao.update(climb);
@@ -376,81 +429,78 @@ public class BuildingCard extends Card {
 			}
 		});
 	}
-	
+
 	/**
-	 * Save the update of climbing object in Parse.
-	 * Here, only game mode and id_mode fields can change
+	 * Save the update of climbing object in Parse. Here, only game mode and
+	 * id_mode fields can change
 	 */
 	private void updateClimbingInParse(final Climbing climbing, final boolean rollback) {
 		Log.d("update climbing", String.valueOf(climbing.getGame_mode()));
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
-		/*query.whereEqualTo("building", climbing.getBuilding().get_id());
-		query.whereEqualTo("users_id", climbing.getUser().getFBid());	
-		if(used && mode == GameModeType.SOCIAL_CHALLENGE){
-			if(paused){
-				if(equal)
-					query.whereEqualTo("id_mode", "paused");
-				else
-					query.whereNotEqualTo("id_mode", "paused");
-			}
-			else
-				query.whereEqualTo("id_mode", climbing.getId_mode());
-		}*/
+		/*
+		 * query.whereEqualTo("building", climbing.getBuilding().get_id());
+		 * query.whereEqualTo("users_id", climbing.getUser().getFBid()); if(used
+		 * && mode == GameModeType.SOCIAL_CHALLENGE){ if(paused){ if(equal)
+		 * query.whereEqualTo("id_mode", "paused"); else
+		 * query.whereNotEqualTo("id_mode", "paused"); } else
+		 * query.whereEqualTo("id_mode", climbing.getId_mode()); }
+		 */
 		query.whereEqualTo("objectId", climbing.getId_online());
 		query.findInBackground(new FindCallback<ParseObject>() {
 
 			@Override
 			public void done(List<ParseObject> climbings, ParseException e) {
-				if (e == null) { System.out.println("update " + climbings.get(0).getObjectId());
+				if (e == null) {
+					System.out.println("update " + climbings.get(0).getObjectId());
 					ParseObject c = climbings.get(0);
 					c.put("game_mode", climbing.getGame_mode());
-					if(climbing.getId_mode() != null)
+					if (climbing.getId_mode() != null)
 						c.put("id_mode", climbing.getId_mode());
-					else 						
+					else
 						c.put("id_mode", "");
 					System.out.println("climbing id mode: " + climbing.getId_mode());
 					c.saveInBackground(new SaveCallback() {
-						
+
 						@Override
 						public void done(ParseException e) {
-								if(e == null){
-									if(!rollback && climbing.getId_mode() == null || climbing.getId_mode().equalsIgnoreCase("")){
+							if (e == null) {
+								if (!rollback && climbing.getId_mode() == null || climbing.getId_mode().equalsIgnoreCase("")) {
 									switch (climbing.getGame_mode()) {
 									case 1:
 										saveCollaboration();
 										break;
 									case 2:
-										
+
 										break;
 									case 3:
 										break;
 									default:
 										break;
 									}
-									}
-									if(climbing.getGame_mode() == 3 && !rollback){
-										mode = GameModeType.TEAM_VS_TEAM;
-										setTeamChallenge();
-										
-										Log.i(MainActivity.AppName, "Building id clicked: "+building.get_id());
-										Intent intent = new Intent(activity.getApplicationContext(), TeamPreparationActivity.class);
-										intent.putExtra(MainActivity.building_intent_object, building.get_id());
-										activity.startActivity(intent);
-									}
-								}else{
-									Toast.makeText(MainActivity.getContext(), " 1 Connection Problems", Toast.LENGTH_SHORT).show();
-									Log.e("updateClimbingInParse", e.getMessage());
-									if(climbing.getGame_mode() == 1 && collab.getBuilding() == null){
-										climbing.setGame_mode(0);
-										climbing.setId_mode("");
-									}
-									//if(climbing.getId_mode().equals("paused")){
-										//climbing.setId_mode("");
-										//rollback(2);
-									//}
-									climbing.setSaved(false);
-									MainActivity.climbingDao.update(climbing);
 								}
+								if (climbing.getGame_mode() == 3 && !rollback) {
+									mode = GameModeType.TEAM_VS_TEAM;
+									setTeamChallenge();
+
+									Log.i(MainActivity.AppName, "Building id clicked: " + building.get_id());
+									Intent intent = new Intent(activity.getApplicationContext(), TeamPreparationActivity.class);
+									intent.putExtra(MainActivity.building_intent_object, building.get_id());
+									activity.startActivity(intent);
+								}
+							} else {
+								Toast.makeText(MainActivity.getContext(), " 1 Connection Problems", Toast.LENGTH_SHORT).show();
+								Log.e("updateClimbingInParse", e.getMessage());
+								if (climbing.getGame_mode() == 1 && collab.getBuilding() == null) {
+									climbing.setGame_mode(0);
+									climbing.setId_mode("");
+								}
+								// if(climbing.getId_mode().equals("paused")){
+								// climbing.setId_mode("");
+								// rollback(2);
+								// }
+								climbing.setSaved(false);
+								MainActivity.climbingDao.update(climbing);
+							}
 						}
 					});
 					climbing.setSaved(true);
@@ -458,11 +508,11 @@ public class BuildingCard extends Card {
 				} else {
 					Toast.makeText(MainActivity.getContext(), "2 Connection Problems", Toast.LENGTH_SHORT).show();
 					Log.e("updateClimbingInParse", e.getMessage());
-					if(climbing.getGame_mode() == 1 && collab.getBuilding() == null){
+					if (climbing.getGame_mode() == 1 && collab.getBuilding() == null) {
 						climbing.setGame_mode(0);
 						climbing.setId_mode("");
 					}
-					
+
 					climbing.setSaved(false);
 					MainActivity.climbingDao.update(climbing);
 				}
@@ -491,19 +541,19 @@ public class BuildingCard extends Card {
 		climb.put("percentage", String.valueOf(climbing.getPercentage()));
 		climb.put("users_id", climbing.getUser().getFBid());
 		climb.put("game_mode", climbing.getGame_mode());
-		if(climbing.getId_mode() != null)
+		if (climbing.getId_mode() != null)
 			climb.put("id_mode", climbing.getId_mode());
 		else
 			climb.put("id_mode", "");
 		climb.saveInBackground(new SaveCallback() {
-			
+
 			@Override
 			public void done(ParseException e) {
-				if(e == null){
+				if (e == null) {
 					climbing.setId_online(climb.getObjectId());
 					climbing.setSaved(true);
 					MainActivity.climbingDao.update(climbing);
-					switch(climbing.getGame_mode()){
+					switch (climbing.getGame_mode()) {
 					case 1:
 						saveCollaboration();
 						break;
@@ -513,18 +563,19 @@ public class BuildingCard extends Card {
 					case 3:
 						saveTeamDuel();
 					}
-					
-				}else{
-					if(climbing.getGame_mode() == 1){
-					//unable to save the collaboration, save only the climbing
-					climbing.setGame_mode(0);
-					climbing.setId_mode("");
+
+				} else {
+					if (climbing.getGame_mode() == 1) {
+						// unable to save the collaboration, save only the
+						// climbing
+						climbing.setGame_mode(0);
+						climbing.setId_mode("");
 					}
-					if(climbing.getGame_mode() == 2 || climbing.getGame_mode() == 3){
-						if(soloClimbing == null){
+					if (climbing.getGame_mode() == 2 || climbing.getGame_mode() == 3) {
+						if (soloClimbing == null) {
 							climbing.setGame_mode(0);
-							climbing.setId_mode("");						
-						}else{
+							climbing.setId_mode("");
+						} else {
 							Climbing del = climbing;
 							climbing = soloClimbing;
 							climbing.setGame_mode(0);
@@ -538,30 +589,30 @@ public class BuildingCard extends Card {
 					MainActivity.climbingDao.update(climbing);
 					Toast.makeText(activity, "77 Unable to connect: data will be saved during next reconnection", Toast.LENGTH_SHORT).show();
 				}
-				
+
 			}
 		});
-		
+
 	}
-	
+
 	/**
 	 * Update button graphics after changing game mode
 	 */
-	void setSocialClimb(){
+	void setSocialClimb() {
 		gameMode.setText("Modalitˆ: " + setModeText());
 		socialClimbButton.setText("Back to Solo Climb");
 		socialChallengeButton.setEnabled(false);
 		teamVsTeamButton.setEnabled(false);
 	}
-	
-	void setSocialChallenge(){
+
+	void setSocialChallenge() {
 		gameMode.setText("Modalitˆ: " + setModeText());
 		socialChallengeButton.setText("Back to Solo Climb");
 		socialClimbButton.setEnabled(false);
 		teamVsTeamButton.setEnabled(false);
 	}
-	
-	void setTeamChallenge(){
+
+	void setTeamChallenge() {
 		gameMode.setText("Modalitˆ: " + setModeText());
 		teamVsTeamButton.setEnabled(false);
 		socialClimbButton.setEnabled(false);
@@ -569,10 +620,12 @@ public class BuildingCard extends Card {
 	}
 
 	/**
-	 * Create and save a new Collaboration object both online and offline.
-	 * Then, open dialog to let user choose the friends to invite to his collaboration.
+	 * Create and save a new Collaboration object both online and offline. Then,
+	 * open dialog to let user choose the friends to invite to his
+	 * collaboration.
 	 */
-	private void saveCollaboration() { Log.d("saveCollaboration", "into");
+	private void saveCollaboration() {
+		Log.d("saveCollaboration", "into");
 		JSONObject stairs = new JSONObject();
 		JSONObject collaborators = new JSONObject();
 
@@ -583,7 +636,7 @@ public class BuildingCard extends Card {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		collab.setBuilding(building);
 		collab.setMy_stairs(0);
 		collab.setOthers_stairs(0);
@@ -598,44 +651,42 @@ public class BuildingCard extends Card {
 		collabParse.put("collaborators", collaborators);
 		collabParse.put("completed", false);
 		collabParse.saveInBackground(new SaveCallback() {
-			
+
 			@Override
 			public void done(ParseException e) {
-				if(e == null){
-				collab.setId(collabParse.getObjectId());
-				collab.setSaved(true);
-				MainActivity.collaborationDao.update(collab);
-				climbing.setId_mode(collab.getId());
-				MainActivity.climbingDao.update(climbing);
-				updateClimbingInParse(climbing, false);
+				if (e == null) {
+					collab.setId(collabParse.getObjectId());
+					collab.setSaved(true);
+					MainActivity.collaborationDao.update(collab);
+					climbing.setId_mode(collab.getId());
+					MainActivity.climbingDao.update(climbing);
+					updateClimbingInParse(climbing, false);
 
-				mode = GameModeType.SOCIAL_CLIMB;
-				setSocialClimb();
-				sendRequest(GameModeType.SOCIAL_CLIMB, collab.getId());
-				}else{
+					mode = GameModeType.SOCIAL_CLIMB;
+					setSocialClimb();
+					sendRequest(GameModeType.SOCIAL_CLIMB, collab.getId());
+				} else {
 					collab.setSaved(false);
 					MainActivity.collaborationDao.update(collab);
-					/*climbing.setId_mode("set");
-					climbing.setGame_mode(1);*/
+					/*
+					 * climbing.setId_mode("set"); climbing.setGame_mode(1);
+					 */
 					climbing.setSaved(false);
 					MainActivity.climbingDao.update(climbing);
 					Toast.makeText(MainActivity.getContext(), "3 Connection Problems: cannot create collaboration", Toast.LENGTH_SHORT).show();
-					Log.e("saveCollaboration", e.getMessage());					
+					Log.e("saveCollaboration", e.getMessage());
 				}
 			}
 		});
 
-		
-		
-		
-
 	}
-	
 
 	/**
-	 * Saves the Competition object both locally and in Parse. If the operation is not successfull, remember locally to retry it later.
+	 * Saves the Competition object both locally and in Parse. If the operation
+	 * is not successfull, remember locally to retry it later.
 	 */
-	private void saveCompetition() { System.out.println("save competition");
+	private void saveCompetition() {
+		System.out.println("save competition");
 		JSONObject stairs = new JSONObject();
 		JSONObject collaborators = new JSONObject();
 
@@ -646,7 +697,7 @@ public class BuildingCard extends Card {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		compet.setBuilding(building);
 		compet.setMy_stairs(0);
 		compet.setCurrent_position(0);
@@ -662,36 +713,38 @@ public class BuildingCard extends Card {
 		competParse.put("completed", false);
 		System.out.println("provo a salvare");
 		competParse.saveInBackground(new SaveCallback() {
-			
+
 			@Override
 			public void done(ParseException e) {
-				if(e == null){ System.out.println("assegnato id a competiz" + competParse.getObjectId());
+				if (e == null) {
+					System.out.println("assegnato id a competiz" + competParse.getObjectId());
 					compet.setId_online(competParse.getObjectId());
 					compet.setSaved(true);
-				MainActivity.competitionDao.update(compet);
-				
-				climbing.setId_mode(compet.getId_online());
-				MainActivity.climbingDao.update(climbing);
-				updateClimbingInParse(climbing, false);
+					MainActivity.competitionDao.update(compet);
 
-				mode = GameModeType.SOCIAL_CHALLENGE;
-				setSocialChallenge();
-				sendRequest(GameModeType.SOCIAL_CHALLENGE, compet.getId_online());
-				}else{
+					climbing.setId_mode(compet.getId_online());
+					MainActivity.climbingDao.update(climbing);
+					updateClimbingInParse(climbing, false);
+
+					mode = GameModeType.SOCIAL_CHALLENGE;
+					setSocialChallenge();
+					sendRequest(GameModeType.SOCIAL_CHALLENGE, compet.getId_online());
+				} else {
 					System.out.println("assegnato id a competiz????" + competParse.getObjectId());
-						compet.setSaved(false);
-						climbing.setSaved(false);
-						MainActivity.competitionDao.update(compet);
-						MainActivity.climbingDao.update(climbing);
-					
+					compet.setSaved(false);
+					climbing.setSaved(false);
+					MainActivity.competitionDao.update(compet);
+					MainActivity.climbingDao.update(climbing);
+
 					Toast.makeText(MainActivity.getContext(), "5 Connection Problems: cannot create competition", Toast.LENGTH_SHORT).show();
-					Log.e("saveCompetition", e.getMessage());					
+					Log.e("saveCompetition", e.getMessage());
 				}
 			}
 		});
 	}
-	
-	private void saveTeamDuel() {System.out.println("save team duel");
+
+	private void saveTeamDuel() {
+		System.out.println("save team duel");
 		User me = MainActivity.getUserById(pref.getInt("local_id", -1));
 		duel.setBuilding(building);
 		duel.setUser(me);
@@ -708,7 +761,6 @@ public class BuildingCard extends Card {
 		duel.setReadyToPlay(false);
 		MainActivity.teamDuelDao.create(duel);
 
-		
 		JSONObject creator_stairs = new JSONObject();
 		JSONObject creator_team = new JSONObject();
 		JSONObject challenger_stairs = new JSONObject();
@@ -717,7 +769,8 @@ public class BuildingCard extends Card {
 		JSONObject challenger = new JSONObject();
 
 		try {
-			//creator_team.put(pref.getString("FBid", ""), pref.getString("username", ""));
+			// creator_team.put(pref.getString("FBid", ""),
+			// pref.getString("username", ""));
 			creator_stairs.put(pref.getString("FBid", ""), 0);
 			creator.put(pref.getString("FBid", ""), pref.getString("username", ""));
 		} catch (JSONException e) {
@@ -735,41 +788,39 @@ public class BuildingCard extends Card {
 		teamDuelParse.put("challenger_team", challenger_team);
 		teamDuelParse.put("challenger_stairs", challenger_stairs);
 		teamDuelParse.saveInBackground(new SaveCallback() {
-			
+
 			@Override
 			public void done(ParseException e) {
-				if(e == null){
-				
-					duel.setId_online(teamDuelParse.getObjectId());				System.out.println("id duel: " + teamDuelParse.getObjectId());
+				if (e == null) {
+
+					duel.setId_online(teamDuelParse.getObjectId());
+					System.out.println("id duel: " + teamDuelParse.getObjectId());
 
 					duel.setSaved(true);
 					MainActivity.teamDuelDao.update(duel);
 
-				climbing.setId_mode(duel.getId_online());
-				MainActivity.climbingDao.update(climbing);
-				System.out.println("id duel: " + duel.getId_online());
-				
-				updateClimbingInParse(climbing, false);
+					climbing.setId_mode(duel.getId_online());
+					MainActivity.climbingDao.update(climbing);
+					System.out.println("id duel: " + duel.getId_online());
 
-				
-				
-				}else{
+					updateClimbingInParse(climbing, false);
+
+				} else {
 					duel.setSaved(false);
 					climbing.setSaved(false);
 					MainActivity.teamDuelDao.update(duel);
 					MainActivity.climbingDao.update(climbing);
 					Toast.makeText(MainActivity.getContext(), "4 Connection Problems: cannot create competition", Toast.LENGTH_SHORT).show();
-					Log.e("saveTeamCompetition", e.getMessage());					
+					Log.e("saveTeamCompetition", e.getMessage());
 				}
 			}
 		});
 	}
-	
-	
 
 	/**
-	 * Makes the current logged user leaving the current Collaboration.
-	 * It saved the update in Parse if it is possible, otherwise, it saved the update locally e remembers to retry it later.
+	 * Makes the current logged user leaving the current Collaboration. It saved
+	 * the update in Parse if it is possible, otherwise, it saved the update
+	 * locally e remembers to retry it later.
 	 */
 	private void leaveCollaboration() {
 		final Collaboration collab = MainActivity.getCollaborationByBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
@@ -791,13 +842,14 @@ public class BuildingCard extends Card {
 						stairs.remove(pref.getString("FBid", ""));
 						c.put("collaborators", collaborators);
 						c.put("stairs", stairs);
-						if(collaborators.length() == 0)
+						if (collaborators.length() == 0)
 							c.deleteEventually();
 						else
 							c.saveEventually();
-						/*collab.setLeaved(true);
-						collab.setSaved(true);
-						MainActivity.collaborationDao.update(collab);*/
+						/*
+						 * collab.setLeaved(true); collab.setSaved(true);
+						 * MainActivity.collaborationDao.update(collab);
+						 */
 						MainActivity.collaborationDao.delete(collab);
 						climbing.setGame_mode(0);
 						climbing.setId_mode("");
@@ -822,8 +874,9 @@ public class BuildingCard extends Card {
 	}
 
 	/**
-	 * Makes the current logged user leaving the current Competition.
-	 * It saved the update in Parse if it is possible, otherwise, it saved the update locally e remembers to retry it later.
+	 * Makes the current logged user leaving the current Competition. It saved
+	 * the update in Parse if it is possible, otherwise, it saved the update
+	 * locally e remembers to retry it later.
 	 */
 	private void leaveCompetition() {
 		final Competition competit = MainActivity.getCompetitionByBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
@@ -845,13 +898,13 @@ public class BuildingCard extends Card {
 						stairs.remove(pref.getString("FBid", ""));
 						c.put("competitors", collaborators);
 						c.put("stairs", stairs);
-						if(collaborators.length() == 0)
+						if (collaborators.length() == 0)
 							c.deleteEventually();
 						else
 							c.saveEventually();
-					
+
 						MainActivity.competitionDao.delete(competit);
-		
+
 					}
 				} else {
 					competit.setLeaved(true);
@@ -869,15 +922,18 @@ public class BuildingCard extends Card {
 			}
 		});
 	}
-	
+
 	/**
 	 * Open a dialog to let user choose the friends to invite.
-	 * @param mode current game mode
-	 * @param idCollab id of the current Collaboration/Competition/TeamDuel object
+	 * 
+	 * @param mode
+	 *            current game mode
+	 * @param idCollab
+	 *            id of the current Collaboration/Competition/TeamDuel object
 	 */
 	private void sendRequest(GameModeType mode, String idCollab) {
 		Bundle params = new Bundle();
-		final GameModeType currentMode = mode; 
+		final GameModeType currentMode = mode;
 		switch (mode) {
 		case SOCIAL_CLIMB:
 			params.putString("data", "{\"idCollab\":\"" + idCollab + "\"," + "\"idBuilding\":\"" + building.get_id() + "\"," + "\"nameBuilding\":\"" + building.getName() + "\", \"type\": \"1\"}");
@@ -895,62 +951,66 @@ public class BuildingCard extends Card {
 			break;
 		}
 
-		WebDialog requestsDialog = (new WebDialog.RequestsDialogBuilder(activity, Session.getActiveSession(), params)).setOnCompleteListener(new OnCompleteListener() {
+		if (Session.getActiveSession() != null && Session.getActiveSession().isOpened()) {
+			WebDialog requestsDialog = (new WebDialog.RequestsDialogBuilder(activity, Session.getActiveSession(), params)).setOnCompleteListener(new OnCompleteListener() {
 
-			@Override
-			public void onComplete(Bundle values, FacebookException error) {
-				if (error != null) {
-					if (error instanceof FacebookOperationCanceledException) {
-						Toast.makeText(activity, "Request cancelled", Toast.LENGTH_SHORT).show();
-						switch (currentMode) {
-						case SOCIAL_CLIMB:
-							rollback(1);
-							break;
+				@Override
+				public void onComplete(Bundle values, FacebookException error) {
+					if (error != null) {
+						if (error instanceof FacebookOperationCanceledException) {
+							Toast.makeText(activity, "Request cancelled", Toast.LENGTH_SHORT).show();
+							switch (currentMode) {
+							case SOCIAL_CLIMB:
+								rollback(1);
+								break;
 
-						case SOCIAL_CHALLENGE:
-							rollback(2);
-							break;
+							case SOCIAL_CHALLENGE:
+								rollback(2);
+								break;
+							}
+						} else {
+							Toast.makeText(activity, "Network Error", Toast.LENGTH_SHORT).show();
+							switch (currentMode) {
+							case SOCIAL_CLIMB:
+								rollback(1);
+								break;
+
+							case SOCIAL_CHALLENGE:
+								rollback(2);
+								break;
+							}
 						}
 					} else {
-						Toast.makeText(activity, "Network Error", Toast.LENGTH_SHORT).show();
-						switch (currentMode) {
-						case SOCIAL_CLIMB:
-							rollback(1);
-							break;
+						final String requestId = values.getString("request");
+						if (requestId != null) {
+							Toast.makeText(activity, "Request sent", Toast.LENGTH_SHORT).show();
+						} else {
+							Toast.makeText(activity, "Request cancelled", Toast.LENGTH_SHORT).show();
+							switch (currentMode) {
+							case SOCIAL_CLIMB:
+								rollback(1);
+								break;
 
-						case SOCIAL_CHALLENGE:
-							rollback(2);
-							break;
+							case SOCIAL_CHALLENGE:
+								rollback(2);
+								break;
+							}
+
 						}
-					}
-				} else {
-					final String requestId = values.getString("request");
-					if (requestId != null) {
-						Toast.makeText(activity, "Request sent", Toast.LENGTH_SHORT).show();
-					} else {
-						Toast.makeText(activity, "Request cancelled", Toast.LENGTH_SHORT).show();
-						switch (currentMode) {
-						case SOCIAL_CLIMB:
-							rollback(1);
-							break;
-
-						case SOCIAL_CHALLENGE:
-							rollback(2);
-							break;
-						}
-
 					}
 				}
-			}
 
-		}).build();
-		requestsDialog.show();
+			}).build();
+			requestsDialog.show();
+		} else {
+			Toast.makeText(activity, "Currently not logged to FB", Toast.LENGTH_SHORT).show();
+		}
 	}
-	
+
 	/**
 	 * Rollback in case of deleted operation
 	 */
-	private void rollback(int type){
+	private void rollback(int type) {
 		switch (type) {
 		case 1:
 			collabParse.deleteEventually();
@@ -961,87 +1021,92 @@ public class BuildingCard extends Card {
 			MainActivity.climbingDao.update(climbing);
 			updateClimbingInParse(climbing, true);
 			graphicsRollBack(type);
-			
+
 			mode = GameModeType.SOLO_CLIMB;
 			gameMode.setText("Modalitˆ: " + setModeText());
 			break;
 
 		case 2:
-			if(competParse.getJSONObject("competitors") != null){ System.out.println("delete eventually");
+			if (competParse.getJSONObject("competitors") != null) {
+				System.out.println("delete eventually");
 				competParse.deleteEventually();
 			}
-			if(compet.getBuilding() != null){ System.out.println("delete local");
+			if (compet.getBuilding() != null) {
+				System.out.println("delete local");
 				MainActivity.competitionDao.delete(compet);
 			}
-			
-			if(soloClimbing != null){ System.out.println("sistema due climb");
+
+			if (soloClimbing != null) {
+				System.out.println("sistema due climb");
 				Climbing del = climbing;
 				climbing = soloClimbing;
 				climbing.setId_mode("");
 				MainActivity.climbingDao.update(climbing);
 				updateClimbingInParse(climbing, true);
-			
-				deleteClimbingInParse(del);		
-			}
-			else{ System.out.println("sistema unico climb");
+
+				deleteClimbingInParse(del);
+			} else {
+				System.out.println("sistema unico climb");
 				climbing.setGame_mode(0);
 				climbing.setId_mode("");
 				MainActivity.climbingDao.update(climbing);
 				updateClimbingInParse(climbing, true);
 			}
 			graphicsRollBack(type);
-			
+
 			mode = GameModeType.SOLO_CLIMB;
 			gameMode.setText("Modalitˆ: " + setModeText());
 			break;
-			
+
 		case 3:
-		/*	teamDuelParse.deleteEventually();
-			MainActivity.teamDuelDao.delete(duel);
-			
-			soloClimbing.setId_mode("");
-			MainActivity.climbingDao.update(soloClimbing);
-			updateClimbingInParse(climbing, true);
-			
-			deleteClimbingInParse(climbing);
-			graphicsRollBack(type);
-			
-			mode = GameModeType.SOLO_CLIMB;
-			gameMode.setText("Modalitˆ: " + setModeText());*/
+			/*
+			 * teamDuelParse.deleteEventually();
+			 * MainActivity.teamDuelDao.delete(duel);
+			 * 
+			 * soloClimbing.setId_mode("");
+			 * MainActivity.climbingDao.update(soloClimbing);
+			 * updateClimbingInParse(climbing, true);
+			 * 
+			 * deleteClimbingInParse(climbing); graphicsRollBack(type);
+			 * 
+			 * mode = GameModeType.SOLO_CLIMB; gameMode.setText("Modalitˆ: " +
+			 * setModeText());
+			 */
 			break;
 		}
 		updateStatus();
 	}
-	
+
 	/**
 	 * Updates Status text
 	 */
-	private void updateStatus(){
+	private void updateStatus() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
-		if(climbing != null){
-			if(climbing.getPercentage() >= 1.00){
+		if (climbing != null) {
+			if (climbing.getPercentage() >= 1.00) {
 				climbingStatus.setText("Climbing: COMPLETED! (on " + sdf.format(new Date(climbing.getModified())) + ")");
-			}else{
+			} else {
 				climbingStatus.setText("Climbing status: " + new DecimalFormat("#").format(climbing.getPercentage() * 100) + "% (last attempt @ " + sdf.format(new Date(climbing.getModified())) + ")");
 			}
 		}
 	}
-	
+
 	/**
 	 * Update graphics in case of deleted operation
+	 * 
 	 * @param type
 	 */
-	private void graphicsRollBack(int type){
-		if(climbing.getPercentage() >= 100){
+	private void graphicsRollBack(int type) {
+		if (climbing.getPercentage() >= 100) {
 			socialChallengeButton.setEnabled(true);
 			socialClimbButton.setEnabled(false);
 			teamVsTeamButton.setEnabled(true);
-		}else{
+		} else {
 			socialChallengeButton.setEnabled(true);
 			socialClimbButton.setEnabled(true);
 			teamVsTeamButton.setEnabled(true);
 		}
-		switch(type){
+		switch (type) {
 		case 1:
 			socialClimbButton.setText("Collab");
 			break;
@@ -1051,7 +1116,7 @@ public class BuildingCard extends Card {
 		case 3:
 			teamVsTeamButton.setText("team vs team");
 			break;
-			
+
 		}
 	}
 

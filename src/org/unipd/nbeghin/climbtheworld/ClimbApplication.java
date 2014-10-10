@@ -11,6 +11,7 @@ import android.util.Log;
 public class ClimbApplication extends Application{
 	public static final int N_MEMBERS_PER_GROUP = 6; // 5 amici + me
 	public static boolean BUSY = false;
+	public static Object lock = new Object();
 	
 	 @Override
 	  public void onCreate()

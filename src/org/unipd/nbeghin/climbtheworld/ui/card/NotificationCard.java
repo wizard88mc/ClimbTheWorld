@@ -289,6 +289,7 @@ public class NotificationCard extends Card {
 																		climb.setCompleted_steps(0);
 																		climb.setRemaining_steps(building.getSteps());
 																	}
+																	MainActivity.climbingDao.update(climb);
 																	my_stairs = climb.getCompleted_steps();
 																	ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
 																	query.whereEqualTo("objectId", climb.getId_online());

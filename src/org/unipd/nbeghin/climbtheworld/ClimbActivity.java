@@ -852,6 +852,8 @@ public class ClimbActivity extends ActionBarActivity {
 									Bundle params = new Bundle();
 									params.putString("data", "{\"idCollab\":\"" + collaboration.getId() + "\"," + "\"idBuilding\":\"" + building.get_id() + "\"," + "\"nameBuilding\":\"" + building.getName() + "\", \"type\": \"1\"}");
 									params.putString("message", "Please, help me!!!!");
+									if(Session.getActiveSession() != null && Session.getActiveSession().isOpened()){
+
 									WebDialog requestsDialog = (new WebDialog.RequestsDialogBuilder(ClimbActivity.this, Session.getActiveSession(), params)).setOnCompleteListener(new OnCompleteListener() {
 
 										@Override
@@ -878,7 +880,9 @@ public class ClimbActivity extends ActionBarActivity {
 
 									}).build();
 									requestsDialog.show();
-									
+									}else{
+										Toast.makeText(ClimbActivity.this, "Currently not logged to FB", Toast.LENGTH_SHORT).show();
+									}
 								}
 							});
 							i++;
@@ -1699,7 +1703,7 @@ public class ClimbActivity extends ActionBarActivity {
 							Iterator<String> keys = myTeam.keys();
 							while(keys.hasNext()){
 								String key = keys.next();
-								if(key != pref.getString("FBid", "")){
+								if(!key.equals(pref.getString("FBid", ""))){
 									try {
 										myTeamScores.add(myTeam.getInt(key));
 									} catch (JSONException e1) {
@@ -1854,6 +1858,8 @@ public class ClimbActivity extends ActionBarActivity {
 									Bundle params = new Bundle();
 									params.putString("data", "{\"idCollab\":\"" + competition.getId_online() + "\"," + "\"idBuilding\":\"" + building.get_id() + "\"," + "\"nameBuilding\":\"" + building.getName() + "\", \"type\": \"2\"}");
 									params.putString("message", "Please, help me!!!!");
+									if(Session.getActiveSession() != null && Session.getActiveSession().isOpened()){
+
 									WebDialog requestsDialog = (new WebDialog.RequestsDialogBuilder(ClimbActivity.this, Session.getActiveSession(), params)).setOnCompleteListener(new OnCompleteListener() {
 
 										@Override
@@ -1880,7 +1886,9 @@ public class ClimbActivity extends ActionBarActivity {
 
 									}).build();
 									requestsDialog.show();
-									
+									}else{
+										Toast.makeText(ClimbActivity.this, "Currently not logged to FB", Toast.LENGTH_SHORT).show();
+									}
 								}
 							});
 							i++;
