@@ -64,8 +64,8 @@ public class TeamPreparationActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_preparation_teams);
 		SharedPreferences pref = getSharedPreferences("UserSession", 0);
-		building_id = getIntent().getIntExtra(MainActivity.building_intent_object, 0);
-		building = MainActivity.getBuildingById(building_id);
+		building_id = getIntent().getIntExtra(ClimbApplication.building_intent_object, 0);
+		building = ClimbApplication.getBuildingById(building_id);
 		addMyMembersBtn = (ImageButton) findViewById(R.id.addMyTeamBtn);
 		addChallengerBtn = (ImageButton) findViewById(R.id.addChallengerBtn);
 		startPlay = (ImageButton) findViewById(R.id.btnStartClimbing);
@@ -118,9 +118,9 @@ public class TeamPreparationActivity extends ActionBarActivity {
 			theirMembers.add((TextView) findViewById(id));
 		}
 
-		//int team_online_id = getIntent().getIntExtra(MainActivity.duel_intent_object, 0);
+		//int team_online_id = getIntent().getIntExtra(ClimbApplication.duel_intent_object, 0);
 
-		duel = MainActivity.getTeamDuelByBuildingAndUser(building_id, pref.getInt("local_id", -1));
+		duel = ClimbApplication.getTeamDuelByBuildingAndUser(building_id, pref.getInt("local_id", -1));
 		// quando arrivo qui, id online di duel deve essere settato
 		
 		if(duel.isCreator()){
@@ -269,12 +269,12 @@ public class TeamPreparationActivity extends ActionBarActivity {
 		if(myTeam.length() == 5 && challengerTeam.length() == 5){
 			startPlay.setEnabled(true);
 			duel.setReadyToPlay(true);
-			MainActivity.teamDuelDao.update(duel);
+			ClimbApplication.teamDuelDao.update(duel);
 		}	
 		else{
 			startPlay.setEnabled(false);
 			duel.setReadyToPlay(false);
-			MainActivity.teamDuelDao.update(duel);
+			ClimbApplication.teamDuelDao.update(duel);
 		}
 		
 		if(isUpdate)
@@ -304,9 +304,9 @@ public class TeamPreparationActivity extends ActionBarActivity {
 	 * Opens ClimbActivity to start the game
 	 */
 	public void onStartClimbingBtn() { // passo anche team id????
-		Log.i(MainActivity.AppName, "Building id clicked: " + String.valueOf(building_id));
+		Log.i("Team Preparation", "Building id clicked: " + String.valueOf(building_id));
 		Intent intent = new Intent(getApplicationContext(), ClimbActivity.class);
-		intent.putExtra(MainActivity.building_intent_object, building_id);
+		intent.putExtra(ClimbApplication.building_intent_object, building_id);
 		finish();
 		startActivity(intent);
 	}

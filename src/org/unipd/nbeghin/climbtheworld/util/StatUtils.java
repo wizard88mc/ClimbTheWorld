@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.exceptions.NoStatFound;
 import org.unipd.nbeghin.climbtheworld.models.Building;
@@ -40,7 +41,7 @@ public class StatUtils {
 		String sql = "SELECT building_id,MIN(completed-created) FROM climbings WHERE completed>created";
 		try {
 			String building_id = execQuery(sql);
-			Building building = MainActivity.buildingDao.queryForId(Integer.valueOf(building_id));
+			Building building = ClimbApplication.buildingDao.queryForId(Integer.valueOf(building_id));
 			stats.add(new Stat(statName, building.getName()));
 		} catch (NoStatFound e) {
 			stats.add(new Stat(statName, "No completed climbing yet"));
@@ -101,7 +102,7 @@ public class StatUtils {
 	}
 
 	private static String execQuery(String sql) throws SQLException, NoStatFound {
-		GenericRawResults<String[]> rawResults = MainActivity.climbingDao.queryRaw(sql);
+		GenericRawResults<String[]> rawResults = ClimbApplication.climbingDao.queryRaw(sql);
 		List<String[]> results = rawResults.getResults();
 		if (results.isEmpty()) throw new NoStatFound();
 		String[] resultArray = results.get(0);

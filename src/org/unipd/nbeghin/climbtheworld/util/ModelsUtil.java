@@ -44,7 +44,7 @@ public class ModelsUtil {
 				if(m1.getScore() == m2.getScore())
 					return 0;
 				else
-					return m1.getScore() < m2.getScore() ? -1 : 1;
+					return m1.getScore() > m2.getScore() ? -1 : 1;
 			}
 		});
 		return chart;

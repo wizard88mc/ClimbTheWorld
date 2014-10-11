@@ -1,5 +1,6 @@
 package org.unipd.nbeghin.climbtheworld.db;
 
+import org.unipd.nbeghin.climbtheworld.models.Badge;
 import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.BuildingTour;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
@@ -9,6 +10,7 @@ import org.unipd.nbeghin.climbtheworld.models.Photo;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
 import org.unipd.nbeghin.climbtheworld.models.User;
+import org.unipd.nbeghin.climbtheworld.models.UserBadge;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -29,6 +31,8 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
 	private RuntimeExceptionDao<Collaboration, Integer> 	collaborationRuntimeDao	= null;
 	private RuntimeExceptionDao<Competition, Integer> 	competitionRuntimeDao 	= null;
 	private RuntimeExceptionDao<TeamDuel, Integer>		teamDuelRuntimeDao		= null;
+	private RuntimeExceptionDao<Badge, Integer> 			badgeRuntimeDao			= null;
+	private RuntimeExceptionDao<UserBadge, Integer>		userBadgeRuntimeDao		= null;
 
 	public DbHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -106,6 +110,18 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
 		}
 		return teamDuelRuntimeDao;
 	}
+	
+	public RuntimeExceptionDao<Badge, Integer> getBadgeDao(){
+		if(badgeRuntimeDao == null)
+			badgeRuntimeDao = getRuntimeExceptionDao(Badge.class);
+		return badgeRuntimeDao;
+	}
+	
+	public RuntimeExceptionDao<UserBadge, Integer> getUserBadgeDao(){
+		if(userBadgeRuntimeDao == null)
+			userBadgeRuntimeDao = getRuntimeExceptionDao(UserBadge.class);
+		return userBadgeRuntimeDao;
+	}
 
     public String getDbPath() {
         return this.getReadableDatabase().getPath();
@@ -126,5 +142,7 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
 		collaborationRuntimeDao = null;
 		competitionRuntimeDao = null;
 		teamDuelRuntimeDao = null;
+		badgeRuntimeDao = null;
+		userBadgeRuntimeDao = null;
 	}
 }

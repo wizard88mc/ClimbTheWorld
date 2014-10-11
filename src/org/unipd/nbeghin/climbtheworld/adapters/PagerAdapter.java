@@ -33,6 +33,8 @@ public class PagerAdapter extends FragmentPagerAdapter {
 				return "Tours";
 			case 2:
 				return "Notifications";
+			case 3:
+				return "Trophies";
 			default:
 				return "Undefined";
 		}

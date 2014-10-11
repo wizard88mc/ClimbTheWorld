@@ -10,7 +10,7 @@ import java.util.SimpleTimeZone;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.unipd.nbeghin.climbtheworld.ClimbApplication;
-import org.unipd.nbeghin.climbtheworld.MainActivity;
+import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.models.AskCollaborationNotification;
 import org.unipd.nbeghin.climbtheworld.models.AskCompetitionNotification;
@@ -51,7 +51,7 @@ import com.parse.SaveCallback;
 
 public class NotificationCard extends Card {
 
-	SharedPreferences pref = MainActivity.getContext().getSharedPreferences("UserSession", 0);
+	SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
 	final Notification notification;
 	ImageButton acceptBtn;
 	ImageButton cancelBtn;
@@ -129,14 +129,14 @@ public class NotificationCard extends Card {
 							public void done(List<ParseObject> group, ParseException e) {
 								if (e == null) {
 									if (group.size() == 0) {
-										Toast.makeText(MainActivity.getContext(), "The group does not exists anymore", Toast.LENGTH_SHORT).show();
+										Toast.makeText(ClimbApplication.getContext(), "The group does not exists anymore", Toast.LENGTH_SHORT).show();
 										text.setText("Request expired");
 
 									} else {
 										SharedPreferences pref = context.getSharedPreferences("UserSession", 0);
 										JSONObject members = group.get(0).getJSONObject("members");
 										if (members.has(pref.getString("FBid", ""))) {
-											Toast.makeText(MainActivity.getContext(), "You are already part of " + notification.getGroupName(), Toast.LENGTH_SHORT).show();
+											Toast.makeText(ClimbApplication.getContext(), "You are already part of " + notification.getGroupName(), Toast.LENGTH_SHORT).show();
 											text.setText("Already a member");
 										} else {
 											updateGroup(group.get(0));
@@ -152,7 +152,7 @@ public class NotificationCard extends Card {
 									
 
 								} else {
-									Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
+									Toast.makeText(ClimbApplication.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
 
 									Log.d("Connection problem", "Error: " + e.getMessage());
 
@@ -166,9 +166,9 @@ public class NotificationCard extends Card {
 
 						final AskCollaborationNotification current = ((AskCollaborationNotification) notification);
 
-						Collaboration collabs = MainActivity.getCollaborationByBuildingAndUser(current.getBuilding_id(), pref.getInt("local_id",-1));
-						Competition compet = MainActivity.getCompetitionByBuildingAndUser(current.getBuilding_id(), pref.getInt("local_id",-1));
-						TeamDuel duel = MainActivity.getTeamDuelByBuildingAndUser(current.getBuilding_id(), pref.getInt("local_id",-1));
+						Collaboration collabs = ClimbApplication.getCollaborationByBuildingAndUser(current.getBuilding_id(), pref.getInt("local_id",-1));
+						Competition compet = ClimbApplication.getCompetitionByBuildingAndUser(current.getBuilding_id(), pref.getInt("local_id",-1));
+						TeamDuel duel = ClimbApplication.getTeamDuelByBuildingAndUser(current.getBuilding_id(), pref.getInt("local_id",-1));
 						// stessa per team
 						if (collabs == null && compet == null && duel == null) {
 							
@@ -181,7 +181,7 @@ public class NotificationCard extends Card {
 								public void done(List<ParseObject> collabs, ParseException e) {
 									if (e == null) {
 										if (collabs.size() == 0) {//this collaboration has been deleted by someone else
-											Toast.makeText(MainActivity.getContext(), "This collaboration does not exists anymore", Toast.LENGTH_SHORT).show();
+											Toast.makeText(ClimbApplication.getContext(), "This collaboration does not exists anymore", Toast.LENGTH_SHORT).show();
 											text.setText("This collaboration not exists");
 											deleteRequest(String.valueOf(notification.getId()));
 
@@ -202,9 +202,9 @@ public class NotificationCard extends Card {
 												int n_collaborators = collaborators.length();
 												if (n_collaborators < ClimbApplication.N_MEMBERS_PER_GROUP) {
 													
-													final User me = MainActivity.getUserById(pref.getInt("local_id", -1));
-													final Building building = MainActivity.getBuildingById(current.getBuilding_id());
-													final Climbing climb = MainActivity.getClimbingForBuilding(building.get_id());
+													final User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
+													final Building building = ClimbApplication.getBuildingById(current.getBuilding_id());
+													final Climbing climb = ClimbApplication.getClimbingForBuilding(building.get_id());
 													if(climb != null && (climb.getGame_mode() != 0 /*|| climb.getId_mode().equalsIgnoreCase("paused")*/)){
 														Toast.makeText(context, "Building occupied", Toast.LENGTH_SHORT).show();
 														text.setText("Building occupied");
@@ -242,7 +242,7 @@ public class NotificationCard extends Card {
 																	climbing.setRemaining_steps(building.getSteps());
 																	climbing.setUser(me);
 																	climbing.setSaved(true);
-																	MainActivity.climbingDao.create(climbing);
+																	ClimbApplication.climbingDao.create(climbing);
 																	my_stairs = climbing.getCompleted_steps();
 																	final ParseObject climbingParse = new ParseObject("Climbing");
 																	DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -271,11 +271,11 @@ public class NotificationCard extends Card {
 																			if(e == null){
 																				climbing.setId_online(climbingParse.getObjectId());
 																				climbing.setSaved(true);
-																				MainActivity.climbingDao.update(climbing);
+																				ClimbApplication.climbingDao.update(climbing);
 																			}else{
 																				climbing.setSaved(false);
-																				MainActivity.climbingDao.update(climbing);
-																				Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
+																				ClimbApplication.climbingDao.update(climbing);
+																				Toast.makeText(ClimbApplication.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
 																				Log.d("Connection problem", "Error: " + e.getMessage());
 																			}
 																			
@@ -289,7 +289,7 @@ public class NotificationCard extends Card {
 																		climb.setCompleted_steps(0);
 																		climb.setRemaining_steps(building.getSteps());
 																	}
-																	MainActivity.climbingDao.update(climb);
+																	ClimbApplication.climbingDao.update(climb);
 																	my_stairs = climb.getCompleted_steps();
 																	ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
 																	query.whereEqualTo("objectId", climb.getId_online());
@@ -314,11 +314,11 @@ public class NotificationCard extends Card {
 //																						if(e == null){
 //																							climbing.setId_online(climbingParse.getObjectId());
 //																							climbing.setSaved(true);
-//																							MainActivity.climbingDao.update(climbing);
+//																							ClimbApplication.climbingDao.update(climbing);
 //																						}else{
 //																							climbing.setSaved(false);
-//																							MainActivity.climbingDao.update(climbing);
-//																							Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
+//																							ClimbApplication.climbingDao.update(climbing);
+//																							Toast.makeText(ClimbApplication.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
 //																							Log.d("Connection problem", "Error: " + e.getMessage());
 //																						}
 //																						
@@ -326,8 +326,8 @@ public class NotificationCard extends Card {
 //																				});
 																			} else {
 																				climb.setSaved(false);
-																				MainActivity.climbingDao.update(climb);
-																				Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
+																				ClimbApplication.climbingDao.update(climb);
+																				Toast.makeText(ClimbApplication.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
 																				Log.d("Connection problem", "Error: " + e.getMessage());
 																			}
 																		}
@@ -338,14 +338,14 @@ public class NotificationCard extends Card {
 																// locale
 																Collaboration collaborationLocal = new Collaboration();
 																collaborationLocal.setId(collaborationParse.getObjectId());
-																collaborationLocal.setBuilding(MainActivity.getBuildingById(current.getBuilding_id()));
+																collaborationLocal.setBuilding(ClimbApplication.getBuildingById(current.getBuilding_id()));
 																collaborationLocal.setMy_stairs(my_stairs);
 																collaborationLocal.setOthers_stairs(0);
 																collaborationLocal.setSaved(true);
 																collaborationLocal.setLeaved(false);
 																collaborationLocal.setUser(me);
 																collaborationLocal.setCompleted(false);
-																MainActivity.collaborationDao.create(collaborationLocal);
+																ClimbApplication.collaborationDao.create(collaborationLocal);
 
 																text.setText("Request Accepted");
 																
@@ -357,7 +357,7 @@ public class NotificationCard extends Card {
 																ClimbApplication.BUSY = false;
 
 															}else{
-																Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
+																Toast.makeText(ClimbApplication.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
 																Log.d("Connection problem", "Error: " + e.getMessage());
 																ClimbApplication.BUSY = false;
 															}
@@ -367,7 +367,7 @@ public class NotificationCard extends Card {
 													
 												} else {
 													text.setText("Collaboration completed");
-													Toast.makeText(MainActivity.getContext(), "Too Late: collaboration completed", Toast.LENGTH_SHORT).show();
+													Toast.makeText(ClimbApplication.getContext(), "Too Late: collaboration completed", Toast.LENGTH_SHORT).show();
 													deleteRequest(String.valueOf(notification.getId()));
 
 													cancelBtn.setEnabled(false);
@@ -395,7 +395,7 @@ public class NotificationCard extends Card {
 //										acceptBtn.setEnabled(false);
 //										notification.setRead(true);
 									} else {
-										Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
+										Toast.makeText(ClimbApplication.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
 										Log.d("Connection problem", "Error: " + e.getMessage());
 										ClimbApplication.BUSY = false;
 									}
@@ -417,9 +417,9 @@ public class NotificationCard extends Card {
 					case ASK_COMPETITION:
 						final AskCompetitionNotification current1 = ((AskCompetitionNotification) notification);
 
-						Collaboration collabs1 = MainActivity.getCollaborationByBuildingAndUser(current1.getBuilding_id(), pref.getInt("local_id",-1));
-						Competition compet1 = MainActivity.getCompetitionByBuildingAndUser(current1.getBuilding_id(), pref.getInt("local_id",-1));
-						TeamDuel duel1 = MainActivity.getTeamDuelByBuildingAndUser(current1.getBuilding_id(), pref.getInt("local_id",-1));
+						Collaboration collabs1 = ClimbApplication.getCollaborationByBuildingAndUser(current1.getBuilding_id(), pref.getInt("local_id",-1));
+						Competition compet1 = ClimbApplication.getCompetitionByBuildingAndUser(current1.getBuilding_id(), pref.getInt("local_id",-1));
+						TeamDuel duel1 = ClimbApplication.getTeamDuelByBuildingAndUser(current1.getBuilding_id(), pref.getInt("local_id",-1));
 						if (collabs1 == null && compet1 == null && duel1 == null) {
 
 							//look for competition object in Parse
@@ -431,7 +431,7 @@ public class NotificationCard extends Card {
 								public void done(List<ParseObject> compets, ParseException e) {
 									if (e == null) {
 										if (compets.size() == 0) {
-											Toast.makeText(MainActivity.getContext(), "This competition does not exists anymore", Toast.LENGTH_SHORT).show();
+											Toast.makeText(ClimbApplication.getContext(), "This competition does not exists anymore", Toast.LENGTH_SHORT).show();
 											text.setText("This competition not exists");
 											deleteRequest(String.valueOf(notification.getId()));
 											cancelBtn.setEnabled(false);
@@ -453,9 +453,9 @@ public class NotificationCard extends Card {
 												int n_collaborators = collaborators.length();
 												if (n_collaborators < ClimbApplication.N_MEMBERS_PER_GROUP) {
 													
-												final User me = MainActivity.getUserById(pref.getInt("local_id", -1));
-												final Building building = MainActivity.getBuildingById(current1.getBuilding_id());
-												final Climbing climb = MainActivity.getClimbingForBuilding(building.get_id());
+												final User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
+												final Building building = ClimbApplication.getBuildingById(current1.getBuilding_id());
+												final Climbing climb = ClimbApplication.getClimbingForBuilding(building.get_id());
 
 												if(climb != null && (climb.getGame_mode() != 0 /*|| climb.getId_mode().equalsIgnoreCase("paused")*/)){
 													Toast.makeText(context, "Building occupied", Toast.LENGTH_SHORT).show();
@@ -482,7 +482,7 @@ public class NotificationCard extends Card {
 																int my_stairs = 0;
 																/*if (climb != null) {
 																	climb.setId_mode("paused");
-																	MainActivity.climbingDao.update(climb);
+																	ClimbApplication.climbingDao.update(climb);
 																	ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
 																	if(climb.getId_online() != null && !climb.getId_online().equals("")){
 																		query.whereEqualTo("objectId", climb.getId_online());
@@ -501,8 +501,8 @@ public class NotificationCard extends Card {
 																				c.saveEventually();
 																			} else {
 																				climb.setSaved(false);
-																				MainActivity.climbingDao.update(climb);
-																				Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
+																				ClimbApplication.climbingDao.update(climb);
+																				Toast.makeText(ClimbApplication.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
 																				Log.d("Connection problem", "Error: " + e.getMessage());
 																			}
 																		}
@@ -522,7 +522,7 @@ public class NotificationCard extends Card {
 																climbing.setUser(me);
 																climbing.setSaved(true);
 																climbing.setId_mode(collaborationParse.getObjectId());
-																MainActivity.climbingDao.create(climbing);
+																ClimbApplication.climbingDao.create(climbing);
 
 																final ParseObject climbingParse = new ParseObject("Climbing");
 																DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -550,11 +550,11 @@ public class NotificationCard extends Card {
 																		if(e == null){
 																			climbing.setId_online(climbingParse.getObjectId());
 																			climbing.setSaved(true);
-																			MainActivity.climbingDao.update(climbing);
+																			ClimbApplication.climbingDao.update(climbing);
 																			
 																		}else{
 																			climbing.setSaved(false);
-																			MainActivity.climbingDao.update(climbing);
+																			ClimbApplication.climbingDao.update(climbing);
 																			Toast.makeText(context, "Connection problem", Toast.LENGTH_SHORT).show();
 																			Log.e("1 Connection Problem", e.getMessage());
 																		}
@@ -566,14 +566,14 @@ public class NotificationCard extends Card {
 																// locale
 																Competition competitionLocal = new Competition();
 																competitionLocal.setId_online(collaborationParse.getObjectId());
-																competitionLocal.setBuilding(MainActivity.getBuildingById(current1.getBuilding_id()));
+																competitionLocal.setBuilding(ClimbApplication.getBuildingById(current1.getBuilding_id()));
 																competitionLocal.setMy_stairs(0);
 																competitionLocal.setCurrent_position(0);
 																competitionLocal.setSaved(true);
 																competitionLocal.setLeaved(false);
 																competitionLocal.setUser(me);
 																competitionLocal.setCompleted(false);
-																MainActivity.competitionDao.create(competitionLocal);
+																ClimbApplication.competitionDao.create(competitionLocal);
 
 																text.setText("Request Accepted");
 																deleteRequest(String.valueOf(notification.getId()));
@@ -585,12 +585,12 @@ public class NotificationCard extends Card {
 
 															}else{
 																Competition competitionLocal = new Competition();
-																competitionLocal.setBuilding(MainActivity.getBuildingById(current1.getBuilding_id()));
+																competitionLocal.setBuilding(ClimbApplication.getBuildingById(current1.getBuilding_id()));
 																competitionLocal.setSaved(false);
 																competitionLocal.setLeaved(true);
 																competitionLocal.setUser(me);
 																competitionLocal.setCompleted(false);
-																MainActivity.competitionDao.create(competitionLocal);
+																ClimbApplication.competitionDao.create(competitionLocal);
 																Toast.makeText(context, "Connection Problems", Toast.LENGTH_SHORT).show();
 																Log.e("2 Connection Problem adding me in competition", "Error: " + e.getMessage());
 																ClimbApplication.BUSY = false;
@@ -606,7 +606,7 @@ public class NotificationCard extends Card {
 													
 												} else {
 													text.setText("Competition completed");
-													Toast.makeText(MainActivity.getContext(), "Too Late: competition completed", Toast.LENGTH_SHORT).show();
+													Toast.makeText(ClimbApplication.getContext(), "Too Late: competition completed", Toast.LENGTH_SHORT).show();
 
 													deleteRequest(String.valueOf(notification.getId()));
 
@@ -628,7 +628,7 @@ public class NotificationCard extends Card {
 
 										}
 									} else {
-										Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
+										Toast.makeText(ClimbApplication.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
 										Log.d("Connection problem", "Error: " + e.getMessage());
 										ClimbApplication.BUSY = false;
 
@@ -651,9 +651,9 @@ public class NotificationCard extends Card {
 					case ASK_TEAM_COMPETITION_CHALLENGER:
 						final AskTeamDuelNotification current2 = ((AskTeamDuelNotification) notification);
 
-						Collaboration collabs2 = MainActivity.getCollaborationByBuildingAndUser(current2.getBuilding_id(), pref.getInt("local_id",-1));
-						Competition compet2 = MainActivity.getCompetitionByBuildingAndUser(current2.getBuilding_id(), pref.getInt("local_id",-1));
-						TeamDuel duel2 = MainActivity.getTeamDuelByBuildingAndUser(current2.getBuilding_id(), pref.getInt("local_id",-1));
+						Collaboration collabs2 = ClimbApplication.getCollaborationByBuildingAndUser(current2.getBuilding_id(), pref.getInt("local_id",-1));
+						Competition compet2 = ClimbApplication.getCompetitionByBuildingAndUser(current2.getBuilding_id(), pref.getInt("local_id",-1));
+						TeamDuel duel2 = ClimbApplication.getTeamDuelByBuildingAndUser(current2.getBuilding_id(), pref.getInt("local_id",-1));
 						if (collabs2 == null && compet2 == null && duel2 == null) {
 
 							//look for team duel object in Parse
@@ -665,7 +665,7 @@ public class NotificationCard extends Card {
 								public void done(List<ParseObject> duels, ParseException e) {
 									if (e == null) {
 										if (duels.size() == 0) {
-											Toast.makeText(MainActivity.getContext(), "This team duel does not exists anymore", Toast.LENGTH_SHORT).show();
+											Toast.makeText(ClimbApplication.getContext(), "This team duel does not exists anymore", Toast.LENGTH_SHORT).show();
 											text.setText("This team duel not exists");
 											deleteRequest(String.valueOf(notification.getId()));
 											cancelBtn.setEnabled(false);
@@ -689,9 +689,9 @@ public class NotificationCard extends Card {
 												int n_collaborators = challenger.length();
 												if (n_collaborators < 1) {
 													
-												final User me = MainActivity.getUserById(pref.getInt("local_id", -1));
-												final Building building = MainActivity.getBuildingById(current2.getBuilding_id());
-												final Climbing climb = MainActivity.getClimbingForBuilding(building.get_id());
+												final User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
+												final Building building = ClimbApplication.getBuildingById(current2.getBuilding_id());
+												final Climbing climb = ClimbApplication.getClimbingForBuilding(building.get_id());
 
 												if(climb != null && (climb.getGame_mode() != 0 /*|| climb.getId_mode().equalsIgnoreCase("paused")*/)){
 													Toast.makeText(context, "Building occupied", Toast.LENGTH_SHORT).show();
@@ -729,7 +729,7 @@ public class NotificationCard extends Card {
 																climbing.setUser(me);
 																climbing.setSaved(true);
 																climbing.setId_mode(teamDuelParse.getObjectId());
-																MainActivity.climbingDao.create(climbing);
+																ClimbApplication.climbingDao.create(climbing);
 
 																final ParseObject climbingParse = new ParseObject("Climbing");
 																DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -757,11 +757,11 @@ public class NotificationCard extends Card {
 																		if(e == null){
 																			climbing.setId_online(climbingParse.getObjectId());
 																			climbing.setSaved(true);
-																			MainActivity.climbingDao.update(climbing);
+																			ClimbApplication.climbingDao.update(climbing);
 																			
 																		}else{
 																			climbing.setSaved(false);
-																			MainActivity.climbingDao.update(climbing);
+																			ClimbApplication.climbingDao.update(climbing);
 																			Toast.makeText(context, "Connection problem", Toast.LENGTH_SHORT).show();
 																			Log.e("1 Connection Problem", e.getMessage());
 																		}
@@ -780,7 +780,7 @@ public class NotificationCard extends Card {
 																// save team duel locally
 																TeamDuel teamDuelLocal = new TeamDuel();
 																teamDuelLocal.setId_online(teamDuelParse.getObjectId());
-																teamDuelLocal.setBuilding(MainActivity.getBuildingById(current2.getBuilding_id()));
+																teamDuelLocal.setBuilding(ClimbApplication.getBuildingById(current2.getBuilding_id()));
 																teamDuelLocal.setMy_steps(0);
 																teamDuelLocal.setSaved(true);
 																teamDuelLocal.setUser(me);
@@ -793,7 +793,7 @@ public class NotificationCard extends Card {
 																teamDuelLocal.setReadyToPlay(false);
 																teamDuelLocal.setSteps_my_group(0);
 																teamDuelLocal.setSteps_other_group(0);
-																MainActivity.teamDuelDao.create(teamDuelLocal);
+																ClimbApplication.teamDuelDao.create(teamDuelLocal);
 
 																text.setText("Request Accepted");
 																deleteRequest(String.valueOf(notification.getId()));
@@ -805,12 +805,12 @@ public class NotificationCard extends Card {
 
 															}else{
 																TeamDuel teamDuelLocal = new TeamDuel();
-																teamDuelLocal.setBuilding(MainActivity.getBuildingById(current2.getBuilding_id()));
+																teamDuelLocal.setBuilding(ClimbApplication.getBuildingById(current2.getBuilding_id()));
 																teamDuelLocal.setCompleted(true);
 																teamDuelLocal.setSaved(false);
 																teamDuelLocal.setDeleted(true);
 																teamDuelLocal.setUser(me);
-																MainActivity.teamDuelDao.create(teamDuelLocal);
+																ClimbApplication.teamDuelDao.create(teamDuelLocal);
 																Toast.makeText(context, "Connection Problems", Toast.LENGTH_SHORT).show();
 																Log.e("2 Connection Problem adding me in team duel", "Error: " + e.getMessage());
 																ClimbApplication.BUSY = false;
@@ -825,7 +825,7 @@ public class NotificationCard extends Card {
 													
 												} else {
 													text.setText("Challenger already chosen");
-													Toast.makeText(MainActivity.getContext(), "Too Late: Challenger already chosen", Toast.LENGTH_SHORT).show();
+													Toast.makeText(ClimbApplication.getContext(), "Too Late: Challenger already chosen", Toast.LENGTH_SHORT).show();
 
 													deleteRequest(String.valueOf(notification.getId()));
 
@@ -848,7 +848,7 @@ public class NotificationCard extends Card {
 
 										}
 									} else {
-										Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
+										Toast.makeText(ClimbApplication.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
 										Log.d("Connection problem", "Error: " + e.getMessage());
 										ClimbApplication.BUSY = false;
 									}
@@ -870,9 +870,9 @@ public class NotificationCard extends Card {
 					case ASK_TEAM_COMPETITION_TEAM:
 						final AskTeamDuelNotification current3 = ((AskTeamDuelNotification) notification);
 
-						Collaboration collabs3 = MainActivity.getCollaborationByBuildingAndUser(current3.getBuilding_id(), pref.getInt("local_id",-1));
-						Competition compet3 = MainActivity.getCompetitionByBuildingAndUser(current3.getBuilding_id(), pref.getInt("local_id",-1));
-						TeamDuel duel3 = MainActivity.getTeamDuelByBuildingAndUser(current3.getBuilding_id(), pref.getInt("local_id",-1));
+						Collaboration collabs3 = ClimbApplication.getCollaborationByBuildingAndUser(current3.getBuilding_id(), pref.getInt("local_id",-1));
+						Competition compet3 = ClimbApplication.getCompetitionByBuildingAndUser(current3.getBuilding_id(), pref.getInt("local_id",-1));
+						TeamDuel duel3 = ClimbApplication.getTeamDuelByBuildingAndUser(current3.getBuilding_id(), pref.getInt("local_id",-1));
 						if (collabs3 == null && compet3 == null && duel3 == null) {
 
 							//look for team duel object in Parse
@@ -884,7 +884,7 @@ public class NotificationCard extends Card {
 								public void done(List<ParseObject> duels, ParseException e) {
 									if (e == null) {
 										if (duels.size() == 0) {
-											Toast.makeText(MainActivity.getContext(), "This team duel does not exists anymore", Toast.LENGTH_SHORT).show();
+											Toast.makeText(ClimbApplication.getContext(), "This team duel does not exists anymore", Toast.LENGTH_SHORT).show();
 											text.setText("This team duel not exists");
 											deleteRequest(String.valueOf(notification.getId()));
 											cancelBtn.setEnabled(false);
@@ -916,9 +916,9 @@ public class NotificationCard extends Card {
 												int n_collaborators = team.length();
 												if (n_collaborators < ClimbApplication.N_MEMBERS_PER_GROUP - 1) {
 													
-												final User me = MainActivity.getUserById(pref.getInt("local_id", -1));
-												final Building building = MainActivity.getBuildingById(current3.getBuilding_id());
-												final Climbing climb = MainActivity.getClimbingForBuilding(building.get_id());
+												final User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
+												final Building building = ClimbApplication.getBuildingById(current3.getBuilding_id());
+												final Climbing climb = ClimbApplication.getClimbingForBuilding(building.get_id());
 
 												if(climb != null && (climb.getGame_mode() != 0 /*|| climb.getId_mode().equalsIgnoreCase("paused")*/)){
 													Toast.makeText(context, "Building occupied", Toast.LENGTH_SHORT).show();
@@ -962,7 +962,7 @@ public class NotificationCard extends Card {
 																climbing.setUser(me);
 																climbing.setSaved(true);
 																climbing.setId_mode(teamDuelParse.getObjectId());
-																MainActivity.climbingDao.create(climbing);
+																ClimbApplication.climbingDao.create(climbing);
 
 																final ParseObject climbingParse = new ParseObject("Climbing");
 																DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -990,11 +990,11 @@ public class NotificationCard extends Card {
 																		if(e == null){
 																			climbing.setId_online(climbingParse.getObjectId());
 																			climbing.setSaved(true);
-																			MainActivity.climbingDao.update(climbing);
+																			ClimbApplication.climbingDao.update(climbing);
 																			
 																		}else{
 																			climbing.setSaved(false);
-																			MainActivity.climbingDao.update(climbing);
+																			ClimbApplication.climbingDao.update(climbing);
 																			Toast.makeText(context, "Connection problem", Toast.LENGTH_SHORT).show();
 																			Log.e("1 Connection Problem", e.getMessage());
 																		}
@@ -1023,7 +1023,7 @@ public class NotificationCard extends Card {
 																// save team duel locally
 																TeamDuel teamDuelLocal = new TeamDuel();
 																teamDuelLocal.setId_online(teamDuelParse.getObjectId());
-																teamDuelLocal.setBuilding(MainActivity.getBuildingById(current3.getBuilding_id()));
+																teamDuelLocal.setBuilding(ClimbApplication.getBuildingById(current3.getBuilding_id()));
 																teamDuelLocal.setMy_steps(0);
 																teamDuelLocal.setSaved(true);
 																teamDuelLocal.setUser(me);
@@ -1039,7 +1039,7 @@ public class NotificationCard extends Card {
 																teamDuelLocal.setDeleted(false);
 																teamDuelLocal.setSteps_my_group(0);
 																teamDuelLocal.setSteps_other_group(0);
-																MainActivity.teamDuelDao.create(teamDuelLocal);
+																ClimbApplication.teamDuelDao.create(teamDuelLocal);
 
 																text.setText("Request Accepted");
 																deleteRequest(String.valueOf(notification.getId()));
@@ -1051,12 +1051,12 @@ public class NotificationCard extends Card {
 
 															}else{
 																TeamDuel teamDuelLocal = new TeamDuel();
-																teamDuelLocal.setBuilding(MainActivity.getBuildingById(current3.getBuilding_id()));
+																teamDuelLocal.setBuilding(ClimbApplication.getBuildingById(current3.getBuilding_id()));
 																teamDuelLocal.setCompleted(true);
 																teamDuelLocal.setSaved(false);
 																teamDuelLocal.setDeleted(true);
 																teamDuelLocal.setUser(me);
-																MainActivity.teamDuelDao.create(teamDuelLocal);
+																ClimbApplication.teamDuelDao.create(teamDuelLocal);
 																Toast.makeText(context, "Connection Problems", Toast.LENGTH_SHORT).show();
 																Log.e("2 Connection Problem adding me in team duel", "Error: " + e.getMessage());
 																ClimbApplication.BUSY = false;
@@ -1071,7 +1071,7 @@ public class NotificationCard extends Card {
 													
 												} else {
 													text.setText("Challenger already chosen");
-													Toast.makeText(MainActivity.getContext(), "Too Late: Challenger already chosen", Toast.LENGTH_SHORT).show();
+													Toast.makeText(ClimbApplication.getContext(), "Too Late: Challenger already chosen", Toast.LENGTH_SHORT).show();
 
 													deleteRequest(String.valueOf(notification.getId()));
 
@@ -1094,7 +1094,7 @@ public class NotificationCard extends Card {
 
 										}
 									} else {
-										Toast.makeText(MainActivity.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
+										Toast.makeText(ClimbApplication.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
 										Log.d("Connection problem", "Error: " + e.getMessage());
 										ClimbApplication.BUSY = false;
 									}
@@ -1186,7 +1186,7 @@ public class NotificationCard extends Card {
 			 */
 
 		} else {
-			Toast.makeText(MainActivity.getContext(), "Too Late: group is complete", Toast.LENGTH_SHORT).show();
+			Toast.makeText(ClimbApplication.getContext(), "Too Late: group is complete", Toast.LENGTH_SHORT).show();
 		}
 
 	}
@@ -1200,7 +1200,7 @@ public class NotificationCard extends Card {
 			public void onCompleted(Response response) {
 				// Show a confirmation of the deletion
 				// when the API call completes successfully.
-				Toast.makeText(MainActivity.getContext(), "Request deleted", Toast.LENGTH_SHORT).show();
+				Toast.makeText(ClimbApplication.getContext(), "Request deleted", Toast.LENGTH_SHORT).show();
 			}
 		});
 		// Execute the request asynchronously.

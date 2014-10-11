@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.SimpleTimeZone;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.db.PreExistingDbLoader;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
@@ -18,27 +18,29 @@ import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.Competition;
 import org.unipd.nbeghin.climbtheworld.models.Group;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
+import org.unipd.nbeghin.climbtheworld.models.User;
+import org.unipd.nbeghin.climbtheworld.models.UserBadge;
+
+import android.app.IntentService;
+import android.content.Context;
+import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.Where;
 import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 import com.parse.SaveCallback;
-
-import android.app.IntentService;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.SystemClock;
-import android.util.Log;
-import android.widget.Toast;
 
 public class UpdateService extends IntentService {
     public static final String PARAM_IN_MSG = "imsg";
@@ -53,7 +55,9 @@ public class UpdateService extends IntentService {
 	public RuntimeExceptionDao<Competition, Integer> competitionDao;
 	public RuntimeExceptionDao<Climbing, Integer> climbingDao; 
 	public RuntimeExceptionDao<TeamDuel, Integer> teamDuelDao;
-	
+	public RuntimeExceptionDao<User, Integer> userDao;
+	public RuntimeExceptionDao<UserBadge, Integer> userBadgesDao;
+
 	public boolean isOnline(Context context) {
 	    ConnectivityManager cm =
 	        (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -725,6 +729,69 @@ public class UpdateService extends IntentService {
 	
 
 	
+	private void saveUsersData(final Context ctx){
+		Map<String, Object> conditions = new HashMap<String, Object>();
+		conditions.put("saved", 0); 
+		final List<UserBadge> badges = userBadgesDao.queryForFieldValuesArgs(conditions);	
+		for(final UserBadge badge : badges){
+			ParseQuery<ParseUser> query = ParseUser.getQuery();
+			query.whereEqualTo("FBid", badge.getUser().getFBid());
+			query.getFirstInBackground(new GetCallback<ParseUser>() {
+
+				@Override
+				public void done(ParseUser parseUser, ParseException e) {
+					if(e == null){
+						JSONArray badgeParse = parseUser.getJSONArray("badges");
+						JSONObject newBadge = new JSONObject();
+						try {
+							newBadge.put("badge_id", badge.getBadge().get_id());
+							newBadge.put("obj_id", badge.getObj_id());
+							newBadge.put("percentage", badge.getPercentage());
+							badgeParse.put(newBadge);
+							parseUser.put("badges", badgeParse);
+							parseUser.put("XP", badge.getUser().getXP());
+							parseUser.put("level", badge.getUser().getLevel());
+							parseUser.saveEventually();
+							badge.setSaved(true);
+							userBadgesDao.update(badge);
+						} catch (JSONException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						
+					}else{
+						Toast.makeText(ctx, "Connection Problems", Toast.LENGTH_SHORT).show();
+						Log.e("UpdateService - save badges", e.getMessage());
+					}
+				}
+			});
+		}
+	}
+
+	private void saveUsers(final Context context){
+		Map<String, Object> conditions = new HashMap<String, Object>();
+		conditions.put("saved", 0); 
+		final List<User> users = userDao.queryForFieldValuesArgs(conditions);	
+		for(final User user : users){
+			ParseQuery<ParseUser> query = ParseUser.getQuery();
+			query.whereEqualTo("FBid", user.getFBid());
+			query.getFirstInBackground(new GetCallback<ParseUser>() {
+
+				@Override
+				public void done(ParseUser parseUser, ParseException e) {
+					if(e == null){
+						parseUser.put("XP", user.getXP());
+						parseUser.put("level", user.getLevel());
+						parseUser.saveEventually();
+					}else{
+						Toast.makeText(context, "Connection Problems", Toast.LENGTH_SHORT).show();
+						Log.e("UpdateService - save users", e.getMessage());
+					}
+				}
+			});
+	}
+	}
+	
 	
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -739,10 +806,14 @@ PreExistingDbLoader preExistingDbLoader = new PreExistingDbLoader(
 		collaborationDao = dbHelper.getCollaborationDao();
 		competitionDao = dbHelper.getCompetitionDao();
 		teamDuelDao = dbHelper.getTeamDuelDao();
+		userDao = dbHelper.getUserDao();
+		userBadgesDao = dbHelper.getUserBadgeDao();
 		if(isOnline(this)){
+			saveUsersData(this);
 			saveCollaborations(this);
 			saveCompetitions(this);
 			saveTeamDuels(this);
+			saveUsers(this);
 			try {
 				saveClimbings(this, 0);
 			} catch (SQLException e) {

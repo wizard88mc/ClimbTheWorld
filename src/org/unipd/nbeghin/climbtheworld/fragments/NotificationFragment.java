@@ -1,5 +1,6 @@
 package org.unipd.nbeghin.climbtheworld.fragments;
 
+import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.models.Notification;
@@ -29,10 +30,10 @@ public class NotificationFragment extends Fragment{
 	
 	static public void refresh() {
 		notificationCards.clearCards();
-		for (final Notification notification : MainActivity.notifications) {
+		for (final Notification notification : ClimbApplication.notifications) {
 			if(!notification.isRead()){
 				NotificationCard notificationCard;
-				if(MainActivity.notifications.indexOf(notification) == 0)
+				if(ClimbApplication.notifications.indexOf(notification) == 0)
 					notificationCard = new NotificationCard(notification, true);
 				else
 					notificationCard = new NotificationCard(notification, false);
@@ -48,7 +49,7 @@ public class NotificationFragment extends Fragment{
 			
 			notificationCards.addCard(notificationCard);
 			}else{
-				MainActivity.notifications.remove(notification);
+				ClimbApplication.notifications.remove(notification);
 			}
 		}
 		notificationCards.refresh();

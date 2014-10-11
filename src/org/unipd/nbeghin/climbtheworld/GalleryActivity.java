@@ -36,7 +36,7 @@ public class GalleryActivity extends BaseImageLoaderActivity {
 			Log.i(MainActivity.AppName, "Loading gallery for building #" + building_id);
 			Map<String, Object> conditions = new HashMap<String, Object>();
 			conditions.put("building_id", building_id); // filter for building ID
-			photos = MainActivity.photoDao.queryForFieldValuesArgs(conditions);
+			photos = ClimbApplication.photoDao.queryForFieldValuesArgs(conditions);
 			if (photos.isEmpty() == false) { // at least one photo exists for the given building
 				Log.i(MainActivity.AppName, "Photos found: " + photos.size());
 				StaggeredGridView gridView = (StaggeredGridView) this.findViewById(R.id.photoGallery);

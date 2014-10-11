@@ -9,7 +9,7 @@ import java.util.SimpleTimeZone;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.unipd.nbeghin.climbtheworld.MainActivity;
+import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.TeamPreparationActivity;
 import org.unipd.nbeghin.climbtheworld.models.Building;
@@ -56,7 +56,7 @@ public class BuildingCard extends Card {
 	final Building building;
 	Climbing climbing;
 	Climbing soloClimbing;
-	final SharedPreferences pref = MainActivity.getContext().getSharedPreferences("UserSession", 0);
+	final SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
 	GameModeType mode;
 	Activity activity;
 	ParseObject collabParse = new ParseObject("Collaboration");
@@ -117,7 +117,7 @@ public class BuildingCard extends Card {
 		socialChallengeButton = ((Button) view.findViewById(R.id.socialChallengeButton));
 		teamVsTeamButton = ((Button) view.findViewById(R.id.teamVsTeamButton));
 		((TextView) view.findViewById(R.id.title)).setText(building.getName());
-		int imageId = MainActivity.getBuildingImageResource(building);
+		int imageId = ClimbApplication.getBuildingImageResource(building);
 		if (imageId > 0)
 			((ImageView) view.findViewById(R.id.photo)).setImageResource(imageId);
 		((TextView) view.findViewById(R.id.buildingStat)).setText(building.getSteps() + " steps (" + building.getHeight() + "m)");
@@ -125,8 +125,8 @@ public class BuildingCard extends Card {
 		((TextView) view.findViewById(R.id.description)).setText(building.getDescription());
 		climbingStatus = (TextView) view.findViewById(R.id.climbingStatus);
 		// final SharedPreferences pref =
-		// MainActivity.getContext().getSharedPreferences("UserSession", 0);
-		List<Climbing> climbs = MainActivity.getClimbingListForBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
+		// ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
+		List<Climbing> climbs = ClimbApplication.getClimbingListForBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
 		if (climbs.size() == 0)
 			climbing = null;
 		else if (climbs.size() == 1)
@@ -150,7 +150,7 @@ public class BuildingCard extends Card {
 			}
 		}
 		// climbing =
-		// MainActivity.getClimbingForBuildingAndUser(building.get_id(),
+		// ClimbApplication.getClimbingForBuildingAndUser(building.get_id(),
 		// pref.getInt("local_id", -1));
 		gameMode.setText("Modalitˆ: " + setModeText());
 		if (climbing != null) {
@@ -208,8 +208,8 @@ public class BuildingCard extends Card {
 								climbing.setModified(new Date().getTime());
 								climbing.setGame_mode(1);
 								climbing.setPercentage(0);
-								climbing.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
-								MainActivity.climbingDao.create(climbing);
+								climbing.setUser(ClimbApplication.getUserById(pref.getInt("local_id", -1)));
+								ClimbApplication.climbingDao.create(climbing);
 								saveClimbingInParse();
 							} else {
 								// update existing Climbing object
@@ -239,7 +239,7 @@ public class BuildingCard extends Card {
 									climbing.setCompleted_steps(0);
 									climbing.setRemaining_steps(building.getSteps());
 								}
-								MainActivity.climbingDao.update(climbing);
+								ClimbApplication.climbingDao.update(climbing);
 								updateClimbingInParse(climbing, false);
 							}
 
@@ -249,7 +249,7 @@ public class BuildingCard extends Card {
 							Log.d("onClick", "solo");
 							climbing.setGame_mode(0);
 							climbing.setId_mode("");
-							MainActivity.climbingDao.update(climbing);
+							ClimbApplication.climbingDao.update(climbing);
 							updateClimbingInParse(climbing, true);
 							leaveCollaboration();
 							break;
@@ -283,7 +283,7 @@ public class BuildingCard extends Card {
 								// the first one in solo climb
 								// climbing.setId_mode("paused");
 								// climbing.setSaved(false);
-								// MainActivity.climbingDao.update(climbing);
+								// ClimbApplication.climbingDao.update(climbing);
 								// updateClimbingInParse(climbing, false);
 								soloClimbing = climbing;
 							}
@@ -299,8 +299,8 @@ public class BuildingCard extends Card {
 							climbing.setGame_mode(2);
 							climbing.setPercentage(0);
 							climbing.setId_mode("");
-							climbing.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
-							MainActivity.climbingDao.create(climbing);
+							climbing.setUser(ClimbApplication.getUserById(pref.getInt("local_id", -1)));
+							ClimbApplication.climbingDao.create(climbing);
 							saveClimbingInParse();
 							break;
 
@@ -309,12 +309,12 @@ public class BuildingCard extends Card {
 							/*
 							 * climbing.setGame_mode(0);
 							 * climbing.setId_mode("");
-							 * MainActivity.climbingDao.update(climbing);
+							 * ClimbApplication.climbingDao.update(climbing);
 							 */
 							if (soloClimbing == null) {
 								climbing.setGame_mode(0);
 								climbing.setId_mode("");
-								MainActivity.climbingDao.update(climbing);
+								ClimbApplication.climbingDao.update(climbing);
 								updateClimbingInParse(climbing, true);
 
 							} else {
@@ -369,8 +369,8 @@ public class BuildingCard extends Card {
 							climbing.setGame_mode(3);
 							climbing.setPercentage(0);
 							climbing.setId_mode("");
-							climbing.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
-							MainActivity.climbingDao.create(climbing);
+							climbing.setUser(ClimbApplication.getUserById(pref.getInt("local_id", -1)));
+							ClimbApplication.climbingDao.create(climbing);
 							saveClimbingInParse();
 
 						} else {
@@ -379,14 +379,14 @@ public class BuildingCard extends Card {
 						}
 						break;
 					case TEAM_VS_TEAM:
-						TeamDuel currentDuel = MainActivity.getTeamDuelByBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
+						TeamDuel currentDuel = ClimbApplication.getTeamDuelByBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
 						if (currentDuel.getId_online() == null || currentDuel.getId_online().equals(""))
 							Toast.makeText(activity.getApplicationContext(), "Duel not yet saved. Connect to save it", Toast.LENGTH_SHORT).show();
 						else {
-							Log.i(MainActivity.AppName, "Building id clicked: " + building.get_id());
+							Log.i("BuildingCard", "Building id clicked: " + building.get_id());
 							Intent intent = new Intent(activity.getApplicationContext(), TeamPreparationActivity.class);
-							intent.putExtra(MainActivity.building_intent_object, building.get_id());
-							intent.putExtra(MainActivity.duel_intent_object, currentDuel.get_id());
+							intent.putExtra(ClimbApplication.building_intent_object, building.get_id());
+							intent.putExtra(ClimbApplication.duel_intent_object, currentDuel.get_id());
 							activity.startActivity(intent);
 						}
 						break;
@@ -417,13 +417,13 @@ public class BuildingCard extends Card {
 				if (e == null) {
 					if (climbs.size() != 0) {
 						climbs.get(0).deleteEventually();
-						MainActivity.climbingDao.delete(climb);
+						ClimbApplication.climbingDao.delete(climb);
 
 					}
 				} else {
 					climb.setDeleted(true);
 					climb.setSaved(false);
-					MainActivity.climbingDao.update(climb);
+					ClimbApplication.climbingDao.update(climb);
 					Toast.makeText(activity.getApplicationContext(), " 6 Connection needed", Toast.LENGTH_SHORT).show();
 				}
 			}
@@ -482,13 +482,13 @@ public class BuildingCard extends Card {
 									mode = GameModeType.TEAM_VS_TEAM;
 									setTeamChallenge();
 
-									Log.i(MainActivity.AppName, "Building id clicked: " + building.get_id());
+									Log.i("Building Card", "Building id clicked: " + building.get_id());
 									Intent intent = new Intent(activity.getApplicationContext(), TeamPreparationActivity.class);
-									intent.putExtra(MainActivity.building_intent_object, building.get_id());
+									intent.putExtra(ClimbApplication.building_intent_object, building.get_id());
 									activity.startActivity(intent);
 								}
 							} else {
-								Toast.makeText(MainActivity.getContext(), " 1 Connection Problems", Toast.LENGTH_SHORT).show();
+								Toast.makeText(ClimbApplication.getContext(), " 1 Connection Problems", Toast.LENGTH_SHORT).show();
 								Log.e("updateClimbingInParse", e.getMessage());
 								if (climbing.getGame_mode() == 1 && collab.getBuilding() == null) {
 									climbing.setGame_mode(0);
@@ -499,14 +499,14 @@ public class BuildingCard extends Card {
 								// rollback(2);
 								// }
 								climbing.setSaved(false);
-								MainActivity.climbingDao.update(climbing);
+								ClimbApplication.climbingDao.update(climbing);
 							}
 						}
 					});
 					climbing.setSaved(true);
-					MainActivity.climbingDao.update(climbing);
+					ClimbApplication.climbingDao.update(climbing);
 				} else {
-					Toast.makeText(MainActivity.getContext(), "2 Connection Problems", Toast.LENGTH_SHORT).show();
+					Toast.makeText(ClimbApplication.getContext(), "2 Connection Problems", Toast.LENGTH_SHORT).show();
 					Log.e("updateClimbingInParse", e.getMessage());
 					if (climbing.getGame_mode() == 1 && collab.getBuilding() == null) {
 						climbing.setGame_mode(0);
@@ -514,7 +514,7 @@ public class BuildingCard extends Card {
 					}
 
 					climbing.setSaved(false);
-					MainActivity.climbingDao.update(climbing);
+					ClimbApplication.climbingDao.update(climbing);
 				}
 			}
 		});
@@ -552,7 +552,7 @@ public class BuildingCard extends Card {
 				if (e == null) {
 					climbing.setId_online(climb.getObjectId());
 					climbing.setSaved(true);
-					MainActivity.climbingDao.update(climbing);
+					ClimbApplication.climbingDao.update(climbing);
 					switch (climbing.getGame_mode()) {
 					case 1:
 						saveCollaboration();
@@ -582,11 +582,11 @@ public class BuildingCard extends Card {
 							climbing.setId_mode("");
 							del.setDeleted(true);
 							del.setSaved(false);
-							MainActivity.climbingDao.update(del);
+							ClimbApplication.climbingDao.update(del);
 						}
 					}
 					climbing.setSaved(false);
-					MainActivity.climbingDao.update(climbing);
+					ClimbApplication.climbingDao.update(climbing);
 					Toast.makeText(activity, "77 Unable to connect: data will be saved during next reconnection", Toast.LENGTH_SHORT).show();
 				}
 
@@ -641,9 +641,9 @@ public class BuildingCard extends Card {
 		collab.setMy_stairs(0);
 		collab.setOthers_stairs(0);
 		collab.setLeaved(false);
-		collab.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
+		collab.setUser(ClimbApplication.getUserById(pref.getInt("local_id", -1)));
 		collab.setCompleted(false);
-		MainActivity.collaborationDao.create(collab);
+		ClimbApplication.collaborationDao.create(collab);
 
 		collabParse = new ParseObject("Collaboration");
 		collabParse.put("building", building.get_id());
@@ -657,9 +657,9 @@ public class BuildingCard extends Card {
 				if (e == null) {
 					collab.setId(collabParse.getObjectId());
 					collab.setSaved(true);
-					MainActivity.collaborationDao.update(collab);
+					ClimbApplication.collaborationDao.update(collab);
 					climbing.setId_mode(collab.getId());
-					MainActivity.climbingDao.update(climbing);
+					ClimbApplication.climbingDao.update(climbing);
 					updateClimbingInParse(climbing, false);
 
 					mode = GameModeType.SOCIAL_CLIMB;
@@ -667,13 +667,13 @@ public class BuildingCard extends Card {
 					sendRequest(GameModeType.SOCIAL_CLIMB, collab.getId());
 				} else {
 					collab.setSaved(false);
-					MainActivity.collaborationDao.update(collab);
+					ClimbApplication.collaborationDao.update(collab);
 					/*
 					 * climbing.setId_mode("set"); climbing.setGame_mode(1);
 					 */
 					climbing.setSaved(false);
-					MainActivity.climbingDao.update(climbing);
-					Toast.makeText(MainActivity.getContext(), "3 Connection Problems: cannot create collaboration", Toast.LENGTH_SHORT).show();
+					ClimbApplication.climbingDao.update(climbing);
+					Toast.makeText(ClimbApplication.getContext(), "3 Connection Problems: cannot create collaboration", Toast.LENGTH_SHORT).show();
 					Log.e("saveCollaboration", e.getMessage());
 				}
 			}
@@ -702,9 +702,9 @@ public class BuildingCard extends Card {
 		compet.setMy_stairs(0);
 		compet.setCurrent_position(0);
 		compet.setLeaved(false);
-		compet.setUser(MainActivity.getUserById(pref.getInt("local_id", -1)));
+		compet.setUser(ClimbApplication.getUserById(pref.getInt("local_id", -1)));
 		compet.setCompleted(false);
-		MainActivity.competitionDao.create(compet);
+		ClimbApplication.competitionDao.create(compet);
 
 		competParse = new ParseObject("Competition");
 		competParse.put("building", building.get_id());
@@ -720,10 +720,10 @@ public class BuildingCard extends Card {
 					System.out.println("assegnato id a competiz" + competParse.getObjectId());
 					compet.setId_online(competParse.getObjectId());
 					compet.setSaved(true);
-					MainActivity.competitionDao.update(compet);
+					ClimbApplication.competitionDao.update(compet);
 
 					climbing.setId_mode(compet.getId_online());
-					MainActivity.climbingDao.update(climbing);
+					ClimbApplication.climbingDao.update(climbing);
 					updateClimbingInParse(climbing, false);
 
 					mode = GameModeType.SOCIAL_CHALLENGE;
@@ -733,10 +733,10 @@ public class BuildingCard extends Card {
 					System.out.println("assegnato id a competiz????" + competParse.getObjectId());
 					compet.setSaved(false);
 					climbing.setSaved(false);
-					MainActivity.competitionDao.update(compet);
-					MainActivity.climbingDao.update(climbing);
+					ClimbApplication.competitionDao.update(compet);
+					ClimbApplication.climbingDao.update(climbing);
 
-					Toast.makeText(MainActivity.getContext(), "5 Connection Problems: cannot create competition", Toast.LENGTH_SHORT).show();
+					Toast.makeText(ClimbApplication.getContext(), "5 Connection Problems: cannot create competition", Toast.LENGTH_SHORT).show();
 					Log.e("saveCompetition", e.getMessage());
 				}
 			}
@@ -745,7 +745,7 @@ public class BuildingCard extends Card {
 
 	private void saveTeamDuel() {
 		System.out.println("save team duel");
-		User me = MainActivity.getUserById(pref.getInt("local_id", -1));
+		User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
 		duel.setBuilding(building);
 		duel.setUser(me);
 		duel.setSteps_my_group(0);
@@ -759,7 +759,7 @@ public class BuildingCard extends Card {
 		duel.setDeleted(false);
 		duel.setCreator_name(me.getName());
 		duel.setReadyToPlay(false);
-		MainActivity.teamDuelDao.create(duel);
+		ClimbApplication.teamDuelDao.create(duel);
 
 		JSONObject creator_stairs = new JSONObject();
 		JSONObject creator_team = new JSONObject();
@@ -797,10 +797,10 @@ public class BuildingCard extends Card {
 					System.out.println("id duel: " + teamDuelParse.getObjectId());
 
 					duel.setSaved(true);
-					MainActivity.teamDuelDao.update(duel);
+					ClimbApplication.teamDuelDao.update(duel);
 
 					climbing.setId_mode(duel.getId_online());
-					MainActivity.climbingDao.update(climbing);
+					ClimbApplication.climbingDao.update(climbing);
 					System.out.println("id duel: " + duel.getId_online());
 
 					updateClimbingInParse(climbing, false);
@@ -808,9 +808,9 @@ public class BuildingCard extends Card {
 				} else {
 					duel.setSaved(false);
 					climbing.setSaved(false);
-					MainActivity.teamDuelDao.update(duel);
-					MainActivity.climbingDao.update(climbing);
-					Toast.makeText(MainActivity.getContext(), "4 Connection Problems: cannot create competition", Toast.LENGTH_SHORT).show();
+					ClimbApplication.teamDuelDao.update(duel);
+					ClimbApplication.climbingDao.update(climbing);
+					Toast.makeText(ClimbApplication.getContext(), "4 Connection Problems: cannot create competition", Toast.LENGTH_SHORT).show();
 					Log.e("saveTeamCompetition", e.getMessage());
 				}
 			}
@@ -823,7 +823,7 @@ public class BuildingCard extends Card {
 	 * locally e remembers to retry it later.
 	 */
 	private void leaveCollaboration() {
-		final Collaboration collab = MainActivity.getCollaborationByBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
+		final Collaboration collab = ClimbApplication.getCollaborationByBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("Collaboration");
 		query.whereEqualTo("objectId", collab.getId());
 		query.findInBackground(new FindCallback<ParseObject>() {
@@ -832,8 +832,8 @@ public class BuildingCard extends Card {
 			public void done(List<ParseObject> collabs, ParseException e) {
 				if (e == null) {
 					if (collabs.size() == 0) {
-						Toast.makeText(MainActivity.getContext(), "This collaboration does not exists anymore", Toast.LENGTH_SHORT).show();
-						MainActivity.collaborationDao.delete(collab);
+						Toast.makeText(ClimbApplication.getContext(), "This collaboration does not exists anymore", Toast.LENGTH_SHORT).show();
+						ClimbApplication.collaborationDao.delete(collab);
 					} else {
 						ParseObject c = collabs.get(0);
 						JSONObject collaborators = c.getJSONObject("collaborators");
@@ -848,19 +848,19 @@ public class BuildingCard extends Card {
 							c.saveEventually();
 						/*
 						 * collab.setLeaved(true); collab.setSaved(true);
-						 * MainActivity.collaborationDao.update(collab);
+						 * ClimbApplication.collaborationDao.update(collab);
 						 */
-						MainActivity.collaborationDao.delete(collab);
+						ClimbApplication.collaborationDao.delete(collab);
 						climbing.setGame_mode(0);
 						climbing.setId_mode("");
-						MainActivity.climbingDao.update(climbing);
+						ClimbApplication.climbingDao.update(climbing);
 						updateClimbingInParse(climbing, true);
 					}
 				} else {
 					collab.setLeaved(true);
 					collab.setSaved(false);
-					MainActivity.collaborationDao.update(collab);
-					Toast.makeText(MainActivity.getContext(), "6 Connection Problems", Toast.LENGTH_SHORT).show();
+					ClimbApplication.collaborationDao.update(collab);
+					Toast.makeText(ClimbApplication.getContext(), "6 Connection Problems", Toast.LENGTH_SHORT).show();
 					Log.e("updateClimbingInParse", e.getMessage());
 				}
 				socialChallengeButton.setEnabled(true);
@@ -879,7 +879,7 @@ public class BuildingCard extends Card {
 	 * locally e remembers to retry it later.
 	 */
 	private void leaveCompetition() {
-		final Competition competit = MainActivity.getCompetitionByBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
+		final Competition competit = ClimbApplication.getCompetitionByBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("Competition");
 		query.whereEqualTo("objectId", competit.getId_online());
 		query.findInBackground(new FindCallback<ParseObject>() {
@@ -888,8 +888,8 @@ public class BuildingCard extends Card {
 			public void done(List<ParseObject> competits, ParseException e) {
 				if (e == null) {
 					if (competits.size() == 0) {
-						Toast.makeText(MainActivity.getContext(), "This competition does not exists anymore", Toast.LENGTH_SHORT).show();
-						MainActivity.competitionDao.delete(competit);
+						Toast.makeText(ClimbApplication.getContext(), "This competition does not exists anymore", Toast.LENGTH_SHORT).show();
+						ClimbApplication.competitionDao.delete(competit);
 					} else {
 						ParseObject c = competits.get(0);
 						JSONObject collaborators = c.getJSONObject("competitors");
@@ -903,14 +903,14 @@ public class BuildingCard extends Card {
 						else
 							c.saveEventually();
 
-						MainActivity.competitionDao.delete(competit);
+						ClimbApplication.competitionDao.delete(competit);
 
 					}
 				} else {
 					competit.setLeaved(true);
 					competit.setSaved(false);
-					MainActivity.competitionDao.update(competit);
-					Toast.makeText(MainActivity.getContext(), "7 Connection Problems", Toast.LENGTH_SHORT).show();
+					ClimbApplication.competitionDao.update(competit);
+					Toast.makeText(ClimbApplication.getContext(), "7 Connection Problems", Toast.LENGTH_SHORT).show();
 					Log.e("leaveCompetition", e.getMessage());
 				}
 				socialChallengeButton.setEnabled(true);
@@ -1014,11 +1014,11 @@ public class BuildingCard extends Card {
 		switch (type) {
 		case 1:
 			collabParse.deleteEventually();
-			MainActivity.collaborationDao.delete(collab);
+			ClimbApplication.collaborationDao.delete(collab);
 
 			climbing.setGame_mode(0);
 			climbing.setId_mode("");
-			MainActivity.climbingDao.update(climbing);
+			ClimbApplication.climbingDao.update(climbing);
 			updateClimbingInParse(climbing, true);
 			graphicsRollBack(type);
 
@@ -1033,7 +1033,7 @@ public class BuildingCard extends Card {
 			}
 			if (compet.getBuilding() != null) {
 				System.out.println("delete local");
-				MainActivity.competitionDao.delete(compet);
+				ClimbApplication.competitionDao.delete(compet);
 			}
 
 			if (soloClimbing != null) {
@@ -1041,7 +1041,7 @@ public class BuildingCard extends Card {
 				Climbing del = climbing;
 				climbing = soloClimbing;
 				climbing.setId_mode("");
-				MainActivity.climbingDao.update(climbing);
+				ClimbApplication.climbingDao.update(climbing);
 				updateClimbingInParse(climbing, true);
 
 				deleteClimbingInParse(del);
@@ -1049,7 +1049,7 @@ public class BuildingCard extends Card {
 				System.out.println("sistema unico climb");
 				climbing.setGame_mode(0);
 				climbing.setId_mode("");
-				MainActivity.climbingDao.update(climbing);
+				ClimbApplication.climbingDao.update(climbing);
 				updateClimbingInParse(climbing, true);
 			}
 			graphicsRollBack(type);
@@ -1061,10 +1061,10 @@ public class BuildingCard extends Card {
 		case 3:
 			/*
 			 * teamDuelParse.deleteEventually();
-			 * MainActivity.teamDuelDao.delete(duel);
+			 * ClimbApplication.teamDuelDao.delete(duel);
 			 * 
 			 * soloClimbing.setId_mode("");
-			 * MainActivity.climbingDao.update(soloClimbing);
+			 * ClimbApplication.climbingDao.update(soloClimbing);
 			 * updateClimbingInParse(climbing, true);
 			 * 
 			 * deleteClimbingInParse(climbing); graphicsRollBack(type);

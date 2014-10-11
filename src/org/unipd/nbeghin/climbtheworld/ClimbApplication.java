@@ -1,30 +1,682 @@
 package org.unipd.nbeghin.climbtheworld;
 
-import org.unipd.nbeghin.climbtheworld.db.DbHelper;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import org.unipd.nbeghin.climbtheworld.db.DbHelper;
+import org.unipd.nbeghin.climbtheworld.db.PreExistingDbLoader;
+import org.unipd.nbeghin.climbtheworld.models.Badge;
+import org.unipd.nbeghin.climbtheworld.models.Building;
+import org.unipd.nbeghin.climbtheworld.models.BuildingTour;
+import org.unipd.nbeghin.climbtheworld.models.Climbing;
+import org.unipd.nbeghin.climbtheworld.models.Collaboration;
+import org.unipd.nbeghin.climbtheworld.models.Competition;
+import org.unipd.nbeghin.climbtheworld.models.Notification;
+import org.unipd.nbeghin.climbtheworld.models.Photo;
+import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
+import org.unipd.nbeghin.climbtheworld.models.Tour;
+import org.unipd.nbeghin.climbtheworld.models.User;
+import org.unipd.nbeghin.climbtheworld.models.UserBadge;
+
+import android.app.Application;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.database.sqlite.SQLiteDatabase;
+import android.support.v7.app.ActionBar;
+import android.util.Log;
+import android.view.View;
+
+import com.j256.ormlite.dao.RuntimeExceptionDao;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.Where;
 import com.parse.Parse;
 import com.parse.ParseFacebookUtils;
 
-import android.app.Application;
-import android.util.Log;
-
+/*
+ * Base class to maintain global application state
+ * 
+ * Called when the application is starting, before any activity, service, or receiver objects (excluding content providers) 
+ * have been created. Implementations should be as quick as possible (for example using lazy initialization of state) 
+ * since the time spent in this function directly impacts the performance of starting the first activity, 
+ * service, or receiver in a process. If you override this method, be sure to call super.onCreate().
+ */
 public class ClimbApplication extends Application{
-	public static final int N_MEMBERS_PER_GROUP = 6; // 5 amici + me
+	public static final int N_MEMBERS_PER_GROUP = 6; // 5 friends + me
 	public static boolean BUSY = false;
 	public static Object lock = new Object();
 	
+	public static List<Building> buildings;
+	public static List<Climbing> climbings /* = new ArrayList<Climbing>() */; // list
+																				// of
+																				// loaded
+																				// climbings
+	public static List<Tour> tours; // list of loaded tours
+	public static List<Notification> notifications;
+	public static List<Collaboration> collaborations;
+	public static List<Competition> competitions;
+	public static List<TeamDuel> teamDuels;
+	public static List<Badge> badges;
+	public static List<UserBadge> userBadges;
+	private ActionBar ab; // reference to action bar
+	public static RuntimeExceptionDao<Building, Integer> buildingDao; // DAO for buildings
+	public static RuntimeExceptionDao<Collaboration, Integer> collaborationDao;
+	public static RuntimeExceptionDao<Competition, Integer> competitionDao;
+	public static RuntimeExceptionDao<TeamDuel, Integer> teamDuelDao;
+	public static RuntimeExceptionDao<Climbing, Integer> climbingDao; // DAO for climbings
+	public static RuntimeExceptionDao<Tour, Integer> tourDao; // DAO for tours
+	public static RuntimeExceptionDao<BuildingTour, Integer> buildingTourDao; // DAO for building_tours
+	public static RuntimeExceptionDao<Photo, Integer> photoDao;
+	public static RuntimeExceptionDao<User, Integer> userDao;
+	public static RuntimeExceptionDao<Badge, Integer> badgeDao;
+	public static RuntimeExceptionDao<UserBadge, Integer> userBadgeDao;
+	
+	public static final String settings_file = "ClimbTheWorldPreferences";
+	public static final String settings_detected_sampling_rate = "samplingRate";
+	
+	public static final String building_intent_object = "org.unipd.nbeghin.climbtheworld.intents.object.building"; // intent
+	// key
+	// for
+	// sending
+	// building
+	// id
+	public static final String duel_intent_object = "org.unipd.nbeghin.climbtheworld.intents.object.teamDuel";
+	
+	static DbHelper dbHelper;
+	private static Context sContext;
+	
+	private static ClimbApplication singleton;
+	
+	public ClimbApplication getInstance(){
+		return singleton;
+	}
+	
+	public static Context getContext(){
+		return sContext;
+	}
+
 	 @Override
 	  public void onCreate()
 	  {
 	    super.onCreate();
-	    Log.d("enable local datastorage", "local db");
-	   // Parse.enableLocalDatastore(getApplicationContext());
-	    Log.d("enable local datastorage", "local db opened");
-
+	    Log.d("ClimbApplication", "onCreate");
+		singleton = this;
+		sContext = getApplicationContext();
+	    //Parse initialize
 	    Parse.initialize(this, "e9wlYQPdpXlFX3XQc9Lq0GJFecuYrDSzwVNSovvd",
 				"QVII1Qhy8pXrjAZiL07qaTKbaWpkB87zc88UMWv2");
 		ParseFacebookUtils.initialize(getString(R.string.app_id));
+		
+		loadDb();
+		
+		SharedPreferences pref = sContext.getSharedPreferences("UserSession", 0);
+		Editor edit = pref.edit();
+		edit.putBoolean("openedFirst", true);
+		edit.commit();
 	  }
 	 
+	 public static int levelToXP(int l){
+		 return 25 * l * l - 25 * l;
+	 }
+	 
+	 public static int XPtoLevel(int points){
+		 return (int) Math.floor(25 + Math.sqrt(625 + 100 * points)) / 50;
+	 }
+	 
+	 public static int levelUp(int xp, int precLevel){
+		 int newLevel;
+		 if(precLevel < 20){
+			 newLevel = XPtoLevel(xp);
+		 }else{
+			if(xp == 9500)
+				newLevel = precLevel++;
+			else
+				newLevel = precLevel;
+		 }
+		 return newLevel;
+	 }
+	 
+		/**
+		 * Load db and setup DAOs NB: extracts DB from
+		 * assets/databases/ClimbTheWorld.zip
+		 */
+		private void loadDb() {
+			Log.d("Load normal db", "inizio");
+			PreExistingDbLoader preExistingDbLoader = new PreExistingDbLoader(getApplicationContext()); // extract
+																										// db																						// from
+																										// zip
+			SQLiteDatabase db = preExistingDbLoader.getReadableDatabase();
+			db.close(); // close connection to extracted db
+			dbHelper = new DbHelper(getApplicationContext()); // instance new db
+																// connection to
+																// now-standard db
+			buildingDao = dbHelper.getBuildingDao(); // create building DAO
+			userDao = dbHelper.getUserDao();
+
+			climbingDao = dbHelper.getClimbingDao(); // create climbing DAO
+			tourDao = dbHelper.getTourDao(); // create tour DAO
+			buildingTourDao = dbHelper.getBuildingTourDao(); // create building tour
+																// DAO
+			photoDao = dbHelper.getPhotoDao();
+			collaborationDao = dbHelper.getCollaborationDao();
+			competitionDao = dbHelper.getCompetitionDao();
+			teamDuelDao = dbHelper.getTeamDuelDao();
+			badgeDao = dbHelper.getBadgeDao();
+			userBadgeDao = dbHelper.getUserBadgeDao();
+			refresh(); // loads all buildings and tours
+		}
+		
+		/**
+		 * Reload all buildings
+		 */
+		public static void refreshBuildings() {
+			buildings = buildingDao.queryForAll();
+		}
+		
+		public static void refreshBadges(){
+			badges = badgeDao.queryForAll();
+		}
+		
+		public static void refreshUserBadge(){
+			SharedPreferences pref = sContext.getSharedPreferences("UserSession", 0);
+			QueryBuilder<UserBadge, Integer> query = userBadgeDao.queryBuilder();
+			Where<UserBadge, Integer> where = query.where();
+			try{
+				where.eq("user_id", pref.getInt("local_id", -1));
+				PreparedQuery<UserBadge> preparedQuery = query.prepare();
+				userBadges = userBadgeDao.query(preparedQuery);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+
+			}
+		}
+
+		public static void refreshCollaborations() {
+			SharedPreferences pref = sContext.getSharedPreferences("UserSession", 0);
+			QueryBuilder<Collaboration, Integer> query = collaborationDao.queryBuilder();
+			Where<Collaboration, Integer> where = query.where();
+			// the name field must be equal to "foo"
+			try {
+
+				where.eq("user_id", pref.getInt("local_id", -1));
+				System.out.println("collaborations di " + pref.getInt("local_id", -1));
+
+				PreparedQuery<Collaboration> preparedQuery = query.prepare();
+				List<Collaboration> colls = collaborationDao.query(preparedQuery);
+				collaborations = colls;
+				System.out.println(collaborations.size());
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+
+			}
+		}
+
+		public static void refreshCompetitions() {
+			SharedPreferences pref = sContext.getSharedPreferences("UserSession", 0);
+			QueryBuilder<Competition, Integer> query = competitionDao.queryBuilder();
+			Where<Competition, Integer> where = query.where();
+			// the name field must be equal to "foo"
+			try {
+
+				where.eq("user_id", pref.getInt("local_id", -1));
+				System.out.println("competition di " + pref.getInt("local_id", -1));
+
+				PreparedQuery<Competition> preparedQuery = query.prepare();
+				List<Competition> colls = competitionDao.query(preparedQuery);
+				competitions = colls;
+				System.out.println(competitions.size());
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+
+			}
+		}
+
+		public static void refreshClimbings() {
+			System.out.println("refreshClimbings");
+			SharedPreferences pref = sContext.getSharedPreferences("UserSession", 0);
+			/*
+			 * Map<String, Object> conditions = new HashMap<String, Object>();
+			 * conditions.put("users_id", pref.getInt("local_id", -1)); // filter
+			 * for building ID System.out.println("climbing di " +
+			 * pref.getInt("local_id", -1)); climbings =
+			 * climbingDao.queryForFieldValuesArgs(conditions);
+			 * System.out.println(climbings.size());
+			 */
+
+			QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
+			Where<Climbing, Integer> where = query.where();
+			// the name field must be equal to "foo"
+			try {
+
+				where.eq("users_id", pref.getInt("local_id", -1));
+				System.out.println("climbing di " + pref.getInt("local_id", -1));
+
+				PreparedQuery<Climbing> preparedQuery = query.prepare();
+				List<Climbing> climbs = climbingDao.query(preparedQuery);
+				climbings = climbs;
+				System.out.println(climbings.size());
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+
+			}
+
+		}
+
+		public static void refreshTeamDuels() {
+			SharedPreferences pref = sContext.getSharedPreferences("UserSession", 0);
+
+			QueryBuilder<TeamDuel, Integer> query = teamDuelDao.queryBuilder();
+			Where<TeamDuel, Integer> where = query.where();
+			// the name field must be equal to "foo"
+			try {
+
+				where.eq("user_id", pref.getInt("local_id", -1));
+				System.out.println("climbing di " + pref.getInt("local_id", -1));
+
+				PreparedQuery<TeamDuel> preparedQuery = query.prepare();
+				List<TeamDuel> duels = teamDuelDao.query(preparedQuery);
+				teamDuels = duels;
+				System.out.println(teamDuels.size());
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+
+			}
+		}
+
+		// per ogni edificio, una sola collaborazione
+		public static Collaboration getCollaborationByBuildingAndUser(int building_id, int user_id) {
+			SharedPreferences pref = sContext.getSharedPreferences("UserSession", 0);
+			QueryBuilder<Collaboration, Integer> query = collaborationDao.queryBuilder();
+			Where<Collaboration, Integer> where = query.where();
+
+			try {
+				where.eq("building_id", building_id);
+				where.and();
+				where.eq("user_id", user_id);
+				PreparedQuery<Collaboration> preparedQuery = query.prepare();
+				List<Collaboration> collabs = collaborationDao.query(preparedQuery);
+				if (collabs.size() == 0)
+					return null;
+				else
+					return collabs.get(0);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+
+		}
+
+		// per ogni edificio, una sola collaborazione
+		public static Competition getCompetitionByBuildingAndUser(int building_id, int user_id) {
+			SharedPreferences pref = sContext.getSharedPreferences("UserSession", 0);
+			QueryBuilder<Competition, Integer> query = competitionDao.queryBuilder();
+			Where<Competition, Integer> where = query.where();
+
+			try {
+				where.eq("building_id", building_id);
+				where.and();
+				where.eq("completed", 0);
+				where.and();
+				where.eq("user_id", user_id);
+				PreparedQuery<Competition> preparedQuery = query.prepare();
+				List<Competition> collabs = competitionDao.query(preparedQuery);
+				if (collabs.size() == 0)
+					return null;
+				else
+					return collabs.get(0);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+
+		}
+
+		public static TeamDuel getTeamDuelByBuildingAndUser(int building_id, int user_id) {
+			SharedPreferences pref = sContext.getSharedPreferences("UserSession", 0);
+			QueryBuilder<TeamDuel, Integer> query = teamDuelDao.queryBuilder();
+			Where<TeamDuel, Integer> where = query.where();
+
+			try {
+				where.eq("building_id", building_id);
+				where.and();
+				where.eq("user_id", user_id);
+				PreparedQuery<TeamDuel> preparedQuery = query.prepare();
+				List<TeamDuel> duels = teamDuelDao.query(preparedQuery);
+				if (duels.size() == 0)
+					return null;
+				else
+					return duels.get(0);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+		}
+
+		/**
+		 * Reload all tours
+		 */
+		public static void refreshTours() {
+			tours = tourDao.queryForAll();
+		}
+
+		/**
+		 * Reload buildings and tours
+		 */
+		public static void refresh() {
+			refreshBuildings();
+			refreshTours();
+		}
+
+		public void onBtnShowGallery(View v) {
+			Intent intent = new Intent(sContext, GalleryActivity.class);
+			intent.putExtra("building_id", 1);
+			startActivity(intent);
+		}
+
+		public static List<BuildingTour> getBuildingsForTour(int tour_id) {
+			Map<String, Object> conditions = new HashMap<String, Object>();
+			conditions.put("tour_id", tour_id);
+			return buildingTourDao.queryForFieldValuesArgs(conditions); // get all
+																		// buildings
+																		// associated
+																		// to a tour
+		}
+
+		public static int getBuildingImageResource(Building building) {
+			return sContext.getResources().getIdentifier(building.getPhoto(), "drawable", sContext.getPackageName());
+		}
+
+		public static List<Integer> getBuildingPhotosForTour(int tour_id) {
+			List<Integer> images = new ArrayList<Integer>();
+			List<BuildingTour> buildingsTour = getBuildingsForTour(tour_id);
+			for (BuildingTour buildingTour : buildingsTour) {
+				images.add(getBuildingImageResource(buildingTour.getBuilding()));
+			}
+			return images;
+		}
+		
+		/**
+		 * Check and return if a climbing exists for given building Returns null if
+		 * no climbing exists yet
+		 * 
+		 * @param building_id
+		 *            building ID
+		 * @return Climbing
+		 */
+		public static Climbing getClimbingForBuilding(int building_id) {
+			Map<String, Object> conditions = new HashMap<String, Object>();
+			conditions.put("building_id", building_id); // filter for building ID
+			List<Climbing> climbings = climbingDao.queryForFieldValuesArgs(conditions);
+			if (climbings.size() == 0)
+				return null;
+			return climbings.get(0);
+		}
+
+		public static Climbing getClimbingForBuildingAndUser(int building_id, int user_id) {
+			/*
+			 * Map<String, Object> conditions = new HashMap<String, Object>();
+			 * conditions.put("building_id", building_id); // filter for building ID
+			 * conditions.put("users_id", user_id); Log.d("cerco",
+			 * String.valueOf(user_id)); List<Climbing> climbings = climbingDao
+			 * .queryForFieldValuesArgs(conditions);
+			 */
+			QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
+			Where<Climbing, Integer> where = query.where();
+			// the name field must be equal to "foo"
+			try {
+				where.eq("building_id", building_id);
+				// and
+				where.and();
+				// the password field must be equal to "_secret"
+				where.eq("users_id", user_id);
+				PreparedQuery<Climbing> preparedQuery = query.prepare();
+				List<Climbing> climbings = climbingDao.query(preparedQuery);
+				if (climbings.size() == 0)
+					return null;
+				return climbings.get(0);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+
+		}
+
+		public static Climbing getClimbingForParseId(int id) {
+			/*
+			 * Map<String, Object> conditions = new HashMap<String, Object>();
+			 * conditions.put("building_id", building_id); // filter for building ID
+			 * conditions.put("users_id", user_id); Log.d("cerco",
+			 * String.valueOf(user_id)); List<Climbing> climbings = climbingDao
+			 * .queryForFieldValuesArgs(conditions);
+			 */
+			QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
+			Where<Climbing, Integer> where = query.where();
+			// the name field must be equal to "foo"
+			try {
+				where.eq("online_id", id);
+				PreparedQuery<Climbing> preparedQuery = query.prepare();
+				List<Climbing> climbings = climbingDao.query(preparedQuery);
+				if (climbings.size() == 0)
+					return null;
+				return climbings.get(0);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+
+		}
+
+		public static Climbing getClimbingForBuildingAndUserNotPaused(int building_id, int user_id) {
+			/*
+			 * Map<String, Object> conditions = new HashMap<String, Object>();
+			 * conditions.put("building_id", building_id); // filter for building ID
+			 * conditions.put("users_id", user_id); Log.d("cerco",
+			 * String.valueOf(user_id)); List<Climbing> climbings = climbingDao
+			 * .queryForFieldValuesArgs(conditions);
+			 */
+			QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
+			Where<Climbing, Integer> where = query.where();
+			// the name field must be equal to "foo"
+			try {
+				where.eq("building_id", building_id);
+				// and
+				where.and();
+				// the password field must be equal to "_secret"
+				where.eq("users_id", user_id);
+				where.and();
+				where.ne("id_mode", "paused");
+				PreparedQuery<Climbing> preparedQuery = query.prepare();
+				List<Climbing> climbings = climbingDao.query(preparedQuery);
+				if (climbings.size() == 0)
+					return null;
+				return climbings.get(0);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+
+		}
+
+		public static Climbing getClimbingForBuildingAndUserPaused(int building_id, int user_id) {
+			/*
+			 * Map<String, Object> conditions = new HashMap<String, Object>();
+			 * conditions.put("building_id", building_id); // filter for building ID
+			 * conditions.put("users_id", user_id); Log.d("cerco",
+			 * String.valueOf(user_id)); List<Climbing> climbings = climbingDao
+			 * .queryForFieldValuesArgs(conditions);
+			 */
+			QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
+			Where<Climbing, Integer> where = query.where();
+			// the name field must be equal to "foo"
+			try {
+				where.eq("building_id", building_id);
+				// and
+				where.and();
+				// the password field must be equal to "_secret"
+				where.eq("users_id", user_id);
+				where.and();
+				where.eq("id_mode", "paused");
+				PreparedQuery<Climbing> preparedQuery = query.prepare();
+				List<Climbing> climbings = climbingDao.query(preparedQuery);
+				if (climbings.size() == 0)
+					return null;
+				return climbings.get(0);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+		}
+
+		public static List<Climbing> getClimbingListForBuildingAndUser(int building_id, int user_id) {
+
+			QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
+			Where<Climbing, Integer> where = query.where();
+			// the name field must be equal to "foo"
+			try {
+				where.eq("building_id", building_id);
+				// and
+				where.and();
+				// the password field must be equal to "_secret"
+				where.eq("users_id", user_id);
+				PreparedQuery<Climbing> preparedQuery = query.prepare();
+				List<Climbing> climbings = climbingDao.query(preparedQuery);
+				return climbings;
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+		}
+		
+		public static UserBadge getUserBadgeForUserAndBadge(int badge_id, int obj_id, int user_id) {
+
+			QueryBuilder<UserBadge, Integer> query = userBadgeDao.queryBuilder();
+			Where<UserBadge, Integer> where = query.where();
+			try {
+				where.eq("badge_id", badge_id);
+				where.and();
+				where.eq("user_id", user_id);
+				where.and();
+				where.eq("obj_id", obj_id);
+				PreparedQuery<UserBadge> preparedQuery = query.prepare();
+				List<UserBadge> userBadges = userBadgeDao.query(preparedQuery);
+				return userBadges.get(0);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+		}
+		
+		
+		
+
+		public static Collaboration getCollaborationForBuilding(int building_id) {
+			Map<String, Object> conditions = new HashMap<String, Object>();
+			conditions.put("building_id", building_id); // filter for building ID
+			List<Collaboration> collaborations = collaborationDao.queryForFieldValuesArgs(conditions);
+			if (collaborations.size() == 0)
+				return null;
+			return collaborations.get(0);
+		}
+
+		public static TeamDuel getTeamDuelById(String id) {
+			Map<String, Object> conditions = new HashMap<String, Object>();
+			conditions.put("id_online", id);
+			List<TeamDuel> duels = teamDuelDao.queryForFieldValuesArgs(conditions);
+			if (duels.size() == 0)
+				return null;
+			return duels.get(0);
+		}
+
+		public static Collaboration getCollaborationById(String id) {
+			Map<String, Object> conditions = new HashMap<String, Object>();
+			conditions.put("id_online", id); // filter for building ID
+			List<Collaboration> collaborations = collaborationDao.queryForFieldValuesArgs(conditions);
+			if (collaborations.size() == 0)
+				return null;
+			return collaborations.get(0);
+		}
+
+		public static Competition getCompetitionById(String id) {
+			Map<String, Object> conditions = new HashMap<String, Object>();
+			conditions.put("id_online", id); // filter for building ID
+			List<Competition> collaborations = competitionDao.queryForFieldValuesArgs(conditions);
+			if (collaborations.size() == 0)
+				return null;
+			return collaborations.get(0);
+		}
+
+		public static User getUserById(int id) {
+			Map<String, Object> conditions = new HashMap<String, Object>();
+			conditions.put("_id", id); // filter for building ID
+			List<User> users = userDao.queryForFieldValuesArgs(conditions);
+			if (users.size() == 0)
+				return null;
+			return users.get(0);
+		}
+
+		public static User getUserByFBId(String id) {
+			Map<String, Object> conditions = new HashMap<String, Object>();
+			conditions.put("FBid", id); // filter for building ID
+			List<User> users = userDao.queryForFieldValuesArgs(conditions);
+			if (users.size() == 0)
+				return null;
+			return users.get(0);
+		}
+
+		public static Building getBuildingById(int id) {
+			Map<String, Object> conditions = new HashMap<String, Object>();
+			conditions.put("_id", id); // filter for building ID
+			List<Building> buildings = buildingDao.queryForFieldValuesArgs(conditions);
+			if (buildings.size() == 0)
+				return null;
+			return buildings.get(0);
+		}
+	 
+		public static Tour getTourById(int id) {
+			Map<String, Object> conditions = new HashMap<String, Object>();
+			conditions.put("_id", id); // filter for building ID
+			List<Tour> tours = tourDao.queryForFieldValuesArgs(conditions);
+			if (tours.size() == 0)
+				return null;
+			return tours.get(0);
+		}
+		
+		public static Badge getBadgeById(int id){
+			Map<String, Object> conditions = new HashMap<String, Object>();
+			conditions.put("_id", id); // filter for building ID
+			List<Badge> userBadges = badgeDao.queryForFieldValuesArgs(conditions);
+			if (userBadges.size() == 0)
+				return null;
+			return userBadges.get(0);
+		}
+		
+		public static Badge getBadgeByCategory(int category){
+			Map<String, Object> conditions = new HashMap<String, Object>();
+			conditions.put("category", category); // filter for building ID
+			List<Badge> userBadges = badgeDao.queryForFieldValuesArgs(conditions);
+			if (userBadges.size() == 0)
+				return null;
+			return userBadges.get(0);
+		}
+		
 	 
 }

@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.models.Building;
@@ -42,7 +43,7 @@ public class BuildingForTourCard extends Card {
 		((TextView) view.findViewById(R.id.description)).setText(building.getDescription());
 		((TextView) view.findViewById(R.id.tourOrder)).setText(Integer.toString(order));
 		TextView climbingStatus = (TextView) view.findViewById(R.id.climbingStatus);
-		Climbing climbing = MainActivity.getClimbingForBuilding(building.get_id());
+		Climbing climbing = ClimbApplication.getClimbingForBuilding(building.get_id());
 		SimpleDateFormat sdf=new SimpleDateFormat("yyyy.MM.dd");
 		if (climbing != null) {
 			if (climbing.getPercentage() >= 100) {
