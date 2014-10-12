@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.db.PreExistingDbLoader;
 import org.unipd.nbeghin.climbtheworld.models.Badge;
@@ -378,6 +381,7 @@ public class ClimbApplication extends Application{
 		public static void refresh() {
 			refreshBuildings();
 			refreshTours();
+			refreshBadges();
 		}
 
 		public void onBtnShowGallery(View v) {
@@ -577,6 +581,8 @@ public class ClimbApplication extends Application{
 				where.eq("obj_id", obj_id);
 				PreparedQuery<UserBadge> preparedQuery = query.prepare();
 				List<UserBadge> userBadges = userBadgeDao.query(preparedQuery);
+				if(userBadges.isEmpty())
+					return null;
 				return userBadges.get(0);
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -698,6 +704,22 @@ public class ClimbApplication extends Application{
 			conditions.put("user_id", user_id); // filter for building ID
 			List<UserBadge> userBadges = userBadgeDao.queryForFieldValuesArgs(conditions);
 			return userBadges;
+		}
+		
+		public static int lookForBadge(int badge_id, int obj_id, JSONArray array){
+			for(int i = 0; i < array.length(); i++){
+				try {
+					JSONObject obj = array.getJSONObject(i);
+					if(obj.getInt("badge_id") == badge_id && obj.getInt("obj_id") == obj_id)
+						return i;
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return -1;
+				}
+				
+			}
+			return -1;
 		}
 		
 	 

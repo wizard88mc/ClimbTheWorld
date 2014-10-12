@@ -2018,9 +2018,11 @@ public class ClimbActivity extends ActionBarActivity {
 			userbadge.setObj_id(building.get_id());
 			userbadge.setPercentage(percentage);
 			userbadge.setUser(me);
+			userbadge.setSaved(false);
 			ClimbApplication.userBadgeDao.create(userbadge);
 		}else{
 			userbadge.setPercentage(percentage);
+			userbadge.setSaved(false);
 			ClimbApplication.userBadgeDao.update(userbadge);
 		}
 		return userbadge;
@@ -2040,12 +2042,13 @@ public class ClimbActivity extends ActionBarActivity {
 			int percentage = ((num_steps) / tour.getTotalSteps() );
 			ub.setPercentage(percentage);
 			ub.setUser(me);
-			ub.setSaved(true);
+			ub.setSaved(false);
 			ClimbApplication.userBadgeDao.create(ub);
 			}else{
 				if(percentage >= 1.00) num_steps = building.getSteps();
 				int percentage = ((num_steps) / tour.getTotalSteps() );
 				ub.setPercentage(percentage);
+				ub.setSaved(false);
 				ClimbApplication.userBadgeDao.update(ub);
 
 			}
@@ -2055,22 +2058,27 @@ public class ClimbActivity extends ActionBarActivity {
 	}
 	
 	private void saveBadges(){
-		
-		User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
-		List <UserBadge> updateUb = new ArrayList<UserBadge>();
-		updateUb.add(checkBuildingBadge(me));
-		updateUb.addAll(checkTourBadge(me));
-		for(final UserBadge ub : updateUb){
 		ParseQuery<ParseUser> query = ParseUser.getQuery();
 		query.whereEqualTo("FBid", pref.getString("FBid", ""));
 		query.getFirstInBackground(new GetCallback<ParseUser>() {
+		
 			
 			@Override
 			public void done(ParseUser user, ParseException e) {
 				if(e == null){
-					JSONObject newBadge = new JSONObject();
+					User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
+					List <UserBadge> updateUb = new ArrayList<UserBadge>();
+					updateUb.add(checkBuildingBadge(me));
+					updateUb.addAll(checkTourBadge(me));
+					for(final UserBadge ub : updateUb){
+					JSONObject newBadge  = new JSONObject();
 					try {
 						JSONArray bs = user.getJSONArray("badges");
+						int currentBadge = ClimbApplication.lookForBadge(ub.getBadge().get_id(), ub.getObj_id(), bs);
+						if(currentBadge != -1){
+							bs = ModelsUtil.removeFromJSONArray(bs, currentBadge);
+						}
+							
 						newBadge.put("badge_id", ub.getBadge().get_id());
 						newBadge.put("obj_id", ub.getObj_id());
 						newBadge.put("percentage", ub.getPercentage());
@@ -2083,15 +2091,14 @@ public class ClimbActivity extends ActionBarActivity {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
+					}
 				}else{
-					ub.setSaved(false);
-					ClimbApplication.userBadgeDao.update(ub);
 					Toast.makeText(getApplicationContext(), "Connection Available. Your data will be saved during next connection", Toast.LENGTH_SHORT).show();
 					Log.e("saveBadges", e.getMessage());
 				}
 			}
 		});
 		
-		}
+	ClimbApplication.refreshUserBadge();	
 	}
 }

@@ -11,6 +11,7 @@ import java.util.SimpleTimeZone;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.db.PreExistingDbLoader;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
@@ -20,6 +21,7 @@ import org.unipd.nbeghin.climbtheworld.models.Group;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.models.UserBadge;
+import org.unipd.nbeghin.climbtheworld.util.ModelsUtil;
 
 import android.app.IntentService;
 import android.content.Context;
@@ -742,6 +744,10 @@ public class UpdateService extends IntentService {
 				public void done(ParseUser parseUser, ParseException e) {
 					if(e == null){
 						JSONArray badgeParse = parseUser.getJSONArray("badges");
+						int currentBadge = ClimbApplication.lookForBadge(badge.getBadge().get_id(), badge.getObj_id(), badgeParse);
+						if(currentBadge != -1){
+							badgeParse = ModelsUtil.removeFromJSONArray(badgeParse, currentBadge);
+						}
 						JSONObject newBadge = new JSONObject();
 						try {
 							newBadge.put("badge_id", badge.getBadge().get_id());
@@ -770,7 +776,6 @@ public class UpdateService extends IntentService {
 
 	private void saveUsers(final Context context){
 		Map<String, Object> conditions = new HashMap<String, Object>();
-		conditions.put("saved", 0); 
 		final List<User> users = userDao.queryForFieldValuesArgs(conditions);	
 		for(final User user : users){
 			ParseQuery<ParseUser> query = ParseUser.getQuery();

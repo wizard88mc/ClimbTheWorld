@@ -199,6 +199,7 @@ public class MainActivity extends ActionBarActivity {
 			public void done(ParseUser user, ParseException e) {
 				if (e == null) {
 					JSONArray badges = user.getJSONArray("badges");
+					if(badges != null){
 					for (int i = 0; i < badges.length(); i++) {
 						try {
 							JSONObject badge = badges.getJSONObject(i);
@@ -222,6 +223,11 @@ public class MainActivity extends ActionBarActivity {
 							ex.printStackTrace();
 						}
 					}
+					}else{
+						badges = new JSONArray();
+						user.put("badges", badges);
+						user.saveEventually();
+					}
 				} else {
 					Toast.makeText(sContext, "Connection Unavailable", Toast.LENGTH_SHORT).show();
 					Log.e("saveBadges", e.getMessage());
@@ -229,6 +235,7 @@ public class MainActivity extends ActionBarActivity {
 
 			}
 		});
+		
 	}
 
 	ProgressDialog PD;
@@ -317,6 +324,8 @@ public class MainActivity extends ActionBarActivity {
 		ClimbApplication.refreshClimbings();
 		ClimbApplication.refreshCollaborations();
 		ClimbApplication.refreshCompetitions();
+		ClimbApplication.refreshTeamDuels();
+		ClimbApplication.refreshUserBadge();
 
 		if (FacebookUtils.isOnline(this)) {
 			Session session = Session.getActiveSession();

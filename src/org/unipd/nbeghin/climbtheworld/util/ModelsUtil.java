@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.unipd.nbeghin.climbtheworld.models.Building;
@@ -89,6 +90,17 @@ public class ModelsUtil {
 			}
 		}
 		return sum;
+	}
+	
+	public static JSONArray removeFromJSONArray(JSONArray jarray, int pos){
+		JSONArray Njarray=new JSONArray();
+		try{
+			for(int i=0;i<jarray.length();i++){     
+				if(i!=pos)
+					Njarray.put(jarray.get(i));     
+			}
+		}catch (Exception e){e.printStackTrace();}
+	return Njarray;
 	}
 	
 }

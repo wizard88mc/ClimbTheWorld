@@ -117,7 +117,14 @@ public class SettingsActivity extends PreferenceActivity {
 		  @Override
 		  protected Void doInBackground(Void... params) {
 						ClimbApplication.BUSY = true;
-						saveBadges(user.getJSONArray("badges"));
+						JSONArray badges = user.getJSONArray("badges");
+						if(badges != null)
+							saveBadges(badges);
+						else{
+							badges = new JSONArray();
+							user.put("badges", badges);
+							user.saveEventually();
+						}
 					  loadProgressFromParse();
 					  synchronized (ClimbApplication.lock) {
 						while(ClimbApplication.BUSY){
@@ -840,7 +847,9 @@ public class SettingsActivity extends PreferenceActivity {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} 	
-    			} 		
+    			} 
+    		ClimbApplication.refreshUserBadge();
+
     }
 
 	private void onSessionStateChange(final Session session, SessionState state, Exception exception) {

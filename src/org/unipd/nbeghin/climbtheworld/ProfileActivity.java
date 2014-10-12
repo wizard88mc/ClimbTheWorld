@@ -32,7 +32,9 @@ public class ProfileActivity extends Activity {
 		((TextView) findViewById(R.id.textLevel)).setText("Level: " + String.valueOf((me.getLevel())));
 		((TextView) findViewById(R.id.textXP)).setText(String.valueOf(me.getXP()) + " XP");
 		int total = ClimbApplication.levelToXP(me.getLevel() + 1);
-		int percentage = ((100 * me.getXP()) / total);
+		int percentage = 0;
+		if(total != 0)
+			percentage = ((100 * me.getXP()) / total);
 		ProgressBar levelPB = (ProgressBar) findViewById(R.id.progressBarLevel);
 		levelPB.setIndeterminate(false);
 		levelPB.setProgress(percentage);
