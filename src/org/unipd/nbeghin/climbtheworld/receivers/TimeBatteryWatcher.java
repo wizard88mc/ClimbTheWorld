@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class TimeBatteryWatcher extends BroadcastReceiver {
@@ -60,7 +61,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		//TimeBatteryWatcher.context=context;
 		
 		//si recupera l'oggetto delle shared preferences
-		SharedPreferences pref = context.getSharedPreferences("appPrefs", 0);
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);//context.getSharedPreferences("appPrefs", 0);
 		
 		//si ottiene la stringa che descrive l'azione dell'intent
 		String action = intent.getAction();
@@ -76,71 +77,9 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			if(pref.getBoolean("firstRun", true)){	
 				System.out.println("init");
 				//si inizializzano le shared preferences e gli alarm/template
-				GeneralUtils.initializePrefsAndAlarms(context);	
+				GeneralUtils.initializePrefsAndAlarms(context,pref);	
 			}
-			else{				
-				//dalle preferences salvate si ottiene l'id e gli altri dati relativi
-				//al prossimo alarm che era stato settato in precedenza
-				
-				int alarm_id = pref.getInt("alarm_id", -1);
-				
-				if(alarm_id!=-1){ //si mette il controllo nel caso il valore salvato non esista
-					
-					System.out.println("C'è un alarm nelle preferences id=" + alarm_id);
-					
-					Alarm current_next_alarm = AlarmUtils.getAlarm(context,alarm_id);
-					
-					
-					//quando il device completa il boot non setta automaticamente l'alarm impostato
-					//precedentemente tramite l'alarm manager, quindi bisogna settarlo nuovamente
-					
-					//prima si cancella l'alarm che era stato settato in precedenza					
-					AlarmUtils.cancelAlarm(context, current_next_alarm);	
-					
-					//poi si imposta il prossimo alarm
-			    	AlarmUtils.setNextAlarm(context,AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,pref.getInt("current_template", -1)))); 
-					
-					
-			    	
-			    	/*
-			    	
-					Calendar alarmTime = Calendar.getInstance();
-					alarmTime.set(pref.getInt("alarm_year", -1), 
-							pref.getInt("alarm_month", -1), pref.getInt("alarm_date", -1), 
-							current_next_alarm.get_hour(), current_next_alarm.get_minute(),
-							current_next_alarm.get_second());
-					
-					//se il prossimo alarm che era stato impostato ha un istante di inizio
-					//già passato, allora si cancella l'alarm in questione tramite l'alarm 
-					//manager e poi si cerca e si setta un altro alarm
-					
-					if(alarmTime.before(Calendar.getInstance())){
-						
-						System.out.println("alarm time già passato - lo cancello e ne imposto un altro");
-						
-						//si cancella l'alarm già passato
-						AlarmUtils.cancelAlarm(context, current_next_alarm);							
-						//si imposta e si lancia il prossimo alarm
-				    	AlarmUtils.setNextAlarm(context,AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,pref.getInt("current_template", -1)))); 
-					}				
-					*/
-					
-					//se il next alarm settato è un evento di stop allora significa che 
-					//il service di sampling e il receiver che registra le attività utente
-					//dovrebbero essere già attivi (infatti gli alarm sono preordinati per fare
-					//in modo che dopo un evento di attivazione ci sia un evento di stop);
-					//quindi si attiva il service, registrando il receiver 'userMotionReceiver'
-					if(!AlarmUtils.getAlarm(context,pref.getInt("alarm_id", -1)).get_actionType()){
-						
-						Intent samplingIntent = new Intent(context, SamplingClassifyService.class);
-					   	context.startService(samplingIntent);
-					   	//si registra anche il receiver per la registrazione dell'attività utente
-						//context.getApplicationContext().registerReceiver(userMotionReceiver, userMotionFilter);
-					   	context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-					}
-					
-				}
-				
+			else{	
 				/////////				
 				//PER TEST ALGORITMO 
 				//si aggiorna l'indice artificiale che rappresenta il giorno corrente della 
@@ -219,7 +158,6 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    			AlarmManager.INTERVAL_DAY, PendingIntent.getBroadcast(context, 0, update_index_intent, 0));
 				
 		    	if(MainActivity.logEnabled){
-		    		Log.d(MainActivity.AppName + " - TEST","TimeBatteryWatcher - init index: 0, init date: " + dateFormatted);	
 		    		Log.d(MainActivity.AppName + " - TEST","TimeBatteryWatcher - set update day index alarm");
 		    		int month =calendar.get(Calendar.MONTH)+1;    	
 		        	Log.d(MainActivity.AppName + " - TEST", "TimeBatteryWatcher - UPDATE DAY INDEX ALARM: h:m:s=" 
@@ -228,6 +166,67 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		        	Log.d(MainActivity.AppName + " - TEST", "TimeBatteryWatcher - milliseconds of the update day index alarm: " + calendar.getTimeInMillis());
 		    	}
 		    	/////////
+		    	
+		    	
+		    	//dalle preferences salvate si ottiene l'id e gli altri dati relativi
+				//al prossimo alarm che era stato settato in precedenza				
+				int alarm_id = pref.getInt("alarm_id", -1);
+				
+				if(alarm_id!=-1){ //si mette il controllo nel caso il valore salvato non esista
+					
+					System.out.println("C'è un alarm nelle preferences id=" + alarm_id);
+					
+					Alarm current_next_alarm = AlarmUtils.getAlarm(context,alarm_id);
+										
+					//quando il device completa il boot non setta automaticamente l'alarm impostato
+					//precedentemente tramite l'alarm manager, quindi bisogna settarlo nuovamente
+					
+					//prima si cancella l'alarm che era stato settato in precedenza					
+					AlarmUtils.cancelAlarm(context, current_next_alarm);	
+					
+					//poi si imposta il prossimo alarm
+			    	AlarmUtils.setNextAlarm(context,AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,pref.getInt("current_template", -1)))); 
+					
+					
+			    	
+			    	/*
+			    	
+					Calendar alarmTime = Calendar.getInstance();
+					alarmTime.set(pref.getInt("alarm_year", -1), 
+							pref.getInt("alarm_month", -1), pref.getInt("alarm_date", -1), 
+							current_next_alarm.get_hour(), current_next_alarm.get_minute(),
+							current_next_alarm.get_second());
+					
+					//se il prossimo alarm che era stato impostato ha un istante di inizio
+					//già passato, allora si cancella l'alarm in questione tramite l'alarm 
+					//manager e poi si cerca e si setta un altro alarm
+					
+					if(alarmTime.before(Calendar.getInstance())){
+						
+						System.out.println("alarm time già passato - lo cancello e ne imposto un altro");
+						
+						//si cancella l'alarm già passato
+						AlarmUtils.cancelAlarm(context, current_next_alarm);							
+						//si imposta e si lancia il prossimo alarm
+				    	AlarmUtils.setNextAlarm(context,AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,pref.getInt("current_template", -1)))); 
+					}				
+					*/
+					
+					//se il next alarm settato è un evento di stop allora significa che 
+					//il service di sampling e il receiver che registra le attività utente
+					//dovrebbero essere già attivi (infatti gli alarm sono preordinati per fare
+					//in modo che dopo un evento di attivazione ci sia un evento di stop);
+					//quindi si attiva il service, registrando il receiver 'userMotionReceiver'
+					if(!AlarmUtils.getAlarm(context,pref.getInt("alarm_id", -1)).get_actionType()){
+						
+						Intent samplingIntent = new Intent(context, SamplingClassifyService.class);
+					   	context.startService(samplingIntent);
+					   	//si registra anche il receiver per la registrazione dell'attività utente
+						//context.getApplicationContext().registerReceiver(userMotionReceiver, userMotionFilter);
+					   	context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+					}
+					
+				}			    	
 			}
 		}
 		/////////

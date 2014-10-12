@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.j256.ormlite.android.AndroidConnectionSource;
@@ -81,10 +82,10 @@ public class AlarmUtils {
     	boolean bb[] = new boolean[] {true,true};
     	//float pf[] = new float[] {0.25f,0.25f,0.25f,0.25f,0.25f,0.25f,0.25f};
     	float pf[] = new float[] {0.25f,0.25f};
-		Alarm alm1 = new Alarm(9,55,50,true,new boolean[]{false,false},pf);
-		Alarm alm2 = new Alarm(9,57,50,false,new boolean[]{false,false},pf);
-		Alarm alm3 = new Alarm(10,01,10,true,bb,pf); 
-		Alarm alm4 = new Alarm(10,05,50,false,bb,pf);
+		Alarm alm1 = new Alarm(9,55,50,true,new boolean[]{false,true},pf);
+		Alarm alm2 = new Alarm(9,57,50,false,new boolean[]{false,true},pf);
+		Alarm alm3 = new Alarm(10,21,10,true,bb,pf); 
+		Alarm alm4 = new Alarm(10,22,50,false,bb,pf);
 		Alarm alm5 = new Alarm(15,14,51,true,bb,pf);
 		Alarm alm6 = new Alarm(15,30,50,false,bb,pf);
 		
@@ -219,7 +220,7 @@ public class AlarmUtils {
 	public static void setNextAlarm(Context context, List<Alarm> alarms){
 		
 		
-		int artificialIndex = context.getSharedPreferences("appPrefs", 0).getInt("artificialDayIndex", 0);
+		int artificialIndex = PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0);//context.getSharedPreferences("appPrefs", 0).getInt("artificialDayIndex", 0);
 		
 		
 		//servirà per implementare la probabilità di riconsiderare un alarm scartato
@@ -382,7 +383,7 @@ public class AlarmUtils {
 		
 		//nell'oggetto shared preferences si imposta l'id del prossimo alarm e degli interi che indicano il giorno, il mese e 
 		//l'anno in cui scatta (ora, minuti e secondi sono all'interno dell'oggetto Alarm)		
-		SharedPreferences prefs = context.getSharedPreferences("appPrefs", 0);    	
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);//context.getSharedPreferences("appPrefs", 0);    	
     	Editor editor = prefs.edit();	
     	//si imposta l'id del prossimo alarm nelle preferenze
     	editor.putInt("alarm_id", nextAlarm.get_id());
@@ -408,7 +409,7 @@ public class AlarmUtils {
 	//non cancello le preferences perché vengono sovrascritte con i dati del prossimo alarm
 	public static void cancelAlarm(Context context, Alarm alarm) {
 		 
-		SharedPreferences pref = context.getSharedPreferences("appPrefs", 0);
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);//context.getSharedPreferences("appPrefs", 0);
 		 			 
 		PendingIntent pIntent = createPendingIntent(context, alarm, new int[]{pref.getInt("alarm_date", -1),pref.getInt("alarm_month", -1),pref.getInt("alarm_year", -1)});	
 	    	

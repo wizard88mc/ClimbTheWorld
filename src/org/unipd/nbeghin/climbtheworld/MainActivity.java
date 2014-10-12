@@ -33,6 +33,7 @@ import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
@@ -141,14 +142,14 @@ public class MainActivity extends ActionBarActivity {
 		refresh(); // loads all buildings and tours		
 		
 		//si recupera l'oggetto delle shared preferences
-		SharedPreferences pref = sContext.getSharedPreferences("appPrefs", 0);
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(sContext);//sContext.getSharedPreferences("appPrefs", 0);
 		//se si vede che si tratta del primo run dell'applicazione
 		if(pref.getBoolean("firstRun", true)){
 			
 			System.out.println("Main - FIRST RUN");
 			
 			//si inizializzano le shared preferences e gli alarm/template
-			GeneralUtils.initializePrefsAndAlarms(sContext);	 
+			GeneralUtils.initializePrefsAndAlarms(sContext,pref);	 
 		}
 	}
 

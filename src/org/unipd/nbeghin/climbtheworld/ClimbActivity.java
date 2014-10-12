@@ -237,7 +237,7 @@ public class ClimbActivity extends Activity {
 						
 			Log.i(MainActivity.AppName, "Detected sampling rate: " + Double.toString(detectedSamplingRate) + "Hz");
 			if (detectedSamplingRate >= minimumSamplingRate) { // sampling rate high enough
-				SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit(); // get refence to android preferences
+				SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit(); // get reference to android preferences
 				editor.putFloat("detectedSamplingRate", (float) detectedSamplingRate); // store detected sampling rate
 				editor.putInt("sensor_delay", samplingDelay); // store used sampling delay
 				editor.apply(); // commit preferences

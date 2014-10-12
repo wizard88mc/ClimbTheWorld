@@ -85,15 +85,25 @@ public class GeneralUtils {
     }
     */
     
+    public static boolean isGameServiceRunning(Context context) {
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if ("org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService".equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+       
     /**
-     * Metodo per inizializzare le shared preferences dell'app e per eseguire il
-     * setup degli alarm e dei template.  
-     * @param context
-     * @param dbHelper
+     * Performs the alarms setup and initializes the related shared preferences.
+     * @param context context of the application.
+     * @param prefs reference to android shared preferences. 
      */
-    public static void initializePrefsAndAlarms(Context context) {
-    	
-    	SharedPreferences prefs = context.getSharedPreferences("appPrefs", 0);
+    public static void initializePrefsAndAlarms(Context context, SharedPreferences prefs) {
+    	    	
+    	//SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);//context.getSharedPreferences("appPrefs", 0);
     	
     	Editor editor = prefs.edit();    	
     	editor.putBoolean("firstRun", false); // si memorizza che non è il primo run dell'app
