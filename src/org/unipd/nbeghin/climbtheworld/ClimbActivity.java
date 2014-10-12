@@ -2046,7 +2046,7 @@ public class ClimbActivity extends ActionBarActivity {
 			ClimbApplication.userBadgeDao.create(ub);
 			}else{
 				if(percentage >= 1.00) num_steps = building.getSteps();
-				int percentage = ((num_steps) / tour.getTotalSteps() );
+				double percentage = ((num_steps) / tour.getTotalSteps() );
 				ub.setPercentage(percentage);
 				ub.setSaved(false);
 				ClimbApplication.userBadgeDao.update(ub);
