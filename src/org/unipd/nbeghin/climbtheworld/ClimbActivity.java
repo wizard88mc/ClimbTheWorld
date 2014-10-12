@@ -28,6 +28,7 @@ import org.unipd.nbeghin.climbtheworld.models.Competition;
 import org.unipd.nbeghin.climbtheworld.models.GameModeType;
 import org.unipd.nbeghin.climbtheworld.models.Group;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
+import org.unipd.nbeghin.climbtheworld.models.Tour;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.models.UserBadge;
 import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
@@ -907,7 +908,7 @@ public class ClimbActivity extends ActionBarActivity {
 								socialPenalty();
 							}else if((num_steps + sumOthersStep() >= building.getSteps()) && (num_steps < threshold)){
 								percentage = 1.0;
-								updatePoints();
+								updatePoints(false);
 								saveBadges();
 							}
 
@@ -1325,7 +1326,7 @@ public class ClimbActivity extends ActionBarActivity {
 	//la collaborazione si  conclusa e non ho superato la soglia minima
 	//quindi torno in social climb e elimino la collab localmente
 	private void socialPenalty(){
-		
+			updatePoints(true);
 			Toast.makeText(this.getApplicationContext(), "Move up next time!!!!", Toast.LENGTH_SHORT).show();
 			((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.social_share);
 			mode = GameModeType.SOLO_CLIMB;
@@ -1400,7 +1401,7 @@ public class ClimbActivity extends ActionBarActivity {
 		else if (mode == GameModeType.TEAM_VS_TEAM && teamDuel != null)
 			saveTeamDuelData();
 		
-		updatePoints();
+		updatePoints(false);
 		saveBadges();
 	}
 
@@ -1625,7 +1626,7 @@ public class ClimbActivity extends ActionBarActivity {
 	
 	private void endCompetition(){
 		Log.d("END COMPETITION", "fineeee");
-
+		updatePoints(false);
 		if(soloClimb != null){ System.out.println("non scalato per la prima volta " + climbing.getId_mode()); System.out.println("soloclimb: " + soloClimb.getId_mode());
 		deleteClimbingInParse(climbing);
 			/*if(climbing.getCompleted() != 0){
@@ -1649,7 +1650,8 @@ public class ClimbActivity extends ActionBarActivity {
 		}
 	}
 	
-	private void endTeamCompetition(){
+	private void endTeamCompetition(boolean penalty){
+		updatePoints(penalty);
 		if(soloClimb != null){
 			deleteClimbingInParse(climbing);
 			soloClimb.setGame_mode(0);
@@ -1750,15 +1752,25 @@ public class ClimbActivity extends ActionBarActivity {
 							
 							if(myGroupScore >= building.getSteps()){
 								Toast.makeText(getApplicationContext(), "Your team has won!!!!", Toast.LENGTH_SHORT).show();
-								endTeamCompetition();
-								if (teamDuel.getMy_steps() < threshold)
+								boolean penalty = false;
+								if (teamDuel.getMy_steps() < threshold){
 									socialTeamPenality();
+									penalty = true;
+								}
+								percentage = 1.00;
+								endTeamCompetition(penalty);
+								
+									
 								saveBadges();
 							}else if(otherGroupScore >= building.getSteps()){
 								Toast.makeText(getApplicationContext(), "The challenger's team has won", Toast.LENGTH_SHORT).show();
-								endTeamCompetition();
-								if (teamDuel.getMy_steps() < threshold)
+								boolean penalty = false;
+								if (teamDuel.getMy_steps() < threshold){
 									socialTeamPenality();
+									penalty = true;
+								}
+								endTeamCompetition(penalty);
+								
 							}
 
 							
@@ -1936,7 +1948,7 @@ public class ClimbActivity extends ActionBarActivity {
 		
 	}
 	
-	private void updatePoints(){
+	private void updatePoints(boolean penalty){
 		int realSteps = new_steps / difficulty;
 		int newXP = 0;
 		switch(difficulty){
@@ -1950,13 +1962,35 @@ public class ClimbActivity extends ActionBarActivity {
 			newXP = realSteps;
 			break;
 		}
+		if(mode == GameModeType.SOCIAL_CLIMB && percentage >= 1.00 && !penalty){//20% over the total
+			int extra = (20 * building.getSteps())/100;
+			newXP += extra;
+			Toast.makeText(getApplicationContext(), "You have won " + extra + " XP as bonus for your help!!!!", Toast.LENGTH_SHORT).show();
+		}  
+		if(mode == GameModeType.SOCIAL_CHALLENGE && percentage >= 1.00){//20% over the total
+			int extra = (20 * building.getSteps())/100;
+			newXP += extra;
+			Toast.makeText(getApplicationContext(), "You have won " + extra + " XP as bonus for your victory!!!!", Toast.LENGTH_SHORT).show();
+		}
+		if(mode == GameModeType.TEAM_VS_TEAM && percentage >= 1.00 && !penalty){//20% over the total
+			int extra = (20 * building.getSteps())/100;
+			newXP += extra;
+			Toast.makeText(getApplicationContext(), "You have won " + extra + " XP as bonus for your help and victory!!!!", Toast.LENGTH_SHORT).show();
+		}
 		final User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
 		int newLevel = ClimbApplication.levelUp(newXP, me.getLevel());
 		me.setXP(me.getXP() + newXP);
 		if(newLevel != me.getLevel())
 			me.setLevel(newLevel);
 		ClimbApplication.userDao.update(me);
-		ParseQuery<ParseUser> query = ParseUser.getQuery();
+		if(ParseUser.getCurrentUser() != null){
+			ParseUser currentUser = ParseUser.getCurrentUser();
+			currentUser.put("XP", me.getXP());
+			currentUser.put("level", me.getLevel());
+			currentUser.saveEventually();
+		}
+		
+	/*	ParseQuery<ParseUser> query = ParseUser.getQuery();
 		query.whereEqualTo("FBid", me.getFBid());
 		query.getFirstInBackground(new GetCallback<ParseUser>() {
 
@@ -1972,11 +2006,10 @@ public class ClimbActivity extends ActionBarActivity {
 				}
 				
 			}
-		});
+		});*/
 	}
 	
-	private void saveBadges(){
-		User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
+	private UserBadge checkBuildingBadge(User me){
 		Badge badge = ClimbApplication.getBadgeByCategory(0);
 		UserBadge userbadge = ClimbApplication.getUserBadgeForUserAndBadge(badge.get_id(), building.get_id(), pref.getInt("local_id", -1));
 		if(userbadge == null){
@@ -1990,7 +2023,44 @@ public class ClimbActivity extends ActionBarActivity {
 			userbadge.setPercentage(percentage);
 			ClimbApplication.userBadgeDao.update(userbadge);
 		}
-		final UserBadge ub = userbadge;
+		return userbadge;
+	}
+	
+	private List<UserBadge> checkTourBadge(User me){
+		List<UserBadge> ris = new ArrayList<UserBadge>();
+		Badge badge = ClimbApplication.getBadgeByCategory(1);
+		List<Tour> tours = ClimbApplication.getToursByBuilding(building.get_id());
+		for(Tour tour : tours){
+			UserBadge ub = ClimbApplication.getUserBadgeForUserAndBadge(badge.get_id(), tour.get_id(), me.get_id());
+			if(ub == null){
+			ub = new UserBadge();
+			ub.setBadge(badge);
+			ub.setObj_id(tour.get_id());
+			if(percentage >= 1.00) num_steps = building.getSteps();
+			int percentage = ((num_steps) / tour.getTotalSteps() );
+			ub.setPercentage(percentage);
+			ub.setUser(me);
+			ub.setSaved(true);
+			ClimbApplication.userBadgeDao.create(ub);
+			}else{
+				if(percentage >= 1.00) num_steps = building.getSteps();
+				int percentage = ((num_steps) / tour.getTotalSteps() );
+				ub.setPercentage(percentage);
+				ClimbApplication.userBadgeDao.update(ub);
+
+			}
+			ris.add(ub);
+		}
+		return ris;
+	}
+	
+	private void saveBadges(){
+		
+		User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
+		List <UserBadge> updateUb = new ArrayList<UserBadge>();
+		updateUb.add(checkBuildingBadge(me));
+		updateUb.addAll(checkTourBadge(me));
+		for(final UserBadge ub : updateUb){
 		ParseQuery<ParseUser> query = ParseUser.getQuery();
 		query.whereEqualTo("FBid", pref.getString("FBid", ""));
 		query.getFirstInBackground(new GetCallback<ParseUser>() {
@@ -2022,5 +2092,6 @@ public class ClimbActivity extends ActionBarActivity {
 			}
 		});
 		
+		}
 	}
 }

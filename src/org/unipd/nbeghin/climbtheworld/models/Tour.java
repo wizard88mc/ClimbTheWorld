@@ -1,5 +1,9 @@
 package org.unipd.nbeghin.climbtheworld.models;
 
+import java.util.List;
+
+import org.unipd.nbeghin.climbtheworld.ClimbApplication;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -52,5 +56,14 @@ public class Tour {
 		this.num_buildings = num_buildings;
 	}
 	
+	public int getTotalSteps(){
+		int total = 0;
+		List<BuildingTour> buildingsTour = ClimbApplication.getBuildingsForTour(_id);
+		for(BuildingTour bt : buildingsTour){
+			total += bt.getBuilding().getSteps();
+		}
+		return total;
+
+	}
 	
 }

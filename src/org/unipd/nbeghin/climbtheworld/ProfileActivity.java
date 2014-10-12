@@ -4,24 +4,38 @@ import java.util.List;
 
 import org.unipd.nbeghin.climbtheworld.adapters.StatAdapter;
 import org.unipd.nbeghin.climbtheworld.models.Stat;
+import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.util.StatUtils;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 public class ProfileActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_profile);
+		SharedPreferences pref = getSharedPreferences("UserSession", 0);
+		User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
 		List<Stat> stats = StatUtils.calculateStats();
 		((ListView) findViewById(R.id.listStatistics)).setAdapter(new StatAdapter(this, R.layout.stat_item, stats));
+		((TextView) findViewById(R.id.textUserName)).setText(me.getName());
+		((TextView) findViewById(R.id.textLevel)).setText("Level: " + String.valueOf((me.getLevel())));
+		((TextView) findViewById(R.id.textXP)).setText(String.valueOf(me.getXP()) + " XP");
+		int total = ClimbApplication.levelToXP(me.getLevel() + 1);
+		int percentage = ((100 * me.getXP()) / total);
+		ProgressBar levelPB = (ProgressBar) findViewById(R.id.progressBarLevel);
+		levelPB.setIndeterminate(false);
+		levelPB.setProgress(percentage);
 	}
 
 	/**

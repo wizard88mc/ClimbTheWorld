@@ -660,6 +660,21 @@ public class ClimbApplication extends Application{
 			return tours.get(0);
 		}
 		
+		public static List<Tour> getToursByBuilding(int building_id){
+			QueryBuilder<BuildingTour, Integer> orderQb = buildingTourDao.queryBuilder();
+			try {
+				orderQb.where().eq("building_id", building_id);
+				QueryBuilder<Tour, Integer> accountQb = tourDao.queryBuilder();
+				List<Tour> results = accountQb.join(orderQb).query();
+				return results;
+
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+		}
+		
 		public static Badge getBadgeById(int id){
 			Map<String, Object> conditions = new HashMap<String, Object>();
 			conditions.put("_id", id); // filter for building ID
@@ -676,6 +691,13 @@ public class ClimbApplication extends Application{
 			if (userBadges.size() == 0)
 				return null;
 			return userBadges.get(0);
+		}
+		
+		public static List<UserBadge> getUserBadgeByUser(int user_id){
+			Map<String, Object> conditions = new HashMap<String, Object>();
+			conditions.put("user_id", user_id); // filter for building ID
+			List<UserBadge> userBadges = userBadgeDao.queryForFieldValuesArgs(conditions);
+			return userBadges;
 		}
 		
 	 

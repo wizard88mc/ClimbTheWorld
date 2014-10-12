@@ -5,7 +5,7 @@ import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-@DatabaseTable(tableName = "user_badge")
+@DatabaseTable(tableName = "user_badges")
 public class UserBadge {
 	@DatabaseField(generatedId = true)
 	private int _id;

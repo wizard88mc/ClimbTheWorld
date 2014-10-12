@@ -662,6 +662,7 @@ public class SettingsActivity extends PreferenceActivity {
 		//	}	
 		} else if (state.isClosed()) {
 			Log.i("Climb The World", "Logged out...");
+			ParseUser.getCurrentUser().logOut();
 			if(!pref.getString("FBid", "none").equalsIgnoreCase("none")){
 				Editor editor = pref.edit();
 				Map<String, Object> conditions2 = new HashMap<String, Object>();
@@ -746,12 +747,30 @@ public class SettingsActivity extends PreferenceActivity {
 	}
 	
     private void saveUserToParse(GraphUser fbUser, Session session) {
-
+    	SharedPreferences pref = getSharedPreferences("UserSession", 0);
+    		User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
     	 	ParseUser user = new ParseUser();
     		user.setUsername(fbUser.getName());
     		user.setPassword("");
     		user.put("FBid", fbUser.getId()); //System.out.println(fbUser.getId());
-    		
+    		user.put("level", me.getLevel());
+    		user.put("XP", me.getXP());
+    		JSONArray badges = new JSONArray();
+    		List<UserBadge> ubs = ClimbApplication.getUserBadgeByUser(me.get_id());
+    		for(UserBadge ub : ubs){
+    			JSONObject badge = new JSONObject();
+    			try {	
+    				badge.put("badge_id", ub.getBadge().get_id());
+				badge.put("obj_id", ub.getObj_id());
+	    			badge.put("perentage", ub.getPercentage());
+	    			badges.put(badge);
+				} catch (JSONException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+    			
+    		}
+    		user.put("badges", badges);
     		
     		user.signUpInBackground(new SignUpCallback() {
     			  public void done(ParseException e) {
