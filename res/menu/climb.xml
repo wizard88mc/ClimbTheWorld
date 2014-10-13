@@ -6,7 +6,7 @@
     <item
         android:id="@+id/itemUpdate"
         android:icon="@drawable/ic_action_refresh"
-        android:title="Update"
+        android:title="@string/update"
         climbtheworld:showAsAction="ifRoom">
     </item>
     <!--         android:onClick="onUpdate"

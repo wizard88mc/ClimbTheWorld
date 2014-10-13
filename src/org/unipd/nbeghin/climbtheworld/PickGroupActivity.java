@@ -70,11 +70,11 @@ public class PickGroupActivity extends Activity{
 	           	                    if (error != null) {
 	           	                        if (error instanceof FacebookOperationCanceledException) {
 	           	                            Toast.makeText(getApplicationContext(), 
-	           	                                "Request cancelled", 
+	           	                                getString(R.string.request_cancelled), 
 	           	                                Toast.LENGTH_SHORT).show();
 	           	                        } else {
 	           	                            Toast.makeText(getApplicationContext(), 
-	           	                                "Network Error", 
+	           	                            		getString(R.string.network_error), 
 	           	                                Toast.LENGTH_SHORT).show();
 
 	           	                        }
@@ -82,12 +82,12 @@ public class PickGroupActivity extends Activity{
 	           	                        final String requestId = values.getString("request");
 	           	                        if (requestId != null) {
 	           	                            Toast.makeText(getApplicationContext(), 
-	           	                                "Request sent",  
+	           	                            		getString(R.string.request_sent),  
 	           	                                Toast.LENGTH_SHORT).show();
 
 	           	                        } else {
 	           	                            Toast.makeText(getApplicationContext(), 
-	           	                                "Request cancelled", 
+	           	                            		getString(R.string.request_cancelled), 
 	           	                                Toast.LENGTH_SHORT).show();
 
 	           	                        }
@@ -122,7 +122,7 @@ public class PickGroupActivity extends Activity{
 					// nessun errore
 					setList(mygroups);
 				}else{
-					Toast.makeText(getApplicationContext(), "Connection Problem", Toast.LENGTH_SHORT);
+					Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 					Log.e("findInBackground PickGroups", e.getMessage());
 				}
 			}
@@ -142,7 +142,7 @@ public class PickGroupActivity extends Activity{
 	 	        gru1.setName(group.getString("name"));
 	 	        if(group.getList("members").size() < 5){
 	 	        		ExpandListChild ch1_1 = new ExpandListChild();
-	 	        		ch1_1.setName("    Pick this group");
+	 	        		ch1_1.setName(getString(R.string.pick_group));
 	 	        		ch1_1.setTag(group.getObjectId());
 	 	        		list2.add(ch1_1);
 

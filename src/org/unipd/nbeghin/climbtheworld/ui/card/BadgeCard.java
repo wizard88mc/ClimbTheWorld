@@ -18,6 +18,7 @@ public class BadgeCard extends Card{
 	TextView description;
 	ProgressBar progressBar;
 	UserBadge userBadge;
+	TextView textPercentage;
 	
 	public BadgeCard(UserBadge userBadge) {
 		super(String.valueOf(userBadge.get_id()));
@@ -37,6 +38,8 @@ public class BadgeCard extends Card{
 			cup.setImageResource(R.drawable.lock_win);
 		progressBar.setIndeterminate(false);
 		progressBar.setProgress((int)(userBadge.getPercentage() * 100));
+		textPercentage = (TextView) view.findViewById(R.id.textPercentage);
+		textPercentage.setText(String.valueOf(userBadge.getPercentage() * 100) + "%");
 		return view;
 	}
 

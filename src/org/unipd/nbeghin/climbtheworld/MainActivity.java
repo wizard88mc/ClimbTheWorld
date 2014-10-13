@@ -229,7 +229,7 @@ public class MainActivity extends ActionBarActivity {
 						user.saveEventually();
 					}
 				} else {
-					Toast.makeText(sContext, "Connection Unavailable", Toast.LENGTH_SHORT).show();
+					Toast.makeText(sContext, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 					Log.e("saveBadges", e.getMessage());
 				}
 
@@ -253,8 +253,8 @@ public class MainActivity extends ActionBarActivity {
 
 			super.onPreExecute();
 			PD = new ProgressDialog(MainActivity.this);
-			PD.setTitle("Please Wait..");
-			PD.setMessage("Loading user progress...");
+			PD.setTitle(getString(R.string.wait));
+			PD.setMessage(getString(R.string.loading_progress));
 			PD.setCancelable(false);
 			PD.show();
 		}
@@ -332,10 +332,10 @@ public class MainActivity extends ActionBarActivity {
 			if (session != null && session.isOpened()) {
 				updateFacebookSession(session, session.getState());
 			} else {
-				Toast.makeText(sContext, "No FB account linked", Toast.LENGTH_SHORT).show();
+				Toast.makeText(sContext, getString(R.string.not_logged), Toast.LENGTH_SHORT).show();
 			}
 		} else {
-			Toast.makeText(sContext, "Connect to login to FB", Toast.LENGTH_SHORT).show();
+			Toast.makeText(sContext, getString(R.string.connection_needed), Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -389,7 +389,7 @@ public class MainActivity extends ActionBarActivity {
 
 										userExists(user, session);
 									} else {
-										Toast.makeText(getApplicationContext(), "You're not currently logged in with FB", Toast.LENGTH_SHORT).show();
+										Toast.makeText(getApplicationContext(), getString(R.string.not_logged), Toast.LENGTH_SHORT).show();
 									}
 								} else {
 									System.err.println("no user");
@@ -408,7 +408,7 @@ public class MainActivity extends ActionBarActivity {
 				Log.i(MainActivity.AppName, "Logged out...");
 			}
 		} else
-			Toast.makeText(getApplicationContext(), "Check your intenet connection", Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), getString(R.string.check_connection), Toast.LENGTH_LONG).show();
 	}
 
 	private void userExists(final GraphUser fbUser, final Session session) {
@@ -432,7 +432,7 @@ public class MainActivity extends ActionBarActivity {
 							} else {
 								// Signup failed. Look at the ParseException to
 								// see what happened.
-								Toast.makeText(getApplicationContext(), "Connection Problems", Toast.LENGTH_SHORT).show();
+								Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 								Log.e("userExists", e.getMessage());
 							}
 						}
@@ -548,7 +548,7 @@ public class MainActivity extends ActionBarActivity {
 					ClimbApplication.refreshTeamDuels();
 
 				} else {
-					Toast.makeText(getApplicationContext(), "Connetction problems", Toast.LENGTH_SHORT).show();
+					Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 					Log.e("loadProgressFromParse", e.getMessage());
 				}
 
@@ -678,7 +678,7 @@ public class MainActivity extends ActionBarActivity {
 						ClimbApplication.teamDuelDao.update(local_duel);
 
 				} else {
-					Toast.makeText(getApplicationContext(), "Connetction problems", Toast.LENGTH_SHORT).show();
+					Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 					Log.e("loadTeamDuelsFromParse", e.getMessage());
 				}
 				if (last) {
@@ -734,7 +734,7 @@ public class MainActivity extends ActionBarActivity {
 					}
 
 				} else {
-					Toast.makeText(getApplicationContext(), "Connetction problems", Toast.LENGTH_SHORT).show();
+					Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 					Log.e("loadCollaborationsFromParse", e.getMessage());
 				}
 				if (last) {
@@ -803,7 +803,7 @@ public class MainActivity extends ActionBarActivity {
 					}
 
 				} else {
-					Toast.makeText(getApplicationContext(), "Connetction problems", Toast.LENGTH_SHORT).show();
+					Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 					Log.e("loadCompetitionsFromParse", e.getMessage());
 				}
 				if (last) {
@@ -829,7 +829,7 @@ public class MainActivity extends ActionBarActivity {
 					Log.d("SIGN UP", "SIGN UP");
 					saveProgressToParse();
 				} else {
-					Toast.makeText(getApplicationContext(), "Connection Problems", Toast.LENGTH_SHORT).show();
+					Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 					Log.e("signUpInBackground", e.getMessage());
 					// Sign up didn't succeed. Look at the ParseException
 					// to figure out what went wrong
@@ -1008,7 +1008,7 @@ public class MainActivity extends ActionBarActivity {
 				} else {
 					System.out.println("graph obj null");
 				}
-				Toast.makeText(getApplicationContext(), "Richiesta arrivata", Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), getString(R.string.request_arrived), Toast.LENGTH_SHORT).show();
 				// deleteRequest(inRequestId);//da chiamare solo se non ci sono
 				// errori
 			}
@@ -1108,7 +1108,7 @@ public class MainActivity extends ActionBarActivity {
 		if (FacebookUtils.isOnline(this))
 			sendCustomChallenge();
 		else
-			Toast.makeText(getApplicationContext(), "Check your intenet connection", Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), getString(R.string.check_connection), Toast.LENGTH_LONG).show();
 	}
 
 	// -----NEW-------
@@ -1167,7 +1167,7 @@ public class MainActivity extends ActionBarActivity {
 			public void onComplete(Bundle values, FacebookException error) {
 				if (error != null) {
 					if (error instanceof FacebookOperationCanceledException) {
-						Toast.makeText(getApplicationContext(), "Request cancelled", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getApplicationContext(), getString(R.string.request_cancelled), Toast.LENGTH_SHORT).show();
 					} /*
 					 * else { Toast.makeText(getApplicationContext(),
 					 * "Network Error", Toast.LENGTH_SHORT).show(); }
@@ -1175,9 +1175,9 @@ public class MainActivity extends ActionBarActivity {
 				} else {
 					final String requestId = values.getString("request");
 					if (requestId != null) {
-						Toast.makeText(getApplicationContext(), "Request sent", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getApplicationContext(), getString(R.string.request_sent), Toast.LENGTH_SHORT).show();
 					} else {
-						Toast.makeText(getApplicationContext(), "Request cancelled", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getApplicationContext(), getString(R.string.request_cancelled), Toast.LENGTH_SHORT).show();
 					}
 				}
 			}
@@ -1215,7 +1215,7 @@ public class MainActivity extends ActionBarActivity {
 			i.setType("*/*");
 			startActivity(Intent.createChooser(i, "Share to"));
 		} catch (Exception e) {
-			Toast.makeText(getApplicationContext(), "Unable to export db: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), getString(R.string.db_error, e.getMessage()), Toast.LENGTH_SHORT).show();
 			Log.e(AppName, e.getMessage());
 		}
 	}
@@ -1234,7 +1234,7 @@ public class MainActivity extends ActionBarActivity {
 			public void onCompleted(Response response) {
 				// Show a confirmation of the deletion
 				// when the API call completes successfully.
-				Toast.makeText(MainActivity.getContext(), "Request deleted", Toast.LENGTH_SHORT).show();
+				Toast.makeText(MainActivity.getContext(), getString(R.string.request_deleted), Toast.LENGTH_SHORT).show();
 			}
 		});
 		// Execute the request asynchronously.

@@ -123,19 +123,19 @@ public class PhotoPagerActivity extends BaseImageLoaderActivity {
 						String message = null;
 						switch (failReason.getType()) {
 							case IO_ERROR:
-								message = "Input/Output error";
+								message = getString(R.string.io_error);
 								break;
 							case DECODING_ERROR:
-								message = "Image can't be decoded";
+								message = getString(R.string.decode_error);
 								break;
 							case NETWORK_DENIED:
-								message = "Downloads are denied";
+								message = getString(R.string.download_error);
 								break;
 							case OUT_OF_MEMORY:
-								message = "Out Of Memory error";
+								message = getString(R.string.memory_error);
 								break;
 							case UNKNOWN:
-								message = "Unknown error";
+								message = getString(R.string.unknown_error);
 								break;
 						}
 						Toast.makeText(PhotoPagerActivity.this, message, Toast.LENGTH_SHORT).show();

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Climb The World</string>
+    <string name="language">it_IT</string>
+    <string name="action_settings">Impostazioni</string>
+    <string name="title_activity_climb">Scala l\'edificio!</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="title_activity_profile">Profilo</string>
+    <string name="title_activity_team_preparation">Formazione dei team</string>
+    <string name="title_activity_tour_detail">Tour - Dettagli</string>
+    <string name="title_activity_gallery">Galleria</string>
+    <string name="title_activity_photo_pager_activity">Galleria</string>
+    <string name="app_id">712697618765840</string> <!-- old app id 1444608782432270 -->
+    <!--
+     <string name="app_name">ClimbTheWorld</string>
+     <string name="app_id">370546396320150</string>
+    -->
+    <string name="title_activity_fbshare_progress">Condividi miglioramento</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_fbpick_friend">Invita amici</string>
+    <string name="title_activity_groups">Gruppi</string>
+        
+    <!-- BuildingCard -->
+     <string name="steps"> scalini (</string>
+    <string name="mode">Modalità: </string>
+    <string name="notClimbedYet">Non ancora scalato</string>
+    <string name="climb_complete">Scalata: COMPLETATA! (%s)</string>
+    <string name="climb_status">Stato della scalata: %1$s%% (ultimo tentativo: %2$s)</string>
+    
+    <!-- General Toasts -->
+    <string name="connection_problem">Problemi di Connessione</string>
+    <string name="connection_problem2">Problemi di Connessione: i tuoi dati saranno salvati alla prossima connessione</string>
+    <string name="connection_needed">Connessione necessaria</string>
+    <string name="no_fb_connection">Non sei connesso a Facebook</string>
+    <string name="collaboration_not_exists">Questa collaborazione non esiste più</string>
+    
+    <!-- TourCard -->
+    <string name="num_buildings">%d edifici</string>
+    
+    <!-- NotificationCard -->
+    <string name="message_group_invite">%1$s ti chiede di unirsi al suo nuovo gruppo: %2$s</string>
+    <string name="message_collaboration">%1$s ti chiede aiuto per scalare l\'edificio %2$s</string>
+    <string name="message_competition">%1$s ti sfida a scalare l\'edificio %2$s</string>    
+    <string name="message_team_challenge">%1$s ti sfida in un team duel a scalare l\'edificio %1$s</string>  
+    <string name="message_team_member">%1$s ti chiede aiuto per vincere il duello con il suo team scalando l\'edificio %2$s</string>
+    <string name="group_not_exists">Il gruppo non esiste più</string>
+    <string name="group_already_part">Fai già parte di %s</string>
+    <string name="group_completed">Il gruppo è già stato completato</string>
+    <string name="building_occupied">Edificio occupato</string>
+    <string name="accept_req">Richiesta Accettata</string>
+    <string name="collaboration_completed">Collaborazione Completata</string>
+    <string name="collaboration_already_part">Fai già parte di questa collaborazione</string>
+    <string name="unable_part">Impossibile unirsi</string>
+    <string name="competition_not_exists">Questa competizione non esiste più</string>
+    <string name="competition_completed">Competitione Completata</string>
+    <string name="competition_already_part">Fai già parte di questa competizione</string>
+    <string name="team_duel_not_exists">Questo duello tra team non esiste più</string>
+    <string name="team_duel_already_chosen">Sfidante già scelto</string>
+    <string name="team_duel_already">Tu sei già lo sfidante</string>
+    <string name="team_duel_completed">Questo team è già completo</string>
+    <string name="team_duel_already_part">Fai già parte di questo team</string>
+    <string name="delete_req">Richiesta eliminata</string>
+    
+     <!-- UserBadge -->
+    <string name="steps_badge">Fai %d passi</string>
+    <string name="complete_tour">Completa il tour: %s</string>
+    <string name="complete_building">Scala l\'edificio %s</string>
+    
+    <!-- Facebook Requests -->
+    <string name="request_sent">Richiesta inviata</string>
+    <string name="request_cancelled">Richiesta annullata</string>
+    <string name="network_error">Errore di rete</string>
+    <string name="not_logged">Non hai fatto il login a Facebook</string>
+    <string name="request_arrived">Richiesta arrivata</string>
+    <string name="request_deleted">Richiesta eliminata</string>
+    
+    
+    <!-- AsyncTask -->
+    <string name="wait">Attendere...</string>
+    <string name="loading_progress">Sto caricando i tuoi progressi...</string>
+    
+    <!-- SettingsActivity -->
+    <string name="not_logged_in">Login non eseguito</string>
+    <string name="no_user_defined">Nessun utente definito</string>
+    <string name="check_connection">Controlla di essere connesso a Internet</string>
+    
+    <!-- ProfileActivity -->
+    <string name="level">Livello: %s</string>
+    
+    <!-- PickGroupActivity -->
+    <string name="pick_group">  Scegli questo gruppo</string>
+    
+    <!-- PhotoPagerActivity -->
+    <string name="io_error">Errore di input/output</string>
+    <string name="decode_error">L\'immagine non può essere decodificata</string>
+    <string name="download_error">Download non permessi</string>
+    <string name="memory_error">Memoria insufficiente</string>
+    <string name="unknown_error">Errore sconosciuto</string>
+    
+    <!-- MainActivity -->
+    <string name="db_error">Impossibile esportare il db: %s</string>
+    
+    <!-- GroupsActivity -->
+    <string name="add_member">    + Aggiungi membro</string>
+    <string name="new_group">Crea gruppo: inserisci un nome per il gruppo</string>
+    
+    <!-- ClimbActivity -->
+    <string name="bonus">BONUS: hai scalato meno si 24h fa, guadagni +50%%</string>
+    <string name="well_done">Ben Fatto!!!!</string>
+    <string name="alert_title">Rate di campionamento basso</string>
+    <string name="alert_message">Il tuo accelerometro non è veloce a sufficienza per questa applicazione. Assicurati di usare almeno %f Hz</string>   
+    <string name="threshold">Scalini alla soglia</string>
+    <string name="threashold_passed">"Soglia superata: vai così!!!!"</string>
+    <string name="num_steps">%s scalini"</string>
+    <string name="no_collaboration">Nessuna collaborazione disponibile per questo edificio</string>
+    <string name="no_team_duel">"Nessuna sfida tra team disponibile per questo edificio"</string>
+    
+    <string name="no_competition">Nessuna competizione disponibile per questo edificio</string>
+    <string name="collab_no_available">Questa collaborazione non è ancora disponbile</string>
+    <string name="already_climb">Già scalato in data %s</string>
+    <string name="sampling_enabled">In campionamento - Disattivarlo prima di uscire</string>
+    <string name="social_penalty">Un piccolo sforzo in più dai!!!!</string>
+    <string name="team_duel_no_available">Questo duello tra team non è ancora disponbile</string>
+    <string name="your_team_won">Il tuo team ha vinto!!!!</string>
+    <string name="other_team_won">Il team dello sfidante ha vinto</string>
+    <string name="competition_no_available">tQuesta competizione non è ancora disponibile</string>
+    <string name="competition_win">Yeah!!!! Hai vinto la sfida</string>
+    <string name="competition_lose">%s ha vinto questa sfida</string>
+    <string name="bonus_collaboration">Hai vinto %d" XP bonus per il tuo aiuto!!!!</string>
+    <string name="bonus_competition">Hai vinto %d XP bonus per la tua vittoria!!!!</string>
+    <string name="bonus_team_duel">Hai vinto %d XP bonus per il tuo aiuto e per la vittoria!!!!</string>
+    
+    <!-- TeamPreparationActivity -->
+    <string name="team_one">Team n1</string>
+    <string name="team_two">Team n2</string>
+    <string name="creator">Creatore: </string>
+  
+    <!-- SettingsActivity -->
+    <string name="settings_title">Impostazioni</string>
+    <string name="no_profile_set">Nessun profilo</string>
+    <string name="title_profile">Profilo</string>
+    <string name="climbing_settings">Impostazioni della scalata</string>
+    <string name="title_difficulty">Difficoltà</string>
+    <string name="text_not_logged">Non connesso a Facebook</string>
+    
+    <string name="com_facebook_loginview_log_in_button">Accedi con Facebook</string>
+    <string name="com_facebook_loginview_log_out_button">Logout</string>
+    
+    <!-- string activity setting -->
+    <string name="easy">Facile</string>
+    <string name="normal">Normale</string>
+    <string name="hard">Difficile</string>
+    
+    <!-- PagerAdapter -->
+    <string name="buildings">Edifici</string>
+    <string name="tours">Tour</string>
+    <string name="notifications">Notifiche</string>
+    <string name="trophies">Trofei</string>
+    <string name="undefined">Non definito</string>
+    
+    <!-- menu -->
+    <string name="search">Cerca</string>
+    <string name="profile">Profilo</string>
+    <string name="settings">Impostazioni</string>
+    <string name="invite_friends">Invita amici</string>
+    <string name="groups">Gruppi</string>
+    <string name="FB_notification">Notifiche FB</string>
+    <string name="update">Aggiorna</string>
+</resources>

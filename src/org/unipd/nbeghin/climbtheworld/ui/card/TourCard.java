@@ -6,6 +6,7 @@ import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
+import org.unipd.nbeghin.climbtheworld.models.TourText;
 
 import android.content.Context;
 import android.util.Log;
@@ -24,18 +25,20 @@ import com.fima.cardsui.objects.Card;
  */
 public class TourCard extends Card {
 	final Tour	tour;
+	TourText tourText;
 
-	public TourCard(Tour tour) {
-		super(tour.getTitle());
-		this.tour = tour;
+	public TourCard(TourText tour) {
+		super(tour.getTour().getTitle());
+		this.tourText = tour;
+		this.tour = tour.getTour();
 	}
 
 	@Override
 	public View getCardContent(Context context) {
 		View view = LayoutInflater.from(context).inflate(R.layout.card_tour_ex, null);
-		((TextView) view.findViewById(R.id.title)).setText(tour.getTitle());
-		((TextView) view.findViewById(R.id.numBuildingForTour)).setText(Integer.toString(tour.getNum_buildings())+" buildings");
-		((TextView) view.findViewById(R.id.description)).setText(tour.getDescription());
+		((TextView) view.findViewById(R.id.title)).setText(tourText.getTitle());
+		((TextView) view.findViewById(R.id.numBuildingForTour)).setText(ClimbApplication.getContext().getString(R.string.num_buildings,tour.getNum_buildings()));
+		((TextView) view.findViewById(R.id.description)).setText(tourText.getDescription());
 		LinearLayout layout=(LinearLayout) view.findViewById(R.id.buildingsForTourPhotoList);
 		List<Integer> images=ClimbApplication.getBuildingPhotosForTour(tour.get_id());
 		for(int image: images) {

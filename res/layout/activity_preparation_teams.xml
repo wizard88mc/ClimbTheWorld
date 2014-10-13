@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
         android:paddingTop="10dp"
-        android:text="My Team"
+        android:text="@string/team_one"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <ImageButton
@@ -105,7 +105,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/view1"
-        android:text="Other Team"
+        android:text="@string/team_two"
         android:layout_marginLeft="10dp"
         android:paddingTop="20dp"
         android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -148,7 +148,7 @@
           android:paddingTop = "10dp"
           android:paddingBottom="10dp"
           android:layout_marginLeft="10dp"
-          android:text="Challenger: "
+          android:text="@string/creator"
           android:textAppearance="?android:attr/textAppearanceMedium" />
 
       <TableLayout
@@ -226,7 +226,7 @@
           android:layout_height="wrap_content"
           android:layout_alignLeft="@+id/textChallenger"
           android:layout_below="@+id/textMyTeam"
-          android:text="Creator: "
+          android:text="@string/creator"
           android:paddingTop = "10dp"
           android:paddingBottom="10dp"
           android:layout_marginLeft="10dp"

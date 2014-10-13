@@ -108,8 +108,8 @@ public class SettingsActivity extends PreferenceActivity {
 		 
 		   super.onPreExecute();
 		   PD = new ProgressDialog(SettingsActivity.this);
-		   PD.setTitle("Please Wait..");
-		   PD.setMessage("Loading user progress...");
+		   PD.setTitle(SettingsActivity.this.getString(R.string.wait));
+		   PD.setMessage(SettingsActivity.this.getString(R.string.loading_progress));
 		   PD.setCancelable(false);
 		   PD.show();
 		  }
@@ -314,7 +314,7 @@ public class SettingsActivity extends PreferenceActivity {
 					ClimbApplication.refreshTeamDuels();
 
 				}else{
-					Toast.makeText(getApplicationContext(), "Connetction problems", Toast.LENGTH_SHORT).show();
+					Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 					Log.e("loadProgressFromParse", e.getMessage());
 				}
 				
@@ -440,7 +440,7 @@ public class SettingsActivity extends PreferenceActivity {
 						else ClimbApplication.teamDuelDao.update(local_duel);
 					
 				}else{
-					Toast.makeText(getApplicationContext(), "Connetction problems", Toast.LENGTH_SHORT).show();
+					Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 					Log.e("loadTeamDuelsFromParse", e.getMessage());
 				}
 				if(last){
@@ -496,7 +496,7 @@ public class SettingsActivity extends PreferenceActivity {
 							}
 						
 					}else{
-						Toast.makeText(getApplicationContext(), "Connetction problems", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 						Log.e("loadCollaborationsFromParse", e.getMessage());
 					}
 					if(last){
@@ -553,7 +553,7 @@ public class SettingsActivity extends PreferenceActivity {
 							}
 						
 					}else{
-						Toast.makeText(getApplicationContext(), "Connetction problems", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 						Log.e("loadCompetitionsFromParse", e.getMessage());
 					}
 					if(last){
@@ -700,15 +700,15 @@ public class SettingsActivity extends PreferenceActivity {
 			editor.putString("FBid", "none");
 			editor.commit();
 			profilePictureView.setProfileId(null);
-			lblFacebookUser.setText("Not logged in");
-			profile_name.setSummary("No user defined");
+			lblFacebookUser.setText(getString(R.string.not_logged_in));
+			profile_name.setSummary(getString(R.string.no_user_defined));
 		}
 			
 			
 		}
 		}
 		else
-			Toast.makeText(getApplicationContext(),"Check your intenet connection", Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(),getString(R.string.check_connection), Toast.LENGTH_LONG).show();
 	}
 	
  private void userExists(final GraphUser fbUser, final Session session){
@@ -741,7 +741,7 @@ public class SettingsActivity extends PreferenceActivity {
 
 		    		    } else {
 		    		      // Signup failed. Look at the ParseException to see what happened.
-		    		    	Toast.makeText(getApplicationContext(), "Connection Problems", Toast.LENGTH_SHORT).show();
+		    		    	Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 		    		    	Log.e("userExists", e.getMessage());
 		    		    }
 		    		  }
@@ -785,7 +785,7 @@ public class SettingsActivity extends PreferenceActivity {
     			    		Log.d("SIGN UP", "SIGN UP");
     			    		saveProgressToParse();
     			    } else {
-    			    	Toast.makeText(getApplicationContext(), "Connection Problems", Toast.LENGTH_SHORT).show();
+    			    	Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
     			    	Log.e("signUpInBackground", e.getMessage());
     			      // Sign up didn't succeed. Look at the ParseException
     			      // to figure out what went wrong

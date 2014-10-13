@@ -29,7 +29,7 @@ public class ProfileActivity extends Activity {
 		List<Stat> stats = StatUtils.calculateStats();
 		((ListView) findViewById(R.id.listStatistics)).setAdapter(new StatAdapter(this, R.layout.stat_item, stats));
 		((TextView) findViewById(R.id.textUserName)).setText(me.getName());
-		((TextView) findViewById(R.id.textLevel)).setText("Level: " + String.valueOf((me.getLevel())));
+		((TextView) findViewById(R.id.textLevel)).setText(getString(R.string.level, String.valueOf((me.getLevel()))));
 		((TextView) findViewById(R.id.textXP)).setText(String.valueOf(me.getXP()) + " XP");
 		int total = ClimbApplication.levelToXP(me.getLevel() + 1);
 		int percentage = 0;

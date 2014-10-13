@@ -91,12 +91,12 @@ public class GroupsActivity extends ActionBarActivity {
 										if (error instanceof FacebookOperationCanceledException) {
 											Toast.makeText(
 													getApplicationContext(),
-													"Request cancelled",
+													getString(R.string.request_cancelled),
 													Toast.LENGTH_SHORT).show();
 										} else {
 											Toast.makeText(
 													getApplicationContext(),
-													"Network Error",
+													getString(R.string.network_error),
 													Toast.LENGTH_SHORT).show();
 
 										}
@@ -106,13 +106,13 @@ public class GroupsActivity extends ActionBarActivity {
 										if (requestId != null) {
 											Toast.makeText(
 													getApplicationContext(),
-													"Request sent",
+													getString(R.string.request_sent),
 													Toast.LENGTH_SHORT).show();
 
 										} else {
 											Toast.makeText(
 													getApplicationContext(),
-													"Request cancelled",
+													getString(R.string.request_cancelled),
 													Toast.LENGTH_SHORT).show();
 
 										}
@@ -135,7 +135,7 @@ public class GroupsActivity extends ActionBarActivity {
 					onCreateNewGroup();
 				} else {
 					Toast.makeText(getApplicationContext(),
-							"No connection available", Toast.LENGTH_SHORT)
+							getString(R.string.check_connection), Toast.LENGTH_SHORT)
 							.show();
 				}
 
@@ -167,7 +167,7 @@ public class GroupsActivity extends ActionBarActivity {
 				else {
 					e.printStackTrace();
 					Toast.makeText(getApplicationContext(),
-							"No connection available", Toast.LENGTH_SHORT)
+							getString(R.string.check_connection), Toast.LENGTH_SHORT)
 							.show();
 				}
 
@@ -235,7 +235,7 @@ public class GroupsActivity extends ActionBarActivity {
 
 				if (members.length() < 5) {
 					ExpandListChild ch1_1 = new ExpandListChild();
-					ch1_1.setName("    + Add member");
+					ch1_1.setName(getString(R.string.add_member));
 					ch1_1.setTag(gru1.getName());
 
 					list2.add(ch1_1);
@@ -377,12 +377,12 @@ public class GroupsActivity extends ActionBarActivity {
 							if (error != null) {
 								if (error instanceof FacebookOperationCanceledException) {
 									Toast.makeText(getApplicationContext(),
-											"Request cancelled",
+											getString(R.string.request_cancelled),
 											Toast.LENGTH_SHORT).show();
 									deleteGroup(group);
 								} else {
 									Toast.makeText(getApplicationContext(),
-											"Network Error", Toast.LENGTH_SHORT)
+											getString(R.string.network_error), Toast.LENGTH_SHORT)
 											.show();
 									deleteGroup(group);
 
@@ -392,12 +392,12 @@ public class GroupsActivity extends ActionBarActivity {
 										.getString("request");
 								if (requestId != null) {
 									Toast.makeText(getApplicationContext(),
-											"Request sent", Toast.LENGTH_SHORT)
+											getString(R.string.request_sent), Toast.LENGTH_SHORT)
 											.show();
 
 								} else {
 									Toast.makeText(getApplicationContext(),
-											"Request cancelled",
+											getString(R.string.request_cancelled),
 											Toast.LENGTH_SHORT).show();
 									deleteGroup(group);
 

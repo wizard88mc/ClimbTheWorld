@@ -219,7 +219,7 @@ public class TeamPreparationActivity extends ActionBarActivity {
 					}
 
 				} else {
-					Toast.makeText(getApplicationContext(), "Connection problems. Unable to update", Toast.LENGTH_SHORT).show();
+					Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 					Log.e("onUpdate", e.getMessage());
 				}
 
@@ -235,13 +235,13 @@ public class TeamPreparationActivity extends ActionBarActivity {
 	 */
 	private void showTeams(ParseObject duelParse, boolean isUpdate) throws JSONException{
 		if(duel.getCreator_name() != null && !duel.getCreator_name().equals(""))
-			creatorName.setText("Creator: " + duel.getCreator_name());
+			creatorName.setText(getString(R.string.creator) + duel.getCreator_name());
 		else
-			creatorName.setText("Creator: - ");
+			creatorName.setText(getString(R.string.creator) + " - ");
 		if ((duel.getChallenger_name() != null && !duel.getChallenger_name().equals("")) )
-			challengerName.setText("Challenger: " + duel.getChallenger_name());
+			challengerName.setText(getString(R.string.creator) + duel.getChallenger_name());
 		else
-			challengerName.setText("Challenger: - ");
+			challengerName.setText(getString(R.string.creator) + " - ");
 		if(duel.isCreator()){
 			if(duel.getChallenger_name() != null && !duel.getChallenger_name().equals(""))
 			addChallengerBtn.setEnabled(false);
@@ -377,16 +377,16 @@ public class TeamPreparationActivity extends ActionBarActivity {
 			public void onComplete(Bundle values, FacebookException error) {
 				if (error != null) {
 					if (error instanceof FacebookOperationCanceledException) {
-						Toast.makeText(getApplicationContext(), "Request cancelled", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getApplicationContext(), getString(R.string.request_cancelled), Toast.LENGTH_SHORT).show();
 					} else {
-						Toast.makeText(getApplicationContext(), "Network Error", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getApplicationContext(),getString(R.string.network_error), Toast.LENGTH_SHORT).show();
 					}
 				} else {
 					final String requestId = values.getString("request");
 					if (requestId != null) {
-						Toast.makeText(getApplicationContext(), "Request sent", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getApplicationContext(), getString(R.string.request_sent), Toast.LENGTH_SHORT).show();
 					} else {
-						Toast.makeText(getApplicationContext(), "Request cancelled", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getApplicationContext(), getString(R.string.request_cancelled), Toast.LENGTH_SHORT).show();
 					}
 				}
 			}
@@ -394,7 +394,7 @@ public class TeamPreparationActivity extends ActionBarActivity {
 		}).build();
 		requestsDialog.show();
 		}else{
-			Toast.makeText(getApplicationContext(), "Currently not logged to FB", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), getString(R.string.not_logged), Toast.LENGTH_SHORT).show();
 		}
 	}
 }

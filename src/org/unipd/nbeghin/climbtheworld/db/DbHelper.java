@@ -2,6 +2,7 @@ package org.unipd.nbeghin.climbtheworld.db;
 
 import org.unipd.nbeghin.climbtheworld.models.Badge;
 import org.unipd.nbeghin.climbtheworld.models.Building;
+import org.unipd.nbeghin.climbtheworld.models.BuildingText;
 import org.unipd.nbeghin.climbtheworld.models.BuildingTour;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Collaboration;
@@ -9,6 +10,7 @@ import org.unipd.nbeghin.climbtheworld.models.Competition;
 import org.unipd.nbeghin.climbtheworld.models.Photo;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
+import org.unipd.nbeghin.climbtheworld.models.TourText;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.models.UserBadge;
 
@@ -33,7 +35,9 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
 	private RuntimeExceptionDao<TeamDuel, Integer>		teamDuelRuntimeDao		= null;
 	private RuntimeExceptionDao<Badge, Integer> 			badgeRuntimeDao			= null;
 	private RuntimeExceptionDao<UserBadge, Integer>		userBadgeRuntimeDao		= null;
-
+	private RuntimeExceptionDao<BuildingText, Integer>   buildingTextDao			= null;
+	private RuntimeExceptionDao<TourText, Integer> 		tourTextDao				= null;
+	
 	public DbHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
@@ -122,6 +126,18 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
 			userBadgeRuntimeDao = getRuntimeExceptionDao(UserBadge.class);
 		return userBadgeRuntimeDao;
 	}
+	
+	public RuntimeExceptionDao<BuildingText, Integer> getBuildingTextDao(){
+		if(buildingTextDao == null)
+			buildingTextDao = getRuntimeExceptionDao(BuildingText.class);
+		return buildingTextDao;
+	}
+	
+	public RuntimeExceptionDao<TourText, Integer> getTourTextDao(){
+		if(tourTextDao == null)
+			tourTextDao = getRuntimeExceptionDao(TourText.class);
+		return tourTextDao;
+	}
 
     public String getDbPath() {
         return this.getReadableDatabase().getPath();
@@ -144,5 +160,7 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
 		teamDuelRuntimeDao = null;
 		badgeRuntimeDao = null;
 		userBadgeRuntimeDao = null;
+		buildingTextDao = null;
+		tourTextDao = null;
 	}
 }

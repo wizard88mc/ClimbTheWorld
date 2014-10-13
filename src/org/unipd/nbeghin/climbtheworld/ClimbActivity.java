@@ -299,7 +299,7 @@ public class ClimbActivity extends ActionBarActivity {
 		num_steps = (int) (((double) building.getSteps()) * percentage);
 		stopClassify();
 		used_bonus = true;
-		Toast.makeText(getApplicationContext(), "BONUS: you climbed less than 24h ago, you earn +50%", Toast.LENGTH_LONG).show();
+		Toast.makeText(getApplicationContext(), getString(R.string.bonus), Toast.LENGTH_LONG).show();
 		enableRocket();
 		updateStats(); // update the view of current stats
 		if (mode == GameModeType.SOCIAL_CLIMB){
@@ -340,7 +340,7 @@ public class ClimbActivity extends ActionBarActivity {
 	private void apply_update() {
 		Log.i("apply_update", "apply_update " + new_steps);
 		findViewById(R.id.encouragment).setVisibility(View.VISIBLE);
-		((TextView) findViewById(R.id.encouragment)).setText(" Well Done!!!!");
+		((TextView) findViewById(R.id.encouragment)).setText(getString(R.string.well_done));
 		((ImageButton) findViewById(R.id.btnAccessPhotoGallery)).setImageResource(R.drawable.social_share);
 		findViewById(R.id.btnAccessPhotoGallery).setVisibility(View.VISIBLE);
 
@@ -439,8 +439,8 @@ public class ClimbActivity extends ActionBarActivity {
 																	// service
 					((TextView) findViewById(R.id.lblSamplingRateDetected)).setText("TOO LOW: " + (int) detectedSamplingRate + " Hz");
 					AlertDialog.Builder alert = new AlertDialog.Builder(getApplicationContext());
-					alert.setTitle("Sampling rate not high enough");
-					alert.setMessage("Your accelerometer is not fast enough for this application. Make sure to use at least " + minimumSamplingRate + " Hz");
+					alert.setTitle(getString(R.string.alert_title));
+					alert.setMessage(getString(R.string.alert_message, minimumSamplingRate));
 					alert.show();
 				}
 			}
@@ -470,7 +470,8 @@ public class ClimbActivity extends ActionBarActivity {
 	 * Update the stat panel
 	 */
 	private void updateStats() {
-		((TextView) findViewById(R.id.lblNumSteps)).setText(Integer.toString(num_steps) + " of " + Integer.toString(building.getSteps()) + " (" + (new DecimalFormat("#.##")).format(percentage * 100.00) + "%)");
+		//((TextView) findViewById(R.id.lblNumSteps)).setText(Integer.toString(num_steps) + " of " + Integer.toString(building.getSteps()) + " (" + (new DecimalFormat("#.##")).format(percentage * 100.00) + "%)");
+		((TextView) findViewById(R.id.lblNumSteps)).setText(getString(R.string.stats_panel, Integer.toString(num_steps), Integer.toString(building.getSteps()), (new DecimalFormat("#.##")).format(percentage * 100.00)));
 	}
 
 	/**
@@ -488,7 +489,7 @@ public class ClimbActivity extends ActionBarActivity {
 	private void setThresholdText(){
 		int stepsToThreshold = threshold - num_steps;
 		if(stepsToThreshold <= 0)
-			current.setText("Threshold passed: you're in!!!!");
+			current.setText(getString(R.string.threashold_passed));
 		else
 			current.setText(getString(R.string.threshold) + ": " + stepsToThreshold);
 	}
@@ -712,7 +713,7 @@ public class ClimbActivity extends ActionBarActivity {
 		// set building info
 		((TextView) findViewById(R.id.lblBuildingName)).setText(building.getName() + " (" + building.getLocation() + ")"); // building's
 																															// location
-		((TextView) findViewById(R.id.lblNumSteps)).setText(Integer.toString(building.getSteps()) + " steps"); // building's
+		((TextView) findViewById(R.id.lblNumSteps)).setText(getString(R.string.num_steps, Integer.toString(building.getSteps()))); // building's
 																												// steps
 		((TextView) findViewById(R.id.lblHeight)).setText(Integer.toString(building.getHeight()) + "mt"); // building's
 																											// height
@@ -756,7 +757,7 @@ public class ClimbActivity extends ActionBarActivity {
 		collaboration = ClimbApplication.getCollaborationById(climbing.getId_mode());//MainActivity.getCollaborationForBuilding(building.get_id());
 		others_steps = new HashMap<String, Integer>();
 		if (collaboration == null) {
-			Toast.makeText(this, "No collaboration available for this building", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, getString(R.string.no_collaboration), Toast.LENGTH_SHORT).show();
 		} else {
 			collaboration.setMy_stairs(climbing.getCompleted_steps());
 			updateOthers(false);
@@ -768,7 +769,7 @@ public class ClimbActivity extends ActionBarActivity {
 		teamDuel = ClimbApplication.getTeamDuelById(climbing.getId_mode());
 		myTeamScores = new ArrayList<Integer>();
 		if(teamDuel == null){
-			Toast.makeText(this, "No team duel available for this building", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, getString(R.string.no_team_duel), Toast.LENGTH_SHORT).show();
 		}else{
 			teamDuel.setMy_steps(climbing.getCompleted_steps());
 			teamDuel.setSteps_my_group(teamDuel.getSteps_my_group() + climbing.getCompleted_steps());
@@ -789,7 +790,7 @@ public class ClimbActivity extends ActionBarActivity {
 	private void loadCompetition() {
 		competition = ClimbApplication.getCompetitionById(climbing.getId_mode());//MainActivity.getCompetitionByBuilding(building.get_id());
 		if(competition == null){
-			Toast.makeText(this, "No competition available for this building", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, getString(R.string.no_competition), Toast.LENGTH_SHORT).show();
 		}else{
 			competition.setMy_stairs(climbing.getCompleted_steps());
 			updateChart(false);
@@ -810,7 +811,7 @@ public class ClimbActivity extends ActionBarActivity {
 				public void done(List<ParseObject> collabs, ParseException e) {
 					if (e == null) {
 						if (collabs == null || collabs.size() == 0) {
-							Toast.makeText(getApplicationContext(), "This Collaboration is not yet available", Toast.LENGTH_SHORT).show();
+							Toast.makeText(getApplicationContext(), getString(R.string.collab_no_available), Toast.LENGTH_SHORT).show();
 							Log.e("loadCollaboration", "Collaboration " + collaboration.getId() + " not present in Parse");
 							// delete this collaboration
 							//MainActivity.collaborationDao.delete(collaboration);
@@ -866,18 +867,18 @@ public class ClimbActivity extends ActionBarActivity {
 										public void onComplete(Bundle values, FacebookException error) {
 											if (error != null) {
 												if (error instanceof FacebookOperationCanceledException) {
-													Toast.makeText(ClimbActivity.this, "Request cancelled", Toast.LENGTH_SHORT).show();
+													Toast.makeText(ClimbActivity.this, getString(R.string.request_cancelled), Toast.LENGTH_SHORT).show();
 													
 												} else {
-													Toast.makeText(ClimbActivity.this, "Network Error", Toast.LENGTH_SHORT).show();
+													Toast.makeText(ClimbActivity.this, getString(R.string.network_error), Toast.LENGTH_SHORT).show();
 							
 												}
 											} else {
 												final String requestId = values.getString("request");
 												if (requestId != null) {
-													Toast.makeText(ClimbActivity.this, "Request sent", Toast.LENGTH_SHORT).show();
+													Toast.makeText(ClimbActivity.this, getString(R.string.request_sent), Toast.LENGTH_SHORT).show();
 												} else {
-													Toast.makeText(ClimbActivity.this, "Request cancelled", Toast.LENGTH_SHORT).show();
+													Toast.makeText(ClimbActivity.this, getString(R.string.request_cancelled), Toast.LENGTH_SHORT).show();
 									
 
 												}
@@ -887,7 +888,7 @@ public class ClimbActivity extends ActionBarActivity {
 									}).build();
 									requestsDialog.show();
 									}else{
-										Toast.makeText(ClimbActivity.this, "Currently not logged to FB", Toast.LENGTH_SHORT).show();
+										Toast.makeText(ClimbActivity.this, getString(R.string.not_logged), Toast.LENGTH_SHORT).show();
 									}
 								}
 							});
@@ -914,7 +915,7 @@ public class ClimbActivity extends ActionBarActivity {
 
 						}
 					} else if(!(mode == GameModeType.SOCIAL_CLIMB)) {
-						Toast.makeText(getApplicationContext(), "Connections Problem", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 						Log.e("loadCollaboration", e.getMessage());
 					}
 					if(isUpdate){
@@ -926,7 +927,7 @@ public class ClimbActivity extends ActionBarActivity {
 			
 				
 		} else {
-			Toast.makeText(getApplicationContext(), "No Connection Available", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), getString(R.string.check_connection), Toast.LENGTH_SHORT).show();
 			if(isUpdate){
 				System.out.println("animaz off");
 				resetUpdating();
@@ -984,7 +985,7 @@ public class ClimbActivity extends ActionBarActivity {
 					}else{
 						climbing.setSaved(false);
 						ClimbApplication.climbingDao.update(climbing);
-						Toast.makeText(getApplicationContext(), "Connection not available: your progresses will be saved during next reconnection", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getApplicationContext(), getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
 					}
 					
 				}
@@ -1011,7 +1012,7 @@ public class ClimbActivity extends ActionBarActivity {
 						climbing.setSaved(false);
 						climbing.setDeleted(true);
 						ClimbApplication.climbingDao.update(climbing);
-						Toast.makeText(getApplicationContext(), "Connection Problem", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 						Log.e("updateClimbingInParse", e.getMessage());
 					}
 				}
@@ -1076,7 +1077,7 @@ public class ClimbActivity extends ActionBarActivity {
 					} else {
 						myclimbing.setSaved(false);
 						ClimbApplication.climbingDao.update(myclimbing);
-						Toast.makeText(getApplicationContext(), "Connection Problem", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 						Log.e("updateClimbingInParse", e.getMessage());
 					}
 				}
@@ -1084,7 +1085,7 @@ public class ClimbActivity extends ActionBarActivity {
 		} else {
 			myclimbing.setSaved(false);
 			ClimbApplication.climbingDao.update(myclimbing);
-			Toast.makeText(getApplicationContext(), "Connection unavailable. Yout data will be saved during next connection", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
 
 		}
 	}
@@ -1175,7 +1176,7 @@ public class ClimbActivity extends ActionBarActivity {
 		if (percentage >= 1.00) { // building already climbed
 			findViewById(R.id.lblReadyToClimb).setVisibility(View.GONE);
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
-			((TextView) findViewById(R.id.lblWin)).setText("ALREADY CLIMBED ON " + sdf.format(new Date(climbing.getCompleted())));
+			((TextView) findViewById(R.id.lblWin)).setText(getString(R.string.already_climb, sdf.format(new Date(climbing.getCompleted()))));
 			apply_win();
 		} else { // building to be completed
 			// animate "ready to climb" text
@@ -1235,7 +1236,7 @@ public class ClimbActivity extends ActionBarActivity {
 			if (samplingEnabled == false)
 				finish();
 			else { // disable back button if sampling is enabled
-				Toast.makeText(getApplicationContext(), "Sampling running - Stop it before exiting", Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), getString(R.string.sampling_enabled), Toast.LENGTH_SHORT).show();
 			}
 			return true;
 		}
@@ -1327,7 +1328,7 @@ public class ClimbActivity extends ActionBarActivity {
 	//quindi torno in social climb e elimino la collab localmente
 	private void socialPenalty(){
 			updatePoints(true);
-			Toast.makeText(this.getApplicationContext(), "Move up next time!!!!", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this.getApplicationContext(), getString(R.string.social_penalty), Toast.LENGTH_SHORT).show();
 			((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.social_share);
 			mode = GameModeType.SOLO_CLIMB;
 			climbing.setGame_mode(0);
@@ -1413,7 +1414,7 @@ public class ClimbActivity extends ActionBarActivity {
 		collaboration.setMy_stairs(climbing.getCompleted_steps());
 		if (collab_parse == null) {
 			collaboration.setSaved(false);
-			Toast.makeText(getApplicationContext(), "Connection unavailable. Yout data will be saved during next connection", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
 		} else {
 			SharedPreferences pref = getSharedPreferences("UserSession", 0);
 			JSONObject stairs = collab_parse.getJSONObject("stairs");
@@ -1444,7 +1445,7 @@ public class ClimbActivity extends ActionBarActivity {
 		competition.setMy_stairs(climbing.getCompleted_steps());
 		if (compet_parse == null) {
 			competition.setSaved(false);
-			Toast.makeText(getApplicationContext(), "Connection unavailable. Yout data will be saved during next connection", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
 		} else {
 			SharedPreferences pref = getSharedPreferences("UserSession", 0);
 			JSONObject stairs = compet_parse.getJSONObject("stairs");
@@ -1474,7 +1475,7 @@ public class ClimbActivity extends ActionBarActivity {
 		teamDuel.setMy_steps(climbing.getCompleted_steps());
 		if (teamDuel_parse == null) {
 			teamDuel.setSaved(false);
-			Toast.makeText(getApplicationContext(), "Connection unavailable. Yout data will be saved during next connection", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
 		} else {
 			SharedPreferences pref = getSharedPreferences("UserSession", 0);
 			JSONObject myteam;
@@ -1579,7 +1580,7 @@ public class ClimbActivity extends ActionBarActivity {
 		if (samplingEnabled == false)
 			super.onBackPressed();
 		else { // disable back button if sampling is enabled
-			Toast.makeText(getApplicationContext(), "Sampling running - Stop it before exiting", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), getString(R.string.sampling_enabled), Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -1670,7 +1671,7 @@ public class ClimbActivity extends ActionBarActivity {
 	
 	//non ho superato la threshold
 	private void socialTeamPenality(){
-		Toast.makeText(this.getApplicationContext(), "Move up next time!!!!", Toast.LENGTH_SHORT).show();
+		Toast.makeText(this.getApplicationContext(), getString(R.string.social_penalty), Toast.LENGTH_SHORT).show();
 	}
 	
 	private void updateTeams(final boolean isUpdate){
@@ -1683,7 +1684,7 @@ public class ClimbActivity extends ActionBarActivity {
 				public void done(List<ParseObject> tds, ParseException e) {
 					if(e == null){
 						if (tds == null || tds.size() == 0) {
-							Toast.makeText(getApplicationContext(), "This team duel does not exists", Toast.LENGTH_SHORT).show();
+							Toast.makeText(getApplicationContext(), getString(R.string.team_duel_no_available), Toast.LENGTH_SHORT).show();
 							Log.e("updateTeams", "TeamDuel not present in Parse");
 							// TODO: la elimino????	
 						} else {
@@ -1751,7 +1752,7 @@ public class ClimbActivity extends ActionBarActivity {
 							secondSeekbar.setProgress(ModelsUtil.sum(otherTeam));
 							
 							if(myGroupScore >= building.getSteps()){
-								Toast.makeText(getApplicationContext(), "Your team has won!!!!", Toast.LENGTH_SHORT).show();
+								Toast.makeText(getApplicationContext(), getString(R.string.your_team_won), Toast.LENGTH_SHORT).show();
 								boolean penalty = false;
 								if (teamDuel.getMy_steps() < threshold){
 									socialTeamPenality();
@@ -1763,7 +1764,7 @@ public class ClimbActivity extends ActionBarActivity {
 									
 								saveBadges();
 							}else if(otherGroupScore >= building.getSteps()){
-								Toast.makeText(getApplicationContext(), "The challenger's team has won", Toast.LENGTH_SHORT).show();
+								Toast.makeText(getApplicationContext(), getString(R.string.other_team_won), Toast.LENGTH_SHORT).show();
 								boolean penalty = false;
 								if (teamDuel.getMy_steps() < threshold){
 									socialTeamPenality();
@@ -1776,7 +1777,7 @@ public class ClimbActivity extends ActionBarActivity {
 							
 						}
 					}else if(!(mode == GameModeType.TEAM_VS_TEAM)) {
-						Toast.makeText(getApplicationContext(), "Connections Problem", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 						Log.e("updateTeams", e.getMessage());
 					}
 					if(isUpdate){
@@ -1788,7 +1789,7 @@ public class ClimbActivity extends ActionBarActivity {
 				
 			});
 		} else {
-			Toast.makeText(getApplicationContext(), "No Connection Available", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), getString(R.string.check_connection), Toast.LENGTH_SHORT).show();
 			if(isUpdate){
 				System.out.println("animaz off");
 				resetUpdating();
@@ -1809,7 +1810,7 @@ public class ClimbActivity extends ActionBarActivity {
 				public void done(List<ParseObject> compets, ParseException e) {
 					if (e == null) {
 						if (compets == null || compets.size() == 0) {
-							Toast.makeText(getApplicationContext(), "This competition does not exists", Toast.LENGTH_SHORT).show();
+							Toast.makeText(getApplicationContext(), getString(R.string.competition_no_available), Toast.LENGTH_SHORT).show();
 							Log.e("updatechart", "Competition not present in Parse");
 							// delete this collaboration
 							ClimbApplication.competitionDao.delete(competition);
@@ -1859,12 +1860,12 @@ public class ClimbActivity extends ActionBarActivity {
 									percentage = 1.0;
 									endCompetition();
 									saveBadges();
-									Toast.makeText(getApplicationContext(),  "Yeah!!!! You won this challenge", Toast.LENGTH_SHORT).show();
+									Toast.makeText(getApplicationContext(), getString(R.string.competition_win), Toast.LENGTH_SHORT).show();
 								}
 							}else{
 								if(steps >= building.getSteps()){
 									endCompetition();
-									Toast.makeText(getApplicationContext(), name + " won this challenge", Toast.LENGTH_SHORT).show();
+									Toast.makeText(getApplicationContext(), getString(R.string.competition_lose, name), Toast.LENGTH_SHORT).show();
 								}
 							}
 							i++;
@@ -1893,18 +1894,18 @@ public class ClimbActivity extends ActionBarActivity {
 										public void onComplete(Bundle values, FacebookException error) {
 											if (error != null) {
 												if (error instanceof FacebookOperationCanceledException) {
-													Toast.makeText(ClimbActivity.this, "Request cancelled", Toast.LENGTH_SHORT).show();
+													Toast.makeText(ClimbActivity.this, getString(R.string.request_cancelled), Toast.LENGTH_SHORT).show();
 													
 												} else {
-													Toast.makeText(ClimbActivity.this, "Network Error", Toast.LENGTH_SHORT).show();
+													Toast.makeText(ClimbActivity.this, getString(R.string.network_error), Toast.LENGTH_SHORT).show();
 							
 												}
 											} else {
 												final String requestId = values.getString("request");
 												if (requestId != null) {
-													Toast.makeText(ClimbActivity.this, "Request sent", Toast.LENGTH_SHORT).show();
+													Toast.makeText(ClimbActivity.this, getString(R.string.request_sent), Toast.LENGTH_SHORT).show();
 												} else {
-													Toast.makeText(ClimbActivity.this, "Request cancelled", Toast.LENGTH_SHORT).show();
+													Toast.makeText(ClimbActivity.this, getString(R.string.request_cancelled), Toast.LENGTH_SHORT).show();
 									
 
 												}
@@ -1914,7 +1915,7 @@ public class ClimbActivity extends ActionBarActivity {
 									}).build();
 									requestsDialog.show();
 									}else{
-										Toast.makeText(ClimbActivity.this, "Currently not logged to FB", Toast.LENGTH_SHORT).show();
+										Toast.makeText(ClimbActivity.this, getString(R.string.not_logged), Toast.LENGTH_SHORT).show();
 									}
 								}
 							});
@@ -1929,7 +1930,7 @@ public class ClimbActivity extends ActionBarActivity {
 
 						}
 					} else if(!(mode == GameModeType.SOCIAL_CLIMB)) {
-						Toast.makeText(getApplicationContext(), "Connections Problem", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 						Log.e("updateChart", e.getMessage());
 					}
 					if(isUpdate){
@@ -1939,7 +1940,7 @@ public class ClimbActivity extends ActionBarActivity {
 				}
 			});
 		} else {
-			Toast.makeText(getApplicationContext(), "No Connection Available", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(),getString(R.string.check_connection), Toast.LENGTH_SHORT).show();
 			if(isUpdate){
 				System.out.println("animaz off");
 				resetUpdating();
@@ -1965,17 +1966,17 @@ public class ClimbActivity extends ActionBarActivity {
 		if(mode == GameModeType.SOCIAL_CLIMB && percentage >= 1.00 && !penalty){//20% over the total
 			int extra = (20 * building.getSteps())/100;
 			newXP += extra;
-			Toast.makeText(getApplicationContext(), "You have won " + extra + " XP as bonus for your help!!!!", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), getString(R.string.bonus_collaboration, extra), Toast.LENGTH_SHORT).show();
 		}  
 		if(mode == GameModeType.SOCIAL_CHALLENGE && percentage >= 1.00){//20% over the total
 			int extra = (20 * building.getSteps())/100;
 			newXP += extra;
-			Toast.makeText(getApplicationContext(), "You have won " + extra + " XP as bonus for your victory!!!!", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), getString(R.string.bonus_competition, extra), Toast.LENGTH_SHORT).show();
 		}
 		if(mode == GameModeType.TEAM_VS_TEAM && percentage >= 1.00 && !penalty){//20% over the total
 			int extra = (20 * building.getSteps())/100;
 			newXP += extra;
-			Toast.makeText(getApplicationContext(), "You have won " + extra + " XP as bonus for your help and victory!!!!", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), getString(R.string.bonus_team_duel, extra), Toast.LENGTH_SHORT).show();
 		}
 		final User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
 		int newLevel = ClimbApplication.levelUp(newXP, me.getLevel());
@@ -2039,7 +2040,7 @@ public class ClimbActivity extends ActionBarActivity {
 			ub.setBadge(badge);
 			ub.setObj_id(tour.get_id());
 			if(percentage >= 1.00) num_steps = building.getSteps();
-			int percentage = ((num_steps) / tour.getTotalSteps() );
+			double percentage = ((num_steps) / tour.getTotalSteps() );
 			ub.setPercentage(percentage);
 			ub.setUser(me);
 			ub.setSaved(false);
@@ -2093,7 +2094,7 @@ public class ClimbActivity extends ActionBarActivity {
 					}
 					}
 				}else{
-					Toast.makeText(getApplicationContext(), "Connection Available. Your data will be saved during next connection", Toast.LENGTH_SHORT).show();
+					Toast.makeText(getApplicationContext(), getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
 					Log.e("saveBadges", e.getMessage());
 				}
 			}

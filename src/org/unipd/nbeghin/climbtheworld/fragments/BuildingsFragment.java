@@ -6,7 +6,7 @@ import org.unipd.nbeghin.climbtheworld.ClimbActivity;
 import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.TeamPreparationActivity;
-import org.unipd.nbeghin.climbtheworld.models.Building;
+import org.unipd.nbeghin.climbtheworld.models.BuildingText;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.ui.card.BuildingCard;
 
@@ -41,35 +41,35 @@ public class BuildingsFragment extends Fragment {
 
 	public void refresh() {
 		buildingCards.clearCards();
-		for (final Building building : ClimbApplication.buildings) {
+		for (final BuildingText building : ClimbApplication.buildingTexts) {
 			BuildingCard buildingCard = new BuildingCard(building, getActivity());
 			buildingCard.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					final SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
 					if (pref.getInt("local_id", -1) != -1) {
-						List<Climbing> climbs = ClimbApplication.getClimbingListForBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
+						List<Climbing> climbs = ClimbApplication.getClimbingListForBuildingAndUser(building.getBuilding().get_id(), pref.getInt("local_id", -1));
 						if ((climbs.size() == 2 && (climbs.get(0).getGame_mode() == 3 || climbs.get(1).getGame_mode() == 3)) || (climbs.size() == 1 && climbs.get(0).getGame_mode() == 3)) {
 							Climbing climb = climbs.get(0).getGame_mode() == 3 ? climbs.get(0) : climbs.get(1);
 							if (climb.getId_mode() == null || climb.getId_mode().equals(""))
 								Toast.makeText(getActivity(), "Connect to save data online before playing", Toast.LENGTH_SHORT).show();
 							else {
-								Log.i("Building Fragment", "Building id clicked: " + building.get_id());
+								Log.i("Building Fragment", "Building id clicked: " + building.getBuilding().get_id());
 								Intent intent = new Intent(getActivity().getApplicationContext(), TeamPreparationActivity.class);
-								intent.putExtra(ClimbApplication.building_intent_object, building.get_id());
+								intent.putExtra(ClimbApplication.building_intent_object, building.getBuilding().get_id());
 								getActivity().startActivity(intent);
 							}
 						} else {
-							Log.i("Building Fragment", "Building id clicked: " + building.get_id());
+							Log.i("Building Fragment", "Building id clicked: " + building.getBuilding().get_id());
 							Intent intent = new Intent(getActivity().getApplicationContext(), ClimbActivity.class);
-							intent.putExtra(ClimbApplication.building_intent_object, building.get_id());
+							intent.putExtra(ClimbApplication.building_intent_object, building.getBuilding().get_id());
 							startActivity(intent);
 						}
 
 					} else {
-						Log.i("Building Fragment", "Building id clicked: " + building.get_id());
+						Log.i("Building Fragment", "Building id clicked: " + building.getBuilding().get_id());
 						Intent intent = new Intent(getActivity().getApplicationContext(), ClimbActivity.class);
-						intent.putExtra(ClimbApplication.building_intent_object, building.get_id());
+						intent.putExtra(ClimbApplication.building_intent_object, building.getBuilding().get_id());
 						startActivity(intent);
 					}
 

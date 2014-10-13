@@ -5,6 +5,7 @@ import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.TourDetailActivity;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
+import org.unipd.nbeghin.climbtheworld.models.TourText;
 import org.unipd.nbeghin.climbtheworld.ui.card.TourCard;
 
 import android.content.Intent;
@@ -36,13 +37,13 @@ public class ToursFragment extends Fragment {
 
 	public void refresh() {
 		toursCards.clearCards();
-		for (final Tour tour : ClimbApplication.tours) {
+		for (final TourText tour : ClimbApplication.tourTexts) {
 			TourCard tourCard = new TourCard(tour);
 			tourCard.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					Intent intent = new Intent(getActivity().getApplicationContext(), TourDetailActivity.class);
-					intent.putExtra(tour_intent_object, tour.get_id());
+					intent.putExtra(tour_intent_object, tour.getTour().get_id());
 					startActivity(intent);
 				}
 			});

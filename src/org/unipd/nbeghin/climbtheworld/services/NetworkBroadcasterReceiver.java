@@ -12,7 +12,7 @@ public class NetworkBroadcasterReceiver extends BroadcastReceiver{
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		Toast.makeText(context, "sync climbtheworld", Toast.LENGTH_SHORT).show();
+		//Toast.makeText(context, "sync climbtheworld", Toast.LENGTH_SHORT).show();
 		System.out.println("broadcaster receiver");
 		
 		Intent filter = new Intent(context, UpdateService.class);

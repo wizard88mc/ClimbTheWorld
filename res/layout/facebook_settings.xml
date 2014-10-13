@@ -42,7 +42,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="5dp"
-                android:text="Not logged to Facebook" />
+                android:text="@string/text_not_logged" />
 
         </LinearLayout>
     </LinearLayout>
@@ -52,6 +52,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="0dp" />
+        android:layout_marginBottom="0dp"
+        
+        />
 
 </RelativeLayout>

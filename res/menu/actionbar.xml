@@ -5,7 +5,7 @@
     <item
         android:id="@+id/action_search"
         android:icon="@drawable/ic_action_search"
-        android:title="Search"
+        android:title="@string/search"
         climbtheworld:actionViewClass="android.support.v7.widget.SearchView"
         climbtheworld:showAsAction="ifRoom|collapseActionView">
     </item>
@@ -13,20 +13,20 @@
         android:id="@+id/itemProfile"
         android:icon="@drawable/ic_action_user"
         android:onClick="onShowActionProfile"
-        android:title="Profile"
+        android:title="@string/profile"
         climbtheworld:showAsAction="ifRoom">
     </item>
     <item
         android:id="@+id/itemSettings"
         android:icon="@drawable/action_settings"
         android:onClick="onShowSettings"
-        android:title="Settings"
+        android:title="@string/settings"
         climbtheworld:showAsAction="never">
     </item>
             <item
         android:id="@+id/itemInviteFacebookFriends"
         android:onClick="onInviteFacebookFriends"
-        android:title="Invite friends"
+        android:title="@string/invite_friends"
         climbtheworld:showAsAction="never">
     </item>
     <item
@@ -38,13 +38,13 @@
     <item
         android:id="@+id/itemGroups"
         android:onClick="onShowGroups"
-        android:title="Groups"
+        android:title="@string/groups"
         climbtheworld:showAsAction="never">
     </item>
     <item
         android:id="@+id/itemNotifications"
         android:onClick="onUpdateNotifications"
-        android:title="FB Notification"
+        android:title="@string/FB_notification"
         climbtheworld:showAsAction="never">
     </item>
     

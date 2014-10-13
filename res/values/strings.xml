@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">Climb The World</string>
+    <string name="language">en_US</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_climb">Climb the building!</string>
     <string name="dummy_button">Dummy Button</string>
@@ -21,6 +22,150 @@
     <string name="title_activity_fbpick_friend">FBPickFriendActivity</string>
     <string name="title_activity_groups">GroupsActivity</string>
     
-    <string name="threshold">"Steps to threshold"</string>
+    <!-- BuildingCard -->
+   <string name="steps"> steps (</string>
+    <string name="mode">Mode: </string>
+    <string name = "notClimbedYet">Not climbed yet</string>
+    <string name="climb_complete">Climbing: COMPLETED! (on %s)</string>
+    <string name="climb_status">Climbing status: %1$s%% (last attempt: %2$s)</string>
+    <string name="connection_needed">Connection needed</string>
+    
+    <!-- General Toasts -->
+    <string name="connection_problem">Problem with connections</string>
+    <string name="connection_problem2">Connection Problems: your data will be saved during next reconnection</string>
+    <string name="no_fb_connection">You are not connected to Facebook</string>
+    <string name="collaboration_not_exists">This collaboration does not exists anymore</string>
+    <string name="check_connection">Check your internet connection</string>
+    
+    <!-- TourCard -->
+    <string name="num_buildings">%d buildings</string>
+    
+    <!-- NotificationCard -->
+    <string name="message_group_invite">%1$s asked you to Join new group: %2$s</string>
+    <string name="message_collaboration">%1$s asks help to climb %2$s</string>
+    <string name="message_competition">%1$s challenges you to climb %2$s</string>  
+    <string name="message_team_challenge">%1$s challenges you in a team duel to climb %2$s</string>  
+    <string name="message_team_member">%1$s asks help to win the duel with his team in climbing %2$s</string>
+    <string name="group_not_exists">The group does not exists anymore</string>
+    <string name="group_already_part">You are already part of %s</string>
+    <string name="group_completed">The group is already complete</string>
+    <string name="building_occupied">Building occupied</string>
+    <string name="accept_req">Request Accepted</string>
+    <string name="collaboration_completed">Collaboration Completed</string>
+    <string name="collaboration_already_part">You are already in this collaboration</string>
+    <string name="unable_part">Unable to take part</string>
+    <string name="competition_not_exists">This competition does not exists anymore</string>
+    <string name="competition_completed">Competition Completed</string>
+    <string name="competition_already_part">You are already in this competition</string>
+    <string name="team_duel_not_exists">This team duel does not exists anymore</string>
+    <string name="team_duel_already_chosen">Challenger already chosen</string>
+    <string name="team_duel_already">You are already the challenger</string>
+    <string name="team_duel_completed">This team is completed</string>
+    <string name="wait_notification">Wait for your choice to be saved</string>
+    <string name="delete_req">Request Deleted</string>
+    
+    <!-- UserBadge -->
+    <string name="steps_badge">Make %d steps</string>
+    <string name="complete_tour">Complete the tour: %s</string>
+    <string name="complete_building">Climb the %s</string>
+    
+    <!-- Facebook Requests -->
+    <string name="request_sent">Request sent</string>
+    <string name="request_cancelled">Request cancelled</string>
+    <string name="network_error">Network error</string>
+    <string name="not_logged">You\'re not currently logged to Facebook</string>
+    <string name="request_arrived">Request arrived</string>
+    <string name="request_deleted">Request deleted</string>
+    
+    <!-- AsyncTask -->
+    <string name="wait">Please Wait...</string>
+    <string name="loading_progress">Loading user progress...</string>
+    
+    <!-- SettingsActivity -->
+    <string name="not_logged_in">Not logged in</string>
+    <string name="no_user_defined">No user defined</string>
+    
+    <!-- ProfileActivity -->
+    <string name="level">Level: %s</string>
+    
+    <!-- PickGroupActivity -->
+    <string name="pick_group">  Pick this group</string>
+    
+    <!-- PhotoPagerActivity -->
+    <string name="io_error">Input/Output error</string>
+    <string name="decode_error">Image can\'t be decoded</string>
+    <string name="download_error">Downloads are denied</string>
+    <string name="memory_error">Out Of Memory error</string>
+    <string name="unknown_error">Unknown error</string>
+    
+    <!-- MainActivity -->
+    <string name="db_error">Unable to export db: %s</string>
+    
+    <!-- GroupsActivity -->
+    <string name="add_member">    + Add member</string>
+    <string name="new_group">New Group: insert a name for the group</string>
+    
+    <!-- ClimbActivity -->
+    <string name="bonus">BONUS: you climbed less than 24h ago, you earn +50%%</string>
+    <string name="well_done">Well Done!!!!</string>
+    <string name="alert_title">Sampling rate not high enough</string>
+    <string name="alert_message">Your accelerometer is not fast enough for this application. Make sure to use at least %f Hz</string>    
+    <string name="stats_panel">%1$s of %2$s (%3$s%%)</string>
+    <string name="threshold">Steps to threshold</string>
+    <string name="threashold_passed">"Threshold passed: you\'re in!!!!"</string>
+    <string name="num_steps">%s steps"</string>
+    <string name="no_collaboration">No collaboration available for this building</string>
+    <string name="no_team_duel">"No team duel available for this building"</string>
+    
+    <string name="no_competition">No competition available for this building</string>
+    <string name="collab_no_available">This collaboration is not yet available</string>
+    <string name="already_climb">ALREADY CLIMBED ON %s</string>
+    <string name="sampling_enabled">Sampling running - Stop it before exiting</string>
+    <string name="social_penalty">Move up next time!!!!</string>
+    <string name="team_duel_no_available">This team duel is not yet available</string>
+    <string name="your_team_won">Your team has won!!!!</string>
+    <string name="other_team_won">The challenger\'s team has won</string>
+    <string name="competition_no_available">This competition is not yet available</string>
+    <string name="competition_win">Yeah!!!! You win this challenge</string>
+    <string name="competition_lose">%s win this challenge</string>
+    <string name="bonus_collaboration">You have won %d" XP as bonus for your help!!!!</string>
+    <string name="bonus_competition">You have won %d XP as bonus for your victory!!!!</string>
+    <string name="bonus_team_duel">You have won %d XP as bonus for your help and victory!!!!</string>
 
+    <!-- TeamPreparationActivity -->
+    <string name="team_one">Team One</string>
+    <string name="team_two">Team Two</string>
+    <string name="creator">Creator: </string>
+    
+    <!-- SettingsActivity -->
+    <string name="settings_title">Settings</string>
+    <string name="no_profile_set">No profile set yet</string>
+    <string name="title_profile">Profile</string>
+    <string name="climbing_settings">Climbing settings</string>
+    <string name="title_difficulty">Difficulty</string>
+    <string name="text_not_logged">Not logged to Facebook</string>
+
+    <string name="com_facebook_loginview_log_in_button">Log in with Facebook</string>
+    <string name="com_facebook_loginview_log_out_button">Logout</string>
+
+    <!-- string activity setting -->
+    <string name="easy">Easy</string>
+    <string name="normal">Normal</string>
+    <string name="hard">Hard</string>
+    
+    <!-- PagerAdapter -->
+    <string name="buildings">Buildings</string>
+    <string name="tours">Tours</string>
+    <string name="notifications">Notification</string>
+    <string name="trophies">Trophies</string>
+    <string name="undefined">Undefined</string>
+    
+    <!-- menu -->
+    <string name="search">Search</string>
+    <string name="profile">Profile</string>
+    <string name="settings">Settings</string>
+    <string name="invite_friends">Invite Friends</string>
+    <string name="groups">Groups</string>
+    <string name="FB_notification">FB notifications</string>
+    <string name="update">Update</string>
 </resources>

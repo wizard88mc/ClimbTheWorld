@@ -2,6 +2,9 @@ package org.unipd.nbeghin.climbtheworld.adapters;
 
 import java.util.List;
 
+import org.unipd.nbeghin.climbtheworld.ClimbApplication;
+import org.unipd.nbeghin.climbtheworld.R;
+
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -28,15 +31,15 @@ public class PagerAdapter extends FragmentPagerAdapter {
 	public String getPageTitle(int position) {
 		switch (position) {
 			case 0:
-				return "Buildings";
+				return ClimbApplication.getContext().getString(R.string.buildings);
 			case 1:
-				return "Tours";
+				return ClimbApplication.getContext().getString(R.string.tours);
 			case 2:
-				return "Notifications";
+				return ClimbApplication.getContext().getString(R.string.notifications);
 			case 3:
-				return "Trophies";
+				return ClimbApplication.getContext().getString(R.string.trophies);
 			default:
-				return "Undefined";
+				return ClimbApplication.getContext().getString(R.string.undefined);
 		}
 	}
 }

@@ -8,6 +8,7 @@ import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.models.Building;
+import org.unipd.nbeghin.climbtheworld.models.BuildingText;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 
 import android.content.Context;
@@ -25,7 +26,7 @@ import com.fima.cardsui.objects.Card;
 public class BuildingForTourCard extends Card {
 	final private Building	building;
 	final private int		order;
-
+	private BuildingText buildingText;
 	public BuildingForTourCard(Building building, int order) {
 		super(building.getName());
 		this.building = building;
@@ -34,25 +35,26 @@ public class BuildingForTourCard extends Card {
 
 	@Override
 	public View getCardContent(Context context) {
+		buildingText = ClimbApplication.getBuildingTextByBuilding(building.get_id());
 		View view = LayoutInflater.from(context).inflate(R.layout.card_building_for_tour_ex, null);
-		((TextView) view.findViewById(R.id.title)).setText(building.getName());
+		((TextView) view.findViewById(R.id.title)).setText(buildingText.getName());
 		int imageId = context.getResources().getIdentifier(building.getPhoto(), "drawable", context.getPackageName());
 		if (imageId > 0) ((ImageView) view.findViewById(R.id.photo)).setImageResource(imageId);
-		((TextView) view.findViewById(R.id.buildingStat)).setText(building.getSteps() + " steps (" + building.getHeight() + "m)");
-		((TextView) view.findViewById(R.id.location)).setText(building.getLocation());
-		((TextView) view.findViewById(R.id.description)).setText(building.getDescription());
+		((TextView) view.findViewById(R.id.buildingStat)).setText(building.getSteps() + ClimbApplication.getContext().getString(R.string.steps) + building.getHeight() + "m)");
+		((TextView) view.findViewById(R.id.location)).setText(buildingText.getLocation());
+		((TextView) view.findViewById(R.id.description)).setText(buildingText.getDescription());
 		((TextView) view.findViewById(R.id.tourOrder)).setText(Integer.toString(order));
 		TextView climbingStatus = (TextView) view.findViewById(R.id.climbingStatus);
 		Climbing climbing = ClimbApplication.getClimbingForBuilding(building.get_id());
 		SimpleDateFormat sdf=new SimpleDateFormat("yyyy.MM.dd");
 		if (climbing != null) {
 			if (climbing.getPercentage() >= 100) {
-				climbingStatus.setText("Climbing: COMPLETED! (on "+sdf.format(new Date(climbing.getModified()))+")");
+				climbingStatus.setText(ClimbApplication.getContext().getString(R.string.climb_complete, sdf.format(new Date(climbing.getModified()))));
 			} else {
-				climbingStatus.setText("Climbing status: " + new DecimalFormat("#.##").format(climbing.getPercentage()*100) + "%, (last climb on "+sdf.format(new Date(climbing.getModified()))+")");
+				climbingStatus.setText(ClimbApplication.getContext().getString(R.string.climb_status, new DecimalFormat("#.##").format(climbing.getPercentage()*100), sdf.format(new Date(climbing.getModified()))));
 			}
 		} else {
-			climbingStatus.setText("Not climbed yet");
+			climbingStatus.setText(ClimbApplication.getContext().getString(R.string.notClimbedYet));
 		}
 		return view;
 	}

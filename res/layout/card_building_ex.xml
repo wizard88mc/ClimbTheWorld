@@ -10,14 +10,26 @@
         android:gravity="center_vertical"
         android:paddingLeft="8dp"
         android:paddingRight="8dp" >
+        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1">
 
-        <TextView
-            android:id="@+id/title"
-            style="@style/CardTitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Title" />
+            <TextView
+                android:id="@+id/title"
+                style="@style/CardTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.8"
+                android:text="Title" />
+
+            <ImageButton
+                android:id="@+id/microGoalBtn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.2"
+                android:src="@drawable/ic_action_labels"
+                android:background="@null" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
     <View
@@ -99,22 +111,40 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
+        android:orientation="vertical"
         android:paddingLeft="8dp"
         android:paddingRight="8dp" >
 
         <TextView
             android:id="@+id/climbingStatus"
             style="@style/CardText"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:gravity="left"
             android:text="Climbing status" />
+
+        <ProgressBar
+            android:id="@+id/progressBarClimb"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="4dp"
+        android:background="@color/stroke"
+        android:visibility="visible" />
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="71dp" >
+        android:layout_height="71dp" 
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        >
 
         <TextView
             android:id="@+id/textModalita"

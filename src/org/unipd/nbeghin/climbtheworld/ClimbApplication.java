@@ -13,6 +13,7 @@ import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.db.PreExistingDbLoader;
 import org.unipd.nbeghin.climbtheworld.models.Badge;
 import org.unipd.nbeghin.climbtheworld.models.Building;
+import org.unipd.nbeghin.climbtheworld.models.BuildingText;
 import org.unipd.nbeghin.climbtheworld.models.BuildingTour;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Collaboration;
@@ -21,6 +22,7 @@ import org.unipd.nbeghin.climbtheworld.models.Notification;
 import org.unipd.nbeghin.climbtheworld.models.Photo;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
+import org.unipd.nbeghin.climbtheworld.models.TourText;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.models.UserBadge;
 
@@ -54,6 +56,8 @@ public class ClimbApplication extends Application{
 	public static boolean BUSY = false;
 	public static Object lock = new Object();
 	
+	public static String language;
+	
 	public static List<Building> buildings;
 	public static List<Climbing> climbings /* = new ArrayList<Climbing>() */; // list
 																				// of
@@ -66,6 +70,8 @@ public class ClimbApplication extends Application{
 	public static List<TeamDuel> teamDuels;
 	public static List<Badge> badges;
 	public static List<UserBadge> userBadges;
+	public static List<BuildingText> buildingTexts;
+	public static List<TourText> tourTexts;
 	private ActionBar ab; // reference to action bar
 	public static RuntimeExceptionDao<Building, Integer> buildingDao; // DAO for buildings
 	public static RuntimeExceptionDao<Collaboration, Integer> collaborationDao;
@@ -78,6 +84,8 @@ public class ClimbApplication extends Application{
 	public static RuntimeExceptionDao<User, Integer> userDao;
 	public static RuntimeExceptionDao<Badge, Integer> badgeDao;
 	public static RuntimeExceptionDao<UserBadge, Integer> userBadgeDao;
+	public static RuntimeExceptionDao<BuildingText, Integer> buildingTextDao;
+	public static RuntimeExceptionDao<TourText, Integer> tourTextDao;
 	
 	public static final String settings_file = "ClimbTheWorldPreferences";
 	public static final String settings_detected_sampling_rate = "samplingRate";
@@ -110,6 +118,7 @@ public class ClimbApplication extends Application{
 	    Log.d("ClimbApplication", "onCreate");
 		singleton = this;
 		sContext = getApplicationContext();
+		language = getString(R.string.language);
 	    //Parse initialize
 	    Parse.initialize(this, "e9wlYQPdpXlFX3XQc9Lq0GJFecuYrDSzwVNSovvd",
 				"QVII1Qhy8pXrjAZiL07qaTKbaWpkB87zc88UMWv2");
@@ -171,6 +180,8 @@ public class ClimbApplication extends Application{
 			teamDuelDao = dbHelper.getTeamDuelDao();
 			badgeDao = dbHelper.getBadgeDao();
 			userBadgeDao = dbHelper.getUserBadgeDao();
+			buildingTextDao = dbHelper.getBuildingTextDao();
+			tourTextDao = dbHelper.getTourTextDao();
 			refresh(); // loads all buildings and tours
 		}
 		
@@ -183,6 +194,32 @@ public class ClimbApplication extends Application{
 		
 		public static void refreshBadges(){
 			badges = badgeDao.queryForAll();
+		}
+		
+		public static void refreshBuildingTexts(){
+			QueryBuilder<BuildingText, Integer> query = buildingTextDao.queryBuilder();
+			Where<BuildingText, Integer> where = query.where();
+			try{
+				where.eq("language", language);
+				PreparedQuery<BuildingText> preparedQuery = query.prepare();
+				buildingTexts = buildingTextDao.query(preparedQuery);
+			} catch (SQLException e) {
+				e.printStackTrace();
+
+			}
+		}
+		
+		public static void refreshTourTexts(){
+			QueryBuilder<TourText, Integer> query = tourTextDao.queryBuilder();
+			Where<TourText, Integer> where = query.where();
+			try{
+				where.eq("language", language);
+				PreparedQuery<TourText> preparedQuery = query.prepare();
+				tourTexts = tourTextDao.query(preparedQuery);
+			} catch (SQLException e) {
+				e.printStackTrace();
+
+			}
 		}
 		
 		public static void refreshUserBadge(){
@@ -382,6 +419,8 @@ public class ClimbApplication extends Application{
 			refreshBuildings();
 			refreshTours();
 			refreshBadges();
+			refreshBuildingTexts();
+			refreshTourTexts();
 		}
 
 		public void onBtnShowGallery(View v) {
@@ -722,5 +761,23 @@ public class ClimbApplication extends Application{
 			return -1;
 		}
 		
+		public static BuildingText getBuildingTextByBuilding(int building_id){
+			QueryBuilder<BuildingText, Integer> query = buildingTextDao.queryBuilder();
+			Where<BuildingText, Integer> where = query.where();
+			try {
+				where.eq("language", language);
+				where.and();
+				where.eq("building_id", building_id);
+				PreparedQuery<BuildingText> preparedQuery = query.prepare();
+				List<BuildingText> userBadges = buildingTextDao.query(preparedQuery);
+				if(userBadges.isEmpty())
+					return null;
+				return userBadges.get(0);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+		}
 	 
 }
