@@ -11,6 +11,7 @@ import java.util.SimpleTimeZone;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.Competition;
@@ -615,6 +616,7 @@ public class SettingsActivity extends PreferenceActivity {
 										newUser.setXP(0);
 										newUser.setOwner(false);
 										ClimbApplication.userDao.create(newUser);
+										createBadges();
 										System.out.println("creo nuovo user locale");
 									}
 								//no, connect it now
@@ -631,6 +633,8 @@ public class SettingsActivity extends PreferenceActivity {
 									//profile_name.setSummary("New User");
 									user.setName("user owner"/*profile_name.getSummary().toString()*/);
 									ClimbApplication.userDao.create(userOwner);
+									createBadges();
+
 									Editor editor = pref.edit();
 									editor.putInt("local_id", userOwner.get_id()); 
 									editor.commit();
@@ -822,25 +826,45 @@ public class SettingsActivity extends PreferenceActivity {
         });*/
     }
     
+    private void createBadges(){
+		SharedPreferences pref = getSharedPreferences("UserSession", 0);
+		boolean emptybadges = ClimbApplication.areThereUserBadges(pref.getInt("local_id", -1)) == 0 ? false : true;
+		if(emptybadges){
+			for(Building building: ClimbApplication.buildings){
+				UserBadge ub = new UserBadge();
+				ub.setBadge(ClimbApplication.getBadgeByCategory(0));
+				ub.setObj_id(building.get_id());
+				ub.setPercentage(0.0);
+				ub.setSaved(true);
+				ub.setUser(ClimbApplication.getUserById(pref.getInt("local_id", -1)));
+				ClimbApplication.userBadgeDao.create(ub);
+			}
+		}
+		ClimbApplication.refreshUserBadge();
+    }
+    
     private void saveBadges(JSONArray badges){
+    	Log.d("SettingsActivity", "saveBadges");
+		SharedPreferences pref = getSharedPreferences("UserSession", 0);
+		
     		ClimbApplication.refreshUserBadge();
-    		SharedPreferences pref = getSharedPreferences("UserSession", 0);
     		for(int i = 0; i < badges.length(); i++){
     			try {
     			JSONObject badge = badges.getJSONObject(i);	   	
     			int badge_id = badge.getInt("badge_id");
     			int obj_id = badge.getInt("obj_id");
     			int user_id = pref.getInt("local_id", -1);
-    			UserBadge userBadge = ClimbApplication.getUserBadgeForUserAndBadge(badge_id, obj_id, user_id);
+    			UserBadge userBadge = ClimbApplication.getUserBadgeForUserAndBadge(badge_id, obj_id, user_id); 
+    			System.out.println("ub " + userBadge.get_id());
     			if(userBadge == null){
     				UserBadge ub = new UserBadge();
     				ub.setBadge(ClimbApplication.getBadgeById(badge_id));
     				ub.setObj_id(obj_id);
     				ub.setUser(ClimbApplication.getUserById(user_id));
-    				ub.setPercentage(badge.getInt("percentage"));
+    				ub.setPercentage(badge.getDouble("percentage"));
     				ClimbApplication.userBadgeDao.create(ub);
     			}else{
-    				userBadge.setPercentage(badge.getInt("percentage"));
+    				userBadge.setPercentage(badge.getDouble("percentage"));
     				ClimbApplication.userBadgeDao.update(userBadge);
     			}
     			}catch (JSONException e) {

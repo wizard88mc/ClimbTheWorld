@@ -28,6 +28,7 @@
     <string name="notClimbedYet">Non ancora scalato</string>
     <string name="climb_complete">Scalata: COMPLETATA! (%s)</string>
     <string name="climb_status">Stato della scalata: %1$s%% (ultimo tentativo: %2$s)</string>
+    <string name="reward">Premio: %d XP</string>
     
     <!-- General Toasts -->
     <string name="connection_problem">Problemi di Connessione</string>
@@ -88,6 +89,7 @@
     
     <!-- ProfileActivity -->
     <string name="level">Livello: %s</string>
+    <string name="climbBtn">Migliorati</string>
     
     <!-- PickGroupActivity -->
     <string name="pick_group">  Scegli questo gruppo</string>
@@ -111,6 +113,7 @@
     <string name="well_done">Ben Fatto!!!!</string>
     <string name="alert_title">Rate di campionamento basso</string>
     <string name="alert_message">Il tuo accelerometro non è veloce a sufficienza per questa applicazione. Assicurati di usare almeno %f Hz</string>   
+    <string name="stats_panel">%1$s di %2$s (%3$s%%)</string>
     <string name="threshold">Scalini alla soglia</string>
     <string name="threashold_passed">"Soglia superata: vai così!!!!"</string>
     <string name="num_steps">%s scalini"</string>
@@ -131,6 +134,10 @@
     <string name="bonus_collaboration">Hai vinto %d" XP bonus per il tuo aiuto!!!!</string>
     <string name="bonus_competition">Hai vinto %d XP bonus per la tua vittoria!!!!</string>
     <string name="bonus_team_duel">Hai vinto %d XP bonus per il tuo aiuto e per la vittoria!!!!</string>
+    <string name="team_of">Team di </string>
+    <string name="ready_to_go">PRONTO PER LA SCALATA!</string>
+    <string name="win">CE L\'HAI FATTA!</string>
+    <string name="encouragement">Ben fatto!</string>
     
     <!-- TeamPreparationActivity -->
     <string name="team_one">Team n1</string>
@@ -168,4 +175,9 @@
     <string name="groups">Gruppi</string>
     <string name="FB_notification">Notifiche FB</string>
     <string name="update">Aggiorna</string>
+    <string name="microGoal">Goal corrente</string>
+    
+    <!-- dialog micro goal -->
+    <string name="accept">Ok, ci sto!!!!</string>
+    <string name="title_dialog">Obiettivo</string>
 </resources>

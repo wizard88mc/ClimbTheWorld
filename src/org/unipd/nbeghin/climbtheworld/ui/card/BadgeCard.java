@@ -1,5 +1,7 @@
 package org.unipd.nbeghin.climbtheworld.ui.card;
 
+import java.text.DecimalFormat;
+
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.models.UserBadge;
 
@@ -39,7 +41,7 @@ public class BadgeCard extends Card{
 		progressBar.setIndeterminate(false);
 		progressBar.setProgress((int)(userBadge.getPercentage() * 100));
 		textPercentage = (TextView) view.findViewById(R.id.textPercentage);
-		textPercentage.setText(String.valueOf(userBadge.getPercentage() * 100) + "%");
+		textPercentage.setText(new DecimalFormat("#").format(userBadge.getPercentage() * 100) + "%");
 		return view;
 	}
 

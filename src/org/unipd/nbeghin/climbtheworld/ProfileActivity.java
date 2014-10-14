@@ -9,17 +9,24 @@ import org.unipd.nbeghin.climbtheworld.util.StatUtils;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class ProfileActivity extends Activity {
+	
+	Button improveBtn;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -38,6 +45,17 @@ public class ProfileActivity extends Activity {
 		ProgressBar levelPB = (ProgressBar) findViewById(R.id.progressBarLevel);
 		levelPB.setIndeterminate(false);
 		levelPB.setProgress(percentage);
+		
+		improveBtn = (Button) findViewById(R.id.buttonCounter);
+		improveBtn.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				Intent intent = new Intent(getApplicationContext(), ClimbActivity.class);
+				intent.putExtra(ClimbApplication.counter_mode, true);
+				startActivity(intent);	
+			}
+		});
 	}
 
 	/**

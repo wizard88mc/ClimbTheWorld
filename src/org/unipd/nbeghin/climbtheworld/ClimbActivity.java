@@ -20,6 +20,7 @@ import org.unipd.nbeghin.climbtheworld.exceptions.NoFBSession;
 import org.unipd.nbeghin.climbtheworld.listeners.AccelerometerSamplingRateDetect;
 import org.unipd.nbeghin.climbtheworld.models.Badge;
 import org.unipd.nbeghin.climbtheworld.models.Building;
+import org.unipd.nbeghin.climbtheworld.models.BuildingText;
 import org.unipd.nbeghin.climbtheworld.models.ChartMember;
 import org.unipd.nbeghin.climbtheworld.models.ClassifierCircularBuffer;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
@@ -39,6 +40,7 @@ import org.unipd.nbeghin.climbtheworld.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -60,10 +62,15 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VerticalSeekBar;
@@ -129,6 +136,7 @@ public class ClimbActivity extends ActionBarActivity {
 																								// detector
 	private int num_steps = 0; // number of currently detected steps
 	private double percentage = 0.0; // current progress percentage
+	private BuildingText buildingText;
 	private Building building; // current building
 	private Climbing climbing; // current climbing
 	private Climbing soloClimb;
@@ -164,6 +172,7 @@ public class ClimbActivity extends ActionBarActivity {
 	private List<TextView> group_members = new ArrayList<TextView>();
 	private List<TextView> group_steps = new ArrayList<TextView>();
 	
+	private boolean isCounterMode;
 	// Our created menu to use
 		private Menu mymenu;
 
@@ -244,36 +253,40 @@ public class ClimbActivity extends ActionBarActivity {
 					num_steps += vstep_for_rstep; // increase the number of
 													// steps
 					new_steps += vstep_for_rstep;
-					// increase the seekbar progress
-					if (mode == GameModeType.SOCIAL_CLIMB){
-						seekbarIndicator.setProgress(num_steps + sumOthersStep());
-						setThresholdText();
-					}else if(mode == GameModeType.TEAM_VS_TEAM){
-						seekbarIndicator.setProgress(myTeamScore());
-						setThresholdText();
-					}else
-						seekbarIndicator.setProgress(num_steps);
+					if(!isCounterMode){
+						// increase the seekbar progress
+						if (mode == GameModeType.SOCIAL_CLIMB){
+							seekbarIndicator.setProgress(num_steps + sumOthersStep());
+							setThresholdText();
+						}else if(mode == GameModeType.TEAM_VS_TEAM){
+							seekbarIndicator.setProgress(myTeamScore());
+							setThresholdText();
+						}else
+							seekbarIndicator.setProgress(num_steps);
+					
 					percentage = (double) num_steps / (double) building.getSteps(); // increase
-																					// the
+					}																// the
 																					// progress
-																					// percentage
 					boolean win = false; //user wins?
-					if (mode == GameModeType.SOCIAL_CLIMB){
-						//consider also my friend' steps
-						win = ((num_steps + sumOthersStep()) >= building.getSteps()) && (threshold - num_steps <= 0); 
-						setThresholdText();																
-					}else if(mode == GameModeType.TEAM_VS_TEAM){
-						win = ((myTeamScore()) >= building.getSteps());
-						setThresholdText();	
-					}else
-						win = ((num_steps) >= building.getSteps()); //consider only my steps
-					if (win) { // ensure it did not exceed the number of steps
-								// (when multiple steps-at-once are detected)
-						num_steps = building.getSteps();
-						percentage = 1.00;
+					if(!isCounterMode){																// percentage
+						
+						if (mode == GameModeType.SOCIAL_CLIMB){
+							//consider also my friend' steps
+							win = ((num_steps + sumOthersStep()) >= building.getSteps()) && (threshold - num_steps <= 0); 
+							setThresholdText();																
+						}else if(mode == GameModeType.TEAM_VS_TEAM){
+							win = ((myTeamScore()) >= building.getSteps());
+							setThresholdText();	
+						}else
+							win = ((num_steps) >= building.getSteps()); //consider only my steps
+						if (win) { // ensure it did not exceed the number of steps
+							// (when multiple steps-at-once are detected)
+							num_steps = building.getSteps();
+							percentage = 1.00;
+						}
 					}
 					updateStats(); // update the view of current stats
-					if (win) {
+					if (win && isCounterMode) {
 						stopClassify(); // stop classifier service service
 						apply_win();
 					}
@@ -341,8 +354,9 @@ public class ClimbActivity extends ActionBarActivity {
 		Log.i("apply_update", "apply_update " + new_steps);
 		findViewById(R.id.encouragment).setVisibility(View.VISIBLE);
 		((TextView) findViewById(R.id.encouragment)).setText(getString(R.string.well_done));
+		if(!isCounterMode){
 		((ImageButton) findViewById(R.id.btnAccessPhotoGallery)).setImageResource(R.drawable.social_share);
-		findViewById(R.id.btnAccessPhotoGallery).setVisibility(View.VISIBLE);
+		findViewById(R.id.btnAccessPhotoGallery).setVisibility(View.VISIBLE);}
 
 	}
 
@@ -471,7 +485,11 @@ public class ClimbActivity extends ActionBarActivity {
 	 */
 	private void updateStats() {
 		//((TextView) findViewById(R.id.lblNumSteps)).setText(Integer.toString(num_steps) + " of " + Integer.toString(building.getSteps()) + " (" + (new DecimalFormat("#.##")).format(percentage * 100.00) + "%)");
+	if(!isCounterMode)
 		((TextView) findViewById(R.id.lblNumSteps)).setText(getString(R.string.stats_panel, Integer.toString(num_steps), Integer.toString(building.getSteps()), (new DecimalFormat("#.##")).format(percentage * 100.00)));
+	else
+		((TextView) findViewById(R.id.lblNumSteps)).setText(String.valueOf(num_steps));
+	
 	}
 
 	/**
@@ -653,44 +671,75 @@ public class ClimbActivity extends ActionBarActivity {
 						return true;
 					}
 				});
-		int building_id = getIntent().getIntExtra(ClimbApplication.building_intent_object, 0); // get
+		isCounterMode = getIntent().getBooleanExtra(ClimbApplication.counter_mode, false);
+		if(!isCounterMode){
+			int building_id = getIntent().getIntExtra(ClimbApplication.building_text_intent_object, 0); // get
 																							// building
 																							// id
 																							// from
 																							// received
 																							// intent
-		try {
-			// get building ID from intent
-			if (building_id == 0)
-				throw new Exception("ERROR: unable to get intent data"); // no
+			try {
+				// get building text ID from intent
+				if (building_id == 0)
+					throw new Exception("ERROR: unable to get intent data"); // no
 																			// building
 																			// id
 																			// found
 																			// in
 																			// received
 																			// intent
-			System.out.println(building_id);
-			building = ClimbApplication.buildingDao.queryForId(building_id); // query
+				System.out.println(building_id);
+				buildingText = ClimbApplication.buildingTextDao.queryForId(building_id);
+				building = buildingText.getBuilding();//= ClimbApplication.buildingDao.queryForId(building_id); // query
 																			// db
 																			// to
 																			// get
 																			// asked
 																			// building
-			setup_from_building(); // load building info
-			backgroundClassifySampler = new Intent(this, SamplingClassifyService.class); // instance
+				setup_from_building(); // load building info
+				backgroundClassifySampler = new Intent(this, SamplingClassifyService.class); // instance
 																							// (without
 																							// starting)
 																							// background
 																							// classifier
-		} catch (Exception e) {
-			e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			setGraphicsSocialMode();
+		}else{
+			backgroundClassifySampler = new Intent(this, SamplingClassifyService.class); // instance
+			ImageView photo = ((ImageView) findViewById(R.id.buildingPhoto));
+			TextView name = ((TextView) findViewById(R.id.lblBuildingName));
+			TextView n_steps = ((TextView) findViewById(R.id.lblNumSteps));
+			TextView height = ((TextView) findViewById(R.id.lblHeight));
+			seekbarIndicator.setVisibility(View.INVISIBLE);
+			photo.setVisibility(View.INVISIBLE);
+			name.setVisibility(View.INVISIBLE);
+			n_steps.setVisibility(View.VISIBLE);
+			height.setVisibility(View.INVISIBLE);
+			n_steps.setText(String.valueOf(0));
+			
+			current = (TextView) findViewById(R.id.textPosition);
+			current.setVisibility(View.INVISIBLE);
+			for (int i = 1; i <= ClimbApplication.N_MEMBERS_PER_GROUP; i++) {
+				System.out.println("qui " + i);
+				int idNome = getResources().getIdentifier("nome" + i, "id", getPackageName());
+				int idPassi = getResources().getIdentifier("passi" + i, "id", getPackageName());
+				group_members.add((TextView) findViewById(idNome));
+				group_steps.add((TextView) findViewById(idPassi)); System.out.println(idPassi);
+				group_members.get(i - 1).setVisibility(View.INVISIBLE);
+				group_steps.get(i - 1).setVisibility(View.INVISIBLE);
+			}
+			difficulty = 1;
+			
+			
 		}
-		setGraphicsSocialMode();
 
 	}
 
 	protected void onNewIntent(Intent intent) {
-		int building_id = intent.getIntExtra(ClimbApplication.building_intent_object, 0); // get
+		int building_id = intent.getIntExtra(ClimbApplication.building_text_intent_object, 0); // get
 																						// building
 																						// id
 																						// from
@@ -711,7 +760,7 @@ public class ClimbActivity extends ActionBarActivity {
 		if (imageId > 0)
 			((ImageView) findViewById(R.id.buildingPhoto)).setImageResource(imageId);
 		// set building info
-		((TextView) findViewById(R.id.lblBuildingName)).setText(building.getName() + " (" + building.getLocation() + ")"); // building's
+		((TextView) findViewById(R.id.lblBuildingName)).setText(buildingText.getName() + " (" + buildingText.getLocation() + ")"); // building's
 																															// location
 		((TextView) findViewById(R.id.lblNumSteps)).setText(getString(R.string.num_steps, Integer.toString(building.getSteps()))); // building's
 																												// steps
@@ -1212,6 +1261,9 @@ public class ClimbActivity extends ActionBarActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+		case R.id.itemMicroGoal:
+			onMicroGoalClicked();
+			return true;
 		case R.id.itemUpdate:
 			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			ImageView iv = (ImageView) inflater.inflate(R.layout.refresh, null);
@@ -1294,7 +1346,7 @@ public class ClimbActivity extends ActionBarActivity {
 				if (new_steps != 0)
 					apply_update();
 			} else { // if sampling is not enabled stop the classifier
-				climbedYesterday = StatUtils.climbedYesterday(climbing.get_id());
+				if(!isCounterMode) climbedYesterday = StatUtils.climbedYesterday(climbing.get_id());
 				// FOR TESTING PURPOSES
 				// climbedYesterday=true;
 				startClassifyService();
@@ -1346,6 +1398,7 @@ public class ClimbActivity extends ActionBarActivity {
 		stopService(backgroundClassifySampler); // stop background service
 		samplingEnabled = false;
 		unregisterReceiver(classifierReceiver); // unregister listener
+		if(!isCounterMode){
 		// update db
 		climbing.setModified(new Date().getTime()); // update climbing last edit
 													// date
@@ -1384,16 +1437,12 @@ public class ClimbActivity extends ActionBarActivity {
 		}
 		
 		Log.i(MainActivity.AppName, "Updated climbing #" + climbing.get_id());
-		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.av_play); // set
 																									// button
 																									// icon
 																									// to
 																									// play
 																									// again
-		findViewById(R.id.progressBarClimbing).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_fade_out)); // hide
-																																			// progress
-																																			// bar
-		findViewById(R.id.progressBarClimbing).setVisibility(View.INVISIBLE);
+		
 
 		if (mode == GameModeType.SOCIAL_CLIMB && collaboration != null)
 			saveCollaborationData();
@@ -1404,6 +1453,12 @@ public class ClimbActivity extends ActionBarActivity {
 		
 		updatePoints(false);
 		saveBadges();
+		}
+		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.av_play); // set
+		findViewById(R.id.progressBarClimbing).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_fade_out)); // hide
+		// progress
+		// bar
+		findViewById(R.id.progressBarClimbing).setVisibility(View.INVISIBLE);
 	}
 
 	/**
@@ -1551,7 +1606,7 @@ public class ClimbActivity extends ActionBarActivity {
 	@Override
 	protected void onResume() {
 		Log.i(MainActivity.AppName, "ClimbActivity onResume");
-		int building_id = getIntent().getIntExtra(ClimbApplication.building_intent_object, 0); // get
+		int building_id = getIntent().getIntExtra(ClimbApplication.building_text_intent_object, 0); // get
 																							// building
 																							// id
 																							// from
@@ -1590,6 +1645,10 @@ public class ClimbActivity extends ActionBarActivity {
 		getMenuInflater().inflate(R.menu.climb, menu);
 		// We should save our menu so we can use it to reset our updater.
 				mymenu = menu;
+				if(isCounterMode){
+					for (int i = 0; i < menu.size(); i++)
+			            menu.getItem(i).setVisible(false);
+				}
 		return true;
 	}
 
@@ -1734,14 +1793,14 @@ public class ClimbActivity extends ActionBarActivity {
 							teamDuel.setMy_steps(num_steps);
 							ClimbApplication.teamDuelDao.update(teamDuel);
 							if(teamDuel.getMygroup() == Group.CHALLENGER){
-								group_members.get(0).setText("Team of " + teamDuel.getChallenger_name());
+								group_members.get(0).setText(getString(R.string.team_of) + teamDuel.getChallenger_name());
 								group_steps.get(0).setText(String.valueOf(teamDuel.getSteps_my_group()));
-								group_members.get(1).setText("Team of " + teamDuel.getCreator_name());
+								group_members.get(1).setText(getString(R.string.team_of) + teamDuel.getCreator_name());
 								group_steps.get(1).setText(String.valueOf(teamDuel.getSteps_other_group()));
 							}else{
-								group_members.get(0).setText("Team of " + teamDuel.getCreator_name());
+								group_members.get(0).setText(getString(R.string.team_of) + teamDuel.getCreator_name());
 								group_steps.get(0).setText(String.valueOf(teamDuel.getSteps_my_group()));
-								group_members.get(1).setText("Team of " + teamDuel.getChallenger_name());
+								group_members.get(1).setText(getString(R.string.team_of) + teamDuel.getChallenger_name());
 								group_steps.get(1).setText(String.valueOf(teamDuel.getSteps_other_group()));
 							}
 							group_members.get(0).setBackgroundColor(Color.parseColor("#adeead"));
@@ -2040,14 +2099,14 @@ public class ClimbActivity extends ActionBarActivity {
 			ub.setBadge(badge);
 			ub.setObj_id(tour.get_id());
 			if(percentage >= 1.00) num_steps = building.getSteps();
-			double percentage = ((num_steps) / tour.getTotalSteps() );
+			double percentage = ((double)(num_steps) / (double)tour.getTotalSteps() );
 			ub.setPercentage(percentage);
 			ub.setUser(me);
 			ub.setSaved(false);
 			ClimbApplication.userBadgeDao.create(ub);
 			}else{
 				if(percentage >= 1.00) num_steps = building.getSteps();
-				double percentage = ((num_steps) / tour.getTotalSteps() );
+				double percentage = ((double)(num_steps) / (double)tour.getTotalSteps() );
 				ub.setPercentage(percentage);
 				ub.setSaved(false);
 				ClimbApplication.userBadgeDao.update(ub);
@@ -2101,5 +2160,53 @@ public class ClimbActivity extends ActionBarActivity {
 		});
 		
 	ClimbApplication.refreshUserBadge();	
+	}
+	
+	
+	public void onMicroGoalClicked(){
+		
+		final Dialog dialog = new Dialog(this, R.style.FullHeightDialog); //this is a reference to the style above
+		dialog.setContentView(R.layout.dialog_micro_goal); //I saved the xml file above as yesnomessage.xml
+		dialog.setCancelable(true);
+				
+		
+		String texts[] = {"t1", "t2"};
+		boolean checked[] ={true, false};
+		TableLayout layout = (TableLayout) dialog.findViewById(R.id.checkBoxesLayout);
+		
+		
+		 
+		//to set the message
+		TextView message =(TextView) dialog.findViewById(R.id.tvmessagedialogtext);
+		message.setText("Text of MicroGoal");
+		
+		
+		
+		for(int i = 0; i < texts.length; i++) {
+			TableRow row =new TableRow(this);
+		    row.setId(i);
+		    row.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT));
+		    CheckBox checkBox = new CheckBox(this);
+		    checkBox.setEnabled(false);
+		    checkBox.setId(i);
+		    checkBox.setText(texts[i]);
+		    checkBox.setChecked(checked[i]);
+		    row.addView(checkBox);  
+		    layout.addView(row);
+        }
+		 
+		//add some action to the buttons
+		            Button acceptBtn = (Button) dialog.findViewById(R.id.bmessageDialogYes);
+		            acceptBtn.setOnClickListener(new OnClickListener() {
+		                 
+		                public void onClick(View v) {
+		                    dialog.dismiss();		                     
+		                }
+		            });		          
+		            
+		            dialog.show();
+		    
+		           
+	
 	}
 }

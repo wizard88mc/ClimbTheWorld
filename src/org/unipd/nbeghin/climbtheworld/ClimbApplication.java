@@ -32,6 +32,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.sqlite.SQLiteDatabase;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.View;
@@ -90,7 +91,8 @@ public class ClimbApplication extends Application{
 	public static final String settings_file = "ClimbTheWorldPreferences";
 	public static final String settings_detected_sampling_rate = "samplingRate";
 	
-	public static final String building_intent_object = "org.unipd.nbeghin.climbtheworld.intents.object.building"; // intent
+	public static final String counter_mode = "couter_mode"; // intent
+	public static final String building_text_intent_object = "org.unipd.nbeghin.climbtheworld.intents.object.buildingText"; // intent
 	// key
 	// for
 	// sending
@@ -151,6 +153,20 @@ public class ClimbApplication extends Application{
 				newLevel = precLevel;
 		 }
 		 return newLevel;
+	 }
+	 
+	 public static int XPforStep(int steps){
+		 SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());	
+		 int difficulty = Integer.parseInt(settings.getString("difficulty", "10"));
+		 double r_steps = (double)steps / (double)difficulty;
+		 switch(difficulty){
+		 	case 100://easy
+			 return (int) Math.floor(r_steps);
+		 	case 1://hard
+		 		return ((int) Math.floor(r_steps)) * 5;
+		 	default: //normal
+		 		return ((int) Math.floor(r_steps)) * 3;
+		 }
 	 }
 	 
 		/**
@@ -695,6 +711,15 @@ public class ClimbApplication extends Application{
 				return null;
 			return buildings.get(0);
 		}
+		
+		public static BuildingText getBuildingTextById(int id) {
+			Map<String, Object> conditions = new HashMap<String, Object>();
+			conditions.put("_id", id); // filter for building ID
+			List<BuildingText> buildings = buildingTextDao.queryForFieldValuesArgs(conditions);
+			if (buildings.size() == 0)
+				return null;
+			return buildings.get(0);
+		}
 	 
 		public static Tour getTourById(int id) {
 			Map<String, Object> conditions = new HashMap<String, Object>();
@@ -777,6 +802,21 @@ public class ClimbApplication extends Application{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return null;
+			}
+		}
+		
+		public static int areThereUserBadges(int user_id){
+			QueryBuilder<UserBadge, Integer> query = userBadgeDao.queryBuilder();
+			Where<UserBadge, Integer> where = query.where();
+			try {
+				where.eq("user_id", user_id);
+				PreparedQuery<UserBadge> preparedQuery = query.prepare();
+				List<UserBadge> userBadges = userBadgeDao.query(preparedQuery);
+				return userBadges.size();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return -1;
 			}
 		}
 	 

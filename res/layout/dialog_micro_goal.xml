@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal" >
+
+        <!-- This is for the info image -->
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:src="@drawable/ic_action_labels" 
+            android:layout_marginTop="5dp"/>
+
+        <!-- Title -->
+
+        <TextView
+            android:id="@+id/tvmessagedialogtitle"
+            android:layout_width="184dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="4dip"
+            android:layout_weight="0.01"
+            android:padding="8dp"
+            android:text="@string/title_dialog"
+            android:textColor="#343434"
+            android:textSize="20.0sp"
+            android:textStyle="normal"
+            android:typeface="normal" />
+    </LinearLayout>
+
+    <!-- Underline with this bluish color -->
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="2dip"
+        android:background="#09adb9" />
+
+    <!-- The message -->
+
+    <TextView
+        android:id="@+id/tvmessagedialogtext"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="4dip"
+        android:gravity="left"
+        android:padding="8dp"
+        android:text="Message"
+        android:textColor="#343434"
+        android:textSize="15dip"
+        android:textStyle="normal"
+        android:typeface="normal" />
+
+    <TableLayout
+        android:id="@+id/checkBoxesLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TableRow
+            android:id="@+id/tableRow1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+        </TableRow>
+
+       
+    </TableLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <!-- Yes button -->
+
+        <Button
+            android:id="@+id/bmessageDialogYes"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dip"
+            android:layout_weight="1"
+            android:padding="8dp"
+            android:text="@string/accept"
+            android:textColor="#343434"
+            android:textSize="13sp"
+            android:textStyle="normal"
+            android:typeface="normal" 
+            android:background="@color/com_facebook_picker_search_bar_background"/>
+
+        <!-- No Button -->
+    </LinearLayout>
+
+</LinearLayout>

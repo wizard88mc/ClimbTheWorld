@@ -3,8 +3,10 @@ package org.unipd.nbeghin.climbtheworld.fragments;
 import java.util.List;
 
 import org.unipd.nbeghin.climbtheworld.ClimbActivity;
+import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.models.Building;
+import org.unipd.nbeghin.climbtheworld.models.BuildingText;
 import org.unipd.nbeghin.climbtheworld.ui.card.BuildingForTourCard;
 
 import android.content.Intent;
@@ -22,7 +24,7 @@ import com.fima.cardsui.views.CardUI;
  *
  */
 public class BuildingsForTourFragment extends Fragment {
-	public static final String	building_intent_object	= "org.unipd.nbeghin.climbtheworld.intents.object.building";
+	public static final String	building_text_intent_object	= "org.unipd.nbeghin.climbtheworld.intents.object.buildingText";
 	public CardUI				buildingCards;
 
 	public void loadBuildings(List<Building> buildings) {
@@ -34,8 +36,10 @@ public class BuildingsForTourFragment extends Fragment {
 			buildingCard.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) { // start climbing for a given building
+					BuildingText 	buildingText = ClimbApplication.getBuildingTextByBuilding(building.get_id());
 					Intent intent = new Intent(getActivity().getApplicationContext(), ClimbActivity.class);
-					intent.putExtra(building_intent_object, building.get_id());
+					intent.putExtra(ClimbApplication.counter_mode, false);
+					intent.putExtra(building_text_intent_object, buildingText.get_id());
 					startActivity(intent);
 				}
 			});

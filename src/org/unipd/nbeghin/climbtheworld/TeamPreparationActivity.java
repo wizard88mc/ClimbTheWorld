@@ -64,7 +64,7 @@ public class TeamPreparationActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_preparation_teams);
 		SharedPreferences pref = getSharedPreferences("UserSession", 0);
-		building_id = getIntent().getIntExtra(ClimbApplication.building_intent_object, 0);
+		building_id = getIntent().getIntExtra(ClimbApplication.building_text_intent_object, 0);
 		building = ClimbApplication.getBuildingById(building_id);
 		addMyMembersBtn = (ImageButton) findViewById(R.id.addMyTeamBtn);
 		addChallengerBtn = (ImageButton) findViewById(R.id.addChallengerBtn);
@@ -306,7 +306,7 @@ public class TeamPreparationActivity extends ActionBarActivity {
 	public void onStartClimbingBtn() { // passo anche team id????
 		Log.i("Team Preparation", "Building id clicked: " + String.valueOf(building_id));
 		Intent intent = new Intent(getApplicationContext(), ClimbActivity.class);
-		intent.putExtra(ClimbApplication.building_intent_object, building_id);
+		intent.putExtra(ClimbApplication.building_text_intent_object, building_id);
 		finish();
 		startActivity(intent);
 	}

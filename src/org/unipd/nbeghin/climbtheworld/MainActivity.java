@@ -191,6 +191,7 @@ public class MainActivity extends ActionBarActivity {
 	}
 
 	private void saveBadges() {
+    	Log.d("SettingsActivity", "saveBadges");
 		ParseQuery<ParseUser> query = ParseUser.getQuery();
 		query.whereEqualTo("FBid", pref.getString("FBid", ""));
 		query.getFirstInBackground(new GetCallback<ParseUser>() {
@@ -207,15 +208,16 @@ public class MainActivity extends ActionBarActivity {
 							int obj_id = badge.getInt("obj_id");
 							int user_id = pref.getInt("local_id", -1);
 							UserBadge userBadge = ClimbApplication.getUserBadgeForUserAndBadge(badge_id, obj_id, user_id);
+			    			System.out.println("ub " + userBadge.get_id());
 							if (userBadge == null) {
 								UserBadge ub = new UserBadge();
 								ub.setBadge(ClimbApplication.getBadgeById(badge_id));
 								ub.setObj_id(obj_id);
 								ub.setUser(ClimbApplication.getUserById(user_id));
-								ub.setPercentage(badge.getInt("percentage"));
+								ub.setPercentage(badge.getDouble("percentage"));
 								ClimbApplication.userBadgeDao.create(ub);
 							} else {
-								userBadge.setPercentage(badge.getInt("percentage"));
+								userBadge.setPercentage(badge.getDouble("percentage"));
 								ClimbApplication.userBadgeDao.update(userBadge);
 							}
 						} catch (JSONException ex) {

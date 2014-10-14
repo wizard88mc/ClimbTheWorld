@@ -18,7 +18,7 @@
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
 
-    <style name="FullscreenTheme" parent="@style/Theme.AppCompat.Light"> <!--parent="android:Theme.NoTitleBar"  -->
+    <style name="FullscreenTheme" parent="@style/Theme.AppCompat"> <!--parent="android:Theme.NoTitleBar"  -->
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowBackground">@null</item>
         <item name="buttonBarStyle">@style/ButtonBar</item>
@@ -38,5 +38,9 @@
     </style>
 
     <style name="ButtonBarButton" />
+    
+    <style name="FullHeightDialog" parent="android:style/Theme.Dialog">
+   	<item name="android:windowNoTitle">true</item>
+    </style>
 
 </resources>

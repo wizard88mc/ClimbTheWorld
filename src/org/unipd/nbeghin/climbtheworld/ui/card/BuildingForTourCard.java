@@ -40,7 +40,10 @@ public class BuildingForTourCard extends Card {
 		((TextView) view.findViewById(R.id.title)).setText(buildingText.getName());
 		int imageId = context.getResources().getIdentifier(building.getPhoto(), "drawable", context.getPackageName());
 		if (imageId > 0) ((ImageView) view.findViewById(R.id.photo)).setImageResource(imageId);
-		((TextView) view.findViewById(R.id.buildingStat)).setText(building.getSteps() + ClimbApplication.getContext().getString(R.string.steps) + building.getHeight() + "m)");
+		((TextView) view.findViewById(R.id.buildingStat)).setMinLines(2);
+		((TextView) view.findViewById(R.id.buildingStat)).setText(building.getSteps() + " " + ClimbApplication.getContext().getString(R.string.steps) + building.getHeight() + "m)"
+				+ "\n" + ClimbApplication.getContext().getString(R.string.reward, ClimbApplication.XPforStep(building.getSteps())));
+
 		((TextView) view.findViewById(R.id.location)).setText(buildingText.getLocation());
 		((TextView) view.findViewById(R.id.description)).setText(buildingText.getDescription());
 		((TextView) view.findViewById(R.id.tourOrder)).setText(Integer.toString(order));

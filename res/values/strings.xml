@@ -29,6 +29,7 @@
     <string name="climb_complete">Climbing: COMPLETED! (on %s)</string>
     <string name="climb_status">Climbing status: %1$s%% (last attempt: %2$s)</string>
     <string name="connection_needed">Connection needed</string>
+    <string name="reward">Reward: %d XP</string>
     
     <!-- General Toasts -->
     <string name="connection_problem">Problem with connections</string>
@@ -87,6 +88,7 @@
     
     <!-- ProfileActivity -->
     <string name="level">Level: %s</string>
+    <string name="climbBtn">Improve yourself</string>
     
     <!-- PickGroupActivity -->
     <string name="pick_group">  Pick this group</string>
@@ -131,7 +133,11 @@
     <string name="bonus_collaboration">You have won %d" XP as bonus for your help!!!!</string>
     <string name="bonus_competition">You have won %d XP as bonus for your victory!!!!</string>
     <string name="bonus_team_duel">You have won %d XP as bonus for your help and victory!!!!</string>
-
+    <string name="team_of">Team of </string>
+    <string name="ready_to_go">READY TO CLIMB!</string>
+    <string name="win">YOU DID IT!</string>
+    <string name="encouragement">Well Done!</string>
+    
     <!-- TeamPreparationActivity -->
     <string name="team_one">Team One</string>
     <string name="team_two">Team Two</string>
@@ -168,4 +174,10 @@
     <string name="groups">Groups</string>
     <string name="FB_notification">FB notifications</string>
     <string name="update">Update</string>
+    <string name="microGoal">Current goal</string>
+    
+    <!-- dialog micro goal -->
+    <string name="accept">Ok, let\'s do it!!!!</string>
+    <string name="title_dialog">Goal</string>
+    
 </resources>

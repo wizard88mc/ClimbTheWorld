@@ -24,6 +24,7 @@ import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,10 +33,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -129,7 +134,9 @@ public class BuildingCard extends Card {
 		int imageId = ClimbApplication.getBuildingImageResource(building);
 		if (imageId > 0)
 			((ImageView) view.findViewById(R.id.photo)).setImageResource(imageId);
-		((TextView) view.findViewById(R.id.buildingStat)).setText(building.getSteps() + ClimbApplication.getContext().getString(R.string.steps) + building.getHeight() + "m)");
+		((TextView) view.findViewById(R.id.buildingStat)).setMinLines(2);
+		((TextView) view.findViewById(R.id.buildingStat)).setText(building.getSteps() + " " + ClimbApplication.getContext().getString(R.string.steps) + building.getHeight() + "m)"
+				+ "\n" + ClimbApplication.getContext().getString(R.string.reward, ClimbApplication.XPforStep(building.getSteps())));
 		((TextView) view.findViewById(R.id.location)).setText(buildingText.getLocation());
 		((TextView) view.findViewById(R.id.description)).setText(buildingText.getDescription());
 		climbingStatus = (TextView) view.findViewById(R.id.climbingStatus);
@@ -203,8 +210,50 @@ public class BuildingCard extends Card {
 			
 			@Override
 			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
+				final Dialog dialog = new Dialog(activity, R.style.FullHeightDialog); //this is a reference to the style above
+				dialog.setContentView(R.layout.dialog_micro_goal); //I saved the xml file above as yesnomessage.xml
+				dialog.setCancelable(true);
+						
 				
+				String texts[] = {"t1", "t2"};
+				boolean checked[] ={true, false};
+				TableLayout layout = (TableLayout) dialog.findViewById(R.id.checkBoxesLayout);
+				
+				
+				 
+				//to set the message
+				TextView message =(TextView) dialog.findViewById(R.id.tvmessagedialogtext);
+				message.setText("Text of MicroGoal");
+				
+				
+				
+				for(int i = 0; i < texts.length; i++) {
+					TableRow row =new TableRow(activity);
+				    row.setId(i);
+				    row.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT));
+				    CheckBox checkBox = new CheckBox(activity);
+				    checkBox.setEnabled(false);
+				    checkBox.setId(i);
+				    checkBox.setText(texts[i]);
+				    checkBox.setChecked(checked[i]);
+				    row.addView(checkBox);  
+				    layout.addView(row);
+		        }
+				 
+				//add some action to the buttons
+				            Button acceptBtn = (Button) dialog.findViewById(R.id.bmessageDialogYes);
+				            acceptBtn.setOnClickListener(new OnClickListener() {
+				                 
+				                public void onClick(View v) {
+				                    dialog.dismiss();		                     
+				                }
+				            });		          
+				            
+				            dialog.show();
+				    
+				           
+			
+
 			}
 		});
 
@@ -406,7 +455,7 @@ public class BuildingCard extends Card {
 						else {
 							Log.i("BuildingCard", "Building id clicked: " + building.get_id());
 							Intent intent = new Intent(activity.getApplicationContext(), TeamPreparationActivity.class);
-							intent.putExtra(ClimbApplication.building_intent_object, building.get_id());
+							intent.putExtra(ClimbApplication.building_text_intent_object, building.get_id());
 							intent.putExtra(ClimbApplication.duel_intent_object, currentDuel.get_id());
 							activity.startActivity(intent);
 						}
@@ -505,7 +554,7 @@ public class BuildingCard extends Card {
 
 									Log.i("Building Card", "Building id clicked: " + building.get_id());
 									Intent intent = new Intent(activity.getApplicationContext(), TeamPreparationActivity.class);
-									intent.putExtra(ClimbApplication.building_intent_object, building.get_id());
+									intent.putExtra(ClimbApplication.building_text_intent_object, building.get_id());
 									activity.startActivity(intent);
 								}
 							} else {
