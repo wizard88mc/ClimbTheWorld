@@ -33,7 +33,7 @@ import com.j256.ormlite.table.TableUtils;
 
 public class AlarmUtils {
 	
-	private static PreparedQuery<Alarm> alarmsForTemplateQuery = null;
+	//private static PreparedQuery<Alarm> alarmsForTemplateQuery = null;
 	
 	
 	/**
@@ -42,26 +42,19 @@ public class AlarmUtils {
 	private AlarmUtils(){	
 	}
 
-    
-	/*
-    public static boolean addAlarm(Alarm alarm){
-    	
-    }
-    */
 	
-	
-    public static void setupAlarmTemplatesDB(Context context){
+    public static void setupAlarmsDB(Context context){
     	
     	ConnectionSource connectionSource = new AndroidConnectionSource(DbHelper.getInstance(context));
     	    	
     	try{    		
     		DaoManager.createDao(connectionSource, Alarm.class);
-			DaoManager.createDao(connectionSource, TimeTemplate.class);
-			DaoManager.createDao(connectionSource, AlarmTimeTemplate.class);
+			//DaoManager.createDao(connectionSource, TimeTemplate.class);
+			//DaoManager.createDao(connectionSource, AlarmTimeTemplate.class);
 			
 			TableUtils.createTableIfNotExists(connectionSource, Alarm.class);
-			TableUtils.createTableIfNotExists(connectionSource, TimeTemplate.class);
-			TableUtils.createTableIfNotExists(connectionSource, AlarmTimeTemplate.class);
+			//TableUtils.createTableIfNotExists(connectionSource, TimeTemplate.class);
+			//TableUtils.createTableIfNotExists(connectionSource, AlarmTimeTemplate.class);
 			
     	} catch (SQLException e) {
 			e.printStackTrace();
@@ -69,7 +62,7 @@ public class AlarmUtils {
     }
     
     
-    public static void createAlarmsAndTemplates(Context context){
+    public static void createAlarms(Context context){
     	
     	DbHelper helper = DbHelper.getInstance(context);
     	
@@ -84,12 +77,12 @@ public class AlarmUtils {
     	float pf[] = new float[] {0.25f,0.25f};
 		Alarm alm1 = new Alarm(9,55,50,true,new boolean[]{false,true},pf);
 		Alarm alm2 = new Alarm(9,57,50,false,new boolean[]{false,true},pf);
-		Alarm alm3 = new Alarm(10,21,10,true,bb,pf); 
-		Alarm alm4 = new Alarm(10,22,50,false,bb,pf);
-		Alarm alm5 = new Alarm(15,14,51,true,bb,pf);
-		Alarm alm6 = new Alarm(15,30,50,false,bb,pf);
+		Alarm alm3 = new Alarm(21,18,10,true,new boolean[]{true,false},pf); 
+		Alarm alm4 = new Alarm(21,19,50,false,new boolean[]{true,false},pf);
+		Alarm alm5 = new Alarm(21,20,51,true,bb,pf);
+		Alarm alm6 = new Alarm(21,23,50,false,bb,pf);
 		
-		
+		/*
 		//creo template
 		
 		//template usato nella prima settimana
@@ -109,6 +102,8 @@ public class AlarmUtils {
 		AlarmTimeTemplate att5 = new AlarmTimeTemplate(alm5,tt1);
 		AlarmTimeTemplate att6 = new AlarmTimeTemplate(alm6,tt1);
 				
+	    */
+				
 		// persist the alarm object to the database
 		helper.getAlarmDao().createIfNotExists(alm1);
 		helper.getAlarmDao().createIfNotExists(alm2);
@@ -117,6 +112,7 @@ public class AlarmUtils {
 		helper.getAlarmDao().createIfNotExists(alm5);
 		helper.getAlarmDao().createIfNotExists(alm6);
 		
+		/*
 		helper.getTimeTemplateDao().createIfNotExists(tt1);
 		helper.getTimeTemplateDao().createIfNotExists(tt2);
 		helper.getTimeTemplateDao().createIfNotExists(tt3);
@@ -127,9 +123,10 @@ public class AlarmUtils {
 		helper.getAlarmTimeTemplateDao().createIfNotExists(att4);
 		helper.getAlarmTimeTemplateDao().createIfNotExists(att5);
 		helper.getAlarmTimeTemplateDao().createIfNotExists(att6);
+		*/
     }
     
-    
+   /* 
     //forse non serve
     private static void saveAlarmInDB(Context context, Alarm alarm, int template_id){
     	    	
@@ -143,7 +140,7 @@ public class AlarmUtils {
     	helper.getAlarmTimeTemplateDao().createIfNotExists(new AlarmTimeTemplate(alarm, getTemplate(context, template_id)));
         	
     }
-    
+    */
     
     public static Alarm getAlarm(Context context, int alarm_id){ 
     	
@@ -171,7 +168,7 @@ public class AlarmUtils {
     	
     }
     
-    
+    /*
     public static TimeTemplate getTemplate(Context context, int template_id){ 
     	
     	return DbHelper.getInstance(context).getTimeTemplateDao().queryForId(template_id);
@@ -214,9 +211,30 @@ public class AlarmUtils {
 		alarmQb.where().in(Alarm.ID_FIELD_NAME, alarmTemplateQb);
 		return alarmQb.prepare();
 	}
+	
+	*/
+	
+	
+	
+    public static List<Alarm> getAllAlarms(Context context) {
+    	
+    	DbHelper helper = DbHelper.getInstance(context);
+    	    	
+    	return helper.getAlarmDao().queryForAll();  
+    }
+	
+	
+	
+	
+	
    
     //Metodo per settare il prossimo alarm; chiamato la prima volta per inizializzare il primo alarm,
 	//nell'on receive per l'on boot action e al cambiamento di template 
+    /**
+     * Sets up the next alarm; it is also called to initialize the first alarm.    
+     * @param context context of the application.
+     * @param alarms list of all alarms saved in the database.
+     */
 	public static void setNextAlarm(Context context, List<Alarm> alarms){
 		
 		

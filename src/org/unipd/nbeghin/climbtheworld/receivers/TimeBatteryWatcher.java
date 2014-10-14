@@ -6,10 +6,11 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.unipd.nbeghin.climbtheworld.ClimbActivity;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
+import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionIntentService;
 import org.unipd.nbeghin.climbtheworld.models.Alarm;
 import org.unipd.nbeghin.climbtheworld.services.ActivityRecognitionRecordService;
-import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
 import org.unipd.nbeghin.climbtheworld.util.AlarmUtils;
 import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
 
@@ -56,7 +57,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		
-		System.out.println("ON RECEIVE - WATCHER");
+		Log.d(MainActivity.AppName, "TimeBatteryWatcher - ON RECEIVE");
 		
 		//TimeBatteryWatcher.context=context;
 		
@@ -69,15 +70,16 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		//se il device ha completato il boot
 		if (action.equalsIgnoreCase(BOOT_ACTION)) {
 			
+			Log.d(MainActivity.AppName, "TimeBatteryWatcher - BOOT ACTION");
+			
 			//si setta il prossimo alarm prendendo quello salvato nelle shared preferences
-			//se non c'è non si fa nulla
-			System.out.println("BOOT ACTION");
+			//se non c'è non si fa nulla			
 			
 			//se si vede che si tratta del primo run dell'applicazione
 			if(pref.getBoolean("firstRun", true)){	
 				System.out.println("init");
-				//si inizializzano le shared preferences e gli alarm/template
-				GeneralUtils.initializePrefsAndAlarms(context,pref);	
+				//si inizializzano gli alarm e le relative shared preferences
+				GeneralUtils.initializeAlarmsAndPrefs(context,pref);	
 			}
 			else{	
 				/////////				
@@ -185,7 +187,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					AlarmUtils.cancelAlarm(context, current_next_alarm);	
 					
 					//poi si imposta il prossimo alarm
-			    	AlarmUtils.setNextAlarm(context,AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,pref.getInt("current_template", -1)))); 
+			    	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context)); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,pref.getInt("current_template", -1)))
 					
 					
 			    	
@@ -213,14 +215,14 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					*/
 					
 					//se il next alarm settato è un evento di stop allora significa che 
-					//il service di sampling e il receiver che registra le attività utente
+					//il service di activity recognition e il receiver che registra le attività utente
 					//dovrebbero essere già attivi (infatti gli alarm sono preordinati per fare
 					//in modo che dopo un evento di attivazione ci sia un evento di stop);
 					//quindi si attiva il service, registrando il receiver 'userMotionReceiver'
 					if(!AlarmUtils.getAlarm(context,pref.getInt("alarm_id", -1)).get_actionType()){
 						
-						Intent samplingIntent = new Intent(context, SamplingClassifyService.class);
-					   	context.startService(samplingIntent);
+						Intent activityRecognitionIntent = new Intent(context, ActivityRecognitionRecordService.class);
+					   	context.startService(activityRecognitionIntent);
 					   	//si registra anche il receiver per la registrazione dell'attività utente
 						//context.getApplicationContext().registerReceiver(userMotionReceiver, userMotionFilter);
 					   	context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
@@ -284,20 +286,19 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			
 			//se tale receiver riceve un intent che rappresenta un'azione di start del processo
 			//di registrazione dell'attività utente allora si controlla se questo processo è
-			//già in esecuzione o meno; se non è attivo allora lo si fa partire, altrimenti 
-			//se è in esecuzione significa che è stato attivato dal gioco di climbing (questa può
-			//essere l'unica possibilità, perché gli alarm sono lanciati in modo che dopo un evento
-			//di start ce ne sia uno di stop) e, quindi, non serve attivarlo; in entrambi i casi
-			//viene abilitato il receiver per la per la registrazione dell'attività utente
-			//(receiver 'UserMotionReceiver')			
+			//già in esecuzione o meno; se non è attivo e se il gioco non è in esecuzione, allora
+			//si fa partire il processo si activity recognition; viene abilitato anche il receiver
+			//per la per la registrazione dell'attività utente (receiver 'UserMotionReceiver')			
 			if(action.equalsIgnoreCase(ACTIVITY_RECOGNITION_START_ACTION)){				
 				
-				if(!GeneralUtils.isActivityRecognitionServiceRunning(context)){
+				if(!GeneralUtils.isActivityRecognitionServiceRunning(context) && !ClimbActivity.samplingEnabled){
 					
 					System.out.println("Service di activity recognition NON in esecuzione");
 				    Intent activityRecognitionIntent = new Intent(context, ActivityRecognitionRecordService.class);
 				   	context.startService(activityRecognitionIntent);
 				   	System.out.println("START SERVICE");
+				   	
+				   	System.out.println("Number activity values: " + ActivityRecognitionIntentService.values_number);
 				}
 				//altrimenti il servizio è già in esecuzione
 				else{ 
@@ -319,6 +320,11 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					
 					System.out.println("STOP - Service di activity recognition");
 					
+					System.out.println("Number activity values: " + ActivityRecognitionIntentService.values_number);
+					
+					ActivityRecognitionIntentService.values_number=0;
+					
+					
 					Intent activityRecognitionIntent = new Intent(context, ActivityRecognitionRecordService.class);
 				   	context.stopService(activityRecognitionIntent);
 				   	//si registra anche il receiver per la registrazione dell'attività utente
@@ -334,7 +340,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			//si cancella l'alarm che è stato "consumato" da questo on receive
 			AlarmUtils.cancelAlarm(context, AlarmUtils.getAlarm(context,aa_id));							
 			//si imposta e si lancia il prossimo alarm
-	    	AlarmUtils.setNextAlarm(context,AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,pref.getInt("current_template", -1))));			
+	    	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context)); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,pref.getInt("current_template", -1)))	
 		}
 	}
 	

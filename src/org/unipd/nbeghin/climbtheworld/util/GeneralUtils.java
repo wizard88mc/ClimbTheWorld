@@ -101,13 +101,13 @@ public class GeneralUtils {
      * @param context context of the application.
      * @param prefs reference to android shared preferences. 
      */
-    public static void initializePrefsAndAlarms(Context context, SharedPreferences prefs) {
+    public static void initializeAlarmsAndPrefs(Context context, SharedPreferences prefs) {
     	    	
     	//SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);//context.getSharedPreferences("appPrefs", 0);
     	
     	Editor editor = prefs.edit();    	
     	editor.putBoolean("firstRun", false); // si memorizza che non è il primo run dell'app
-    	editor.putInt("current_template", 1); // il template orario che si usa è il primo    	
+    	//editor.putInt("current_template", 1); // il template orario che si usa è il primo    	
        	//si salvano le credenziali
     	editor.commit();  
     	
@@ -147,12 +147,12 @@ public class GeneralUtils {
     	/////////
     	
     	
-    	//si fa il setup del db per gli alarm e i template
-    	AlarmUtils.setupAlarmTemplatesDB(context); 
-    	//si creano gli alarm e i template, gli alarm vengono associati ai template
-		AlarmUtils.createAlarmsAndTemplates(context);     	    	
+    	//si fa il setup del db per gli alarm
+    	AlarmUtils.setupAlarmsDB(context); 
+    	//si creano gli alarm
+		AlarmUtils.createAlarms(context);     	    	
     	//si imposta e si lancia il prossimo alarm
-    	AlarmUtils.setNextAlarm(context,AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,1)));    	 
+    	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context)); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,1))
     
     }   
 }

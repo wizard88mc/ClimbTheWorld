@@ -148,8 +148,8 @@ public class MainActivity extends ActionBarActivity {
 			
 			System.out.println("Main - FIRST RUN");
 			
-			//si inizializzano le shared preferences e gli alarm/template
-			GeneralUtils.initializePrefsAndAlarms(sContext,pref);	 
+			//si inizializzano gli alarm e le relative shared preferences
+			GeneralUtils.initializeAlarmsAndPrefs(sContext,pref);	 
 		}
 	}
 

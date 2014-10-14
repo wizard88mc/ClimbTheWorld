@@ -8,6 +8,9 @@ import android.content.Intent;
 
 public class ActivityRecognitionIntentService extends IntentService {
 
+	public static int values_number = 0;
+	
+	
 	public ActivityRecognitionIntentService() {
 		 super("ActivityRecognitionIntentService");
 	}
@@ -49,6 +52,7 @@ public class ActivityRecognitionIntentService extends IntentService {
             
             System.out.println("activity: " + activityName + "  confidence: " + confidence);
             
+            values_number++;
            
         } else {
            //This implementation ignores intents that don't contain
