@@ -30,7 +30,9 @@ import com.fima.cardsui.views.CardUI;
  */
 public class BuildingsFragment extends Fragment {
 	public CardUI buildingCards;
+	final SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
 
+	
 	private class LoadBuildingsTask extends AsyncTask<Void, Void, Void> {
 		@Override
 		protected Void doInBackground(Void... unused) {
@@ -43,6 +45,8 @@ public class BuildingsFragment extends Fragment {
 		buildingCards.clearCards();
 		for (final BuildingText building : ClimbApplication.buildingTexts) {
 			BuildingCard buildingCard = new BuildingCard(building, getActivity());
+			if(building.getBuilding().getBase_level() <= ClimbApplication.getUserById(pref.getInt("local_id", -1)).getLevel() ){
+
 			buildingCard.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -78,6 +82,7 @@ public class BuildingsFragment extends Fragment {
 
 				}
 			});
+			}
 			buildingCards.addCard(buildingCard);
 		}
 		buildingCards.refresh();

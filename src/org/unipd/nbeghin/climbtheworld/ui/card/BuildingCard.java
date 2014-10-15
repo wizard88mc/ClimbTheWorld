@@ -144,7 +144,15 @@ public class BuildingCard extends Card {
 		((TextView) view.findViewById(R.id.buildingStat)).setText(building.getSteps() + " " + ClimbApplication.getContext().getString(R.string.steps) + building.getHeight() + "m)"
 				+ "\n" + ClimbApplication.getContext().getString(R.string.reward, ClimbApplication.XPforStep(building.getSteps())));
 		((TextView) view.findViewById(R.id.location)).setText(buildingText.getLocation());
-		((TextView) view.findViewById(R.id.description)).setText(buildingText.getDescription());
+		
+		if(building.getBase_level() > ClimbApplication.getUserById(pref.getInt("local_id", -1)).getLevel() ){
+			((TextView) view.findViewById(R.id.description)).setText("Unlock at level: " + building.getBase_level());
+
+		}else{
+			((TextView) view.findViewById(R.id.description)).setText(buildingText.getDescription());
+		
+			
+		
 		climbingStatus = (TextView) view.findViewById(R.id.climbingStatus);
 		// final SharedPreferences pref =
 		// ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
@@ -524,6 +532,8 @@ public class BuildingCard extends Card {
 				}
 			}
 		});
+		
+	}
 		return view;
 	}
 

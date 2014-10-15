@@ -24,6 +24,8 @@ public class Building implements Serializable {
 	private int				height;
 	@DatabaseField
 	private int				steps;
+	@DatabaseField
+	private int 				base_level;
 	
 	public static final int	average_step_height	= 17;	// in cm
 
@@ -91,6 +93,14 @@ public class Building implements Serializable {
 
 	public void setSteps(int steps) {
 		this.steps = steps;
+	}
+
+	public int getBase_level() {
+		return base_level;
+	}
+
+	public void setBase_level(int base_level) {
+		this.base_level = base_level;
 	}
 
 	

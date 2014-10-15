@@ -436,8 +436,12 @@ public class MainActivity extends ActionBarActivity {
 									}
 								} else {
 									System.err.println("no user");
-									if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && pref.getBoolean("openedFirst", false))
+									if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && pref.getBoolean("openedFirst", false)){
 										new MyAsync().execute();
+										Editor edit = pref.edit();
+										edit.putBoolean("openedFirst", false);
+										edit.commit();
+									}
 								}
 							}
 							if (response.getError() != null) {
@@ -455,7 +459,9 @@ public class MainActivity extends ActionBarActivity {
 	}
 
 	private void userExists(final GraphUser fbUser, final Session session) {
-		Log.d("settings activity", "userExists");
+		Log.d("main activity", "userExists");
+		 final User me = ClimbApplication.getUserByFBId(fbUser.getId());
+
 		ParseQuery<ParseUser> sameFBid = ParseUser.getQuery();
 		sameFBid.whereEqualTo("FBid", fbUser.getId());
 		sameFBid.findInBackground(new FindCallback<ParseUser>() {
@@ -471,6 +477,9 @@ public class MainActivity extends ActionBarActivity {
 							if (user != null) {
 								// Hooray! The user is logged in.
 								// loadProgressFromParse();
+								me.setLevel(user.getInt("level"));
+		    		    		me.setXP(user.getInt("XP"));
+		    		    		ClimbApplication.userDao.update(me);
 								new MyAsync().execute();
 							} else {
 								// Signup failed. Look at the ParseException to

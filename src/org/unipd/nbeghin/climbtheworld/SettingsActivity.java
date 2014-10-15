@@ -772,6 +772,7 @@ public class SettingsActivity extends PreferenceActivity {
 	
  private void userExists(final GraphUser fbUser, final Session session){
 	 Log.d("settings activity", "userExists");
+	 final User me = ClimbApplication.getUserByFBId(fbUser.getId());
 		ParseQuery<ParseUser> sameFBid = ParseUser.getQuery();
 		sameFBid.whereEqualTo("FBid", fbUser.getId());
 	/*	
@@ -796,6 +797,9 @@ public class SettingsActivity extends PreferenceActivity {
 		    		    if (user != null) {
 		    		      // Hooray! The user is logged in.
 				    		//loadProgressFromParse();
+		    		    		me.setLevel(user.getInt("level"));
+		    		    		me.setXP(user.getInt("XP"));
+		    		    		ClimbApplication.userDao.update(me);
 				    		new MyAsync(user).execute();
 
 		    		    } else {
