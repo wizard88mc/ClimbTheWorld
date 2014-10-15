@@ -66,7 +66,7 @@ public class Alarm {
     //corrispondenza dell'indice relativo ad un certo giorno in cui l'alarm viene
     //considerato viene posto il valore di probabilità calcolato in base alla fitness
     @DatabaseField(dataType = DataType.SERIALIZABLE)
-    private float probabilityValues[] = new float[GeneralUtils.daysOfWeek]; // =  new float[7];
+    private float evaluations[] = new float[GeneralUtils.daysOfWeek]; // =  new float[7];
     
      
     // [ aggiungere altri due array di 7 elementi: per probabilità e numero
@@ -89,7 +89,7 @@ public class Alarm {
      * @param repeatWeekly
      * @param isEnabled
      */
-    public Alarm(int hour, int minute, int second, boolean actionType, boolean[] repeatingDays, float[] probabilityValues) {
+    public Alarm(int hour, int minute, int second, boolean actionType, boolean[] repeatingDays, float[] evaluations) {
 		
     	//this.id=id;
     	this.hour=hour;
@@ -101,8 +101,8 @@ public class Alarm {
     	for(int i=0; i<repeatingDays.length; i++)
     		this.repeatingDays[i]=repeatingDays[i];
     	
-    	for(int i=0; i<probabilityValues.length; i++)
-    		this.probabilityValues[i]=probabilityValues[i];
+    	for(int i=0; i<evaluations.length; i++)
+    		this.evaluations[i]=evaluations[i];
 	}
 
     /**
@@ -127,8 +127,8 @@ public class Alarm {
     
     	//si pone la probabilità di riconsiderare un alarm scartato ad un valore
     	//di default pari a 0,25 in ogni giorno della settimana    	
-    	for(int i=0; i<probabilityValues.length; i++)
-    		this.probabilityValues[i]=0.25f;
+    	for(int i=0; i<evaluations.length; i++)
+    		this.evaluations[i]=0.25f;
 	}
     
 	
@@ -203,16 +203,16 @@ public class Alarm {
         return repeatingDays[dayOfWeek];
     }
 
-    public void setProbabilityValue(int dayOfWeek, float value) {
+    public void setEvaluation(int dayOfWeek, float value) {
     	
     	//il valore di probabilità non può mai essere > 1
     	if(value>1.0f){
     		value=1.0f;
     	}    	
-        probabilityValues[dayOfWeek] = value;
+    	evaluations[dayOfWeek] = value;
     }
  
-    public float getProbabilityValue(int dayOfWeek) {
-        return probabilityValues[dayOfWeek];
+    public float getEvaluation(int dayOfWeek) {
+        return evaluations[dayOfWeek];
     }
 }

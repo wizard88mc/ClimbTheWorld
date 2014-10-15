@@ -77,10 +77,12 @@ public class AlarmUtils {
     	float pf[] = new float[] {0.25f,0.25f};
 		Alarm alm1 = new Alarm(9,55,50,true,new boolean[]{false,true},pf);
 		Alarm alm2 = new Alarm(9,57,50,false,new boolean[]{false,true},pf);
-		Alarm alm3 = new Alarm(21,18,10,true,new boolean[]{true,false},pf); 
-		Alarm alm4 = new Alarm(21,19,50,false,new boolean[]{true,false},pf);
-		Alarm alm5 = new Alarm(21,20,51,true,bb,pf);
-		Alarm alm6 = new Alarm(21,23,50,false,bb,pf);
+		Alarm alm3 = new Alarm(15,15,10,true,new boolean[]{true,false},pf); 
+		Alarm alm4 = new Alarm(15,16,50,false,new boolean[]{true,false},pf);
+		Alarm alm5 = new Alarm(15,17,15,true,bb,pf);
+		Alarm alm6 = new Alarm(15,19,50,false,bb,pf);
+		Alarm alm7 = new Alarm(16,54,10,true,bb,pf);
+		Alarm alm8 = new Alarm(16,55,50,false,bb,pf);
 		
 		/*
 		//creo template
@@ -111,6 +113,8 @@ public class AlarmUtils {
 		helper.getAlarmDao().createIfNotExists(alm4);
 		helper.getAlarmDao().createIfNotExists(alm5);
 		helper.getAlarmDao().createIfNotExists(alm6);
+		helper.getAlarmDao().createIfNotExists(alm7);
+		helper.getAlarmDao().createIfNotExists(alm8);
 		
 		/*
 		helper.getTimeTemplateDao().createIfNotExists(tt1);

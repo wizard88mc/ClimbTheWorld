@@ -9,10 +9,13 @@ import java.util.Date;
 import org.unipd.nbeghin.climbtheworld.ClimbActivity;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionIntentService;
+import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.models.Alarm;
 import org.unipd.nbeghin.climbtheworld.services.ActivityRecognitionRecordService;
 import org.unipd.nbeghin.climbtheworld.util.AlarmUtils;
 import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
+
+import com.j256.ormlite.dao.RuntimeExceptionDao;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -290,6 +293,20 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			//si fa partire il processo si activity recognition; viene abilitato anche il receiver
 			//per la per la registrazione dell'attività utente (receiver 'UserMotionReceiver')			
 			if(action.equalsIgnoreCase(ACTIVITY_RECOGNITION_START_ACTION)){				
+								
+				//si resetta il numero totale di attività rilevate e quello che conta
+				//quanti valori indicano un'attività fisica
+				ActivityRecognitionIntentService.clearValuesCount();
+				
+				//si cambia la coppia di liste da utilizzare per contenere i livelli di
+				//confidenza e i pesi
+				//ActivityRecognitionIntentService.setUsedList(!ActivityRecognitionIntentService.getUsedList());
+			
+				//si fa il clear di queste due liste, così da svuotarle (si assume che il
+				//calcolo della funzione di valutazione eseguito in un thread a parte sia
+				//terminato)
+				ActivityRecognitionIntentService.clearLists();
+				
 				
 				if(!GeneralUtils.isActivityRecognitionServiceRunning(context) && !ClimbActivity.samplingEnabled){
 					
@@ -298,7 +315,8 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				   	context.startService(activityRecognitionIntent);
 				   	System.out.println("START SERVICE");
 				   	
-				   	System.out.println("Number activity values: " + ActivityRecognitionIntentService.values_number);
+				   	Log.d(MainActivity.AppName,"START SERVICE - Total number of values: " + ActivityRecognitionIntentService.getValuesNumber());
+				   	Log.d(MainActivity.AppName,"START SERVICE - Number of activities: " + ActivityRecognitionIntentService.getActivitiesNumber());
 				}
 				//altrimenti il servizio è già in esecuzione
 				else{ 
@@ -319,17 +337,98 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				if(GeneralUtils.isActivityRecognitionServiceRunning(context)){
 					
 					System.out.println("STOP - Service di activity recognition");
-					
-					System.out.println("Number activity values: " + ActivityRecognitionIntentService.values_number);
-					
-					ActivityRecognitionIntentService.values_number=0;
-					
+						
 					
 					Intent activityRecognitionIntent = new Intent(context, ActivityRecognitionRecordService.class);
 				   	context.stopService(activityRecognitionIntent);
 				   	//si registra anche il receiver per la registrazione dell'attività utente
 					//context.getApplicationContext().unregisterReceiver(userMotionReceiver);
 					//context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+				
+				   	//Log.d(MainActivity.AppName,"STOP SERVICE - used list (false 1a, true 2a): " + ActivityRecognitionIntentService.getUsedList());
+					Log.d(MainActivity.AppName,"STOP SERVICE - list conf size: " + ActivityRecognitionIntentService.getConfidencesList().size());
+					Log.d(MainActivity.AppName,"STOP SERVICE - list weight size: " + ActivityRecognitionIntentService.getWeightsList().size());
+					
+				
+				   	Log.d(MainActivity.AppName,"STOP SERVICE - Total number of values: " + ActivityRecognitionIntentService.getValuesNumber());
+					Log.d(MainActivity.AppName,"STOP SERVICE - Number of activities: " + ActivityRecognitionIntentService.getActivitiesNumber());
+					
+					
+					float qn = ActivityRecognitionIntentService.getActivityAmount();
+
+					Log.d(MainActivity.AppName,"STOP SERVICE - Amount of physical activity: " + qn);
+					
+					float evaluation = 0f;
+					
+					if(qn>0){
+						evaluation=GeneralUtils.evaluateInterval(qn, ActivityRecognitionIntentService.getConfidencesList(), ActivityRecognitionIntentService.getWeightsList());
+					}
+					
+					Log.d(MainActivity.AppName,"STOP SERVICE - Interval Evaluation: " + evaluation);
+					
+					
+					//dal DB ottengo il precedente alarm di start e questo alarm di stop
+					//(gli alarm vengono salvati in un modo da avere 
+					Alarm previous_start_alarm = AlarmUtils.getAlarm(context, pref.getInt("alarm_id",-1)-1);
+					Alarm this_stop_alarm = AlarmUtils.getAlarm(context, pref.getInt("alarm_id",-1));
+								
+					
+					//si recupera l'indice del giorno corrente all'interno della settimana
+					/////////		
+			    	//PER TEST ALGORITMO
+					int current_day_index = pref.getInt("artificialDayIndex", 0);
+					///////// altrimenti l'indice del giorno è (Calendar.getInstance().get(Calendar.DAY_OF_WEEK))-1;
+					
+					Log.d(MainActivity.AppName,"alarm start prima: " + previous_start_alarm.getRepeatingDay(current_day_index));
+					
+					
+					
+					//se la valutazione dell'intervallo è superiore o uguale alla soglia
+					//allora lo attivo (1) anche la prossima settimana, altrimenti lo disattivo (0)
+					//(attivo/disattivo sia alarm di start che di stop)
+					//in pratica, mi calcolo la funzione di fitness a pezzi facendo ogni volta la
+					//scelta migliore (alla fine si porta avanti l'individuo che presenta la 
+					//fitness maggiore tra i diversi individui possibili)
+					if(evaluation>=0.5){						
+						Log.d(MainActivity.AppName,"STOP SERVICE - intervallo buono, lo tengo per la prossima settimana");						
+						previous_start_alarm.setRepeatingDay(current_day_index, true);
+						this_stop_alarm.setRepeatingDay(current_day_index, true);						
+					}
+					else{
+						Log.d(MainActivity.AppName,"STOP SERVICE - intervallo non buono, lo disattivo per la prossima settimana");
+						previous_start_alarm.setRepeatingDay(current_day_index, false);
+						this_stop_alarm.setRepeatingDay(current_day_index, false);
+					}
+										
+					previous_start_alarm.setEvaluation(current_day_index, evaluation);
+					this_stop_alarm.setEvaluation(current_day_index, evaluation);
+					
+					//ora si salvano queste modifiche anche nel database
+					RuntimeExceptionDao<Alarm, Integer> alarmDao = DbHelper.getInstance(context).getAlarmDao();
+					alarmDao.update(previous_start_alarm);
+					alarmDao.update(this_stop_alarm);
+					
+					Log.d(MainActivity.AppName,"alarm start dopo: " + AlarmUtils.getAlarm(context, pref.getInt("alarm_id",-1)-1).getRepeatingDay(current_day_index));
+					
+					////////////////////////
+				
+					//se l'intervallo ha un periodo di gioco totale/parziale in cui l'utente
+					//ha fatto almeno uno scalino v=1
+					
+					//se numero di valori=0 e/o amount=0 allora v=0; se 0 scalini v=0
+					//se numero di valori>0 e amount>0 allora valuto anche qualità attività fisica v=amount*quality
+					
+					//TODO per calcolare qualità prendo le due liste di confidenze e pesi;
+					// [il calcolo viene fatto su un thread separato per non ritardare il
+					//  set del prossimo alarm (alarm che può essere lanciato l'istante
+					//  immediatamente successivo a questo)] NO
+					
+					//una volta calcolata valutazione faccio update oggetto salvato nel db
+					//con metodo update per mettere 0 o 1 in corrispondenza del giorno
+					
+					
+					
+					
 				}
 								
 			}

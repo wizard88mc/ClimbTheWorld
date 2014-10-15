@@ -1,6 +1,7 @@
 package org.unipd.nbeghin.climbtheworld.util;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import org.unipd.nbeghin.climbtheworld.MainActivity;
@@ -155,4 +156,34 @@ public class GeneralUtils {
     	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context)); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,1))
     
     }   
+    
+    
+    
+    
+    public static float evaluateInterval(float qn, ArrayList<Float> confidences,
+    		ArrayList<Integer> weights){
+    	
+    	
+    	int weights_sum = 0;
+    	for(Integer i : weights){
+    	    weights_sum += i;
+    	}
+    	
+    	//le due liste hanno la stessa size
+    	
+    	float n = 0f;    	
+    	for(int i=0; i<weights.size(); i++){
+    		n += weights.get(i)*confidences.get(i);
+    	}
+    	
+    	
+    	float ql = n/weights_sum;
+    	
+    	Log.d(MainActivity.AppName,"Quality of physical activity: " + ql);
+    	
+    	
+    	return qn*ql;
+    }
+    
+    
 }
