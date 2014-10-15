@@ -16,6 +16,7 @@ import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.Competition;
 import org.unipd.nbeghin.climbtheworld.models.Group;
+import org.unipd.nbeghin.climbtheworld.models.Microgoal;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.models.UserBadge;
@@ -126,6 +127,7 @@ public class SettingsActivity extends PreferenceActivity {
 							user.put("badges", badges);
 							user.saveEventually();
 						}
+						loadMicrogoalFromParse();
 					  loadProgressFromParse();
 					  synchronized (ClimbApplication.lock) {
 						while(ClimbApplication.BUSY){
@@ -203,6 +205,59 @@ public class SettingsActivity extends PreferenceActivity {
 				climb.saveEventually();
 			
 		}
+		ClimbApplication.refreshMicrogoals();
+		for(Microgoal micro : ClimbApplication.microgoals){
+			ParseObject m = new ParseObject("Microgoal");
+			m.put("user_id", micro.getUser().getFBid());
+			m.put("building", micro.getBuilding().get_id());
+			m.put("story_id", micro.getStory_id());
+			m.put("tot_steps", micro.getTot_steps());
+			m.put("done_steps", micro.getDone_steps());
+			m.saveEventually();
+		}
+	}
+	
+	private void loadMicrogoalFromParse(){
+		Log.d("settings activity", "load microgoals");
+		final SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
+
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("Microgoal");
+		query.whereEqualTo("user_id", pref.getString("FBid", ""));
+		query.findInBackground(new FindCallback<ParseObject>() {
+
+			@Override
+			public void done(List<ParseObject> microgoals, ParseException e) {
+				if(e == null){ System.out.println("microgoal :" + microgoals.size());
+					for(ParseObject microgoal : microgoals){
+						System.out.println("cerco microgoal per building " + microgoal.getInt("building"));
+						Microgoal current_microgoal = ClimbApplication.getMicrogoalByUserAndBuilding(pref.getInt("local_id", -1), microgoal.getInt("building"));
+						if(current_microgoal == null){System.out.println("nuovo microgoal");
+							Building building = ClimbApplication.getBuildingById(microgoal.getInt("building"));
+							User user = ClimbApplication.getUserByFBId(microgoal.getString("user_id"));
+							current_microgoal = new Microgoal();
+							current_microgoal.setDeleted(false);
+							current_microgoal.setDone_steps(microgoal.getInt("done_steps"));
+							current_microgoal.setSaved(true);
+							current_microgoal.setStory_id(microgoal.getInt("story_id"));
+							current_microgoal.setTot_steps(microgoal.getInt("tot_steps"));
+							current_microgoal.setUser(user);
+							current_microgoal.setBuilding(building);
+							ClimbApplication.microgoalDao.create(current_microgoal);
+						}else{System.out.println("update microgoal");
+							current_microgoal.setDone_steps(microgoal.getInt("done_steps"));
+							current_microgoal.setTot_steps(microgoal.getInt("tot_steps"));
+							current_microgoal.setSaved(true);
+							ClimbApplication.microgoalDao.update(current_microgoal);
+						}
+					}
+				}else{
+					Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
+					Log.e("loadMicrogoalFromParse", e.getMessage());
+				}
+				ClimbApplication.refreshMicrogoals();
+			}
+			
+		});
 	}
 	
 	private void loadProgressFromParse(){//date non salvate

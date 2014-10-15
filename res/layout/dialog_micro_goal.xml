@@ -49,6 +49,21 @@
     <!-- The message -->
 
     <TextView
+        android:id="@+id/textReward"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="4dip"
+        android:gravity="left"
+        android:padding="8dp"
+        android:text="Reward"
+        android:textColor="#343434"
+        android:textSize="15dip"
+        android:textStyle="normal"
+        android:typeface="normal"/>
+
+    <TextView
         android:id="@+id/tvmessagedialogtext"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -67,11 +82,30 @@
         android:id="@+id/checkBoxesLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
-
+  
         <TableRow
             android:id="@+id/tableRow1"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" >
+
+            <CheckBox
+                android:id="@+id/checkBox1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
+
+        </TableRow>
+         <TableRow
+            android:id="@+id/tableRow2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <CheckBox
+                android:id="@+id/checkBox2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                 />
+
         </TableRow>
 
        

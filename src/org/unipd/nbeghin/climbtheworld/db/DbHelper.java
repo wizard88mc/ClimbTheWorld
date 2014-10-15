@@ -7,6 +7,8 @@ import org.unipd.nbeghin.climbtheworld.models.BuildingTour;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.Competition;
+import org.unipd.nbeghin.climbtheworld.models.Microgoal;
+import org.unipd.nbeghin.climbtheworld.models.MicrogoalText;
 import org.unipd.nbeghin.climbtheworld.models.Photo;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
@@ -37,6 +39,8 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
 	private RuntimeExceptionDao<UserBadge, Integer>		userBadgeRuntimeDao		= null;
 	private RuntimeExceptionDao<BuildingText, Integer>   buildingTextDao			= null;
 	private RuntimeExceptionDao<TourText, Integer> 		tourTextDao				= null;
+	private RuntimeExceptionDao<MicrogoalText, Integer> 	microgoalTextDao			= null;
+	private RuntimeExceptionDao<Microgoal, Integer> 		microgoalDao				= null;
 	
 	public DbHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -138,6 +142,18 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
 			tourTextDao = getRuntimeExceptionDao(TourText.class);
 		return tourTextDao;
 	}
+	
+	public RuntimeExceptionDao<MicrogoalText, Integer> getMicrogoalTextDao(){
+		if(microgoalTextDao == null)
+			microgoalTextDao = getRuntimeExceptionDao(MicrogoalText.class);
+		return microgoalTextDao;
+	}
+	
+	public RuntimeExceptionDao<Microgoal, Integer> getMicrogoalDao(){
+		if(microgoalDao == null)
+			microgoalDao = getRuntimeExceptionDao(Microgoal.class);
+		return microgoalDao;
+	}
 
     public String getDbPath() {
         return this.getReadableDatabase().getPath();
@@ -162,5 +178,7 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
 		userBadgeRuntimeDao = null;
 		buildingTextDao = null;
 		tourTextDao = null;
+		microgoalTextDao = null;
+		microgoalDao = null;
 	}
 }

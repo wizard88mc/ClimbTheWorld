@@ -179,5 +179,6 @@
     <!-- dialog micro goal -->
     <string name="accept">Ok, let\'s do it!!!!</string>
     <string name="title_dialog">Goal</string>
+    <string name="reward_dialog">Reward: %d XP</string>
     
 </resources>

@@ -180,4 +180,8 @@
     <!-- dialog micro goal -->
     <string name="accept">Ok, ci sto!!!!</string>
     <string name="title_dialog">Obiettivo</string>
+    <string name="reward_dialog">Premio: %d XP</string>
+    
+    
+   
 </resources>

@@ -1,5 +1,6 @@
 package org.unipd.nbeghin.climbtheworld;
 
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.SimpleTimeZone;
 
@@ -28,6 +30,8 @@ import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.Competition;
 import org.unipd.nbeghin.climbtheworld.models.GameModeType;
 import org.unipd.nbeghin.climbtheworld.models.Group;
+import org.unipd.nbeghin.climbtheworld.models.Microgoal;
+import org.unipd.nbeghin.climbtheworld.models.MicrogoalText;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
 import org.unipd.nbeghin.climbtheworld.models.User;
@@ -54,6 +58,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -140,6 +145,7 @@ public class ClimbActivity extends ActionBarActivity {
 	private Building building; // current building
 	private Climbing climbing; // current climbing
 	private Climbing soloClimb;
+	private Microgoal microgoal;
 	private VerticalSeekBar seekbarIndicator; // reference to vertical seekbar
 	private int vstep_for_rstep = 1;
 	private boolean used_bonus = false;
@@ -254,6 +260,8 @@ public class ClimbActivity extends ActionBarActivity {
 													// steps
 					new_steps += vstep_for_rstep;
 					if(!isCounterMode){
+						microgoal.setDone_steps(microgoal.getDone_steps() + vstep_for_rstep);
+						System.out.println("DONE STEPS_" + microgoal.getDone_steps());
 						// increase the seekbar progress
 						if (mode == GameModeType.SOCIAL_CLIMB){
 							seekbarIndicator.setProgress(num_steps + sumOthersStep());
@@ -268,7 +276,11 @@ public class ClimbActivity extends ActionBarActivity {
 					}																// the
 																					// progress
 					boolean win = false; //user wins?
+					boolean winMicrogoal = false;
 					if(!isCounterMode){																// percentage
+						winMicrogoal = microgoal.getDone_steps() >= microgoal.getTot_steps();
+						if(winMicrogoal)
+							apply_win_microgoal();
 						
 						if (mode == GameModeType.SOCIAL_CLIMB){
 							//consider also my friend' steps
@@ -365,6 +377,25 @@ public class ClimbActivity extends ActionBarActivity {
 		findViewById(R.id.imgRocket).startAnimation(animSequential);
 	}
 
+	private void apply_win_microgoal(){
+		Toast.makeText(this, "Microgoal completed", Toast.LENGTH_SHORT).show();
+		User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
+		int multiplier = 1;
+		switch(difficulty){
+		case 100:
+			multiplier = 1;
+			break;
+		case 10:
+			multiplier = 2;
+			break;
+		case 1:
+			multiplier = 3;
+			break;
+		}
+		me.setXP(me.getXP() + microgoal.getReward()*multiplier);
+		deleteMicrogoalInParse();
+	}
+	
 	/**
 	 * Handles sampling rate detector service intents (STAIR/NON_STAIR)
 	 * 
@@ -1138,7 +1169,93 @@ public class ClimbActivity extends ActionBarActivity {
 
 		}
 	}
+	
+	private void saveMicrogoalInParse(){
+		ParseObject mg = new ParseObject("Microgoal");
+		mg.put("user_id", microgoal.getUser().getFBid());
+		mg.put("story_id", microgoal.getStory_id());
+		mg.put("building", microgoal.getBuilding().get_id());
+		mg.put("tot_steps", microgoal.getTot_steps());
+		mg.put("done_steps", microgoal.getDone_steps());
+		mg.saveEventually();
+		microgoal.setSaved(true);
+		ClimbApplication.microgoalDao.update(microgoal);
+	}
+	
+	private void deleteMicrogoalInParse(){
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("Microgoal");
+		query.whereEqualTo("user_id", microgoal.getUser().getFBid());
+		query.whereEqualTo("building", microgoal.getBuilding().get_id());
+		query.getFirstInBackground(new GetCallback<ParseObject>() {
 
+			@Override
+			public void done(ParseObject m, ParseException e) {
+				if(e == null){
+					if(m != null)
+						m.deleteEventually();
+					ClimbApplication.microgoalDao.delete(microgoal);
+					createMicrogoal();
+
+				}else{
+					microgoal.setDeleted(true);
+					microgoal.setSaved(false);
+					ClimbApplication.microgoalDao.update(microgoal);
+					Toast.makeText(getApplicationContext(), getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					Log.e("delete microgoal", e.getMessage());
+				}
+				
+			}
+		});
+	}
+	
+	private void updateMicrogoalInParse(){
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("Microgoal");
+		query.whereEqualTo("user_id", microgoal.getUser().getFBid());
+		query.whereEqualTo("building", microgoal.getBuilding().get_id());
+		query.getFirstInBackground(new GetCallback<ParseObject>() {
+
+			@Override
+			public void done(ParseObject m, ParseException e) {
+				if(e == null){
+					m.put("tot_steps", microgoal.getTot_steps());
+					m.put("done_steps", microgoal.getDone_steps());
+					m.saveEventually();
+					microgoal.setSaved(true);
+					ClimbApplication.microgoalDao.update(microgoal);
+				}else{
+					microgoal.setSaved(false);
+					ClimbApplication.microgoalDao.update(microgoal);
+					Toast.makeText(getApplicationContext(), getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					Log.e("update microgoal", e.getMessage());
+				}
+				
+			}
+			
+		});
+	}
+	
+	private void createMicrogoal(){
+		int tot_steps = ClimbApplication.generateStepsToDo();
+		int story_id;
+		try {
+			story_id = ClimbApplication.getRandomStoryId();
+			microgoal = new Microgoal();
+			microgoal.setUser(ClimbApplication.getUserById(pref.getInt("local_id", -1)));
+			microgoal.setBuilding(building);
+			microgoal.setDeleted(false);
+			microgoal.setSaved(false);
+			microgoal.setDone_steps(0);
+			microgoal.setTot_steps(tot_steps);
+			microgoal.setStory_id(story_id);
+			ClimbApplication.microgoalDao.create(microgoal);
+			saveMicrogoalInParse();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	
 	/**
 	 * Check (and load) if a climbing exists for the given building
 	 * 
@@ -1182,28 +1299,16 @@ public class ClimbActivity extends ActionBarActivity {
 				climbing.setUser(ClimbApplication.getUserById(pref.getInt("local_id", -1)));
 			else
 				climbing.setUser(ClimbApplication.getUserByFBId(FBid));
-		/*	switch(GameModeType.values()[climbing.getGame_mode()]){
-			case SOLO_CLIMB:
-				climbing.setId_mode("");
-				break;
-			case SOCIAL_CLIMB:
-				climbing.setId_mode(collaboration.getId());
-				break;
-			case SOCIAL_CHALLENGE:
-				climbing.setId_mode(competition.getId_online());
-				break;
-			case TEAM_VS_TEAM:
-				break;
-			}*/
 
 			ClimbApplication.climbingDao.create(climbing);
 
 			saveClimbingToParse(climbing);
 			Log.i(MainActivity.AppName, "Created new climbing #" + climbing.get_id());
+			
+			createMicrogoal();
+			
 		} else {
-			Log.d(MainActivity.AppName, "uno vecchio trovato");
-			System.out.println("paused? " + climbing.getId_mode());
-
+			microgoal = ClimbApplication.getMicrogoalByUserAndBuilding(pref.getInt("local_id", -1), building.get_id());
 			num_steps = climbing.getCompleted_steps();
 			percentage = climbing.getPercentage();
 			Log.i(MainActivity.AppName, "Loaded existing climbing (#" + climbing.get_id() + ")");
@@ -1400,6 +1505,7 @@ public class ClimbActivity extends ActionBarActivity {
 		unregisterReceiver(classifierReceiver); // unregister listener
 		if(!isCounterMode){
 		// update db
+			updateMicrogoalInParse();
 		climbing.setModified(new Date().getTime()); // update climbing last edit
 													// date
 		climbing.setCompleted_steps(num_steps); // update completed steps
@@ -1645,10 +1751,11 @@ public class ClimbActivity extends ActionBarActivity {
 		getMenuInflater().inflate(R.menu.climb, menu);
 		// We should save our menu so we can use it to reset our updater.
 				mymenu = menu;
-				if(isCounterMode){
+				if(isCounterMode || climbing.getPercentage() >= 1.00){
 					for (int i = 0; i < menu.size(); i++)
 			            menu.getItem(i).setVisible(false);
 				}
+					
 		return true;
 	}
 
@@ -2164,49 +2271,98 @@ public class ClimbActivity extends ActionBarActivity {
 	
 	
 	public void onMicroGoalClicked(){
-		
-		final Dialog dialog = new Dialog(this, R.style.FullHeightDialog); //this is a reference to the style above
-		dialog.setContentView(R.layout.dialog_micro_goal); //I saved the xml file above as yesnomessage.xml
-		dialog.setCancelable(true);
+		try {
+			
+				Microgoal microgoal = ClimbApplication.getMicrogoalByUserAndBuilding(pref.getInt("local_id", -1), building.get_id());
+				MicrogoalText texts = ClimbApplication.getMicrogoalTextByStory(microgoal.getStory_id());
 				
-		
-		String texts[] = {"t1", "t2"};
-		boolean checked[] ={true, false};
-		TableLayout layout = (TableLayout) dialog.findViewById(R.id.checkBoxesLayout);
-		
-		
-		 
-		//to set the message
-		TextView message =(TextView) dialog.findViewById(R.id.tvmessagedialogtext);
-		message.setText("Text of MicroGoal");
-		
-		
-		
-		for(int i = 0; i < texts.length; i++) {
-			TableRow row =new TableRow(this);
-		    row.setId(i);
-		    row.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT));
-		    CheckBox checkBox = new CheckBox(this);
-		    checkBox.setEnabled(false);
-		    checkBox.setId(i);
-		    checkBox.setText(texts[i]);
-		    checkBox.setChecked(checked[i]);
-		    row.addView(checkBox);  
-		    layout.addView(row);
-        }
-		 
-		//add some action to the buttons
-		            Button acceptBtn = (Button) dialog.findViewById(R.id.bmessageDialogYes);
-		            acceptBtn.setOnClickListener(new OnClickListener() {
-		                 
-		                public void onClick(View v) {
-		                    dialog.dismiss();		                     
-		                }
-		            });		          
-		            
-		            dialog.show();
-		    
-		           
+				final Dialog dialog = new Dialog(this, R.style.FullHeightDialog); //this is a reference to the style above
+				dialog.setContentView(R.layout.dialog_micro_goal); //I saved the xml file above as yesnomessage.xml
+				dialog.setCancelable(true);
+				
+				JSONObject steps_obj = texts.getSteps();
+				
+				int checked_size = steps_obj.length();
+				int steps_per_part = microgoal.getTot_steps() / checked_size;
+				int resume = microgoal.getTot_steps() % checked_size;
+				
+				String steps[] = new String[checked_size];
+				Boolean checked[] = new Boolean[checked_size];
+				
+				
+				Iterator<String> keys = steps_obj.keys();
+				
+				
+
+				for(int k = 0; k< checked_size; k++){
+					int currents_steps = steps_per_part;
+					if(k == checked_size - 1)
+						currents_steps += resume;
+					steps[k] = String.format((steps_obj.getString(keys.next())), currents_steps);
+					checked[k] = microgoal.getDone_steps() >= currents_steps ? true : false;
+				}
+				
+				TableLayout layout = (TableLayout) dialog.findViewById(R.id.checkBoxesLayout);
+				
+				String intro = "";
+				Random rand = new Random();
+			    int randomNum1 = rand.nextInt((10 - 1) + 1) + 1;
+			    int randomNum2 = rand.nextInt((20 - randomNum1) + 1) + randomNum1;
+
+				if(checked_size == 1)
+					intro = String.format(texts.getIntro(), randomNum1);
+				else if(checked_size == 2)
+					intro = String.format(texts.getIntro(), randomNum1, randomNum2);
+				 
+				//to set the message
+				TextView message =(TextView) dialog.findViewById(R.id.tvmessagedialogtext);
+				message.setText(intro);
+				
+				TextView reward = (TextView) dialog.findViewById(R.id.textReward);
+				reward.setText(ClimbApplication.getContext().getString(R.string.reward_dialog, 100));
+				
+				if(steps.length == 1)
+					((CheckBox) dialog.findViewById(R.id.checkBox2)).setVisibility(View.GONE);
+				
+				for(int i = 0; i < steps.length; i++) {
+					/*TableRow row =new TableRow(activity);
+				    row.setId(i);
+				    row.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT));
+				    CheckBox checkBox = new CheckBox(activity);
+				    checkBox.setEnabled(false);
+				    checkBox.setId(i);
+				    checkBox.setText(steps[i]);
+				    checkBox.setChecked(checked[i]);
+				    row.addView(checkBox);  
+				    layout.addView(row);
+				    checkBox.setWidth(LayoutParams.WRAP_CONTENT);
+				    checkBox.setHeight(LayoutParams.WRAP_CONTENT);*/
+					CheckBox cb = (CheckBox) dialog.findViewById(ClimbApplication.getContext().getResources().getIdentifier("checkBox" + (i+1), "id", this.getPackageName()));
+					cb.setText(steps[i]);
+					cb.setTextColor(Color.BLACK);
+				    cb.setChecked(checked[i]);
+				    cb.setEnabled(false);
+				}
+				 
+				//add some action to the buttons
+				            Button acceptBtn = (Button) dialog.findViewById(R.id.bmessageDialogYes);
+				            acceptBtn.setOnClickListener(new OnClickListener() {
+				                 
+				                public void onClick(View v) {
+				                    dialog.dismiss();		                     
+				                }
+				            });		          
+				            System.out.println("SHOOOOW");
+				            DisplayMetrics metrics = this.getResources().getDisplayMetrics();
+				            int width = metrics.widthPixels;
+				            int height = metrics.heightPixels;
+				            dialog.getWindow().setLayout((6 * width)/7, (4 * height)/5);
+				            dialog.show();
+			
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}          
 	
 	}
 }

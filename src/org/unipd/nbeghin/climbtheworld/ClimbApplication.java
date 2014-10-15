@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,6 +19,8 @@ import org.unipd.nbeghin.climbtheworld.models.BuildingTour;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.Competition;
+import org.unipd.nbeghin.climbtheworld.models.Microgoal;
+import org.unipd.nbeghin.climbtheworld.models.MicrogoalText;
 import org.unipd.nbeghin.climbtheworld.models.Notification;
 import org.unipd.nbeghin.climbtheworld.models.Photo;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
@@ -73,6 +76,8 @@ public class ClimbApplication extends Application{
 	public static List<UserBadge> userBadges;
 	public static List<BuildingText> buildingTexts;
 	public static List<TourText> tourTexts;
+	public static List<MicrogoalText> microgoalTexts;
+	public static List<Microgoal> microgoals;
 	private ActionBar ab; // reference to action bar
 	public static RuntimeExceptionDao<Building, Integer> buildingDao; // DAO for buildings
 	public static RuntimeExceptionDao<Collaboration, Integer> collaborationDao;
@@ -87,6 +92,9 @@ public class ClimbApplication extends Application{
 	public static RuntimeExceptionDao<UserBadge, Integer> userBadgeDao;
 	public static RuntimeExceptionDao<BuildingText, Integer> buildingTextDao;
 	public static RuntimeExceptionDao<TourText, Integer> tourTextDao;
+	public static RuntimeExceptionDao<MicrogoalText, Integer> microgoalTextDao;
+	public static RuntimeExceptionDao<Microgoal, Integer> microgoalDao;
+
 	
 	public static final String settings_file = "ClimbTheWorldPreferences";
 	public static final String settings_detected_sampling_rate = "samplingRate";
@@ -198,6 +206,8 @@ public class ClimbApplication extends Application{
 			userBadgeDao = dbHelper.getUserBadgeDao();
 			buildingTextDao = dbHelper.getBuildingTextDao();
 			tourTextDao = dbHelper.getTourTextDao();
+			microgoalTextDao = dbHelper.getMicrogoalTextDao();
+			microgoalDao = dbHelper.getMicrogoalDao();
 			refresh(); // loads all buildings and tours
 		}
 		
@@ -219,6 +229,33 @@ public class ClimbApplication extends Application{
 				where.eq("language", language);
 				PreparedQuery<BuildingText> preparedQuery = query.prepare();
 				buildingTexts = buildingTextDao.query(preparedQuery);
+			} catch (SQLException e) {
+				e.printStackTrace();
+
+			}
+		}
+		
+		public static void refreshMicrogoalTexts(){
+			QueryBuilder<MicrogoalText, Integer> query = microgoalTextDao.queryBuilder();
+			Where<MicrogoalText, Integer> where = query.where();
+			try{
+				where.eq("language", language);
+				PreparedQuery<MicrogoalText> preparedQuery = query.prepare();
+				microgoalTexts = microgoalTextDao.query(preparedQuery);
+			} catch (SQLException e) {
+				e.printStackTrace();
+
+			}
+		}
+		
+		public static void refreshMicrogoals(){
+			SharedPreferences pref = sContext.getSharedPreferences("UserSession", 0);
+			QueryBuilder<Microgoal, Integer> query = microgoalDao.queryBuilder();
+			Where<Microgoal, Integer> where = query.where();
+			try{
+				where.eq("user_id", pref.getInt("local_id", -1));
+				PreparedQuery<Microgoal> preparedQuery = query.prepare();
+				microgoals = microgoalDao.query(preparedQuery);
 			} catch (SQLException e) {
 				e.printStackTrace();
 
@@ -437,6 +474,7 @@ public class ClimbApplication extends Application{
 			refreshBadges();
 			refreshBuildingTexts();
 			refreshTourTexts();
+			refreshMicrogoalTexts();
 		}
 
 		public void onBtnShowGallery(View v) {
@@ -819,5 +857,58 @@ public class ClimbApplication extends Application{
 				return -1;
 			}
 		}
+		
+		public static Microgoal getMicrogoalByUserAndBuilding(int user_id, int building_id){
+			QueryBuilder<Microgoal, Integer> query = microgoalDao.queryBuilder();
+			Where<Microgoal, Integer> where = query.where();
+			try {
+				where.eq("user_id", user_id);
+				where.and();
+				where.eq("building_id", building_id);
+				PreparedQuery<Microgoal> preparedQuery = query.prepare();
+				List<Microgoal> microgoals = microgoalDao.query(preparedQuery);
+				if(microgoals.size() == 0)
+					return null;
+				else
+					return microgoals.get(0);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+		}
+		
+		public static MicrogoalText getMicrogoalTextByStory(int story_id){
+			QueryBuilder<MicrogoalText, Integer> query = microgoalTextDao.queryBuilder();
+			Where<MicrogoalText, Integer> where = query.where();
+			try {
+				where.eq("story_id", story_id);
+				PreparedQuery<MicrogoalText> preparedQuery = query.prepare();
+				List<MicrogoalText> microgoals = microgoalTextDao.query(preparedQuery);
+				if(microgoals.size() == 0)
+					return null;
+				else
+					return microgoals.get(0);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+		}
 	 
+		public static int getRandomStoryId() throws SQLException{
+			QueryBuilder<MicrogoalText, Integer> qb = microgoalTextDao.queryBuilder();
+			qb.selectRaw("MAX(story_id)");
+			// the results will contain 1 string values for the max
+			String[] values = microgoalTextDao.queryRaw(qb.prepareStatementString()).getFirstResult();
+			int max = Integer.valueOf(values[0]);
+			Random rand = new Random();
+		    int randomNum = rand.nextInt((max - 1) + 1) + 1;
+		    return randomNum;
+		}
+		
+		//TODO
+		public static int generateStepsToDo(){
+			return 100;
+		}
 }

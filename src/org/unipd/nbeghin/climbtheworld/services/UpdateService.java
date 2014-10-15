@@ -18,12 +18,13 @@ import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.Competition;
 import org.unipd.nbeghin.climbtheworld.models.Group;
+import org.unipd.nbeghin.climbtheworld.models.Microgoal;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.models.UserBadge;
 import org.unipd.nbeghin.climbtheworld.util.ModelsUtil;
-
 import org.unipd.nbeghin.climbtheworld.R;
+
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
@@ -60,6 +61,7 @@ public class UpdateService extends IntentService {
 	public RuntimeExceptionDao<TeamDuel, Integer> teamDuelDao;
 	public RuntimeExceptionDao<User, Integer> userDao;
 	public RuntimeExceptionDao<UserBadge, Integer> userBadgesDao;
+	public RuntimeExceptionDao<Microgoal, Integer> microgoalDao;
 
 	public boolean isOnline(Context context) {
 	    ConnectivityManager cm =
@@ -798,6 +800,49 @@ public class UpdateService extends IntentService {
 	}
 	}
 	
+	private void saveMicrogoals(final Context context){
+		Map<String, Object> conditions = new HashMap<String, Object>();
+		conditions.put("saved", 0); 
+		final List<Microgoal> microgoals = microgoalDao.queryForFieldValuesArgs(conditions);	
+		for(final Microgoal microgoal : microgoals){
+			ParseQuery<ParseObject> query = ParseQuery.getQuery("Microgoal");
+			query.whereEqualTo("FBid", microgoal.getUser().getFBid());
+			query.whereEqualTo("building", microgoal.getBuilding().get_id());
+			query.getFirstInBackground(new GetCallback<ParseObject>() {
+
+				@Override
+				public void done(ParseObject mg, ParseException e) {
+					if(e == null){
+						if(microgoal.getDeleted() && mg != null){
+							mg.deleteEventually();
+							microgoalDao.delete(microgoal);
+						}else if(!microgoal.getDeleted()){
+							if(mg == null){
+								mg = new ParseObject("Microgoal");
+								mg.put("story_id", microgoal.getStory_id());
+								mg.put("building", microgoal.getBuilding().get_id());
+								mg.put("done_steps", microgoal.getDone_steps());
+								mg.put("tot_steps", microgoal.getTot_steps());
+								mg.put("user_id", microgoal.getUser().getFBid());
+							}else{
+								mg.put("done_steps", microgoal.getDone_steps());
+								mg.put("tot_steps", microgoal.getTot_steps());
+							}
+							mg.saveEventually();
+							microgoal.setSaved(true);
+							microgoalDao.update(microgoal);
+						}
+					}else{
+						Toast.makeText(context, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
+						Log.e("UpdateService - save microgoals", e.getMessage());
+					}
+					
+				}
+				
+			});
+		}
+	}
+	
 	
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -819,6 +864,7 @@ PreExistingDbLoader preExistingDbLoader = new PreExistingDbLoader(
 			saveCollaborations(this);
 			saveCompetitions(this);
 			saveTeamDuels(this);
+			saveMicrogoals(this);
 			saveUsers(this);
 			try {
 				saveClimbings(this, 0);

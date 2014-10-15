@@ -38,6 +38,7 @@ import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.Competition;
 import org.unipd.nbeghin.climbtheworld.models.Group;
 import org.unipd.nbeghin.climbtheworld.models.InviteNotification;
+import org.unipd.nbeghin.climbtheworld.models.Microgoal;
 import org.unipd.nbeghin.climbtheworld.models.Notification;
 import org.unipd.nbeghin.climbtheworld.models.NotificationType;
 import org.unipd.nbeghin.climbtheworld.models.Photo;
@@ -239,6 +240,45 @@ public class MainActivity extends ActionBarActivity {
 		});
 		
 	}
+	
+	private void loadMicrogoalFromParse(){
+		
+		final SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
+
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("Microgoal");
+		query.whereEqualTo("users_id", pref.getString("FBid", ""));
+		query.findInBackground(new FindCallback<ParseObject>() {
+
+			@Override
+			public void done(List<ParseObject> microgoals, ParseException e) {
+				if(e == null){
+					for(ParseObject microgoal : microgoals){
+						Microgoal current_microgoal = ClimbApplication.getMicrogoalByUserAndBuilding(pref.getInt("local_id", -1), microgoal.getInt("building"));
+						if(current_microgoal == null){
+							current_microgoal = new Microgoal();
+							current_microgoal.setDeleted(false);
+							current_microgoal.setDone_steps(microgoal.getInt("done_steps"));
+							current_microgoal.setSaved(true);
+							current_microgoal.setStory_id(microgoal.getInt("story_id"));
+							current_microgoal.setTot_steps(microgoal.getInt("tot_steps"));
+							ClimbApplication.microgoalDao.create(current_microgoal);
+						}else{
+							current_microgoal.setDone_steps(microgoal.getInt("done_steps"));
+							current_microgoal.setTot_steps(microgoal.getInt("tot_steps"));
+							current_microgoal.setSaved(true);
+							ClimbApplication.microgoalDao.update(current_microgoal);
+						}
+					}
+				}else{
+					Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
+					Log.e("loadMicrogoalFromParse", e.getMessage());
+				}
+				ClimbApplication.refreshMicrogoals();
+	
+			}
+			
+		});
+	}
 
 	ProgressDialog PD;
 
@@ -265,6 +305,7 @@ public class MainActivity extends ActionBarActivity {
 		protected Void doInBackground(Void... params) {
 			ClimbApplication.BUSY = true;
 			saveBadges();
+			loadMicrogoalFromParse();
 			loadProgressFromParse();
 			synchronized (ClimbApplication.lock) {
 				while (ClimbApplication.BUSY) {
