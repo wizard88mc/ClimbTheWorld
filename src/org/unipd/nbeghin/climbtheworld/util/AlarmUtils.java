@@ -413,6 +413,15 @@ public class AlarmUtils {
     	editor.putInt("alarm_date", alarmTime.get(Calendar.DATE));
     	editor.putInt("alarm_month", alarmTime.get(Calendar.MONTH));
     	editor.putInt("alarm_year", alarmTime.get(Calendar.YEAR));    	
+    	
+    	//campo che indica se nell'intervallo di ascolto corrente è stato attivo un periodo
+    	//di gioco in cui sono stati fatti degli scalini
+    	//(messo a 'true' per un successivo alarm di stop quando questo definisce la fine di
+    	//un intervallo in cui finisce un periodo di gioco con scalini; in tal modo quando
+    	//viene lanciato l'evento di stop non si aggiorna nuovamente la valutazione
+    	//dell'intervallo)
+    	editor.putBoolean("steps_in_alarm", false);
+    	    	
     	//si salvano le credenziali
     	editor.commit();    	    	
     	

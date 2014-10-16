@@ -194,13 +194,33 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					
 					
 			    	
-			    	/*
+			    	/* DA USARE QUESTO, CANCELLANDO LE DUE PRECEDENTI ISTRUZIONI di cancel e setnext
 			    	
 					Calendar alarmTime = Calendar.getInstance();
+					
+					if(MainActivity.logEnabled){
+						int month=alarmTime.get(Calendar.MONTH)+1;	
+						Log.d(MainActivity.AppName, "On Boot - NOW: h:m:s=" 
+						+ alarmTime.get(Calendar.HOUR_OF_DAY)+":"+ alarmTime.get(Calendar.MINUTE)+":"+ alarmTime.get(Calendar.SECOND) +
+						"  "+alarmTime.get(Calendar.DATE)+"/"+month+"/"+alarmTime.get(Calendar.YEAR));		
+						Log.d(MainActivity.AppName, "On Boot - NOW MILLISECONDS: " + alarmTime.getTimeInMillis());		
+					}		
+					
+										
 					alarmTime.set(pref.getInt("alarm_year", -1), 
 							pref.getInt("alarm_month", -1), pref.getInt("alarm_date", -1), 
 							current_next_alarm.get_hour(), current_next_alarm.get_minute(),
 							current_next_alarm.get_second());
+					
+					
+					if(MainActivity.logEnabled){
+						int month=alarmTime.get(Calendar.MONTH)+1;	
+						Log.d(MainActivity.AppName, "On Boot - PREVIOUS ALARM: h:m:s=" 
+						+ alarmTime.get(Calendar.HOUR_OF_DAY)+":"+ alarmTime.get(Calendar.MINUTE)+":"+ alarmTime.get(Calendar.SECOND) +
+						"  "+alarmTime.get(Calendar.DATE)+"/"+month+"/"+alarmTime.get(Calendar.YEAR));		
+						Log.d(MainActivity.AppName, "On Boot - PREVIOUS ALARM MILLISECONDS: " + alarmTime.getTimeInMillis());		
+					}		
+					
 					
 					//se il prossimo alarm che era stato impostato ha un istante di inizio
 					//già passato, allora si cancella l'alarm in questione tramite l'alarm 
@@ -213,7 +233,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						//si cancella l'alarm già passato
 						AlarmUtils.cancelAlarm(context, current_next_alarm);							
 						//si imposta e si lancia il prossimo alarm
-				    	AlarmUtils.setNextAlarm(context,AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,pref.getInt("current_template", -1)))); 
+				    	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context)); 
 					}				
 					*/
 					
@@ -302,9 +322,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				//confidenza e i pesi
 				//ActivityRecognitionIntentService.setUsedList(!ActivityRecognitionIntentService.getUsedList());
 			
-				//si fa il clear di queste due liste, così da svuotarle (si assume che il
-				//calcolo della funzione di valutazione eseguito in un thread a parte sia
-				//terminato)
+				//si fa il clear delle due liste, così da svuotarle
 				ActivityRecognitionIntentService.clearLists();
 				
 				
@@ -368,9 +386,11 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					
 					
 					//dal DB ottengo il precedente alarm di start e questo alarm di stop
-					//(gli alarm vengono salvati in un modo da avere 
-					Alarm previous_start_alarm = AlarmUtils.getAlarm(context, pref.getInt("alarm_id",-1)-1);
-					Alarm this_stop_alarm = AlarmUtils.getAlarm(context, pref.getInt("alarm_id",-1));
+					//(gli alarm vengono salvati in un modo da avere un alarm di start seguito dal
+					//relativo alarm di stop così da definire un intervallo)
+					int this_stop_alarm_id = pref.getInt("alarm_id",-1);					
+					Alarm previous_start_alarm = AlarmUtils.getAlarm(context, this_stop_alarm_id-1);
+					Alarm this_stop_alarm = AlarmUtils.getAlarm(context, this_stop_alarm_id);
 								
 					
 					//si recupera l'indice del giorno corrente all'interno della settimana

@@ -1,7 +1,5 @@
 package org.unipd.nbeghin.climbtheworld.models;
 
-import java.util.ArrayList;
-
 import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
 
 import com.j256.ormlite.field.DataType;
@@ -69,9 +67,23 @@ public class Alarm {
     private float evaluations[] = new float[GeneralUtils.daysOfWeek]; // =  new float[7];
     
      
+    //i valori di tale array indicano se l'alarm definisce un "intervallo di gioco",
+    //cioè un intervallo in cui l'utente la settimana precedente ha fatto scalini;
+    //quindi non si fa partire il servizio di activity recognition, ma ci si aspetta che 
+    //l'utente faccia scalini; se non li fa può essere un momento buono per lanciare un 
+    //trigger    
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
+    private boolean gameInterval[] = new boolean[GeneralUtils.daysOfWeek]; // =  new float[7];
+    
+    
+    
+    
+    /*NO
     // [ aggiungere altri due array di 7 elementi: per probabilità e numero
     //   scalini fatti in quel giorno (array da considerare solo se day=false
     //   per vedere se ri-considerare l'alarm in quel giorno) ] FORSE NO
+    */
+    
     
     /**
      * Costruttore di un oggetto Alarm (costruttore vuoto per ormlite).
@@ -103,6 +115,10 @@ public class Alarm {
     	
     	for(int i=0; i<evaluations.length; i++)
     		this.evaluations[i]=evaluations[i];
+    	
+    	for(int i=0; i<gameInterval.length; i++)
+    		this.gameInterval[i]=false;
+    	
 	}
 
     /**
@@ -129,7 +145,11 @@ public class Alarm {
     	//di default pari a 0,25 in ogni giorno della settimana    	
     	for(int i=0; i<evaluations.length; i++)
     		this.evaluations[i]=0.25f;
+    	
+    	for(int i=0; i<gameInterval.length; i++)
+    		this.gameInterval[i]=false;    	
 	}
+    
     
 	
     public int get_id() {
@@ -205,14 +225,25 @@ public class Alarm {
 
     public void setEvaluation(int dayOfWeek, float value) {
     	
-    	//il valore di probabilità non può mai essere > 1
-    	if(value>1.0f){
-    		value=1.0f;
-    	}    	
+    	//il valore non può mai essere > 1 
+    	//if(value>1.0f){
+    	//	value=1.0f;
+    	//}    	
     	evaluations[dayOfWeek] = value;
     }
  
     public float getEvaluation(int dayOfWeek) {
         return evaluations[dayOfWeek];
     }
+    
+    
+    public void setGameInterval(int dayOfWeek, boolean value) {
+    	
+    	gameInterval[dayOfWeek] = value;
+    }
+    
+    public boolean isGameInterval(int dayOfWeek) {
+        return gameInterval[dayOfWeek];
+    }
+    
 }

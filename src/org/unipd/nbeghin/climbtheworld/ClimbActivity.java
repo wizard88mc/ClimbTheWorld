@@ -7,19 +7,25 @@ import java.util.Date;
 import java.util.List;
 
 import org.unipd.nbeghin.climbtheworld.R;
+import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.exceptions.ClimbingNotFound;
 import org.unipd.nbeghin.climbtheworld.exceptions.NoFBSession;
 import org.unipd.nbeghin.climbtheworld.listeners.AccelerometerSamplingRateDetect;
+import org.unipd.nbeghin.climbtheworld.models.Alarm;
 import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.ClassifierCircularBuffer;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
+import org.unipd.nbeghin.climbtheworld.services.ActivityRecognitionRecordService;
 import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
 import org.unipd.nbeghin.climbtheworld.services.SamplingRateDetectorService;
+import org.unipd.nbeghin.climbtheworld.util.AlarmUtils;
 import org.unipd.nbeghin.climbtheworld.util.CountDownTimerPausable;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
 import org.unipd.nbeghin.climbtheworld.util.StatUtils;
 import org.unipd.nbeghin.climbtheworld.util.SystemUiHider;
+
+import com.j256.ormlite.dao.RuntimeExceptionDao;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -115,6 +121,21 @@ public class ClimbActivity extends Activity {
 	
 	private boolean firstTimeStart = true;
 	
+	private boolean stepsInGamePeriod = false;
+	
+	//application context
+	private Context appContext = getApplicationContext();
+	// get reference to android preferences
+	private SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(appContext);
+	
+	
+	
+	//lista che conterrà gli id degli alarm che definiscono gli intervalli interessati
+	//da un periodo di gioco (lista inizializzata quando l'utente fa partire il gioco,
+	//popolata man mano che si arriva in un intervallo di ascolto, svuotata quando
+	//finisce il periodo di gioco)
+	private static ArrayList<Integer> intervals_id = new ArrayList<Integer>();
+	
 	
 	//finestra di dialogo che mostra la non disponibilità della connessione dati
 	private static AlertDialog.Builder alertBuilder;
@@ -184,6 +205,9 @@ public class ClimbActivity extends Activity {
 						apply_win();
 					}
 				}
+				
+				//l'utente ha fatto almeno uno scalino nel periodo di gioco corrente
+				stepsInGamePeriod=true;
 			}
 			
 			
@@ -197,7 +221,7 @@ public class ClimbActivity extends Activity {
 		num_steps = (int) (((double) building.getSteps()) * percentage);
 		//stopClassify(); //prima era attivo
 		used_bonus = true;
-		Toast.makeText(getApplicationContext(), "BONUS: you climbed less than 24h ago, you earn +25%", Toast.LENGTH_LONG).show(); //+50%
+		Toast.makeText(appContext, "BONUS: you climbed less than 24h ago, you earn +25%", Toast.LENGTH_LONG).show(); //+50%
 		enableRocket();
 		updateStats(); // update the view of current stats
 		seekbarIndicator.setProgress(num_steps); // increase the seekbar progress
@@ -210,16 +234,16 @@ public class ClimbActivity extends Activity {
 		findViewById(R.id.btnStartClimbing).setEnabled(true);
 		
 		Log.i(MainActivity.AppName, "Succesfully climbed building #"+building.get_id());
-		Toast.makeText(getApplicationContext(), "You successfully climbed " + building.getSteps() + " steps (" + building.getHeight() + "m) of " + building.getName() + "!", Toast.LENGTH_LONG).show(); // show completion text
+		Toast.makeText(appContext, "You successfully climbed " + building.getSteps() + " steps (" + building.getHeight() + "m) of " + building.getName() + "!", Toast.LENGTH_LONG).show(); // show completion text
 		findViewById(R.id.lblWin).setVisibility(View.VISIBLE); // load and animate completed climbing test
-		findViewById(R.id.lblWin).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.blink));
+		findViewById(R.id.lblWin).startAnimation(AnimationUtils.loadAnimation(appContext, R.anim.blink));
 		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.social_share);
-		findViewById(R.id.btnAccessPhotoGallery).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_fade_in));
+		findViewById(R.id.btnAccessPhotoGallery).startAnimation(AnimationUtils.loadAnimation(appContext, R.anim.abc_fade_in));
 		findViewById(R.id.btnAccessPhotoGallery).setVisibility(View.VISIBLE);
 	}
 
 	private void enableRocket() {
-		Animation animSequential = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rocket);
+		Animation animSequential = AnimationUtils.loadAnimation(appContext, R.anim.rocket);
 		findViewById(R.id.imgRocket).startAnimation(animSequential);
 	}
 
@@ -237,7 +261,7 @@ public class ClimbActivity extends Activity {
 						
 			Log.i(MainActivity.AppName, "Detected sampling rate: " + Double.toString(detectedSamplingRate) + "Hz");
 			if (detectedSamplingRate >= minimumSamplingRate) { // sampling rate high enough
-				SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit(); // get reference to android preferences
+				SharedPreferences.Editor editor = settings.edit(); // get reference to android preferences
 				editor.putFloat("detectedSamplingRate", (float) detectedSamplingRate); // store detected sampling rate
 				editor.putInt("sensor_delay", samplingDelay); // store used sampling delay
 				editor.apply(); // commit preferences
@@ -257,7 +281,7 @@ public class ClimbActivity extends Activity {
 					unregisterReceiver(this); // unregister listener
 					stopService(backgroundSamplingRateDetector); // stop sampling rate detector service
 					((TextView) findViewById(R.id.lblSamplingRateDetected)).setText("TOO LOW: " + (int) detectedSamplingRate + " Hz");
-					AlertDialog.Builder alert = new AlertDialog.Builder(getApplicationContext());
+					AlertDialog.Builder alert = new AlertDialog.Builder(appContext);
 					alert.setTitle("Sampling rate not high enough");
 					alert.setMessage("Your accelerometer is not fast enough for this application. Make sure to use at least " + minimumSamplingRate + " Hz");
 					alert.show();
@@ -271,7 +295,7 @@ public class ClimbActivity extends Activity {
 						
 		//si controlla dapprima se è attiva una qualche connessione dati; se
 		//non è attiva, si mostra un alert dialog
-		if(GeneralUtils.isInternetConnectionUp(getApplicationContext())){
+		if(GeneralUtils.isInternetConnectionUp(appContext)){
 		    
 			//TODO task per fare il load della gallery?
 			
@@ -303,7 +327,7 @@ public class ClimbActivity extends Activity {
 		backgroundClassifySampler.putExtra(AccelerometerSamplingRateDetect.SAMPLING_RATE, detectedSamplingRate);
 		backgroundClassifySampler.putExtra(SAMPLING_DELAY, samplingDelay);
 		// if (climbing.getPercentage() < 100) {
-		// Toast.makeText(getApplicationContext(), "Start climbing some stairs!", Toast.LENGTH_LONG).show();
+		// Toast.makeText(appContext, "Start climbing some stairs!", Toast.LENGTH_LONG).show();
 		// }
 	}
 
@@ -418,7 +442,7 @@ public class ClimbActivity extends Activity {
 	 * Setup view with a given building and create/load an associated climbing
 	 */
 	private void setup_from_building() {
-		int imageId = getApplicationContext().getResources().getIdentifier(building.getPhoto(), "drawable", getApplicationContext().getPackageName()); // get building's photo resource ID
+		int imageId = appContext.getResources().getIdentifier(building.getPhoto(), "drawable", appContext.getPackageName()); // get building's photo resource ID
 		if (imageId > 0) ((ImageView) findViewById(R.id.buildingPhoto)).setImageResource(imageId);
 		// set building info
 		((TextView) findViewById(R.id.lblBuildingName)).setText(building.getName() + " (" + building.getLocation() + ")"); // building's location
@@ -464,8 +488,8 @@ public class ClimbActivity extends Activity {
 			apply_win();
 		} else { // building to be completed
 			// animate "ready to climb" text			
-            Animation anim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.ready_to_climb); //abc_slide_in_top
-            //Animation arrowAnim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.arrow);
+            Animation anim = AnimationUtils.loadAnimation(appContext, R.anim.ready_to_climb); //abc_slide_in_top
+            //Animation arrowAnim = AnimationUtils.loadAnimation(appContext, R.anim.arrow);
             anim.setDuration(2500);
             findViewById(R.id.lblReadyToClimb).startAnimation(anim);
 			//findViewById(R.id.imgArrow).startAnimation(arrowAnim);
@@ -509,7 +533,7 @@ public class ClimbActivity extends Activity {
 //				NavUtils.navigateUpFromSameTask(this);
 				if (samplingEnabled == false) finish();
 				else { // disable back button if sampling is enabled
-					Toast.makeText(getApplicationContext(), "Sampling running - Stop it before exiting", Toast.LENGTH_SHORT).show();
+					Toast.makeText(appContext, "Sampling running - Stop it before exiting", Toast.LENGTH_SHORT).show();
 				}
 				return true;
 		}
@@ -556,17 +580,81 @@ public class ClimbActivity extends Activity {
 			try {
 				fb.postToWall(climbing);
 			} catch (NoFBSession e) {
-				Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+				Intent intent = new Intent(appContext, SettingsActivity.class);
 				startActivity(intent);
 			}
 		} else {
 			if (samplingEnabled) { // if sampling is enabled stop the classifier
 				stopClassify();
+				
+				
+				//l'utente ferma il gioco, ponendo fine al "periodo di gioco" iniziato
+				//in precedenza
+				
+				//se in tale periodo di gioco l'utente ha fatto almeno uno scalino
+				//allora si aggiorna la valutazione di tutti gli individui che sono stati
+				//interessati da esso (si pone valutazione=1, questi intervalli diventano
+				//"intervalli di gioco")
+				if(stepsInGamePeriod){
+					
+					//si recupera l'indice del giorno corrente all'interno della settimana
+					/////////		
+			    	//PER TEST ALGORITMO
+					int current_day_index = settings.getInt("artificialDayIndex", 0);
+					///////// altrimenti l'indice del giorno è (Calendar.getInstance().get(Calendar.DAY_OF_WEEK))-1;
+										
+					//si invoca il metodo di aggiornamento degli intervalli interessati
+					//dal periodo di gioco
+					updateIntervalsEvaluation(appContext, current_day_index);
+					//l'intervallo corrente non deve essere ri-aggiornato nell'evento
+					//di stop in quanto in esso l'utente ha fatto scalini (valutazione massima)
+					settings.edit().putBoolean("steps_in_alarm", true).commit();
+					
+					//si resetta il booleano che indica se durante il periodo di gioco 
+					//l'utente ha fatto scalini
+					stepsInGamePeriod=false;
+				}
+				else{					
+					//se alla fine del gioco si è ancora in un intervallo di ascolto attivo
+					//allora si fa ripartire il servizio di activity recognition
+					if(!AlarmUtils.getAlarm(appContext,settings.getInt("alarm_id", -1)).get_actionType()){
+						
+						Intent activityRecognitionIntent = new Intent(appContext, ActivityRecognitionRecordService.class);
+						appContext.startService(activityRecognitionIntent);
+					}
+				}
+				
+				//in ogni caso si svuota la lista degli id
+				intervals_id.clear();
+				
+				
+				
 			} else { // if sampling is not enabled stop the classifier
 				climbedYesterday=StatUtils.climbedYesterday(climbing.get_id());
 				// FOR TESTING PURPOSES
 //				climbedYesterday=true;
 				startClassifyService();
+				
+				//l'utente fa partire il gioco, generando un "periodo di gioco"
+				
+				//se il prossimo alarm settato è un evento di stop allora significa che 
+				//il service di activity recognition è in esecuzione e, quindi, significa
+				//che si è in presenza di un intervallo di ascolto
+				int next_alarm_id = settings.getInt("alarm_id", -1);								
+				if(!AlarmUtils.getAlarm(appContext,next_alarm_id).get_actionType()){
+										
+					//stop servizio di activity recognition (si tengono le variabili legate
+					//all'eventuale valutazione dell'attività svolta nel primo intervallo
+					//della lista, il cui ascolto è stato interrotto dall'inizio del gioco)
+					Intent activityRecognitionIntent = new Intent(appContext, ActivityRecognitionRecordService.class);
+					appContext.stopService(activityRecognitionIntent);
+										
+					//si inseriscono nella lista gli id che definiscono l'inizio e la fine
+					//dell'intervallo di ascolto
+					intervals_id.add(next_alarm_id-1);
+					intervals_id.add(next_alarm_id);
+				}
+				
 			}
 		}
 	}
@@ -605,7 +693,7 @@ public class ClimbActivity extends Activity {
 		MainActivity.climbingDao.update(climbing); // save to db
 		Log.i(MainActivity.AppName, "Updated climbing #" + climbing.get_id());
 		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.av_play); // set button icon to play again
-		findViewById(R.id.progressBarClimbing).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_fade_out)); // hide progress bar
+		findViewById(R.id.progressBarClimbing).startAnimation(AnimationUtils.loadAnimation(appContext, R.anim.abc_fade_out)); // hide progress bar
 		findViewById(R.id.progressBarClimbing).setVisibility(View.INVISIBLE);
 	}
 
@@ -616,7 +704,7 @@ public class ClimbActivity extends Activity {
 		
 		firstTimeStart = false; //aggiunto
 		
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()); // get reference to android preferences
+		//SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()); // get reference to android preferences
 		int difficulty = Integer.parseInt(settings.getString("difficulty", "10")); // get difficulty from preferences
 		switch (difficulty) { // set several parameters related to difficulty
 			case 100: // easy
@@ -641,7 +729,7 @@ public class ClimbActivity extends Activity {
 		
 		//findViewById(R.id.lblReadyToClimb).setVisibility(View.GONE); // prima c'era; necessario per far rivedere il pulsante di start/stop al click
 		((TextView)findViewById(R.id.lblReadyToClimb)).setText("");		
-		findViewById(R.id.progressBarClimbing).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_fade_in));
+		findViewById(R.id.progressBarClimbing).startAnimation(AnimationUtils.loadAnimation(appContext, R.anim.abc_fade_in));
 		findViewById(R.id.progressBarClimbing).setVisibility(View.VISIBLE);
 	}
 
@@ -681,7 +769,7 @@ public class ClimbActivity extends Activity {
 	public void onBackPressed() {
 		if (samplingEnabled == false) super.onBackPressed();
 		else { // disable back button if sampling is enabled
-			Toast.makeText(getApplicationContext(), "Sampling running - Stop it before exiting", Toast.LENGTH_SHORT).show();
+			Toast.makeText(appContext, "Sampling running - Stop it before exiting", Toast.LENGTH_SHORT).show();
 		}	
 	}
 	
@@ -738,5 +826,37 @@ public class ClimbActivity extends Activity {
 			picker.setVisibility(View.INVISIBLE);
 		}
 	}
+	
+	
+	
+	
+	public static void addAlarmsId(int id_start_alarm, int id_stop_alarm){		
+		intervals_id.add(id_start_alarm);
+		intervals_id.add(id_stop_alarm);
+	}
+	
+	
+	private static void updateIntervalsEvaluation(Context context, int current_day_index){
+				
+		//si recupera il DAO associato alla tabella degli alarm attraverso il gestore del DB
+		RuntimeExceptionDao<Alarm, Integer> alarmDao = DbHelper.getInstance(context).getAlarmDao();
+		
+		//per ogni coppia di alarm (start,stop) che definisce un intervallo interessato dal
+		//periodo di gioco si pone: attivo la prossima settimana, valutazione=1 e l'intervallo
+		//diventa un "intervallo di gioco" (buono per lanciare trigger)
+		for (int a_id : intervals_id){
+			
+			Alarm this_alarm = AlarmUtils.getAlarm(context, a_id);
+			
+			this_alarm.setRepeatingDay(current_day_index, true);
+			this_alarm.setEvaluation(current_day_index, 1.0f);
+			this_alarm.setGameInterval(current_day_index, true);			
+			//ora si salvano queste modifiche anche nel database
+			alarmDao.update(this_alarm);
+		}
+	}
+	
+	
+	
 	
 }
