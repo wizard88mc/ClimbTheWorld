@@ -24,7 +24,14 @@ public class User implements Serializable{
 	private int				level;
 	@DatabaseField
 	private int 				owner;
-	
+	@DatabaseField
+	private String			begin_date;
+	@DatabaseField
+	private double			mean;
+	@DatabaseField
+	private int				current_steps_value;
+	@DatabaseField
+	private int				n_measured_days;
 	
 	
 	public User(){} //needed by ormlite
@@ -81,5 +88,38 @@ public class User implements Serializable{
 		else owner = 0 ;
 	}
 
+	public String getBegin_date() {
+		return begin_date;
+	}
+
+	public void setBegin_date(String begin_date) {
+		this.begin_date = begin_date;
+	}
+
+	public double getMean() {
+		return mean;
+	}
+
+	public void setMean(double mean) {
+		this.mean = mean;
+	}
+
+	public int getCurrent_steps_value() {
+		return current_steps_value;
+	}
+
+	public void setCurrent_steps_value(int current_steps_value) {
+		this.current_steps_value = current_steps_value;
+	}
+
+	public int getN_measured_days() {
+		return n_measured_days;
+	}
+
+	public void setN_measured_days(int n_measured_days) {
+		this.n_measured_days = n_measured_days;
+	}
+
+	
 	
 }

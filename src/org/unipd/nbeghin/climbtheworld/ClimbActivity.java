@@ -146,6 +146,7 @@ public class ClimbActivity extends ActionBarActivity {
 	private Climbing climbing; // current climbing
 	private Climbing soloClimb;
 	private Microgoal microgoal;
+	private User currentUser;
 	private VerticalSeekBar seekbarIndicator; // reference to vertical seekbar
 	private int vstep_for_rstep = 1;
 	private boolean used_bonus = false;
@@ -378,7 +379,6 @@ public class ClimbActivity extends ActionBarActivity {
 	}
 
 	private void apply_win_microgoal(){
-		Toast.makeText(this, "Microgoal completed", Toast.LENGTH_SHORT).show();
 		User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
 		int multiplier = 1;
 		switch(difficulty){
@@ -393,6 +393,8 @@ public class ClimbActivity extends ActionBarActivity {
 			break;
 		}
 		me.setXP(me.getXP() + microgoal.getReward()*multiplier);
+		ClimbApplication.userDao.update(me);
+		Toast.makeText(this, getString(R.string.microgoal_terminated, me.getXP()), Toast.LENGTH_SHORT).show();
 		deleteMicrogoalInParse();
 	}
 	
@@ -629,6 +631,7 @@ public class ClimbActivity extends ActionBarActivity {
 		setContentView(R.layout.activity_climb);
 		setupActionBar();
 		pref = getSharedPreferences("UserSession", 0);
+		currentUser = ClimbApplication.getUserById(pref.getInt("local_id", -1));
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		final View contentView = findViewById(R.id.lblReadyToClimb);
 		// Set up an instance of SystemUiHider to control the system UI for
@@ -702,6 +705,7 @@ public class ClimbActivity extends ActionBarActivity {
 						return true;
 					}
 				});
+		checkUserStats();
 		isCounterMode = getIntent().getBooleanExtra(ClimbApplication.counter_mode, false);
 		if(!isCounterMode){
 			int building_id = getIntent().getIntExtra(ClimbApplication.building_text_intent_object, 0); // get
@@ -1235,7 +1239,7 @@ public class ClimbActivity extends ActionBarActivity {
 	}
 	
 	private void createMicrogoal(){
-		int tot_steps = ClimbApplication.generateStepsToDo();
+		int tot_steps = ClimbApplication.generateStepsToDo(climbing.getRemaining_steps(), currentUser.getMean());
 		int story_id;
 		try {
 			story_id = ClimbApplication.getRandomStoryId();
@@ -1340,6 +1344,31 @@ public class ClimbActivity extends ActionBarActivity {
 			findViewById(R.id.lblReadyToClimb).startAnimation(anim);
 			findViewById(R.id.imgArrow).startAnimation(arrowAnim);
 			findViewById(R.id.lblReadyToClimb).setVisibility(View.VISIBLE);
+		}
+	}
+	
+	private void checkUserStats(){
+		if(currentUser.getBegin_date() == null || currentUser.getBegin_date().equals("")){
+			currentUser.setBegin_date(String.valueOf((new Date()).getTime()));
+			currentUser.setCurrent_steps_value(0);
+			currentUser.setMean(0);
+			currentUser.setN_measured_days(0);
+			ClimbApplication.userDao.update(currentUser);
+			ParseUser user = ParseUser.getCurrentUser();
+			if(user != null){
+				JSONObject stats = new JSONObject();
+				try {
+					stats.put("begin_date", currentUser.getBegin_date());
+					stats.put("mean", 0);
+					stats.put("current_value", 0);
+					stats.put("n_days", 0);
+					user.put("mean_daily_steps", stats);
+					user.saveEventually();
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}	
 		}
 	}
 
@@ -1503,6 +1532,8 @@ public class ClimbActivity extends ActionBarActivity {
 		stopService(backgroundClassifySampler); // stop background service
 		samplingEnabled = false;
 		unregisterReceiver(classifierReceiver); // unregister listener
+		updateUserStats();
+
 		if(!isCounterMode){
 		// update db
 			updateMicrogoalInParse();
@@ -1566,10 +1597,36 @@ public class ClimbActivity extends ActionBarActivity {
 		// bar
 		findViewById(R.id.progressBarClimbing).setVisibility(View.INVISIBLE);
 	}
+	
+	private void updateUserStats(){
+		ParseUser user = ParseUser.getCurrentUser();
+		if(ClimbApplication.are24hPassed(currentUser.getBegin_date())){
+			currentUser.setMean(ClimbApplication.calculateNewMean((long) currentUser.getMean(), currentUser.getN_measured_days(), new_steps));
+			currentUser.setCurrent_steps_value(0);
+			currentUser.setN_measured_days(currentUser.getN_measured_days() + 1);
+			ClimbApplication.userDao.update(currentUser);
+		}else{
+			currentUser.setCurrent_steps_value(currentUser.getCurrent_steps_value() + new_steps);
+			ClimbApplication.userDao.update(currentUser);
+		}
+		if(user != null){
+			JSONObject stats = user.getJSONObject("mean_daily_steps");
+			try {
+				stats.put("current_value", currentUser.getCurrent_steps_value());
+				user.put("mean_daily_steps", stats);
+				user.put("mean", currentUser.getMean());
+				user.put("n_days", currentUser.getN_measured_days());
+				user.saveEventually();
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 
 	/**
 	 * Saves the data about current Collaboration object in Parse if possible, 
-	 * otherwise it remembers to save the updates when connetction return available.
+	 * otherwise it remembers to save the updates when connection return available.
 	 */
 	private void saveCollaborationData() {
 		collaboration.setMy_stairs(climbing.getCompleted_steps());

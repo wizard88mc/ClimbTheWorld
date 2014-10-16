@@ -478,8 +478,18 @@ public class MainActivity extends ActionBarActivity {
 								// Hooray! The user is logged in.
 								// loadProgressFromParse();
 								me.setLevel(user.getInt("level"));
-		    		    		me.setXP(user.getInt("XP"));
-		    		    		ClimbApplication.userDao.update(me);
+		    		    				me.setXP(user.getInt("XP"));
+		    		    				JSONObject stats = user.getJSONObject("man_daily_steps");
+		    		    				try {		
+		    		    					me.setBegin_date(String.valueOf(stats.getLong("begin_date")));
+			    		    				me.setMean(stats.getLong("mean"));
+			    		    				me.setN_measured_days(stats.getInt("n_days"));
+			    		    				me.setCurrent_steps_value(stats.getInt("current_value"));
+										} catch (JSONException e1) {
+											// TODO Auto-generated catch block
+											e1.printStackTrace();
+										}
+		    		    				ClimbApplication.userDao.update(me);
 								new MyAsync().execute();
 							} else {
 								// Signup failed. Look at the ParseException to

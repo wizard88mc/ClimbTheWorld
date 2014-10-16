@@ -790,6 +790,17 @@ public class UpdateService extends IntentService {
 					if(e == null){
 						parseUser.put("XP", user.getXP());
 						parseUser.put("level", user.getLevel());
+						JSONObject stats = parseUser.getJSONObject("mean_daily_steps");
+						try {
+							stats.put("begin_date", user.getBegin_date());
+							stats.put("mean", user.getMean());
+							stats.put("current_value", user.getCurrent_steps_value());
+							stats.put("n_days", user.getN_measured_days());
+						} catch (JSONException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						parseUser.put("mean_daily_steps", stats);
 						parseUser.saveEventually();
 					}else{
 						Toast.makeText(context, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();

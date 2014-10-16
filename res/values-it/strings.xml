@@ -90,6 +90,7 @@
     <!-- ProfileActivity -->
     <string name="level">Livello: %s</string>
     <string name="climbBtn">Migliorati</string>
+    <string name="mean_text">Media scalini giornalieri: %s</string>
     
     <!-- PickGroupActivity -->
     <string name="pick_group">  Scegli questo gruppo</string>
@@ -138,6 +139,7 @@
     <string name="ready_to_go">PRONTO PER LA SCALATA!</string>
     <string name="win">CE L\'HAI FATTA!</string>
     <string name="encouragement">Ben fatto!</string>
+    <string name="microgoal_terminated">Goal completed!!!! You earn %d XP</string>
     
     <!-- TeamPreparationActivity -->
     <string name="team_one">Team n1</string>

@@ -1,11 +1,16 @@
 package org.unipd.nbeghin.climbtheworld;
 
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -142,14 +147,30 @@ public class ClimbApplication extends Application{
 		edit.commit();
 	  }
 	 
+	 /**
+	  * Return the XP points given the current level
+	  * @param l The current level
+	  * @return the necessary number of XP  points to access level l
+	  */
 	 public static int levelToXP(int l){
-		 return 25 * l * l - 25 * l;
+		 return (25 * l * l - 20 * l);
 	 }
 	 
+	 /**
+	  * Return the current level given the number of XP points
+	  * @param points number of XP points
+	  * @return the level where the user is with points XP
+	  */
 	 public static int XPtoLevel(int points){
-		 return (int) Math.floor(25 + Math.sqrt(625 + 100 * points)) / 50;
+		 return ((int) Math.floor(20 + Math.sqrt(400 + 100 * points)) / 50);
 	 }
 	 
+	 /**
+	  * Returns the new level where the user will be with the current amount of XP points.
+	  * @param xp the current amount of XP points of the user
+	  * @param precLevel the level where the user is
+	  * @return the level where the user will be with xp points
+	  */
 	 public static int levelUp(int xp, int precLevel){
 		 int newLevel;
 		 if(precLevel < 20){
@@ -163,6 +184,12 @@ public class ClimbApplication extends Application{
 		 return newLevel;
 	 }
 	 
+	 /**
+	  * Return the number of XP point the user can earn after doing a given number of steps.
+	  * The number of XP points changes according to the chosen difficulty.
+	  * @param steps the amount of steps the user has done
+	  * @return the amount of XP point the user has earned after doing steps steps.
+	  */
 	 public static int XPforStep(int steps){
 		 SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());	
 		 int difficulty = Integer.parseInt(settings.getString("difficulty", "10"));
@@ -248,6 +275,9 @@ public class ClimbApplication extends Application{
 			}
 		}
 		
+		/**
+		 * Reload all text according to the current phone language
+		 */
 		public static void refreshMicrogoals(){
 			SharedPreferences pref = sContext.getSharedPreferences("UserSession", 0);
 			QueryBuilder<Microgoal, Integer> query = microgoalDao.queryBuilder();
@@ -386,6 +416,10 @@ public class ClimbApplication extends Application{
 			}
 		}
 
+		/**
+		 * Queries
+		 */
+		
 		// per ogni edificio, una sola collaborazione
 		public static Collaboration getCollaborationByBuildingAndUser(int building_id, int user_id) {
 			SharedPreferences pref = sContext.getSharedPreferences("UserSession", 0);
@@ -896,6 +930,11 @@ public class ClimbApplication extends Application{
 			}
 		}
 	 
+		/**
+		 * Choose a random microgoal
+		 * @return the story_id of the choosen microgoal
+		 * @throws SQLException
+		 */
 		public static int getRandomStoryId() throws SQLException{
 			QueryBuilder<MicrogoalText, Integer> qb = microgoalTextDao.queryBuilder();
 			qb.selectRaw("MAX(story_id)");
@@ -906,9 +945,63 @@ public class ClimbApplication extends Application{
 		    int randomNum = rand.nextInt((max - 1) + 1) + 1;
 		    return randomNum;
 		}
+		/**
+		 * Returns true if 24 hours are passed from a given date, false otherwise.
+		 * @param date the given date
+		 * @return true if 24 hours are passed from a given date, false otherwise
+		 */
+		public static boolean are24hPassed(String date){
+			//try {
+				Date today = new Date();
+				//Date dateRef = new SimpleDateFormat("MMMM d, yyyy", Locale.ITALIAN).parse(date);
+				long millDiff = today.getTime() - Long.valueOf(date);//dateRef.getTime();
+				long hours = TimeUnit.MILLISECONDS.toHours(millDiff);
+				if(hours < 24)
+					return false;
+				else return true;
+//			} catch (ParseException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//				return false;
+//			}
+		}
+		
+		public static long daysPassed(String date){
+			Date today = new Date();
+			//Date dateRef = new SimpleDateFormat("MMMM d, yyyy", Locale.ITALIAN).parse(date);
+			long millDiff = today.getTime() - Long.valueOf(date);//dateRef.getTime();
+			return TimeUnit.MILLISECONDS.toDays(millDiff);
+		}
+		
+		public static double calculateNewMean(long old_mean, int n, int new_val){
+			long sum_old_mean = old_mean * n;
+			return (sum_old_mean + new_val) / (n + 1);
+		}
+		
+		/**
+		 * Returns the multiple of 5 nearest to a given number
+		 * @param n the given number
+		 * @return the multiple of 5 nearest to n
+		 */
+		public static long roundUpMultiple5(double n){
+			return Math.round(((n+4)/5)*5);
+		}
+		
+		/**
+		 * Returns the multiple of 10 nearest to a given number
+		 * @param n the given number
+		 * @return the multiple of 10 nearest to n
+		 */
+		public static long roundUpMultiple10(double n){
+			return Math.round(((n+5)/10)*10);
+		}
 		
 		//TODO
-		public static int generateStepsToDo(){
-			return 100;
+		public static int generateStepsToDo(int remainingSteps, double d){
+			if(d >= remainingSteps)
+				return remainingSteps;
+			else{
+				return (int) roundUpMultiple10(d);
+			}
 		}
 }

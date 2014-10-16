@@ -89,6 +89,7 @@
     <!-- ProfileActivity -->
     <string name="level">Level: %s</string>
     <string name="climbBtn">Improve yourself</string>
+    <string name="mean_text">Average daily steps: %s</string>
     
     <!-- PickGroupActivity -->
     <string name="pick_group">  Pick this group</string>
@@ -137,6 +138,7 @@
     <string name="ready_to_go">READY TO CLIMB!</string>
     <string name="win">YOU DID IT!</string>
     <string name="encouragement">Well Done!</string>
+    <string name="microgoal_terminated">Goal completato!!!! Hai vinto %d XP</string>
     
     <!-- TeamPreparationActivity -->
     <string name="team_one">Team One</string>
