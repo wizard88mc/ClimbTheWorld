@@ -234,7 +234,11 @@ public class BuildingCard extends Card {
 					final Dialog dialog = new Dialog(activity, R.style.FullHeightDialog); //this is a reference to the style above
 					dialog.setContentView(R.layout.dialog_micro_goal); //I saved the xml file above as yesnomessage.xml
 					dialog.setCancelable(true);
-					
+					LayoutParams params = dialog.getWindow().getAttributes(); 
+		            params.height = LayoutParams.WRAP_CONTENT;
+		            params.width  = LayoutParams.MATCH_PARENT;
+		           dialog.getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
+		  
 					JSONObject steps_obj = texts.getSteps();
 					
 					int checked_size = steps_obj.length();
@@ -307,11 +311,11 @@ public class BuildingCard extends Card {
 					                    dialog.dismiss();		                     
 					                }
 					            });		          
-					            System.out.println("SHOOOOW");
-					            DisplayMetrics metrics = activity.getResources().getDisplayMetrics();
-					            int width = metrics.widthPixels;
-					            int height = metrics.heightPixels;
-					            dialog.getWindow().setLayout((6 * width)/7, (4 * height)/5);
+//					            System.out.println("SHOOOOW");
+//					            DisplayMetrics metrics = activity.getResources().getDisplayMetrics();
+//					            int width = metrics.widthPixels;
+//					            int height = metrics.heightPixels;
+					           // dialog.getWindow().setLayout((6 * width)/7, (4 * height)/5);
 					            dialog.show();
     
 					} catch (JSONException e) {

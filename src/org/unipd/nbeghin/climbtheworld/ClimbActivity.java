@@ -2336,7 +2336,12 @@ public class ClimbActivity extends ActionBarActivity {
 				final Dialog dialog = new Dialog(this, R.style.FullHeightDialog); //this is a reference to the style above
 				dialog.setContentView(R.layout.dialog_micro_goal); //I saved the xml file above as yesnomessage.xml
 				dialog.setCancelable(true);
-				
+				LayoutParams params = dialog.getWindow().getAttributes(); 
+	            params.height = LayoutParams.WRAP_CONTENT;
+	            params.width  = LayoutParams.MATCH_PARENT;
+	           dialog.getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
+	  
+	           
 				JSONObject steps_obj = texts.getSteps();
 				
 				int checked_size = steps_obj.length();
@@ -2409,11 +2414,11 @@ public class ClimbActivity extends ActionBarActivity {
 				                    dialog.dismiss();		                     
 				                }
 				            });		          
-				            System.out.println("SHOOOOW");
-				            DisplayMetrics metrics = this.getResources().getDisplayMetrics();
-				            int width = metrics.widthPixels;
-				            int height = metrics.heightPixels;
-				            dialog.getWindow().setLayout((6 * width)/7, (4 * height)/5);
+//				            System.out.println("SHOOOOW");
+//				            DisplayMetrics metrics = this.getResources().getDisplayMetrics();
+//				            int width = metrics.widthPixels;
+//				            int height = metrics.heightPixels;
+//				            dialog.getWindow().setLayout((6 * width)/7, (4 * height)/5);
 				            dialog.show();
 			
 				} catch (JSONException e) {

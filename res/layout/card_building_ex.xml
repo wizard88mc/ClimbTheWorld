@@ -157,30 +157,33 @@
 
         <Button
             android:id="@+id/socialClimbButton"
-            style="?android:attr/buttonStyleSmall"
+            style="@style/btnStyleCard"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
-            android:text="Collab" />
+            android:layout_toLeftOf="@+id/teamVsTeamButton"
+            android:text="Social Climb" />
 
         <Button
             android:id="@+id/teamVsTeamButton"
-            style="?android:attr/buttonStyleSmall"
+            style="@style/btnStyleCard"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:text="team vs team" />
+            android:text="Team vs Team" />
 
         <Button
             android:id="@+id/socialChallengeButton"
-            style="?android:attr/buttonStyleSmall"
+            style="@style/btnStyleCard"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:text="Competiz" />
+            android:layout_toRightOf="@+id/teamVsTeamButton"
+            android:text="Social Challenge" />
 
     </RelativeLayout>
 

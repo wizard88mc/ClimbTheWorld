@@ -42,5 +42,17 @@
     <style name="FullHeightDialog" parent="android:style/Theme.Dialog">
    	<item name="android:windowNoTitle">true</item>
     </style>
+    
+<style name="btnStyleCard" parent="@android:style/Widget.Button">
+       <item name="android:textSize">14sp</item>
+       <item name="android:textColor">#ff8d8d8d</item>
+       <item name="android:gravity">center</item>
+       <item name="android:shadowColor">#000000</item>
+       <item name="android:shadowDx">0</item>
+       <item name="android:shadowDy">0</item>
+       <item name="android:shadowRadius">0</item>
+       <item name="android:background">@drawable/card_button_style</item>
+       <item name="android:padding">5dip</item>
+   </style>
 
 </resources>

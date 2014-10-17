@@ -870,6 +870,7 @@ PreExistingDbLoader preExistingDbLoader = new PreExistingDbLoader(
 		teamDuelDao = dbHelper.getTeamDuelDao();
 		userDao = dbHelper.getUserDao();
 		userBadgesDao = dbHelper.getUserBadgeDao();
+		microgoalDao = dbHelper.getMicrogoalDao();
 		if(isOnline(this)){
 			saveUsersData(this);
 			saveCollaborations(this);

@@ -1,13 +1,17 @@
 package org.unipd.nbeghin.climbtheworld.fragments;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.unipd.nbeghin.climbtheworld.ClimbActivity;
 import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.TeamPreparationActivity;
+import org.unipd.nbeghin.climbtheworld.comparator.BuildingTextComparator;
 import org.unipd.nbeghin.climbtheworld.models.BuildingText;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
+import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.ui.card.BuildingCard;
 
 import android.content.Intent;
@@ -43,6 +47,7 @@ public class BuildingsFragment extends Fragment {
 
 	public void refresh() {
 		buildingCards.clearCards();
+		Collections.sort(ClimbApplication.buildingTexts, new BuildingTextComparator());
 		for (final BuildingText building : ClimbApplication.buildingTexts) {
 			BuildingCard buildingCard = new BuildingCard(building, getActivity());
 			if(building.getBuilding().getBase_level() <= ClimbApplication.getUserById(pref.getInt("local_id", -1)).getLevel() ){
