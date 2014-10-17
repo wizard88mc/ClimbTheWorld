@@ -139,7 +139,8 @@
     <string name="ready_to_go">PRONTO PER LA SCALATA!</string>
     <string name="win">CE L\'HAI FATTA!</string>
     <string name="encouragement">Ben fatto!</string>
-    <string name="microgoal_terminated">Goal completed!!!! You earn %d XP</string>
+    <string name="microgoal_terminated">Goal completato!!!! Hai vinto %d XP</string>
+    <string name="successfull_climb">Hai fatto i %1$d scalini (%2$d m) dell\'edificio %3$s !</string>
     
     <!-- TeamPreparationActivity -->
     <string name="team_one">Team n1</string>

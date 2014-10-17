@@ -138,7 +138,8 @@
     <string name="ready_to_go">READY TO CLIMB!</string>
     <string name="win">YOU DID IT!</string>
     <string name="encouragement">Well Done!</string>
-    <string name="microgoal_terminated">Goal completato!!!! Hai vinto %d XP</string>
+    <string name="microgoal_terminated">Goal completed!!!! You earn %d XP</string>
+    <string name="successfull_climb">You successfully climbed %1$d steps (%2$d m) of %3$s !</string>
     
     <!-- TeamPreparationActivity -->
     <string name="team_one">Team One</string>
