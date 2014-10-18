@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.unipd.nbeghin.climbtheworld.R;
+import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionIntentService;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.exceptions.ClimbingNotFound;
 import org.unipd.nbeghin.climbtheworld.exceptions.NoFBSession;
@@ -589,42 +590,20 @@ public class ClimbActivity extends Activity {
 				
 				
 				//l'utente ferma il gioco, ponendo fine al "periodo di gioco" iniziato
-				//in precedenza
+				//in precedenza; si valutano gli intervalli interessati da questo periodo
+				settings.edit().putInt("last_game_alarm_id", intervals_id.get(intervals_id.size()-1)).commit();
 				
-				//se in tale periodo di gioco l'utente ha fatto almeno uno scalino
-				//allora si aggiorna la valutazione di tutti gli individui che sono stati
-				//interessati da esso (si pone valutazione=1, questi intervalli diventano
-				//"intervalli di gioco")
-				if(stepsInGamePeriod){
-					
-					//si recupera l'indice del giorno corrente all'interno della settimana
-					/////////		
-			    	//PER TEST ALGORITMO
-					int current_day_index = settings.getInt("artificialDayIndex", 0);
-					///////// altrimenti l'indice del giorno è (Calendar.getInstance().get(Calendar.DAY_OF_WEEK))-1;
-										
-					//si invoca il metodo di aggiornamento degli intervalli interessati
-					//dal periodo di gioco
-					updateIntervalsEvaluation(appContext, current_day_index);
-					//l'intervallo corrente non deve essere ri-aggiornato nell'evento
-					//di stop in quanto in esso l'utente ha fatto scalini (valutazione massima)
-					settings.edit().putBoolean("steps_in_alarm", true).commit();
-					
-					//si resetta il booleano che indica se durante il periodo di gioco 
-					//l'utente ha fatto scalini
-					stepsInGamePeriod=false;
+				
+				if(intervals_id.size()>0){
+					updateIntervalsEvaluation(appContext, stepsInGamePeriod);
 				}
-				else{					
-					//se alla fine del gioco si è ancora in un intervallo di ascolto attivo
-					//allora si fa ripartire il servizio di activity recognition
-					if(!AlarmUtils.getAlarm(appContext,settings.getInt("alarm_id", -1)).get_actionType()){
-						
-						Intent activityRecognitionIntent = new Intent(appContext, ActivityRecognitionRecordService.class);
-						appContext.startService(activityRecognitionIntent);
-					}
+				else{
+					Log.d(MainActivity.AppName,"STOP GAME IN INTERVAL - non ci sono intervalli attivi interessati dal periodo ");
 				}
 				
-				//in ogni caso si svuota la lista degli id
+				
+				
+				//si svuota la lista degli id degli alarm interessati dal periodo di gioco
 				intervals_id.clear();
 				
 				
@@ -646,13 +625,20 @@ public class ClimbActivity extends Activity {
 					//stop servizio di activity recognition (si tengono le variabili legate
 					//all'eventuale valutazione dell'attività svolta nel primo intervallo
 					//della lista, il cui ascolto è stato interrotto dall'inizio del gioco)
-					Intent activityRecognitionIntent = new Intent(appContext, ActivityRecognitionRecordService.class);
-					appContext.stopService(activityRecognitionIntent);
+					appContext.stopService(new Intent(appContext, ActivityRecognitionRecordService.class));
 										
+					
+					Log.d(MainActivity.AppName,"START GAME IN INTERVAL - STOP ACTIVITY REC");
+					
 					//si inseriscono nella lista gli id che definiscono l'inizio e la fine
 					//dell'intervallo di ascolto
 					intervals_id.add(next_alarm_id-1);
 					intervals_id.add(next_alarm_id);
+					
+				 	Log.d(MainActivity.AppName,"START GAME IN INTERVAL - Total number of values: " + ActivityRecognitionIntentService.getValuesNumber());
+				   	Log.d(MainActivity.AppName,"START GAME IN INTERVAL - Number of activities: " + ActivityRecognitionIntentService.getActivitiesNumber());
+					
+					
 				}
 				
 			}
@@ -836,27 +822,120 @@ public class ClimbActivity extends Activity {
 	}
 	
 	
-	private static void updateIntervalsEvaluation(Context context, int current_day_index){
+	//metodo di aggiornamento degli intervalli interessati dal periodo di gioco
+	private void updateIntervalsEvaluation(Context context, boolean steps){
 				
 		//si recupera il DAO associato alla tabella degli alarm attraverso il gestore del DB
 		RuntimeExceptionDao<Alarm, Integer> alarmDao = DbHelper.getInstance(context).getAlarmDao();
 		
-		//per ogni coppia di alarm (start,stop) che definisce un intervallo interessato dal
-		//periodo di gioco si pone: attivo la prossima settimana, valutazione=1 e l'intervallo
-		//diventa un "intervallo di gioco" (buono per lanciare trigger)
-		for (int a_id : intervals_id){
+		//si recupera l'indice del giorno corrente all'interno della settimana
+		/////////		
+    	//PER TEST ALGORITMO
+		int current_day_index = settings.getInt("artificialDayIndex", 0);
+		///////// altrimenti l'indice del giorno è (Calendar.getInstance().get(Calendar.DAY_OF_WEEK))-1;
+		
+		//se in tale periodo di gioco l'utente ha fatto almeno uno scalino
+		//allora si aggiorna la valutazione di tutti gli individui che sono stati
+		//interessati da esso (si pone valutazione=1, questi intervalli diventano
+		//"intervalli di gioco")
+		if(steps){
+			//per ogni coppia di alarm (start,stop) che definisce un intervallo interessato dal
+			//periodo di gioco si pone: attivo la prossima settimana, valutazione=1 e l'intervallo
+			//diventa un "intervallo di gioco" (buono per lanciare trigger)
+			for (int a_id : intervals_id){
+				
+				Alarm this_alarm = AlarmUtils.getAlarm(context, a_id);
+				
+				this_alarm.setRepeatingDay(current_day_index, true);
+				this_alarm.setEvaluation(current_day_index, 1.0f);
+				this_alarm.setGameInterval(current_day_index, true);			
+				//ora si salvano queste modifiche anche nel database
+				alarmDao.update(this_alarm);
+			}
 			
-			Alarm this_alarm = AlarmUtils.getAlarm(context, a_id);
 			
-			this_alarm.setRepeatingDay(current_day_index, true);
-			this_alarm.setEvaluation(current_day_index, 1.0f);
-			this_alarm.setGameInterval(current_day_index, true);			
-			//ora si salvano queste modifiche anche nel database
-			alarmDao.update(this_alarm);
+			//l'intervallo corrente non deve essere ri-aggiornato nell'evento
+			//di stop in quanto in esso l'utente ha fatto scalini (valutazione massima)
+			settings.edit().putBoolean("steps_in_alarm", true).commit();
+			
+			//si resetta il booleano che indica se durante il periodo di gioco 
+			//l'utente ha fatto scalini
+			stepsInGamePeriod=false;
+			
 		}
+		else{						
+			//valutazione intervalli interessati da un periodo di gioco senza scalini:
+			//
+			//si considera la valutazione parziale del primo intervallo di ascolto
+			//interrotto dall'inizio del gioco; questo valore sommato ad un fattore che
+			//considera che l'utente ha aperto il gioco (pur senza fare scalini) sarà la 
+			//valutazione dei vari intervalli di ascolto interessati da questo periodo di
+			//gioco: (val+0.5)/2
+			//nota: in seguito, la valutazione dell'ultimo intervallo in cui l'utente ha
+			//chiuso il gioco può cambiare, in quanto si fa ripartire il servizio di activity
+			//recognition
+			
+			
+			// [ alternative: 
+			//   1) mettere valutazione=1 anche se nel periodo di gioco non fa scalini
+			//   2) activity recognition con frequenza bassa anche durante il gioco 
+			// ]
+			
+			float qn = ActivityRecognitionIntentService.getActivityAmount();
+			Log.d(MainActivity.AppName,"STOP GAME IN INTERVAL - Amount of physical activity: " + qn);			
+			float evaluation = 0f;			
+			if(qn>0){
+				evaluation=(GeneralUtils.evaluateInterval(qn, ActivityRecognitionIntentService.getConfidencesList(), ActivityRecognitionIntentService.getWeightsList()) 
+						+0.5f) / 2;
+			}
+			else{
+				evaluation=0.5f;
+			}
+			
+			Log.d(MainActivity.AppName,"STOP GAME IN INTERVAL - Interval Evaluation: " + evaluation);
+			
+			
+			boolean good = false;
+			
+			if(evaluation>=0.5){	
+				good=true;
+				Log.d(MainActivity.AppName,"STOP GAME IN INTERVAL - intervalli buoni, li tengo per la prossima settimana");	
+			}
+			else{
+				Log.d(MainActivity.AppName,"STOP GAME IN INTERVAL - intervalli non buoni, li disattivo per la prossima settimana");
+			}
+			
+			
+			for (int a_id : intervals_id){
+				
+				Alarm this_alarm = AlarmUtils.getAlarm(context, a_id);
+				
+				this_alarm.setRepeatingDay(current_day_index, good);
+				this_alarm.setEvaluation(current_day_index, evaluation);
+				this_alarm.setGameInterval(current_day_index, false);			
+				//ora si salvano queste modifiche anche nel database
+				alarmDao.update(this_alarm);
+			}
+			
+
+			
+			//se alla fine del gioco si è ancora in un intervallo di ascolto attivo
+			//allora si fa ripartire il servizio di activity recognition
+			if(!AlarmUtils.getAlarm(appContext,settings.getInt("alarm_id", -1)).get_actionType()){
+				
+				appContext.startService(new Intent(appContext, ActivityRecognitionRecordService.class));
+			}
+			else{ //non si è in un intervallo di ascolto attivo: per sicurezza si chiama il
+				//metodo per impostare il prossimo alarm (in quanto nel caso peggiore la
+				//nuova valutazione calcolata 
+				
+			}
+		}
+		
+		
+		//set next alarm per sicurezza
+		
 	}
-	
-	
 	
 	
 }

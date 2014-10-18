@@ -307,51 +307,164 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		/////////
 		else{				
 			
+			int this_alarm_id = pref.getInt("alarm_id",-1);
+			
 			//se tale receiver riceve un intent che rappresenta un'azione di start del processo
 			//di registrazione dell'attività utente allora si controlla se questo processo è
 			//già in esecuzione o meno; se non è attivo e se il gioco non è in esecuzione, allora
 			//si fa partire il processo si activity recognition; viene abilitato anche il receiver
 			//per la per la registrazione dell'attività utente (receiver 'UserMotionReceiver')			
 			if(action.equalsIgnoreCase(ACTIVITY_RECOGNITION_START_ACTION)){				
-								
-				//si resetta il numero totale di attività rilevate e quello che conta
-				//quanti valori indicano un'attività fisica
-				ActivityRecognitionIntentService.clearValuesCount();
-				
-				//si cambia la coppia di liste da utilizzare per contenere i livelli di
-				//confidenza e i pesi
-				//ActivityRecognitionIntentService.setUsedList(!ActivityRecognitionIntentService.getUsedList());
-			
-				//si fa il clear delle due liste, così da svuotarle
-				ActivityRecognitionIntentService.clearLists();
-				
-				
-				if(!GeneralUtils.isActivityRecognitionServiceRunning(context) && !ClimbActivity.samplingEnabled){
+											
+				//se è attivo il gioco non si fa partire il servizio di activity recognition
+				if(ClimbActivity.samplingEnabled){
 					
-					System.out.println("Service di activity recognition NON in esecuzione");
-				    Intent activityRecognitionIntent = new Intent(context, ActivityRecognitionRecordService.class);
-				   	context.startService(activityRecognitionIntent);
-				   	System.out.println("START SERVICE");
-				   	
-				   	Log.d(MainActivity.AppName,"START SERVICE - Total number of values: " + ActivityRecognitionIntentService.getValuesNumber());
-				   	Log.d(MainActivity.AppName,"START SERVICE - Number of activities: " + ActivityRecognitionIntentService.getActivitiesNumber());
+					//nella lista relativa al periodo di gioco si aggiungono gli id della
+					//coppia di alarm (start,stop) corrente che definisce un intervallo
+					ClimbActivity.addAlarmsId(this_alarm_id, this_alarm_id+1);
 				}
-				//altrimenti il servizio è già in esecuzione
-				else{ 
-					System.out.println("Service di activity recognition già in esecuzione");
+				else{//il gioco non è attivo, quindi si attiva il servizio
+										
+					//si resetta il numero totale di attività rilevate e quello che conta
+					//quanti valori indicano un'attività fisica
+					ActivityRecognitionIntentService.clearValuesCount();
+					
+					//si cambia la coppia di liste da utilizzare per contenere i livelli di
+					//confidenza e i pesi
+					//ActivityRecognitionIntentService.setUsedList(!ActivityRecognitionIntentService.getUsedList());
+				
+					//si fa il clear delle due liste, così da svuotarle
+					ActivityRecognitionIntentService.clearLists();
+					
+					
+					if(!GeneralUtils.isActivityRecognitionServiceRunning(context)){
+						
+						System.out.println("Service di activity recognition NON in esecuzione");
+					    Intent activityRecognitionIntent = new Intent(context, ActivityRecognitionRecordService.class);
+					   	context.startService(activityRecognitionIntent);
+					   	System.out.println("START SERVICE");
+					   	
+					   	Log.d(MainActivity.AppName,"START SERVICE - Total number of values: " + ActivityRecognitionIntentService.getValuesNumber());
+					   	Log.d(MainActivity.AppName,"START SERVICE - Number of activities: " + ActivityRecognitionIntentService.getActivitiesNumber());
+					}
+					//altrimenti il servizio è già in esecuzione
+					else{ 
+						System.out.println("Service di activity recognition già in esecuzione");
+					}			
+
+					//System.out.println("SI ABILITA IL RECEIVER USER MOTION");
+					//si abilita anche il receiver per la registrazione dell'attività utente
+					//context.getApplicationContext().registerReceiver(userMotionReceiver, userMotionFilter);
+					//context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+					
 				}
 				
-				//System.out.println("SI ABILITA IL RECEIVER USER MOTION");
-				//si abilita anche il receiver per la registrazione dell'attività utente
-				//context.getApplicationContext().registerReceiver(userMotionReceiver, userMotionFilter);
-				//context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-			
-			
 			}
 			//se tale receiver riceve un intent che rappresenta un'azione di stop del processo
 			//di registrazione dell'attività utente allora il servizio viene fermato
 			else if(action.equalsIgnoreCase(ACTIVITY_RECOGNITION_STOP_ACTION)){
 								
+				
+				//se il gioco è già attivo quando viene lanciato questo evento di stop (fine di un
+				//intervallo attivo), vuol dire che il gioco è stato aperto in precedenza; in questo
+				//caso non si fa nulla, il gioco continua
+								
+				//se il gioco non è attivo, si controlla se è stato chiuso durante questo intervallo
+				//(cioè durante l'intervallo la cui fine è definita da questo evento di stop)
+				if(!ClimbActivity.samplingEnabled){
+					
+					//il gioco non è stato chiuso in questo intervallo (quindi significa che tale 
+					//intervallo non è stato interessato dal precedente periodo di gioco)
+					if(pref.getInt("last_game_alarm_id", -1)!=this_alarm_id){
+						
+						//significa che l'intervallo è stato valutato con il classificatore Google;
+						//si calcola la valutazione che determina la sua attivazione o meno per la
+						//prossima settimana
+											
+						
+						//Log.d(MainActivity.AppName,"STOP SERVICE - used list (false 1a, true 2a): " + ActivityRecognitionIntentService.getUsedList());
+						Log.d(MainActivity.AppName,"STOP SERVICE - list conf size: " + ActivityRecognitionIntentService.getConfidencesList().size());
+						Log.d(MainActivity.AppName,"STOP SERVICE - list weight size: " + ActivityRecognitionIntentService.getWeightsList().size());
+						Log.d(MainActivity.AppName,"STOP SERVICE - Total number of values: " + ActivityRecognitionIntentService.getValuesNumber());
+						Log.d(MainActivity.AppName,"STOP SERVICE - Number of activities: " + ActivityRecognitionIntentService.getActivitiesNumber());
+						
+						
+						float qn = ActivityRecognitionIntentService.getActivityAmount();
+						Log.d(MainActivity.AppName,"STOP SERVICE - Amount of physical activity: " + qn);
+						
+						float evaluation = 0f;
+						
+						if(qn>0){
+							evaluation=GeneralUtils.evaluateInterval(qn, ActivityRecognitionIntentService.getConfidencesList(), ActivityRecognitionIntentService.getWeightsList());
+						}
+						
+						Log.d(MainActivity.AppName,"STOP SERVICE - Interval Evaluation: " + evaluation);
+						
+						
+						//dal DB ottengo il precedente alarm di start e questo alarm di stop
+						//(gli alarm vengono salvati in un modo da avere un alarm di start seguito dal
+						//relativo alarm di stop così da definire un intervallo)
+						//int this_stop_alarm_id = pref.getInt("alarm_id",-1);					
+						Alarm previous_start_alarm = AlarmUtils.getAlarm(context, this_alarm_id-1);
+						Alarm this_stop_alarm = AlarmUtils.getAlarm(context, this_alarm_id);
+									
+						
+						//si recupera l'indice del giorno corrente all'interno della settimana
+						/////////		
+				    	//PER TEST ALGORITMO
+						int current_day_index = pref.getInt("artificialDayIndex", 0);
+						///////// altrimenti l'indice del giorno è (Calendar.getInstance().get(Calendar.DAY_OF_WEEK))-1;
+						
+						Log.d(MainActivity.AppName,"alarm start prima: " + previous_start_alarm.getRepeatingDay(current_day_index));
+												
+						
+						//se la valutazione dell'intervallo è superiore o uguale alla soglia
+						//allora lo attivo (1) anche la prossima settimana, altrimenti lo disattivo (0)
+						//(attivo/disattivo sia alarm di start che di stop)
+						//in pratica, mi calcolo la funzione di fitness a pezzi facendo ogni volta la
+						//scelta migliore (alla fine si porta avanti l'individuo che presenta la 
+						//fitness maggiore tra i diversi individui possibili)
+						if(evaluation>=0.5){						
+							Log.d(MainActivity.AppName,"STOP SERVICE - intervallo buono, lo tengo per la prossima settimana");						
+							previous_start_alarm.setRepeatingDay(current_day_index, true);
+							this_stop_alarm.setRepeatingDay(current_day_index, true);						
+						}
+						else{
+							Log.d(MainActivity.AppName,"STOP SERVICE - intervallo non buono, lo disattivo per la prossima settimana");
+							previous_start_alarm.setRepeatingDay(current_day_index, false);
+							this_stop_alarm.setRepeatingDay(current_day_index, false);
+						}
+											
+						previous_start_alarm.setEvaluation(current_day_index, evaluation);
+						this_stop_alarm.setEvaluation(current_day_index, evaluation);
+						
+						//ora si salvano queste modifiche anche nel database
+						RuntimeExceptionDao<Alarm, Integer> alarmDao = DbHelper.getInstance(context).getAlarmDao();
+						alarmDao.update(previous_start_alarm);
+						alarmDao.update(this_stop_alarm);
+						
+						Log.d(MainActivity.AppName,"alarm start dopo: " + AlarmUtils.getAlarm(context, pref.getInt("alarm_id",-1)-1).getRepeatingDay(current_day_index));
+						
+					}
+					else{						
+						//il precedente periodo di gioco è finito durante questo intervallo 
+						
+						
+					
+						
+						
+						
+						
+					}
+					
+				}
+				
+				
+				
+				
+				
+				
+				
 				if(GeneralUtils.isActivityRecognitionServiceRunning(context)){
 					
 					System.out.println("STOP - Service di activity recognition");
@@ -363,72 +476,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					//context.getApplicationContext().unregisterReceiver(userMotionReceiver);
 					//context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
 				
-				   	//Log.d(MainActivity.AppName,"STOP SERVICE - used list (false 1a, true 2a): " + ActivityRecognitionIntentService.getUsedList());
-					Log.d(MainActivity.AppName,"STOP SERVICE - list conf size: " + ActivityRecognitionIntentService.getConfidencesList().size());
-					Log.d(MainActivity.AppName,"STOP SERVICE - list weight size: " + ActivityRecognitionIntentService.getWeightsList().size());
-					
-				
-				   	Log.d(MainActivity.AppName,"STOP SERVICE - Total number of values: " + ActivityRecognitionIntentService.getValuesNumber());
-					Log.d(MainActivity.AppName,"STOP SERVICE - Number of activities: " + ActivityRecognitionIntentService.getActivitiesNumber());
-					
-					
-					float qn = ActivityRecognitionIntentService.getActivityAmount();
-
-					Log.d(MainActivity.AppName,"STOP SERVICE - Amount of physical activity: " + qn);
-					
-					float evaluation = 0f;
-					
-					if(qn>0){
-						evaluation=GeneralUtils.evaluateInterval(qn, ActivityRecognitionIntentService.getConfidencesList(), ActivityRecognitionIntentService.getWeightsList());
-					}
-					
-					Log.d(MainActivity.AppName,"STOP SERVICE - Interval Evaluation: " + evaluation);
-					
-					
-					//dal DB ottengo il precedente alarm di start e questo alarm di stop
-					//(gli alarm vengono salvati in un modo da avere un alarm di start seguito dal
-					//relativo alarm di stop così da definire un intervallo)
-					int this_stop_alarm_id = pref.getInt("alarm_id",-1);					
-					Alarm previous_start_alarm = AlarmUtils.getAlarm(context, this_stop_alarm_id-1);
-					Alarm this_stop_alarm = AlarmUtils.getAlarm(context, this_stop_alarm_id);
-								
-					
-					//si recupera l'indice del giorno corrente all'interno della settimana
-					/////////		
-			    	//PER TEST ALGORITMO
-					int current_day_index = pref.getInt("artificialDayIndex", 0);
-					///////// altrimenti l'indice del giorno è (Calendar.getInstance().get(Calendar.DAY_OF_WEEK))-1;
-					
-					Log.d(MainActivity.AppName,"alarm start prima: " + previous_start_alarm.getRepeatingDay(current_day_index));
-					
-					
-					
-					//se la valutazione dell'intervallo è superiore o uguale alla soglia
-					//allora lo attivo (1) anche la prossima settimana, altrimenti lo disattivo (0)
-					//(attivo/disattivo sia alarm di start che di stop)
-					//in pratica, mi calcolo la funzione di fitness a pezzi facendo ogni volta la
-					//scelta migliore (alla fine si porta avanti l'individuo che presenta la 
-					//fitness maggiore tra i diversi individui possibili)
-					if(evaluation>=0.5){						
-						Log.d(MainActivity.AppName,"STOP SERVICE - intervallo buono, lo tengo per la prossima settimana");						
-						previous_start_alarm.setRepeatingDay(current_day_index, true);
-						this_stop_alarm.setRepeatingDay(current_day_index, true);						
-					}
-					else{
-						Log.d(MainActivity.AppName,"STOP SERVICE - intervallo non buono, lo disattivo per la prossima settimana");
-						previous_start_alarm.setRepeatingDay(current_day_index, false);
-						this_stop_alarm.setRepeatingDay(current_day_index, false);
-					}
-										
-					previous_start_alarm.setEvaluation(current_day_index, evaluation);
-					this_stop_alarm.setEvaluation(current_day_index, evaluation);
-					
-					//ora si salvano queste modifiche anche nel database
-					RuntimeExceptionDao<Alarm, Integer> alarmDao = DbHelper.getInstance(context).getAlarmDao();
-					alarmDao.update(previous_start_alarm);
-					alarmDao.update(this_stop_alarm);
-					
-					Log.d(MainActivity.AppName,"alarm start dopo: " + AlarmUtils.getAlarm(context, pref.getInt("alarm_id",-1)-1).getRepeatingDay(current_day_index));
+				   	
 					
 					////////////////////////
 				
