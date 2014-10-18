@@ -9,7 +9,7 @@ import org.unipd.nbeghin.climbtheworld.R;
 public class Stat {
 	private String	name;
 	private Object	value;
-	private int		iconId = R.drawable.device_access_storage;
+	private int		iconId = R.drawable.ic_stats;//device_access_storage;
 
 	public Stat(String name, Object value) {
 		super();

@@ -119,7 +119,7 @@ public class TeamPreparationActivity extends ActionBarActivity {
 		}
 
 		//int team_online_id = getIntent().getIntExtra(ClimbApplication.duel_intent_object, 0);
-
+System.out.println(building_id + " " + pref.getInt("local_id", -1));
 		duel = ClimbApplication.getTeamDuelByBuildingAndUser(building_id, pref.getInt("local_id", -1));
 		// quando arrivo qui, id online di duel deve essere settato
 		

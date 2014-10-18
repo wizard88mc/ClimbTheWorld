@@ -22,6 +22,10 @@ import com.facebook.model.GraphUser;
 import com.facebook.widget.FriendPickerFragment;
 import com.facebook.widget.PickerFragment;
 
+/**
+ * UNUSED
+ *
+ */
 public class FBPickFriendActivity extends BaseFBActivity {
 	private FriendPickerFragment	friendPickerFragment;
 	private Collection<GraphUser>	selectedUsers;

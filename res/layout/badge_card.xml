@@ -44,13 +44,14 @@
 
             <TextView
                 android:id="@+id/textDescription"
-                style="@style/CardText"
+                style="@style/CardTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="left"
-                android:paddingRight="10dp"
                 android:paddingLeft="10dp"
-                android:text="Text" />
+                android:paddingRight="10dp"
+                android:text="Text"
+                android:textSize="18sp" />
 
             <TextView
                 android:id="@+id/textPercentage"

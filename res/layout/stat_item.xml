@@ -27,7 +27,11 @@
         android:layout_width="40dp"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
-        android:src="@drawable/device_access_storage" />
+        android:src="@drawable/ic_stats"
+        android:adjustViewBounds="true"
+        android:padding="4dp" />
+    
+    <!-- @drawable/device_access_storage -->
 
     <LinearLayout
         android:id="@+id/StatNameWrapper"
@@ -38,13 +42,12 @@
 
         <TextView
             android:id="@+id/statName"
+            style="@style/CardTitle"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:text="Statistica"
-            style="@style/CardTitle"
-            
-            />
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/statValue"

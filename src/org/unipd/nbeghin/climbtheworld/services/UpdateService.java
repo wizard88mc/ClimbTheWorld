@@ -23,6 +23,7 @@ import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.models.UserBadge;
 import org.unipd.nbeghin.climbtheworld.util.ModelsUtil;
+import org.unipd.nbeghin.climbtheworld.util.ParseUtils;
 import org.unipd.nbeghin.climbtheworld.R;
 
 import android.app.IntentService;
@@ -277,9 +278,10 @@ public class UpdateService extends IntentService {
 								} else{ System.out.println("no switch");
 									climbOnline.put("id_mode", climbing.getId_mode());
 								}
-								climbOnline.saveEventually();
-								climbing.setSaved(true);
-								climbingDao.update(climbing);
+//								climbOnline.saveEventually();
+//								climbing.setSaved(true);
+//								climbingDao.update(climbing);
+								ParseUtils.saveClimbing(climbOnline, climbing);
 								}else{
 									climbs.get(0).deleteEventually();
 									climbingDao.delete(climbing);
@@ -367,14 +369,16 @@ public class UpdateService extends IntentService {
 								stairs.remove(collaboration.getUser().getFBid());
 								collabParse.put("collaborators", collaborators);
 								collabParse.put("stairs", stairs);
-								collabParse.saveEventually();
-								collaboration.setSaved(true);
-								collaborationDao.update(collaboration);
+								ParseUtils.saveCollaboration(collabParse, collaboration);
+//								collabParse.saveEventually();
+//								collaboration.setSaved(true);
+//								collaborationDao.update(collaboration);
 							}else{
 								try {
 									stairs.put(collaboration.getUser().getFBid(), collaboration.getMy_stairs());
 									collabParse.put("stairs", stairs);
-									collabParse.saveEventually();
+									//collabParse.saveEventually();
+									ParseUtils.saveCollaboration(collabParse, collaboration);
 									collaboration.setId(collabParse.getObjectId());
 									collaboration.setSaved(true);
 									collaborationDao.update(collaboration);
@@ -485,14 +489,16 @@ public class UpdateService extends IntentService {
 								stairs.remove(competition.getUser().getFBid());
 								collabParse.put("competitors", collaborators);
 								collabParse.put("stairs", stairs);
-								collabParse.saveEventually();
-								competition.setSaved(true);
+								ParseUtils.saveCompetition(collabParse, competition);
+//								collabParse.saveEventually();
+//								competition.setSaved(true);
 								competitionDao.delete(competition);
 							}else{
 								try {
 									stairs.put(competition.getUser().getFBid(), competition.getMy_stairs());
 									collabParse.put("stairs", stairs);
-									collabParse.saveEventually();
+									//collabParse.saveEventually();
+									ParseUtils.saveCompetition(collabParse, competition);
 									competition.setId_online(collabParse.getObjectId());
 									competition.setSaved(true);
 									competitionDao.update(competition);
@@ -691,7 +697,8 @@ public class UpdateService extends IntentService {
 								duelParse.put("creator_stairs", creator_stairs);
 								duelParse.put("building", duel.getBuilding().get_id());
 								duelParse.put("completed", duel.isCompleted());
-								duelParse.saveEventually();
+								//duelParse.saveEventually();
+								ParseUtils.saveTeamDuel(duelParse, duel);
 								duel.setId_online(duelParse.getObjectId());
 								duel.setSaved(true);
 								teamDuelDao.update(duel);
@@ -760,7 +767,8 @@ public class UpdateService extends IntentService {
 							parseUser.put("badges", badgeParse);
 							parseUser.put("XP", badge.getUser().getXP());
 							parseUser.put("level", badge.getUser().getLevel());
-							parseUser.saveEventually();
+							//parseUser.saveEventually();
+							ParseUtils.saveUserInParse(parseUser);
 							badge.setSaved(true);
 							userBadgesDao.update(badge);
 						} catch (JSONException e1) {
@@ -801,7 +809,8 @@ public class UpdateService extends IntentService {
 							e1.printStackTrace();
 						}
 						parseUser.put("mean_daily_steps", stats);
-						parseUser.saveEventually();
+						//parseUser.saveEventually();
+						ParseUtils.saveUserInParse(parseUser);
 					}else{
 						Toast.makeText(context, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 						Log.e("UpdateService - save users", e.getMessage());
@@ -839,9 +848,10 @@ public class UpdateService extends IntentService {
 								mg.put("done_steps", microgoal.getDone_steps());
 								mg.put("tot_steps", microgoal.getTot_steps());
 							}
-							mg.saveEventually();
-							microgoal.setSaved(true);
-							microgoalDao.update(microgoal);
+							ParseUtils.saveMicrogoal(mg, microgoal);
+//							mg.saveEventually();
+//							microgoal.setSaved(true);
+//							microgoalDao.update(microgoal);
 						}
 					}else{
 						Toast.makeText(context, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();

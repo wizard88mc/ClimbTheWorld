@@ -39,6 +39,7 @@ import org.unipd.nbeghin.climbtheworld.models.UserBadge;
 import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 import org.unipd.nbeghin.climbtheworld.util.ModelsUtil;
+import org.unipd.nbeghin.climbtheworld.util.ParseUtils;
 import org.unipd.nbeghin.climbtheworld.util.StatUtils;
 import org.unipd.nbeghin.climbtheworld.util.SystemUiHider;
 
@@ -1161,9 +1162,10 @@ public class ClimbActivity extends ActionBarActivity {
 						else
 							c.put("id_mode", myclimbing.getId_mode());
 						c.put("game_mode", myclimbing.getGame_mode());
-						c.saveEventually();
-						myclimbing.setSaved(true);
-						ClimbApplication.climbingDao.update(myclimbing);
+						//c.saveEventually();
+						ParseUtils.saveClimbing(c, myclimbing);
+						//myclimbing.setSaved(true);
+						//ClimbApplication.climbingDao.update(myclimbing);
 					} else {
 						myclimbing.setSaved(false);
 						ClimbApplication.climbingDao.update(myclimbing);
@@ -1187,9 +1189,10 @@ public class ClimbActivity extends ActionBarActivity {
 		mg.put("building", microgoal.getBuilding().get_id());
 		mg.put("tot_steps", microgoal.getTot_steps());
 		mg.put("done_steps", microgoal.getDone_steps());
-		mg.saveEventually();
-		microgoal.setSaved(true);
-		ClimbApplication.microgoalDao.update(microgoal);
+//		mg.saveEventually();
+//		microgoal.setSaved(true);
+//		ClimbApplication.microgoalDao.update(microgoal);
+		ParseUtils.saveMicrogoal(mg, microgoal);
 	}
 
 	private void deleteMicrogoalInParse() {
@@ -1229,9 +1232,10 @@ public class ClimbActivity extends ActionBarActivity {
 				if (e == null) {
 					m.put("tot_steps", microgoal.getTot_steps());
 					m.put("done_steps", microgoal.getDone_steps());
-					m.saveEventually();
-					microgoal.setSaved(true);
-					ClimbApplication.microgoalDao.update(microgoal);
+					ParseUtils.saveMicrogoal(m, microgoal);
+//					m.saveEventually();
+//					microgoal.setSaved(true);
+//					ClimbApplication.microgoalDao.update(microgoal);
 				} else {
 					microgoal.setSaved(false);
 					ClimbApplication.microgoalDao.update(microgoal);
@@ -1370,7 +1374,8 @@ public class ClimbActivity extends ActionBarActivity {
 					stats.put("current_value", 0);
 					stats.put("n_days", 0);
 					user.put("mean_daily_steps", stats);
-					user.saveEventually();
+					//user.saveEventually();
+					ParseUtils.saveUserInParse(user);
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -1629,7 +1634,8 @@ public class ClimbActivity extends ActionBarActivity {
 				user.put("mean_daily_steps", stats);
 				user.put("mean", currentUser.getMean());
 				user.put("n_days", currentUser.getN_measured_days());
-				user.saveEventually();
+				//user.saveEventually();
+				ParseUtils.saveUserInParse(user);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -1658,12 +1664,13 @@ public class ClimbActivity extends ActionBarActivity {
 					collab_parse.put("completed", true);
 					collaboration.setCompleted(true);
 				}
-				collab_parse.saveEventually();
+				//collab_parse.saveEventually();
+				ParseUtils.saveCollaboration(collab_parse, collaboration);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			collaboration.setSaved(true);
+			//collaboration.setSaved(true);
 		}
 		if (collaboration.isCompleted())
 			ClimbApplication.collaborationDao.delete(collaboration);
@@ -1688,12 +1695,13 @@ public class ClimbActivity extends ActionBarActivity {
 					compet_parse.put("completed", true);
 					competition.setCompleted(true);
 				}
-				compet_parse.saveEventually();
+				//compet_parse.saveEventually();
+				ParseUtils.saveCompetition(compet_parse, competition);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			competition.setSaved(true);
+			//competition.setSaved(true);
 		}
 		if (competition.isCompleted())
 			ClimbApplication.competitionDao.delete(competition);
@@ -1721,12 +1729,13 @@ public class ClimbActivity extends ActionBarActivity {
 					teamDuel_parse.put("completed", true);
 					teamDuel.setCompleted(true);
 				}
-				teamDuel_parse.saveEventually();
+				//teamDuel_parse.saveEventually();
+				ParseUtils.saveTeamDuel(teamDuel_parse, teamDuel);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			teamDuel.setSaved(true);
+			//teamDuel.setSaved(true);
 		}
 		if (teamDuel.isCompleted())
 			ClimbApplication.teamDuelDao.delete(teamDuel);
@@ -1942,7 +1951,8 @@ public class ClimbActivity extends ActionBarActivity {
 									e1.printStackTrace();
 								}
 								teamDuel_parse.put("challenger_stairs", myTeam);
-								teamDuel_parse.saveEventually();
+								//teamDuel_parse.saveEventually();
+								ParseUtils.saveTeamDuel(teamDuel_parse, teamDuel);
 							} else {
 								myTeam = teamDuel_parse.getJSONObject("creator_stairs");
 								otherTeam = teamDuel_parse.getJSONObject("challenger_stairs");
@@ -1953,7 +1963,8 @@ public class ClimbActivity extends ActionBarActivity {
 									e1.printStackTrace();
 								}
 								teamDuel_parse.put("creator_stairs", myTeam);
-								teamDuel_parse.saveEventually();
+								//teamDuel_parse.saveEventually();
+								ParseUtils.saveTeamDuel(teamDuel_parse, teamDuel);
 							}
 							Iterator<String> keys = myTeam.keys();
 							while (keys.hasNext()) {
@@ -2064,7 +2075,8 @@ public class ClimbActivity extends ActionBarActivity {
 								e1.printStackTrace();
 							}
 							compet_parse.put("stairs", others);
-							compet_parse.saveEventually();
+							//compet_parse.saveEventually();
+							ParseUtils.saveCompetition(compet_parse, competition);
 							Iterator members = others.keys();
 							int i = 0;
 							chart = ModelsUtil.fromJsonToChart(others);
@@ -2221,8 +2233,9 @@ public class ClimbActivity extends ActionBarActivity {
 			newXP += extra;
 			Toast.makeText(getApplicationContext(), getString(R.string.bonus_team_duel, extra), Toast.LENGTH_SHORT).show();
 		}
-		final User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
-		int newLevel = ClimbApplication.levelUp(newXP, me.getLevel());
+		final User me = currentUser;
+		int newLevel = ClimbApplication.levelUp(me.getXP() + newXP, me.getLevel());
+		System.out.println("NEW LEVEL: " + newLevel);
 		me.setXP(me.getXP() + newXP);
 		if (newLevel != me.getLevel())
 			me.setLevel(newLevel);
@@ -2231,7 +2244,8 @@ public class ClimbActivity extends ActionBarActivity {
 			ParseUser currentUser = ParseUser.getCurrentUser();
 			currentUser.put("XP", me.getXP());
 			currentUser.put("level", me.getLevel());
-			currentUser.saveEventually();
+			//currentUser.saveEventually();
+			ParseUtils.saveUserInParse(currentUser);
 		}
 
 		/*
@@ -2327,7 +2341,8 @@ public class ClimbActivity extends ActionBarActivity {
 							newBadge.put("percentage", ub.getPercentage());
 							bs.put(newBadge);
 							user.put("badges", bs);
-							user.saveEventually();
+							//user.saveEventually();
+							ParseUtils.saveUserInParse(user);
 							ub.setSaved(true);
 							ClimbApplication.userBadgeDao.update(ub);
 						} catch (JSONException e1) {

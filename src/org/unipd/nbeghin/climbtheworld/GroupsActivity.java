@@ -41,6 +41,10 @@ import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+/**
+ * UNUSED
+ *
+ */
 public class GroupsActivity extends ActionBarActivity {
 	/** Called when the activity is first created. */
 	private ExpandListAdapter ExpAdapter;

@@ -35,12 +35,13 @@
         android:title="Share db"
         climbtheworld:showAsAction="never">
     </item>
-    <item
+    <!-- <item
         android:id="@+id/itemGroups"
         android:onClick="onShowGroups"
         android:title="@string/groups"
         climbtheworld:showAsAction="never">
-    </item>
+    </item> -->
+    
     <item
         android:id="@+id/itemNotifications"
         android:onClick="onUpdateNotifications"

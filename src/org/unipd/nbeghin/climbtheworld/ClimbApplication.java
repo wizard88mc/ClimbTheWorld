@@ -1,15 +1,15 @@
 package org.unipd.nbeghin.climbtheworld;
 
 import java.sql.SQLException;
-import java.text.ParseException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.SimpleTimeZone;
 import java.util.concurrent.TimeUnit;
 
 import org.json.JSONArray;
@@ -33,8 +33,11 @@ import org.unipd.nbeghin.climbtheworld.models.Tour;
 import org.unipd.nbeghin.climbtheworld.models.TourText;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.models.UserBadge;
+import org.unipd.nbeghin.climbtheworld.util.ParseUtils;
 
+import android.app.Activity;
 import android.app.Application;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -44,13 +47,23 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
+import com.facebook.Session;
+import com.facebook.model.GraphUser;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.Where;
+import com.parse.FindCallback;
+import com.parse.LogInCallback;
 import com.parse.Parse;
+import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+import com.parse.SignUpCallback;
 
 /*
  * Base class to maintain global application state
@@ -65,13 +78,11 @@ public class ClimbApplication extends Application{
 	public static boolean BUSY = false;
 	public static Object lock = new Object();
 	
+	//current application language
 	public static String language;
 	
 	public static List<Building> buildings;
-	public static List<Climbing> climbings /* = new ArrayList<Climbing>() */; // list
-																				// of
-																				// loaded
-																				// climbings
+	public static List<Climbing> climbings; // list of loaded climbings
 	public static List<Tour> tours; // list of loaded tours
 	public static List<Notification> notifications;
 	public static List<Collaboration> collaborations;
@@ -83,7 +94,10 @@ public class ClimbApplication extends Application{
 	public static List<TourText> tourTexts;
 	public static List<MicrogoalText> microgoalTexts;
 	public static List<Microgoal> microgoals;
+	
 	private ActionBar ab; // reference to action bar
+	
+	//DAOs
 	public static RuntimeExceptionDao<Building, Integer> buildingDao; // DAO for buildings
 	public static RuntimeExceptionDao<Collaboration, Integer> collaborationDao;
 	public static RuntimeExceptionDao<Competition, Integer> competitionDao;
@@ -100,6 +114,7 @@ public class ClimbApplication extends Application{
 	public static RuntimeExceptionDao<MicrogoalText, Integer> microgoalTextDao;
 	public static RuntimeExceptionDao<Microgoal, Integer> microgoalDao;
 
+	public static User currentUser;
 	
 	public static final String settings_file = "ClimbTheWorldPreferences";
 	public static final String settings_detected_sampling_rate = "samplingRate";
@@ -124,6 +139,10 @@ public class ClimbApplication extends Application{
 	
 	public static Context getContext(){
 		return sContext;
+	}
+	
+	public static void setCurrentUser(User user){ System.out.println("current user set");
+		currentUser = user;
 	}
 
 	 @Override
@@ -365,15 +384,6 @@ public class ClimbApplication extends Application{
 		public static void refreshClimbings() {
 			System.out.println("refreshClimbings");
 			SharedPreferences pref = sContext.getSharedPreferences("UserSession", 0);
-			/*
-			 * Map<String, Object> conditions = new HashMap<String, Object>();
-			 * conditions.put("users_id", pref.getInt("local_id", -1)); // filter
-			 * for building ID System.out.println("climbing di " +
-			 * pref.getInt("local_id", -1)); climbings =
-			 * climbingDao.queryForFieldValuesArgs(conditions);
-			 * System.out.println(climbings.size());
-			 */
-
 			QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
 			Where<Climbing, Integer> where = query.where();
 			// the name field must be equal to "foo"
@@ -420,7 +430,6 @@ public class ClimbApplication extends Application{
 		 * Queries
 		 */
 		
-		// per ogni edificio, una sola collaborazione
 		public static Collaboration getCollaborationByBuildingAndUser(int building_id, int user_id) {
 			SharedPreferences pref = sContext.getSharedPreferences("UserSession", 0);
 			QueryBuilder<Collaboration, Integer> query = collaborationDao.queryBuilder();
@@ -444,7 +453,6 @@ public class ClimbApplication extends Application{
 
 		}
 
-		// per ogni edificio, una sola collaborazione
 		public static Competition getCompetitionByBuildingAndUser(int building_id, int user_id) {
 			SharedPreferences pref = sContext.getSharedPreferences("UserSession", 0);
 			QueryBuilder<Competition, Integer> query = competitionDao.queryBuilder();
@@ -557,21 +565,12 @@ public class ClimbApplication extends Application{
 		}
 
 		public static Climbing getClimbingForBuildingAndUser(int building_id, int user_id) {
-			/*
-			 * Map<String, Object> conditions = new HashMap<String, Object>();
-			 * conditions.put("building_id", building_id); // filter for building ID
-			 * conditions.put("users_id", user_id); Log.d("cerco",
-			 * String.valueOf(user_id)); List<Climbing> climbings = climbingDao
-			 * .queryForFieldValuesArgs(conditions);
-			 */
 			QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
 			Where<Climbing, Integer> where = query.where();
-			// the name field must be equal to "foo"
 			try {
 				where.eq("building_id", building_id);
 				// and
 				where.and();
-				// the password field must be equal to "_secret"
 				where.eq("users_id", user_id);
 				PreparedQuery<Climbing> preparedQuery = query.prepare();
 				List<Climbing> climbings = climbingDao.query(preparedQuery);
@@ -587,13 +586,6 @@ public class ClimbApplication extends Application{
 		}
 
 		public static Climbing getClimbingForParseId(int id) {
-			/*
-			 * Map<String, Object> conditions = new HashMap<String, Object>();
-			 * conditions.put("building_id", building_id); // filter for building ID
-			 * conditions.put("users_id", user_id); Log.d("cerco",
-			 * String.valueOf(user_id)); List<Climbing> climbings = climbingDao
-			 * .queryForFieldValuesArgs(conditions);
-			 */
 			QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
 			Where<Climbing, Integer> where = query.where();
 			// the name field must be equal to "foo"
@@ -613,21 +605,13 @@ public class ClimbApplication extends Application{
 		}
 
 		public static Climbing getClimbingForBuildingAndUserNotPaused(int building_id, int user_id) {
-			/*
-			 * Map<String, Object> conditions = new HashMap<String, Object>();
-			 * conditions.put("building_id", building_id); // filter for building ID
-			 * conditions.put("users_id", user_id); Log.d("cerco",
-			 * String.valueOf(user_id)); List<Climbing> climbings = climbingDao
-			 * .queryForFieldValuesArgs(conditions);
-			 */
+
 			QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
 			Where<Climbing, Integer> where = query.where();
-			// the name field must be equal to "foo"
 			try {
 				where.eq("building_id", building_id);
 				// and
 				where.and();
-				// the password field must be equal to "_secret"
 				where.eq("users_id", user_id);
 				where.and();
 				where.ne("id_mode", "paused");
@@ -645,21 +629,12 @@ public class ClimbApplication extends Application{
 		}
 
 		public static Climbing getClimbingForBuildingAndUserPaused(int building_id, int user_id) {
-			/*
-			 * Map<String, Object> conditions = new HashMap<String, Object>();
-			 * conditions.put("building_id", building_id); // filter for building ID
-			 * conditions.put("users_id", user_id); Log.d("cerco",
-			 * String.valueOf(user_id)); List<Climbing> climbings = climbingDao
-			 * .queryForFieldValuesArgs(conditions);
-			 */
 			QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
 			Where<Climbing, Integer> where = query.where();
-			// the name field must be equal to "foo"
 			try {
 				where.eq("building_id", building_id);
 				// and
 				where.and();
-				// the password field must be equal to "_secret"
 				where.eq("users_id", user_id);
 				where.and();
 				where.eq("id_mode", "paused");
@@ -679,12 +654,10 @@ public class ClimbApplication extends Application{
 
 			QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
 			Where<Climbing, Integer> where = query.where();
-			// the name field must be equal to "foo"
 			try {
 				where.eq("building_id", building_id);
 				// and
 				where.and();
-				// the password field must be equal to "_secret"
 				where.eq("users_id", user_id);
 				PreparedQuery<Climbing> preparedQuery = query.prepare();
 				List<Climbing> climbings = climbingDao.query(preparedQuery);
@@ -973,6 +946,13 @@ public class ClimbApplication extends Application{
 			return TimeUnit.MILLISECONDS.toDays(millDiff);
 		}
 		
+		/**
+		 * Calculates the new mean value
+		 * @param old_mean the previous mean value
+		 * @param n number of elements of the previous mean
+		 * @param new_val new value to add in new the mean value
+		 * @return the new mean value 
+		 */
 		public static double calculateNewMean(long old_mean, int n, int new_val){
 			long sum_old_mean = old_mean * n;
 			return (sum_old_mean + new_val) / (n + 1);
@@ -996,12 +976,152 @@ public class ClimbApplication extends Application{
 			return Math.round(((n+5)/10)*10);
 		}
 		
-		//TODO
+		/**
+		 * Calculates the number of steps to be done in a microgoal
+		 * @param remainingSteps remaining steps to do to complete a given climbing
+		 * @param d average daily steps of a given user
+		 * @return number of steps to be done in order to complete a microgoal
+		 */
 		public static int generateStepsToDo(int remainingSteps, double d){
 			if(d >= remainingSteps)
 				return remainingSteps;
 			else{
 				return (int) roundUpMultiple10(d);
 			}
+		}
+		
+		/**
+		 * Saves the current logged in user (and its data) in the cloud.
+		 * @param fbUser
+		 * @param session
+		 */
+		public static void saveUserToParse(GraphUser fbUser, Session session) {
+			//create new parse user
+			SharedPreferences pref = getContext().getSharedPreferences("UserSession", 0);
+			ParseUser user = new ParseUser();
+			user.setUsername(fbUser.getName());
+			user.setPassword("");
+			user.put("FBid", fbUser.getId()); 
+			user.put("level", currentUser.getLevel());
+			user.put("XP", currentUser.getXP());
+			JSONArray badges = new JSONArray();
+			List<UserBadge> ubs = ClimbApplication.getUserBadgeByUser(currentUser.get_id());
+			for (UserBadge ub : ubs) {
+				JSONObject badge = new JSONObject();
+				try {
+					badge.put("badge_id", ub.getBadge().get_id());
+					badge.put("obj_id", ub.getObj_id());
+					badge.put("perentage", ub.getPercentage());
+					badges.put(badge);
+				} catch (JSONException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
+			}
+			user.put("badges", badges);
+			user.signUpInBackground(new SignUpCallback() {
+				public void done(ParseException e) {
+					if (e == null) {
+						saveProgressToParse();
+					} else {
+						Toast.makeText(getContext(), getContext().getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
+						Log.e("signUpInBackground", e.getMessage());
+						// Sign up didn't succeed. Look at the ParseException
+						// to figure out what went wrong
+					}
+				}
+			});
+		}
+
+		/**
+		 * Saves current user's climbings and microgoal in parse
+		 */
+		static void saveProgressToParse() {
+			ClimbApplication.refreshClimbings();
+			System.out.println(ClimbApplication.climbings.size());
+			for (Climbing climbing : ClimbApplication.climbings) {
+				DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+				df.setTimeZone(new SimpleTimeZone(0, "GMT"));
+				ParseObject climb = new ParseObject("Climbing");
+				climb.put("building", climbing.getBuilding().get_id());
+				try {
+					climb.put("created", df.parse(df.format(climbing.getCreated())));
+					climb.put("modified", df.parse(df.format(climbing.getModified())));
+					climb.put("completedAt", df.parse(df.format(climbing.getCompleted())));
+				} catch (java.text.ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				climb.put("completed_steps", climbing.getCompleted_steps());
+				climb.put("remaining_steps", climbing.getRemaining_steps());
+				climb.put("percentage", String.valueOf(climbing.getPercentage()));
+				climb.put("users_id", climbing.getUser().getFBid());
+				climb.put("game_mode", climbing.getGame_mode());
+				//climb.saveEventually();
+				ParseUtils.saveClimbing(climb, climbing);
+
+			}
+			ClimbApplication.refreshMicrogoals();
+			for (Microgoal micro : ClimbApplication.microgoals) {
+				ParseObject m = new ParseObject("Microgoal");
+				m.put("user_id", micro.getUser().getFBid());
+				m.put("building", micro.getBuilding().get_id());
+				m.put("story_id", micro.getStory_id());
+				m.put("tot_steps", micro.getTot_steps());
+				m.put("done_steps", micro.getDone_steps());
+				//m.saveEventually();
+				ParseUtils.saveMicrogoal(m, micro);
+			}
+		}
+		
+		/**
+		 * Checks if current fb logged in user exists in Parse and, if it does, logs him in parse and downloads/updates its progress and data with the one in the cloud.
+		 * @param fbUser 
+		 * @param session
+		 * @param PD
+		 * @param activity
+		 */
+		public static void userExists(final GraphUser fbUser, final Session session, final ProgressDialog PD, final Activity activity) {
+			final User me = ClimbApplication.currentUser;//ClimbApplication.getUserByFBId(fbUser.getId());
+			ParseQuery<ParseUser> sameFBid = ParseUser.getQuery();
+			sameFBid.whereEqualTo("FBid", fbUser.getId());
+			sameFBid.findInBackground(new FindCallback<ParseUser>() {
+				public void done(List<ParseUser> results, ParseException e) {
+					if (results.isEmpty()) {// user not saved in Parse
+						ClimbApplication.saveUserToParse(fbUser, session);
+					} else {// user already saved in Parse
+						ParseUser user = results.get(0);
+						ParseUser.logInInBackground(user.getUsername(), "", new LogInCallback() {
+							public void done(ParseUser user, ParseException e) {
+								if (user != null) {
+									// Hooray! The user is logged in.
+									me.setLevel(user.getInt("level"));
+			    		    				me.setXP(user.getInt("XP"));
+			    		    				JSONObject stats = user.getJSONObject("man_daily_steps");
+			    		    				if (stats != null && stats.length() > 0) {
+			    		    				try {		
+			    		    					me.setBegin_date(String.valueOf(stats.getLong("begin_date")));
+				    		    				me.setMean(stats.getLong("mean"));
+				    		    				me.setN_measured_days(stats.getInt("n_days"));
+				    		    				me.setCurrent_steps_value(stats.getInt("current_value"));
+											} catch (JSONException e1) {
+												// TODO Auto-generated catch block
+												e1.printStackTrace();
+											}
+			    		    				}
+			    		    				ClimbApplication.userDao.update(me);
+									new MyAsync(activity, PD).execute();
+								} else {
+									// Signup failed. Look at the ParseException to
+									// see what happened.
+									Toast.makeText(getContext(), getContext().getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
+									Log.e("userExists", e.getMessage());
+								}
+							}
+						});
+					}
+				}
+			});
 		}
 }

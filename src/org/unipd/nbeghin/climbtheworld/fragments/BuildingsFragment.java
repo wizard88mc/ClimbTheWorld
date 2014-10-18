@@ -66,7 +66,7 @@ public class BuildingsFragment extends Fragment {
 								Log.i("Building Fragment", "Building id clicked: " + building.getBuilding().get_id());
 								Intent intent = new Intent(getActivity().getApplicationContext(), TeamPreparationActivity.class);
 								intent.putExtra(ClimbApplication.counter_mode, false);
-								intent.putExtra(ClimbApplication.building_text_intent_object, building.get_id());
+								intent.putExtra(ClimbApplication.building_text_intent_object, building.getBuilding().get_id());
 								getActivity().startActivity(intent);
 							}
 						} else {

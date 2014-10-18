@@ -25,6 +25,7 @@ import org.unipd.nbeghin.climbtheworld.models.NotificationType;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
+import org.unipd.nbeghin.climbtheworld.util.ParseUtils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -297,24 +298,9 @@ public class NotificationCard extends Card {
 																				climbParse.put("percentage", String.valueOf(climb.getPercentage()));
 																				climbParse.put("completed_steps", climb.getCompleted_steps());
 																				climbParse.put("remaining_steps", climb.getRemaining_steps());
-																				climbParse.saveEventually();
-//																				climbParse.saveInBackground(new SaveCallback() {
-//																					
-//																					@Override
-//																					public void done(ParseException e) {
-//																						if(e == null){
-//																							climbing.setId_online(climbingParse.getObjectId());
-//																							climbing.setSaved(true);
-//																							ClimbApplication.climbingDao.update(climbing);
-//																						}else{
-//																							climbing.setSaved(false);
-//																							ClimbApplication.climbingDao.update(climbing);
-//																							Toast.makeText(ClimbApplication.getContext(), "Connection problem", Toast.LENGTH_SHORT).show();
-//																							Log.d("Connection problem", "Error: " + e.getMessage());
-//																						}
-//																						
-//																					}
-//																				});
+																				//climbParse.saveEventually();
+																				ParseUtils.saveClimbing(climbParse, climb);
+//																				
 																			} else {
 																				climb.setSaved(false);
 																				ClimbApplication.climbingDao.update(climb);

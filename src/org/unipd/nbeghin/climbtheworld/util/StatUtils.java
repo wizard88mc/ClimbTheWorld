@@ -5,11 +5,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.exceptions.NoStatFound;
 import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.Stat;
+
 
 import android.util.Log;
 
@@ -37,64 +39,64 @@ public class StatUtils {
 
 	public static List<Stat> calculateStats() {
 		List<Stat> stats = new ArrayList<Stat>();
-		String statName = "Fastest building so far";
+		String statName = ClimbApplication.getContext().getString(R.string.fastest);
 		String sql = "SELECT building_id,MIN(completed-created) FROM climbings WHERE completed>created";
 		try {
 			String building_id = execQuery(sql);
 			Building building = ClimbApplication.buildingDao.queryForId(Integer.valueOf(building_id));
 			stats.add(new Stat(statName, building.getName()));
 		} catch (NoStatFound e) {
-			stats.add(new Stat(statName, "No completed climbing yet"));
+			stats.add(new Stat(statName, ClimbApplication.getContext().getString(R.string.no_completed_yet)));
 		} catch (Exception e) {
 			Log.e(MainActivity.AppName, "SQL exception: " + e.getMessage());
 		}
-		statName = "Climbed buildings";
+		statName = ClimbApplication.getContext().getString(R.string.climbed_buildings);
 		sql = "SELECT COUNT(*) FROM climbings WHERE completed>0";
 		try {
 			String count = execQuery(sql);
-			stats.add(new Stat(statName, count + " buildings have been climbed so far"));
+			stats.add(new Stat(statName, ClimbApplication.getContext().getString(R.string.n_climbed_buildings, count) ));
 		} catch (NoStatFound e) {
-			stats.add(new Stat(statName, "No completed climbing yet"));
+			stats.add(new Stat(statName, ClimbApplication.getContext().getString(R.string.no_completed_yet)));
 		} catch (Exception e) {
 			Log.e(MainActivity.AppName, "SQL exception: " + e.getMessage());
 		}
-		statName = "In-progress climbings";
+		statName = ClimbApplication.getContext().getString(R.string.in_progress);
 		sql = "SELECT COUNT(*) FROM climbings WHERE completed=0";
 		try {
 			String count = execQuery(sql);
-			stats.add(new Stat(statName, count + " buildings in progress"));
+			stats.add(new Stat(statName, ClimbApplication.getContext().getString(R.string.n_in_progress, count)));
 		} catch (NoStatFound e) {
-			stats.add(new Stat(statName, "No completed climbing yet"));
+			stats.add(new Stat(statName, ClimbApplication.getContext().getString(R.string.no_completed_yet)));
 		} catch (Exception e) {
 			Log.e(MainActivity.AppName, "SQL exception: " + e.getMessage());
 		}
-		statName = "Climbings so far";
+		statName = ClimbApplication.getContext().getString(R.string.climbings);
 		sql = "SELECT COUNT(*) FROM climbings";
 		try {
 			String count = execQuery(sql);
-			stats.add(new Stat(statName, count + " climbings so far"));
+			stats.add(new Stat(statName, ClimbApplication.getContext().getString(R.string.n_climbings, count)));
 		} catch (NoStatFound e) {
-			stats.add(new Stat(statName, "No climbing yet"));
+			stats.add(new Stat(statName, ClimbApplication.getContext().getString(R.string.no_climbing)));
 		} catch (Exception e) {
 			Log.e(MainActivity.AppName, "SQL exception: " + e.getMessage());
 		}
-		statName = "Available buildings";
+		statName = ClimbApplication.getContext().getString(R.string.available_buildings);
 		sql = "SELECT COUNT(*) FROM buildings";
 		try {
 			String count = execQuery(sql);
-			stats.add(new Stat(statName, count + " buildings"));
+			stats.add(new Stat(statName, ClimbApplication.getContext().getString(R.string.n_buildings,count)));
 		} catch (NoStatFound e) {
-			stats.add(new Stat(statName, "No building"));
+			stats.add(new Stat(statName, ClimbApplication.getContext().getString(R.string.no_building)));
 		} catch (Exception e) {
 			Log.e(MainActivity.AppName, "SQL exception: " + e.getMessage());
 		}
-		statName = "Available tours";
+		statName = ClimbApplication.getContext().getString(R.string.available_tours);
 		sql = "SELECT COUNT(*) FROM tours";
 		try {
 			String count = execQuery(sql);
-			stats.add(new Stat(statName, count + " tours"));
+			stats.add(new Stat(statName, ClimbApplication.getContext().getString(R.string.n_tours, count)));
 		} catch (NoStatFound e) {
-			stats.add(new Stat(statName, "No tour"));
+			stats.add(new Stat(statName, ClimbApplication.getContext().getString(R.string.no_tour)));
 		} catch (Exception e) {
 			Log.e(MainActivity.AppName, "SQL exception: " + e.getMessage());
 		}

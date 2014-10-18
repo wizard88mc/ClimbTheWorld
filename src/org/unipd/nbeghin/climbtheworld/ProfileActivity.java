@@ -39,6 +39,7 @@ public class ProfileActivity extends Activity {
 		((TextView) findViewById(R.id.textLevel)).setText(getString(R.string.level, String.valueOf((me.getLevel()))));
 		((TextView) findViewById(R.id.textXP)).setText(String.valueOf(me.getXP()) + " XP");
 		((TextView) findViewById(R.id.MyStepsText)).setText(getString(R.string.mean_text, String.valueOf(me.getMean())));
+		((TextView) findViewById(R.id.textCurrentValue)).setText(getString(R.string.today_step, String.valueOf(me.getCurrent_steps_value())));
 		int total = ClimbApplication.levelToXP(me.getLevel() + 1);
 		int percentage = 0;
 		if(total != 0)

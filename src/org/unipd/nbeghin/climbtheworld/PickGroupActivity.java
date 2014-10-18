@@ -28,7 +28,10 @@ import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.ExpandableListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
-
+/**
+ * UNUSED 
+ *
+ */
 public class PickGroupActivity extends Activity{
 
 	private ExpandListAdapter ExpAdapter;

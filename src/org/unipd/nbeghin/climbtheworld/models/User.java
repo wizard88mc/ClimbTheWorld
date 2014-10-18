@@ -2,8 +2,17 @@ package org.unipd.nbeghin.climbtheworld.models;
 
 import java.io.Serializable;
 
+import org.unipd.nbeghin.climbtheworld.ClimbApplication;
+import org.unipd.nbeghin.climbtheworld.R;
+
+import android.util.Log;
+import android.widget.Toast;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+import com.parse.ParseException;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 @DatabaseTable(tableName = "users")
 public class User implements Serializable{

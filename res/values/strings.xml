@@ -30,6 +30,8 @@
     <string name="climb_status">Climbing status: %1$s%% (last attempt: %2$s)</string>
     <string name="connection_needed">Connection needed</string>
     <string name="reward">Reward: %d XP</string>
+    <string name="not_yet_microgoal">Start climbing to create the first goal</string>
+    <string name="back_solo_climb">Back to Solo Climb</string>
     
     <!-- General Toasts -->
     <string name="connection_problem">Problem with connections</string>
@@ -85,11 +87,23 @@
     <!-- SettingsActivity -->
     <string name="not_logged_in">Not logged in</string>
     <string name="no_user_defined">No user defined</string>
+    <string name="settings_title">Settings</string>
+    <string name="no_profile_set">No profile set yet</string>
+    <string name="title_profile">Profile</string>
+    <string name="climbing_settings">Climbing setting</string>
+    <string name="title_difficulty">Difficulty</string>
+    <string name="text_not_logged">Not connected to Facebook</string>
+    <string name="com_facebook_loginview_log_in_button">Log in with Facebook</string>
+    <string name="com_facebook_loginview_log_out_button">Logout</string>
+    
+    <string name="logged_as">Hello, %s!</string>
+    <string name="owner">You are the owner of this phone</string>
     
     <!-- ProfileActivity -->
     <string name="level">Level: %s</string>
     <string name="climbBtn">Improve yourself</string>
     <string name="mean_text">Average daily steps: %s</string>
+    <string name="today_step">Today\'s steps: %s</string>
     
     <!-- PickGroupActivity -->
     <string name="pick_group">  Pick this group</string>
@@ -145,18 +159,7 @@
     <string name="team_one">Team One</string>
     <string name="team_two">Team Two</string>
     <string name="creator">Creator: </string>
-    
-    <!-- SettingsActivity -->
-    <string name="settings_title">Settings</string>
-    <string name="no_profile_set">No profile set yet</string>
-    <string name="title_profile">Profile</string>
-    <string name="climbing_settings">Climbing settings</string>
-    <string name="title_difficulty">Difficulty</string>
-    <string name="text_not_logged">Not logged to Facebook</string>
-
-    <string name="com_facebook_loginview_log_in_button">Log in with Facebook</string>
-    <string name="com_facebook_loginview_log_out_button">Logout</string>
-
+        
     <!-- string activity setting -->
     <string name="easy">Easy</string>
     <string name="normal">Normal</string>
@@ -184,4 +187,20 @@
     <string name="title_dialog">Goal</string>
     <string name="reward_dialog">Reward: %d XP</string>
     
+    <!-- StatsUtils -->
+    <string name="fastest">Fastest building so far</string>
+    <string name="no_completed_yet">No completed climbing yet</string>
+    <string name="no_tour">No tour</string>
+    <string name="no_building">No building</string>
+    <string name="no_climbing">No climbing yet</string>
+    <string name="climbed_buildings">Climbed buildings</string>
+    <string name="n_climbed_buildings">%s buildings have been climbed so far</string>	
+    <string name="in_progress">In-progress climbings</string>
+    <string name="n_in_progress">%s buildings in progress</string>
+    <string name="climbings">Climbings so far</string> 
+    <string name="n_climbings">%s climbings so far</string>   
+    <string name="available_buildings">Available buildings</string>
+    <string name="available_tours">Available tours</string>
+    <string name="n_buildings">%s buildings</string>
+    <string name="n_tours">%s tours</string>
 </resources>

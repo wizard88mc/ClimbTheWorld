@@ -21,7 +21,10 @@ import com.facebook.model.GraphObject;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.FacebookDialog;
 import com.facebook.widget.ProfilePictureView;
-
+/**
+ * UNUSED
+ *
+ */
 public class BaseFBActivity extends ActionBarActivity {
 	protected UiLifecycleHelper		uiHelper;
 	protected static final int		REAUTH_ACTIVITY_CODE	= 100;

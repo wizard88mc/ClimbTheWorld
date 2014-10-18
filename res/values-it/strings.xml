@@ -23,12 +23,14 @@
     <string name="title_activity_groups">Gruppi</string>
         
     <!-- BuildingCard -->
-     <string name="steps"> scalini (</string>
+    <string name="steps"> scalini (</string>
     <string name="mode">Modalità: </string>
     <string name="notClimbedYet">Non ancora scalato</string>
     <string name="climb_complete">Scalata: COMPLETATA! (%s)</string>
     <string name="climb_status">Stato della scalata: %1$s%% (ultimo tentativo: %2$s)</string>
     <string name="reward">Premio: %d XP</string>
+    <string name="not_yet_microgoal">Inizia la scalata per avere il primo obiettivo</string>
+    <string name="back_solo_climb">Torna a Solo Climb</string>
     
     <!-- General Toasts -->
     <string name="connection_problem">Problemi di Connessione</string>
@@ -91,6 +93,7 @@
     <string name="level">Livello: %s</string>
     <string name="climbBtn">Migliorati</string>
     <string name="mean_text">Media scalini giornalieri: %s</string>
+    <string name="today_step">Scalini di oggi: %s</string>
     
     <!-- PickGroupActivity -->
     <string name="pick_group">  Scegli questo gruppo</string>
@@ -154,9 +157,11 @@
     <string name="climbing_settings">Impostazioni della scalata</string>
     <string name="title_difficulty">Difficoltà</string>
     <string name="text_not_logged">Non connesso a Facebook</string>
-    
     <string name="com_facebook_loginview_log_in_button">Accedi con Facebook</string>
     <string name="com_facebook_loginview_log_out_button">Logout</string>
+    <string name="logged_as">Ciao, %s!</string>
+    <string name="owner">Sei il possessore di questo telefono</string>
+
     
     <!-- string activity setting -->
     <string name="easy">Facile</string>
@@ -185,6 +190,20 @@
     <string name="title_dialog">Obiettivo</string>
     <string name="reward_dialog">Premio: %d XP</string>
     
-    
-   
+    <!-- StatsUtils -->
+    <string name="fastest">Edificio scalato più velocemente</string>
+    <string name="no_completed_yet">Nessuna scalata ancora completata</string>
+    <string name="no_tour">Nessun Tour</string>
+    <string name="no_building">Nessun edificio</string>
+    <string name="no_climbing">Ancora nessuna scalata</string>
+    <string name="climbed_buildings">Edifici scalati</string>
+    <string name="n_climbed_buildings">%s edifici scalati finora</string>	
+    <string name="in_progress">Scalate in corso</string>
+    <string name="n_in_progress">%s scalate in corso</string>
+    <string name="climbings">Scalate fatte finora</string> 
+    <string name="n_climbings">%s scalate fatte finora</string> 
+    <string name="available_buildings">Edifici disponibili</string>
+    <string name="available_tours">Tour disponibili</string>
+    <string name="n_buildings">%s edifici</string>
+    <string name="n_tours">%s tour</string>
 </resources>
