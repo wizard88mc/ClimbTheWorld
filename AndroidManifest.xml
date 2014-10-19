@@ -117,6 +117,7 @@
         <activity
             android:name=".FBPickFriendActivity"
             android:label="@string/title_activity_fbpick_friend"
+            android:screenOrientation="portrait"
             android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

@@ -6,11 +6,17 @@ import java.util.List;
 import org.json.JSONObject;
 import org.unipd.nbeghin.climbtheworld.adapters.CheckboxListViewAdapter;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
-import org.w3c.dom.Text;
 
-import android.app.Activity;
+import android.app.SearchManager;
+import android.content.Context;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -27,13 +33,13 @@ import com.facebook.FacebookOperationCanceledException;
 import com.facebook.Session;
 import com.facebook.widget.WebDialog;
 
-public class FBPickFriendActivity extends Activity {
+public class FBPickFriendActivity extends ActionBarActivity {
 
-	private List<String> idsToInvite = new ArrayList<String>();
+	public static List<String> idsToInvite = new ArrayList<String>();
 	private ListView invitableList;
 	private Button doneButton;
 	private TextView noInvitable;
-
+	private CheckboxListViewAdapter adapter;
 	// Parameters of a WebDialog that should be displayed
     private WebDialog dialog = null;
     private String dialogAction = null;
@@ -55,7 +61,7 @@ public class FBPickFriendActivity extends Activity {
 			invitableList.setVisibility(View.VISIBLE);
 		}
 
-		final CheckboxListViewAdapter adapter = new CheckboxListViewAdapter(this, ClimbApplication.invitableFriends);
+		adapter = new CheckboxListViewAdapter(this, ClimbApplication.invitableFriends);
 		invitableList.setAdapter(adapter);
 
 		invitableList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -132,5 +138,43 @@ public class FBPickFriendActivity extends Activity {
 	// Show user error message as a toast
 		void showError(String error) {
 			Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+		}
+		
+		@Override
+		public boolean onCreateOptionsMenu(Menu menu) {
+//			// Inflate the menu; this adds items to the action bar if it is present.
+//			getMenuInflater().inflate(R.menu.actionbar, menu);
+//			return true;
+			 getMenuInflater().inflate(R.menu.fb_invite, menu);
+
+		        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+		        MenuItem menuitem = (MenuItem) menu.findItem(R.id.action_search_friend);
+		        SearchView searchView = (SearchView) MenuItemCompat.getActionView(menuitem);
+		        
+		        if (null != searchView )
+		        {
+		            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+		            searchView.setIconifiedByDefault(false);   
+		        }
+
+		        SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() 
+		        {
+		            public boolean onQueryTextChange(String newText) 
+		            {
+		                // this is your adapter that will be filtered
+		                adapter.getFilter().filter(newText);
+		                return true;
+		            }
+
+		            public boolean onQueryTextSubmit(String query) 
+		            {
+		                // this is your adapter that will be filtered
+		                adapter.getFilter().filter(query);
+		                return true;
+		            }
+		        };
+		        searchView.setOnQueryTextListener(queryTextListener);
+
+		        return super.onCreateOptionsMenu(menu);
 		}
 }

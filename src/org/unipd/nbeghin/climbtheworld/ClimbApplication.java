@@ -1186,7 +1186,7 @@ public class ClimbApplication extends Application{
 
 			});
 			Bundle invitableParams = new Bundle();
-			invitableParams.putString("fields", "id,first_name,picture");
+			invitableParams.putString("fields", "id,first_name,last_name,picture");
 			invitableFriendsRequest.setParameters(invitableParams);
 			requestBatch.add(invitableFriendsRequest);
 						

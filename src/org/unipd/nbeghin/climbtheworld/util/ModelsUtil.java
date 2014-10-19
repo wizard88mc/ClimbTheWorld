@@ -103,4 +103,11 @@ public class ModelsUtil {
 	return Njarray;
 	}
 	
+	public static boolean contains(ArrayList<JSONObject> list, JSONObject obj){
+		for(JSONObject o : list){
+			if(o.optString("id").equals(obj.optString("id")))
+				return true;
+		}
+		return false;
+	}
 }
