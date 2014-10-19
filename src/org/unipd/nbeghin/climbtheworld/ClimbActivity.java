@@ -1336,6 +1336,8 @@ public class ClimbActivity extends ActionBarActivity {
 
 		} else {
 			microgoal = ClimbApplication.getMicrogoalByUserAndBuilding(pref.getInt("local_id", -1), building.get_id());
+			if(microgoal == null)
+				createMicrogoal();
 			num_steps = climbing.getCompleted_steps();
 			percentage = climbing.getPercentage();
 			Log.i(MainActivity.AppName, "Loaded existing climbing (#" + climbing.get_id() + ")");

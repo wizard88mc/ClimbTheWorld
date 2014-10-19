@@ -186,6 +186,7 @@
     <string name="accept">Ok, let\'s do it!!!!</string>
     <string name="title_dialog">Goal</string>
     <string name="reward_dialog">Reward: %d XP</string>
+    <string name="welcome">Hello, %s</string>
     
     <!-- StatsUtils -->
     <string name="fastest">Fastest building so far</string>

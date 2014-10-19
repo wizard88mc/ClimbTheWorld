@@ -42,9 +42,10 @@ public class MyAsync extends AsyncTask<Void, Void, Void> {
 	final SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
 
 	// Session session;
-	ParseUser user;
-	Activity activity;
-	ProgressDialog PD;
+	private ParseUser user;
+	private Activity activity;
+	private ProgressDialog PD;
+	private User me;
 	
 	MyAsync(/*ParseUser user, */Activity activity, ProgressDialog PD) {
 		// session = session;
@@ -57,6 +58,7 @@ public class MyAsync extends AsyncTask<Void, Void, Void> {
 	protected void onPreExecute() {
 
 		super.onPreExecute();
+		me = ClimbApplication.getUserById(activity.getSharedPreferences("UserSession", 0).getInt("local_id", -1));
 		PD = new ProgressDialog(activity);
 		PD.setTitle(activity.getString(R.string.wait));
 		PD.setMessage(activity.getString(R.string.loading_progress));
@@ -91,6 +93,8 @@ public class MyAsync extends AsyncTask<Void, Void, Void> {
 		PD.dismiss();
 		if(activity instanceof MainActivity)
 			((MainActivity)activity).onUpdateNotifications(null);
+		Toast.makeText(activity, activity.getString(R.string.welcome, me.getName()), Toast.LENGTH_SHORT).show();
+
 	}
 	
 //	private void saveBadges(JSONArray badges) {

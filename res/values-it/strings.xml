@@ -189,6 +189,7 @@
     <string name="accept">Ok, ci sto!!!!</string>
     <string name="title_dialog">Obiettivo</string>
     <string name="reward_dialog">Premio: %d XP</string>
+    <string name="welcome">Ciao, %s</string>
     
     <!-- StatsUtils -->
     <string name="fastest">Edificio scalato più velocemente</string>
