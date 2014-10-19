@@ -7,7 +7,6 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.unipd.nbeghin.climbtheworld.models.Building;
-import org.unipd.nbeghin.climbtheworld.models.Group;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 
 import android.content.Context;
@@ -235,11 +234,11 @@ System.out.println(building_id + " " + pref.getInt("local_id", -1));
 	 */
 	private void showTeams(ParseObject duelParse, boolean isUpdate) throws JSONException{
 		if(duel.getCreator_name() != null && !duel.getCreator_name().equals(""))
-			creatorName.setText(getString(R.string.creator) + duel.getCreator_name());
+			creatorName.setText(getString(R.string.creator) + " " +  duel.getCreator_name());
 		else
 			creatorName.setText(getString(R.string.creator) + " - ");
 		if ((duel.getChallenger_name() != null && !duel.getChallenger_name().equals("")) )
-			challengerName.setText(getString(R.string.creator) + duel.getChallenger_name());
+			challengerName.setText(getString(R.string.creator) + " " + duel.getChallenger_name());
 		else
 			challengerName.setText(getString(R.string.creator) + " - ");
 		if(duel.isCreator()){
@@ -265,6 +264,15 @@ System.out.println(building_id + " " + pref.getInt("local_id", -1));
 				addMyMembersBtn.setEnabled(true);
 			else
 				addMyMembersBtn.setEnabled(false);
+		}else if(duel.isChallenger()){
+			if(myTeam.length() < 5)
+				addChallengerTeamBtn.setEnabled(true);
+			else
+				addChallengerTeamBtn.setEnabled(false);
+		}else{
+			addChallengerTeamBtn.setEnabled(false);
+			addMyMembersBtn.setEnabled(false);
+			addChallengerBtn.setEnabled(false);
 		}
 		if(myTeam.length() == 5 && challengerTeam.length() == 5){
 			startPlay.setEnabled(true);

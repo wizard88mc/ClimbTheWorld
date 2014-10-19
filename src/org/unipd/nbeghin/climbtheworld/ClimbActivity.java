@@ -2002,14 +2002,14 @@ public class ClimbActivity extends ActionBarActivity {
 							teamDuel.setMy_steps(num_steps);
 							ClimbApplication.teamDuelDao.update(teamDuel);
 							if (teamDuel.getMygroup() == Group.CHALLENGER) {
-								group_members.get(0).setText(getString(R.string.team_of) + teamDuel.getChallenger_name());
+								group_members.get(0).setText(getString(R.string.team_of) + " " + teamDuel.getChallenger_name());
 								group_steps.get(0).setText(String.valueOf(teamDuel.getSteps_my_group()));
-								group_members.get(1).setText(getString(R.string.team_of) + teamDuel.getCreator_name());
+								group_members.get(1).setText(getString(R.string.team_of) + " " + teamDuel.getCreator_name());
 								group_steps.get(1).setText(String.valueOf(teamDuel.getSteps_other_group()));
 							} else {
-								group_members.get(0).setText(getString(R.string.team_of) + teamDuel.getCreator_name());
+								group_members.get(0).setText(getString(R.string.team_of) + " " + teamDuel.getCreator_name());
 								group_steps.get(0).setText(String.valueOf(teamDuel.getSteps_my_group()));
-								group_members.get(1).setText(getString(R.string.team_of) + teamDuel.getChallenger_name());
+								group_members.get(1).setText(getString(R.string.team_of) + " " + teamDuel.getChallenger_name());
 								group_steps.get(1).setText(String.valueOf(teamDuel.getSteps_other_group()));
 							}
 							group_members.get(0).setBackgroundColor(Color.parseColor("#adeead"));

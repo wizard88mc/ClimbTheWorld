@@ -207,4 +207,13 @@
     <string name="available_tours">Tour disponibili</string>
     <string name="n_buildings">%s edifici</string>
     <string name="n_tours">%s tour</string>
+    
+    <!-- notification dialog -->
+    <string name="no_notification">Nessuna notifica</string>
+    <string name="n_notification">Ci sono %d notifiche per te</string>
+    
+    <!-- FBPickFriendActivity -->
+    <string name="pick_friends">Invita i tuoi amici</string>
+    <string name="invite_btn">Invita</string>
+    <string name="no_invitable">Nessun amico da invitare</string>
 </resources>

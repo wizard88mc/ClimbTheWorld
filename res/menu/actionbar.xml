@@ -44,10 +44,10 @@
     
     <item
         android:id="@+id/itemNotifications"
-        android:onClick="onUpdateNotifications"
+        android:onClick="downloadFBNotification"
         android:title="@string/FB_notification"
         climbtheworld:showAsAction="never">
     </item>
-    
+    <!-- onUpdateNotifications -->
 
 </menu>

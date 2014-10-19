@@ -216,6 +216,7 @@ public class SettingsActivity extends PreferenceActivity {
 									editor.putInt("local_id", newUser.get_id());
 									editor.commit();
 									ClimbApplication.setCurrentUser(newUser);
+									//ClimbApplication.loadFriendsFromFacebook();
 									ClimbApplication.userExists(user, session, PD, SettingsActivity.this);
 
 								}

@@ -69,6 +69,7 @@ public class MyAsync extends AsyncTask<Void, Void, Void> {
 	@Override
 	protected Void doInBackground(Void... params) {
 		ClimbApplication.BUSY = true;
+		ClimbApplication.loadFriendsFromFacebook();
 		saveBadges();
 		loadMicrogoalFromParse();
 		loadProgressFromParse();

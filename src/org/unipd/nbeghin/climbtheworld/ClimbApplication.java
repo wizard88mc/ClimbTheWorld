@@ -43,13 +43,19 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.facebook.FacebookRequestError;
+import com.facebook.Request;
+import com.facebook.RequestBatch;
+import com.facebook.Response;
 import com.facebook.Session;
+import com.facebook.model.GraphObject;
 import com.facebook.model.GraphUser;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.stmt.PreparedQuery;
@@ -94,6 +100,8 @@ public class ClimbApplication extends Application{
 	public static List<TourText> tourTexts;
 	public static List<MicrogoalText> microgoalTexts;
 	public static List<Microgoal> microgoals;
+	
+	public static List<JSONObject> invitableFriends = new ArrayList<JSONObject>();
 	
 	private ActionBar ab; // reference to action bar
 	
@@ -143,6 +151,14 @@ public class ClimbApplication extends Application{
 	
 	public static void setCurrentUser(User user){ System.out.println("current user set");
 		currentUser = user;
+	}
+	
+	public static List<JSONObject> getInvitableFriends(){
+		return invitableFriends;
+	}
+	
+	public static void setInvitableFriend(List<JSONObject> obj){
+		invitableFriends = obj;
 	}
 
 	 @Override
@@ -1123,5 +1139,60 @@ public class ClimbApplication extends Application{
 					}
 				}
 			});
+		}
+		
+		/*
+		 * Now that user_friends is granted, load /me/invitable_friends to get 
+		 * friends who have not installed the game. Also load /me/friends which
+		 * returns friends that have installed the game (if using Platform v2.0).
+		 *     
+		 */
+		public static void loadFriendsFromFacebook() {
+			Log.d("ClimbApplication", "loadFriendsFromFacebook");
+			final Session session = Session.getActiveSession();
+			
+			RequestBatch requestBatch = new RequestBatch();
+			
+			// Get a list of friends who have _not installed_ the game. 
+			Request invitableFriendsRequest = Request.newGraphPathRequest(session, "/me/invitable_friends", new Request.Callback() {
+
+				@Override
+				public void onCompleted(Response response) {
+
+					FacebookRequestError error = response.getError();
+					if (error != null) {
+						Log.e("ClimbApplication", error.toString());
+						//handleError(error, true);
+					} else if (session == Session.getActiveSession()) {
+						if (response != null) {
+							// Get the result
+							GraphObject graphObject = response.getGraphObject();
+							JSONArray dataArray = (JSONArray)graphObject.getProperty("data");
+
+							List<JSONObject> invitableFriends = new ArrayList<JSONObject>();
+							if (dataArray.length() > 0) {
+								// Ensure the user has at least one friend ...
+
+								for (int i=0; i<dataArray.length(); i++) {
+									invitableFriends.add(dataArray.optJSONObject(i));
+								}
+							}
+
+							setInvitableFriend(invitableFriends);	
+							System.out.println(invitableFriends.size());
+						}
+					}
+				}
+
+			});
+			Bundle invitableParams = new Bundle();
+			invitableParams.putString("fields", "id,first_name,picture");
+			invitableFriendsRequest.setParameters(invitableParams);
+			requestBatch.add(invitableFriendsRequest);
+						
+			
+
+			// Execute the batch of requests asynchronously
+			requestBatch.executeAndWait();
 		}
 }

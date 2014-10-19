@@ -143,11 +143,11 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_alignLeft="@+id/table2Layout1"
-          android:layout_alignRight="@+id/textOtherTeam"
           android:layout_below="@+id/textOtherTeam"
-          android:paddingTop = "10dp"
-          android:paddingBottom="10dp"
           android:layout_marginLeft="10dp"
+          android:layout_toLeftOf="@+id/addChallengerBtn"
+          android:paddingBottom="10dp"
+          android:paddingTop="10dp"
           android:text="@string/creator"
           android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -226,10 +226,11 @@
           android:layout_height="wrap_content"
           android:layout_alignLeft="@+id/textChallenger"
           android:layout_below="@+id/textMyTeam"
-          android:text="@string/creator"
-          android:paddingTop = "10dp"
-          android:paddingBottom="10dp"
           android:layout_marginLeft="10dp"
+          android:layout_toLeftOf="@+id/addMyTeamBtn"
+          android:paddingBottom="10dp"
+          android:paddingTop="10dp"
+          android:text="@string/creator"
           android:textAppearance="?android:attr/textAppearanceMedium" />
       
 </RelativeLayout>

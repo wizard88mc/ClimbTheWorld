@@ -51,6 +51,7 @@ import org.unipd.nbeghin.climbtheworld.util.ModelsUtil;
 import org.unipd.nbeghin.climbtheworld.weka.WekaClassifier;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -325,9 +326,74 @@ public class MainActivity extends ActionBarActivity {
 			Toast.makeText(getApplicationContext(), getString(R.string.check_connection), Toast.LENGTH_LONG).show();
 	}
 
-	
+	private class NotificationAsyncTask extends AsyncTask<Void, Void, Void> {
 
+		final SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
+		private ProgressDialog PD;
+		
+		
+		NotificationAsyncTask() {
+			
+		}
 
+		@Override
+		protected void onPreExecute() {
+
+			super.onPreExecute();
+			//me = ClimbApplication.getUserById(activity.getSharedPreferences("UserSession", 0).getInt("local_id", -1));
+			PD = new ProgressDialog(MainActivity.this);
+			PD.setTitle(MainActivity.this.getString(R.string.wait));
+			PD.setMessage(/*MainActivity.this.getString(R.string.loading_progress)*/"Download notification");
+			PD.setCancelable(false);
+			PD.show();
+		}
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			Session session = Session.getActiveSession();
+			Bundle params_ = new Bundle();
+			params_.putString("access_token", session.getAccessToken());
+			Request request = new Request(session, "me/apprequests", params_, HttpMethod.GET, new Request.Callback() {
+
+			    @Override
+			    public void onCompleted(Response response) {
+			        try {
+			        		List<Request> deleteRequests = new ArrayList<Request>();
+			            GraphObject res = response.getGraphObject();
+			            JSONArray array = (JSONArray) res.getProperty("data");
+			            Log.d("MainActivity", "Notifications: " + array.length());
+			            for(int i = 0; i < array.length(); i++){
+			            		createNotification((JSONObject) array.get(i), deleteRequests);
+			            }
+			            Request.executeBatchAndWait(deleteRequests);
+			        } catch (Exception e) {
+			        }
+			    }
+			});
+			Request.executeAndWait(request);
+
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+			PD.dismiss();
+			if(ClimbApplication.notifications.isEmpty())
+				Toast.makeText(MainActivity.this, MainActivity.this.getString(R.string.no_notification), Toast.LENGTH_SHORT).show();
+			else
+				Toast.makeText(MainActivity.this, MainActivity.this.getString(R.string.n_notification, ClimbApplication.notifications.size()), Toast.LENGTH_SHORT).show();
+
+		}
+	}
+
+	/**
+	 * Starts to download facebook notification for current user e create the corresponding Notification objects.
+	 * @param v
+	 */
+	public void downloadFBNotification(MenuItem v){
+		new NotificationAsyncTask().execute();
+	}
 
 
 
@@ -350,10 +416,108 @@ public class MainActivity extends ActionBarActivity {
 					// deleteRequest(requestId);
 					getRequestData(requestId);
 				}
+				if(ClimbApplication.notifications.isEmpty())
+					Toast.makeText(this, getString(R.string.no_notification), Toast.LENGTH_SHORT).show();
+				else
+					Toast.makeText(this, getString(R.string.n_notification, ClimbApplication.notifications.size()), Toast.LENGTH_SHORT).show();
+
 			}
 
 			System.out.println("notf " + ClimbApplication.notifications.size());
 		}
+	}
+	
+	private void createNotification(JSONObject notification, List<Request> deleted){System.out.println("create notification");
+		// Get the data, parse info to get the key/value
+		// info
+		JSONObject dataObject;
+		JSONObject fromObject;
+		JSONObject toObject;
+		String groupName = "";
+		String sender = "";
+		String toId = "noId";
+		int type = -1;
+		String id = "";
+
+		int building_id = -1;
+		String building_name = "";
+		String collaboration_id = "";
+		boolean isReceiverChallenged = false;
+		boolean isSenderCreator = false;
+		String duel_id = "";
+
+		try {
+			dataObject = new JSONObject(notification.getString("data"));
+			fromObject = new JSONObject(notification.getString("from"));
+			toObject = new JSONObject(notification.getString("to"));
+			type = dataObject.getInt("type");
+			sender = fromObject.getString("name");
+			toId = toObject.getString("id");
+			id =  notification.getString("id");
+
+			if (type == 1 || type == 2) {
+				building_id = dataObject.getInt("idBuilding");
+				building_name = dataObject.getString("nameBuilding");
+				collaboration_id = dataObject.getString("idCollab");
+			} else if (type == 3) {
+				isReceiverChallenged = dataObject.getBoolean("challenger");
+				isSenderCreator = dataObject.getBoolean("isSenderCreator");
+				duel_id = dataObject.getString("idCollab");
+				building_id = dataObject.getInt("idBuilding");
+				building_name = dataObject.getString("nameBuilding");
+			}
+
+		
+
+
+		String time = notification.getString("created_time");
+		boolean isNotfValid = isValid(time);
+		if (isNotfValid && toId.equalsIgnoreCase(pref.getString("FBid", ""))) {
+			Log.d("qui", "request valida");
+			switch (type) {
+			case 0:
+				Notification notf = new InviteNotification(id, sender, groupName, type);
+				ClimbApplication.notifications.add(notf);
+				break;
+
+			case 1:
+				Notification notfA = new AskCollaborationNotification(id, sender, groupName, type);
+				((AskCollaborationNotification) notfA).setBuilding_id(building_id);
+				((AskCollaborationNotification) notfA).setBuilding_name(building_name);
+				((AskCollaborationNotification) notfA).setCollaborationId(collaboration_id);
+				ClimbApplication.notifications.add(notfA);
+				break;
+
+			case 2:
+				Notification notfB = new AskCompetitionNotification(id, sender, groupName, type);
+				((AskCompetitionNotification) notfB).setBuilding_id(building_id);
+				((AskCompetitionNotification) notfB).setBuilding_name(building_name);
+				((AskCompetitionNotification) notfB).setCompetitionId(collaboration_id);
+				ClimbApplication.notifications.add(notfB);
+				break;
+			case 3:
+				Notification notfC = new AskTeamDuelNotification(id, sender, duel_id, type, isReceiverChallenged, isSenderCreator);
+				((AskTeamDuelNotification) notfC).setBuilding_id(building_id);
+				((AskTeamDuelNotification) notfC).setBuilding_name(building_name);
+				if (isReceiverChallenged)
+					((AskTeamDuelNotification) notfC).setType(NotificationType.ASK_TEAM_COMPETITION_CHALLENGER);
+				else
+					((AskTeamDuelNotification) notfC).setType(NotificationType.ASK_TEAM_COMPETITION_TEAM);
+
+				ClimbApplication.notifications.add(notfC);
+				break;
+			}
+
+		}else if (!isNotfValid && toId.equalsIgnoreCase(pref.getString("FBid", ""))){
+			deleted.add(deleteRequest(id));
+			//Request.executeBatchAndWait(deleteRequest(id));
+		}
+		} catch (JSONException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+
+		}
+	
 	}
 
 	/**
@@ -387,7 +551,6 @@ public class MainActivity extends ActionBarActivity {
 					String toId = "noId";
 					int type = -1;
 					String id = "";
-
 					int building_id = -1;
 					String building_name = "";
 					String collaboration_id = "";
@@ -428,7 +591,8 @@ public class MainActivity extends ActionBarActivity {
 
 					String time = (String) graphObject.getProperty("created_time");
 					message += " " + time;
-					if (isValid(time) && toId.equalsIgnoreCase(pref.getString("FBid", ""))) {
+					boolean isNotfValid = isValid(time);
+					if (isNotfValid && toId.equalsIgnoreCase(pref.getString("FBid", ""))) {
 						Log.d("qui", "request valida");
 						switch (type) {
 						case 0:
@@ -464,6 +628,8 @@ public class MainActivity extends ActionBarActivity {
 							break;
 						}
 
+					}else if (!isNotfValid && toId.equalsIgnoreCase(pref.getString("FBid", ""))){
+						Request.executeBatchAsync(deleteRequest(inRequestId));
 					}
 
 					String title = "";
@@ -482,6 +648,7 @@ public class MainActivity extends ActionBarActivity {
 		// Execute the request asynchronously.
 		Request.executeBatchAsync(request);
 	}
+	
 
 	/**
 	 * Checks if the notification is valid (that is if the given date is older than 24h).
@@ -576,25 +743,28 @@ public class MainActivity extends ActionBarActivity {
 		 * Intent intent = new Intent(sContext, FBPickFriendActivity.class);
 		 * startActivity(intent);
 		 */
-		if (FacebookUtils.isOnline(this))
-			sendCustomChallenge();
-		else
+		if (FacebookUtils.isOnline(this)){
+			sendInviteToFriends();			
+		}else
 			Toast.makeText(getApplicationContext(), getString(R.string.check_connection), Toast.LENGTH_LONG).show();
 	}
 
-	// -----NEW-------
-	// NEW
-	private void sendCustomChallenge() {
+	
+	private void sendInviteToFriends() {
 		Session session = Session.getActiveSession();
 		if (session == null || !session.isOpened()) {
+			Toast.makeText(getApplicationContext(), getString(R.string.not_logged_in), Toast.LENGTH_LONG).show();
 			return;
 		}
-		// List<String> permissions = session.getPermissions();
-		sendChallenge();
+		 Intent intent = new Intent(sContext, FBPickFriendActivity.class);
+		 startActivity(intent);
 
 	}
 
-	private void sendChallenge() {
+	/**
+	 * Send invite to user's facebook friends.
+	 */
+	private void sendInvites() {
 		Bundle params = new Bundle();
 
 		// Uncomment following link once uploaded on Google Play for deep
@@ -604,7 +774,7 @@ public class MainActivity extends ActionBarActivity {
 
 		// 1. No additional parameters provided - enables generic Multi-friend
 		// selector
-		params.putString("message", "I just smashed  friends! Can you beat it?");
+		params.putString("message", "Join me in Climb the world");
 
 		// 2. Optionally provide a 'to' param to direct the request at a
 		// specific user
@@ -667,8 +837,7 @@ public class MainActivity extends ActionBarActivity {
 		dialog.show();
 	}
 
-	// -----NEW-----
-
+//DEBUG ONLY
 	private void shareDb() {
 		SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
 		String output_name = "ClimbTheWorld_" + df.format(new Date()) + ".db";
@@ -695,8 +864,12 @@ public class MainActivity extends ActionBarActivity {
 		ClimbApplication.notifications.clear();
 	}
 
-	// ONLY FOR DEBUG
-	private void deleteRequest(String inRequestId) {
+	/**
+	 * Create a Request object to delete a request in Facebook
+	 * @param inRequestId the id of the request to be deleted
+	 * @return the Request object to delete the request with the given id from Facebook
+	 */
+	private Request deleteRequest(final String inRequestId) {
 		// Create a new request for an HTTP delete with the
 		// request ID as the Graph path.
 		Request request = new Request(Session.getActiveSession(), inRequestId, null, HttpMethod.DELETE, new Request.Callback() {
@@ -705,11 +878,13 @@ public class MainActivity extends ActionBarActivity {
 			public void onCompleted(Response response) {
 				// Show a confirmation of the deletion
 				// when the API call completes successfully.
+				Log.d("deleteRequest", "Request " + inRequestId + " succesfully deleted");
 				Toast.makeText(MainActivity.getContext(), getString(R.string.request_deleted), Toast.LENGTH_SHORT).show();
 			}
 		});
 		// Execute the request asynchronously.
-		Request.executeBatchAsync(request);
+		//Request.executeBatchAsync(request);
+		return request;
 	}
 
 	@Override
