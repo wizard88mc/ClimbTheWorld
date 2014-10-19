@@ -260,7 +260,9 @@ public class ClimbActivity extends ActionBarActivity {
 					num_steps += vstep_for_rstep; // increase the number of
 													// steps
 					new_steps += vstep_for_rstep;
-					if (!isCounterMode) { //increase the seekbar progress and update the microgoal progress only if game mode is on
+					if (!isCounterMode) { // increase the seekbar progress and
+											// update the microgoal progress
+											// only if game mode is on
 						microgoal.setDone_steps(microgoal.getDone_steps() + vstep_for_rstep);
 						// increase the seekbar progress
 						if (mode == GameModeType.SOCIAL_CLIMB) {
@@ -272,12 +274,15 @@ public class ClimbActivity extends ActionBarActivity {
 						} else
 							seekbarIndicator.setProgress(num_steps);
 
-						percentage = (double) num_steps / (double) building.getSteps(); // increase the progress
-					} 
-						
+						percentage = (double) num_steps / (double) building.getSteps(); // increase
+																						// the
+																						// progress
+					}
+
 					boolean win = false; // user wins?
-					boolean winMicrogoal = false; //is current microgoal completed?
-					if (!isCounterMode) { //check win only if game mode is on
+					boolean winMicrogoal = false; // is current microgoal
+													// completed?
+					if (!isCounterMode) { // check win only if game mode is on
 						winMicrogoal = microgoal.getDone_steps() >= microgoal.getTot_steps();
 						if (winMicrogoal)
 							apply_win_microgoal();
@@ -338,9 +343,9 @@ public class ClimbActivity extends ActionBarActivity {
 
 	private void apply_win() {
 		Log.i(MainActivity.AppName, "Succesfully climbed building #" + building.get_id());
-		Toast.makeText(getApplicationContext(), getString(R.string.successfull_climb, building.getSteps(), building.getHeight(), building.getName()) , Toast.LENGTH_LONG).show(); // show
-																																																		// completion
-																																																		// text
+		Toast.makeText(getApplicationContext(), getString(R.string.successfull_climb, building.getSteps(), building.getHeight(), building.getName()), Toast.LENGTH_LONG).show(); // show
+																																													// completion
+																																													// text
 		findViewById(R.id.lblWin).setVisibility(View.VISIBLE); // load and
 																// animate
 																// completed
@@ -548,7 +553,8 @@ public class ClimbActivity extends ActionBarActivity {
 	}
 
 	/**
-	 * Sets Graphics in case of social mode. Shows name and steps of user's friends
+	 * Sets Graphics in case of social mode. Shows name and steps of user's
+	 * friends
 	 */
 	private void setGraphicsSocialMode() {
 
@@ -705,9 +711,9 @@ public class ClimbActivity extends ActionBarActivity {
 						return true;
 					}
 				});
-		checkUserStats(); //user's stats about average daily steps
+		checkUserStats(); // user's stats about average daily steps
 		isCounterMode = getIntent().getBooleanExtra(ClimbApplication.counter_mode, false);
-		if (!isCounterMode) { //game mode on
+		if (!isCounterMode) { // game mode on
 			int building_id = getIntent().getIntExtra(ClimbApplication.building_text_intent_object, 0); // get
 			// building
 			// id
@@ -744,8 +750,8 @@ public class ClimbActivity extends ActionBarActivity {
 				e.printStackTrace();
 			}
 			setGraphicsSocialMode();
-		} else { //game mode off (only engine to count user's steps)
-			backgroundClassifySampler = new Intent(this, SamplingClassifyService.class); 
+		} else { // game mode off (only engine to count user's steps)
+			backgroundClassifySampler = new Intent(this, SamplingClassifyService.class);
 			ImageView photo = ((ImageView) findViewById(R.id.buildingPhoto));
 			TextView name = ((TextView) findViewById(R.id.lblBuildingName));
 			TextView n_steps = ((TextView) findViewById(R.id.lblNumSteps));
@@ -767,7 +773,7 @@ public class ClimbActivity extends ActionBarActivity {
 				group_members.get(i - 1).setVisibility(View.INVISIBLE);
 				group_steps.get(i - 1).setVisibility(View.INVISIBLE);
 			}
-			difficulty = 1; //1rstep = 1 vstep
+			difficulty = 1; // 1rstep = 1 vstep
 
 		}
 
@@ -804,8 +810,9 @@ public class ClimbActivity extends ActionBarActivity {
 																											// (in
 																											// mt)
 		loadPreviousClimbing(); // get previous climbing for this building
-		mode = GameModeType.values()[climbing.getGame_mode()]; // setup game mode
-		loadSocialMode(); 
+		mode = GameModeType.values()[climbing.getGame_mode()]; // setup game
+																// mode
+		loadSocialMode();
 
 	}
 
@@ -862,7 +869,9 @@ public class ClimbActivity extends ActionBarActivity {
 	}
 
 	/**
-	 * Calculates the score (number of steps) done by the team of the current user
+	 * Calculates the score (number of steps) done by the team of the current
+	 * user
+	 * 
 	 * @return number of steps done by the team of the current user
 	 */
 	private int myTeamScore() {
@@ -889,21 +898,23 @@ public class ClimbActivity extends ActionBarActivity {
 	 * Update graphics to let user see the latest update about my friends' steps
 	 */
 	private void updateOthers(final boolean isUpdate) {
-		if (!(mode == GameModeType.SOLO_CLIMB) && FacebookUtils.isOnline(this)) { //If is online
-			//look for current collaboration in Parse
+		if (!(mode == GameModeType.SOLO_CLIMB) && FacebookUtils.isOnline(this)) { // If
+																					// is
+																					// online
+			// look for current collaboration in Parse
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("Collaboration");
 			query.whereEqualTo("objectId", collaboration.getId());
 			query.findInBackground(new FindCallback<ParseObject>() {
 
 				@Override
 				public void done(List<ParseObject> collabs, ParseException e) {
-					if (e == null) { //if everything has gone ok
+					if (e == null) { // if everything has gone ok
 						if (collabs == null || collabs.size() == 0) {
-							//no collaboration found
+							// no collaboration found
 							Toast.makeText(getApplicationContext(), getString(R.string.collab_no_available), Toast.LENGTH_SHORT).show();
 							Log.e("loadCollaboration", "Collaboration " + collaboration.getId() + " not present in Parse");
 						} else {
-							//collaboration found
+							// collaboration found
 							SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
 							collab_parse = collabs.get(0);
 							JSONObject others = collab_parse.getJSONObject("stairs");
@@ -1162,10 +1173,10 @@ public class ClimbActivity extends ActionBarActivity {
 						else
 							c.put("id_mode", myclimbing.getId_mode());
 						c.put("game_mode", myclimbing.getGame_mode());
-						//c.saveEventually();
+						// c.saveEventually();
 						ParseUtils.saveClimbing(c, myclimbing);
-						//myclimbing.setSaved(true);
-						//ClimbApplication.climbingDao.update(myclimbing);
+						// myclimbing.setSaved(true);
+						// ClimbApplication.climbingDao.update(myclimbing);
 					} else {
 						myclimbing.setSaved(false);
 						ClimbApplication.climbingDao.update(myclimbing);
@@ -1189,9 +1200,9 @@ public class ClimbActivity extends ActionBarActivity {
 		mg.put("building", microgoal.getBuilding().get_id());
 		mg.put("tot_steps", microgoal.getTot_steps());
 		mg.put("done_steps", microgoal.getDone_steps());
-//		mg.saveEventually();
-//		microgoal.setSaved(true);
-//		ClimbApplication.microgoalDao.update(microgoal);
+		// mg.saveEventually();
+		// microgoal.setSaved(true);
+		// ClimbApplication.microgoalDao.update(microgoal);
 		ParseUtils.saveMicrogoal(mg, microgoal);
 	}
 
@@ -1233,9 +1244,9 @@ public class ClimbActivity extends ActionBarActivity {
 					m.put("tot_steps", microgoal.getTot_steps());
 					m.put("done_steps", microgoal.getDone_steps());
 					ParseUtils.saveMicrogoal(m, microgoal);
-//					m.saveEventually();
-//					microgoal.setSaved(true);
-//					ClimbApplication.microgoalDao.update(microgoal);
+					// m.saveEventually();
+					// microgoal.setSaved(true);
+					// ClimbApplication.microgoalDao.update(microgoal);
 				} else {
 					microgoal.setSaved(false);
 					ClimbApplication.microgoalDao.update(microgoal);
@@ -1374,7 +1385,7 @@ public class ClimbActivity extends ActionBarActivity {
 					stats.put("current_value", 0);
 					stats.put("n_days", 0);
 					user.put("mean_daily_steps", stats);
-					//user.saveEventually();
+					// user.saveEventually();
 					ParseUtils.saveUserInParse(user);
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
@@ -1634,7 +1645,7 @@ public class ClimbActivity extends ActionBarActivity {
 				user.put("mean_daily_steps", stats);
 				user.put("mean", currentUser.getMean());
 				user.put("n_days", currentUser.getN_measured_days());
-				//user.saveEventually();
+				// user.saveEventually();
 				ParseUtils.saveUserInParse(user);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
@@ -1664,13 +1675,13 @@ public class ClimbActivity extends ActionBarActivity {
 					collab_parse.put("completed", true);
 					collaboration.setCompleted(true);
 				}
-				//collab_parse.saveEventually();
+				// collab_parse.saveEventually();
 				ParseUtils.saveCollaboration(collab_parse, collaboration);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			//collaboration.setSaved(true);
+			// collaboration.setSaved(true);
 		}
 		if (collaboration.isCompleted())
 			ClimbApplication.collaborationDao.delete(collaboration);
@@ -1695,13 +1706,13 @@ public class ClimbActivity extends ActionBarActivity {
 					compet_parse.put("completed", true);
 					competition.setCompleted(true);
 				}
-				//compet_parse.saveEventually();
+				// compet_parse.saveEventually();
 				ParseUtils.saveCompetition(compet_parse, competition);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			//competition.setSaved(true);
+			// competition.setSaved(true);
 		}
 		if (competition.isCompleted())
 			ClimbApplication.competitionDao.delete(competition);
@@ -1729,13 +1740,13 @@ public class ClimbActivity extends ActionBarActivity {
 					teamDuel_parse.put("completed", true);
 					teamDuel.setCompleted(true);
 				}
-				//teamDuel_parse.saveEventually();
+				// teamDuel_parse.saveEventually();
 				ParseUtils.saveTeamDuel(teamDuel_parse, teamDuel);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			//teamDuel.setSaved(true);
+			// teamDuel.setSaved(true);
 		}
 		if (teamDuel.isCompleted())
 			ClimbApplication.teamDuelDao.delete(teamDuel);
@@ -1747,30 +1758,34 @@ public class ClimbActivity extends ActionBarActivity {
 	 * Start background classifier service
 	 */
 	public void startClassifyService() {
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()); // get
-																												// reference
-																												// to
-																												// android
-																												// preferences
-		/* int */difficulty = Integer.parseInt(settings.getString("difficulty", "10")); // get
-																						// difficulty
-																						// from
-																						// preferences
-		switch (difficulty) { // set several parameters related to difficulty
-		case 100: // easy
-			Log.i(MainActivity.AppName, "Selected difficulty: EASY");
-			vstep_for_rstep = 100;
-			break;
-		case 1: // hard
-			Log.i(MainActivity.AppName, "Selected difficulty: HARD");
-			vstep_for_rstep = 1;
-			break;
-		default: // normal and default
-			Log.i(MainActivity.AppName, "Selected difficulty: NORMAL");
-			vstep_for_rstep = 10;
-			break;
+		if (!isCounterMode) {
+			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()); // get
+																													// reference
+																													// to
+																													// android
+																													// preferences
+			/* int */difficulty = Integer.parseInt(settings.getString("difficulty", "10")); // get
+																							// difficulty
+																							// from
+																							// preferences
+			switch (difficulty) { // set several parameters related to
+									// difficulty
+			case 100: // easy
+				Log.i(MainActivity.AppName, "Selected difficulty: EASY");
+				vstep_for_rstep = 100;
+				break;
+			case 1: // hard
+				Log.i(MainActivity.AppName, "Selected difficulty: HARD");
+				vstep_for_rstep = 1;
+				break;
+			default: // normal and default
+				Log.i(MainActivity.AppName, "Selected difficulty: NORMAL");
+				vstep_for_rstep = 10;
+				break;
+			}
+
+			Log.i(MainActivity.AppName, "Using " + vstep_for_rstep + " steps for each real step");
 		}
-		Log.i(MainActivity.AppName, "Using " + vstep_for_rstep + " steps for each real step");
 		startService(backgroundClassifySampler); // start background service
 		registerReceiver(classifierReceiver, classifierFilter); // register
 																// listener
@@ -1951,7 +1966,7 @@ public class ClimbActivity extends ActionBarActivity {
 									e1.printStackTrace();
 								}
 								teamDuel_parse.put("challenger_stairs", myTeam);
-								//teamDuel_parse.saveEventually();
+								// teamDuel_parse.saveEventually();
 								ParseUtils.saveTeamDuel(teamDuel_parse, teamDuel);
 							} else {
 								myTeam = teamDuel_parse.getJSONObject("creator_stairs");
@@ -1963,7 +1978,7 @@ public class ClimbActivity extends ActionBarActivity {
 									e1.printStackTrace();
 								}
 								teamDuel_parse.put("creator_stairs", myTeam);
-								//teamDuel_parse.saveEventually();
+								// teamDuel_parse.saveEventually();
 								ParseUtils.saveTeamDuel(teamDuel_parse, teamDuel);
 							}
 							Iterator<String> keys = myTeam.keys();
@@ -2075,7 +2090,7 @@ public class ClimbActivity extends ActionBarActivity {
 								e1.printStackTrace();
 							}
 							compet_parse.put("stairs", others);
-							//compet_parse.saveEventually();
+							// compet_parse.saveEventually();
 							ParseUtils.saveCompetition(compet_parse, competition);
 							Iterator members = others.keys();
 							int i = 0;
@@ -2244,7 +2259,7 @@ public class ClimbActivity extends ActionBarActivity {
 			ParseUser currentUser = ParseUser.getCurrentUser();
 			currentUser.put("XP", me.getXP());
 			currentUser.put("level", me.getLevel());
-			//currentUser.saveEventually();
+			// currentUser.saveEventually();
 			ParseUtils.saveUserInParse(currentUser);
 		}
 
@@ -2341,7 +2356,7 @@ public class ClimbActivity extends ActionBarActivity {
 							newBadge.put("percentage", ub.getPercentage());
 							bs.put(newBadge);
 							user.put("badges", bs);
-							//user.saveEventually();
+							// user.saveEventually();
 							ParseUtils.saveUserInParse(user);
 							ub.setSaved(true);
 							ClimbApplication.userBadgeDao.update(ub);

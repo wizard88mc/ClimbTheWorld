@@ -93,4 +93,14 @@ public class ProfileActivity extends Activity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		SharedPreferences pref = getSharedPreferences("UserSession", 0);
+		User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
+		((TextView) findViewById(R.id.MyStepsText)).setText(getString(R.string.mean_text, String.valueOf(me.getMean())));
+		((TextView) findViewById(R.id.textCurrentValue)).setText(getString(R.string.today_step, String.valueOf(me.getCurrent_steps_value())));
+
+	}
 }
