@@ -157,6 +157,7 @@
     <string name="encouragement">Well Done!</string>
     <string name="microgoal_terminated">Goal completed!!!! You earn %d XP</string>
     <string name="successfull_climb">You successfully climbed %1$d steps (%2$d m) of %3$s !</string>
+    <string name="kicked_out">You have been kicked out!</string>
     
     <!-- TeamPreparationActivity -->
     <string name="team_one">Team One</string>
@@ -211,6 +212,7 @@
     <!-- notification dialog -->
     <string name="no_notification">No notification</string>
     <string name="n_notification">There are %d notifications for you</string>
+    <string name="download_notifications">Downloading notifications from Facebook...</string>
     
     <!-- FBPickFriendActivity -->
     <string name="pick_friends">Invite your friends</string>

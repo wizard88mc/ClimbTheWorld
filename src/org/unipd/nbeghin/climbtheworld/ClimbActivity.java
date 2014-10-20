@@ -587,6 +587,7 @@ public class ClimbActivity extends ActionBarActivity {
 			for (int i = 0; i < group_members.size() - 1; i++) {
 				group_members.get(i).setVisibility(View.VISIBLE);
 				group_steps.get(i).setVisibility(View.VISIBLE);
+				group_minus.get(i).setVisibility(View.VISIBLE);
 			}
 			group_members.get(group_members.size() - 1).setVisibility(View.VISIBLE);
 			group_steps.get(group_steps.size() - 1).setVisibility(View.VISIBLE);
@@ -600,6 +601,8 @@ public class ClimbActivity extends ActionBarActivity {
 			for (int i = 0; i < group_members.size(); i++) {
 				group_members.get(i).setVisibility(View.VISIBLE);
 				group_steps.get(i).setVisibility(View.VISIBLE);
+				group_minus.get(i).setVisibility(View.VISIBLE);
+
 			}
 
 			break;
@@ -612,10 +615,14 @@ public class ClimbActivity extends ActionBarActivity {
 			for (int i = 0; i < 2; i++) {
 				group_members.get(i).setVisibility(View.VISIBLE);
 				group_steps.get(i).setVisibility(View.VISIBLE);
+				group_minus.get(i).setVisibility(View.GONE);
+
 			}
 			for (int i = 2; i < group_members.size(); i++) {
 				group_members.get(i).setVisibility(View.GONE);
 				group_steps.get(i).setVisibility(View.GONE);
+				group_minus.get(i).setVisibility(View.GONE);
+
 			}
 
 			break;
@@ -625,6 +632,8 @@ public class ClimbActivity extends ActionBarActivity {
 			for (int i = 0; i < group_members.size(); i++) {
 				group_members.get(i).setVisibility(View.GONE);
 				group_steps.get(i).setVisibility(View.GONE);
+				group_minus.get(i).setVisibility(View.GONE);
+
 			}
 
 			break;
@@ -973,6 +982,7 @@ public class ClimbActivity extends ActionBarActivity {
 							}
 							if (i < group_members.size() && i <= ClimbApplication.N_MEMBERS_PER_GROUP) {
 								group_steps.get(i).setVisibility(View.INVISIBLE);
+								group_minus.get(i).setVisibility(View.INVISIBLE);
 								group_members.get(i).setClickable(true);
 								group_members.get(i).setText("  +");
 								group_members.get(i).setVisibility(View.VISIBLE);
@@ -1022,7 +1032,7 @@ public class ClimbActivity extends ActionBarActivity {
 								group_members.get(i).setClickable(false);
 								group_members.get(i).setVisibility(View.INVISIBLE);
 								group_steps.get(i).setVisibility(View.INVISIBLE);
-
+								group_minus.get(i).setVisibility(View.INVISIBLE);
 							}
 							System.out.println("num_steps " + num_steps);
 							System.out.println("sum other steps " + sumOthersStep());
@@ -1040,8 +1050,9 @@ public class ClimbActivity extends ActionBarActivity {
 
 							
 						}else{
-							Toast.makeText(getApplicationContext(), "sei stato cacciato da questo gruppo", Toast.LENGTH_SHORT).show();
+							Toast.makeText(getApplicationContext(), getString(R.string.kicked_out), Toast.LENGTH_SHORT).show();
 							ClimbApplication.collaborationDao.delete(collaboration);
+							apply_removed_from_collaboration();
 						}
 						}
 						
@@ -2195,6 +2206,7 @@ public class ClimbActivity extends ActionBarActivity {
 								}
 								if (i < group_members.size() && i <= ClimbApplication.N_MEMBERS_PER_GROUP) {
 									group_steps.get(i).setVisibility(View.INVISIBLE);
+									group_minus.get(i).setVisibility(View.INVISIBLE);
 									group_members.get(i).setClickable(true);
 									group_members.get(i).setText("  +");
 									group_members.get(i).setVisibility(View.VISIBLE);
@@ -2244,11 +2256,13 @@ public class ClimbActivity extends ActionBarActivity {
 									group_members.get(i).setClickable(false);
 									group_members.get(i).setVisibility(View.INVISIBLE);
 									group_steps.get(i).setVisibility(View.INVISIBLE);
+									group_minus.get(i).setVisibility(View.INVISIBLE);
 
 								}
 							} else {
-								Toast.makeText(getApplicationContext(), "sei stato cacciato da questo gruppo", Toast.LENGTH_SHORT).show();
+								Toast.makeText(getApplicationContext(), getString(R.string.kicked_out), Toast.LENGTH_SHORT).show();
 								ClimbApplication.competitionDao.delete(competition);
+								apply_removed_from_competition();
 							}
 						}
 					} else if (!(mode == GameModeType.SOCIAL_CLIMB)) {
@@ -2587,4 +2601,31 @@ public class ClimbActivity extends ActionBarActivity {
 			}
 		});
 	}
+	
+	private void apply_removed_from_competition(){
+		mode = GameModeType.SOLO_CLIMB;
+		if (soloClimb != null) {
+			deleteClimbingInParse(climbing);
+			soloClimb.setGame_mode(0);
+			soloClimb.setId_mode("");
+			ClimbApplication.climbingDao.update(soloClimb);
+			updateClimbingInParse(soloClimb, true);
+		} else {
+			System.out.println("scalato x prima volta");
+			climbing.setGame_mode(0);
+			climbing.setId_mode("");
+			ClimbApplication.climbingDao.update(climbing);
+			updateClimbingInParse(climbing, false);
+			((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.social_share);
+		}
+	}
+	
+	private void apply_removed_from_collaboration(){
+		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.social_share);
+		mode = GameModeType.SOLO_CLIMB;
+		climbing.setGame_mode(0);
+		climbing.setId_mode("");
+		updateClimbingInParse(climbing, false);
+	}
+
 }

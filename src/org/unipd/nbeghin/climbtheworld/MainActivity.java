@@ -343,7 +343,7 @@ public class MainActivity extends ActionBarActivity {
 			//me = ClimbApplication.getUserById(activity.getSharedPreferences("UserSession", 0).getInt("local_id", -1));
 			PD = new ProgressDialog(MainActivity.this);
 			PD.setTitle(MainActivity.this.getString(R.string.wait));
-			PD.setMessage(/*MainActivity.this.getString(R.string.loading_progress)*/"Download notification");
+			PD.setMessage(MainActivity.this.getString(R.string.download_notifications));
 			PD.setCancelable(false);
 			PD.show();
 		}
