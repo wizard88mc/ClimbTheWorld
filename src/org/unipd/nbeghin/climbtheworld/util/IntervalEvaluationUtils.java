@@ -1,7 +1,5 @@
 package org.unipd.nbeghin.climbtheworld.util;
 
-import java.util.ArrayList;
-
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionIntentService;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
@@ -141,27 +139,12 @@ public class IntervalEvaluationUtils {
 	
 	
 	
-	private static float activityQualityValue(){	
-		
-		ArrayList<Float> confidences = ActivityRecognitionIntentService.getConfidencesList();		
-		ArrayList<Integer> weights = ActivityRecognitionIntentService.getWeightsList();
-		
-
-    	int weights_sum = 0;
-    	for(Integer i : weights){
-    	    weights_sum += i;
-    	}
+	private static float activityQualityValue(){
     	
-    	//le due liste hanno la stessa size
+    	Log.d(MainActivity.AppName,"EVALUATION - Quality of physical activity: " + 
+    			ActivityRecognitionIntentService.getConfidencesWeightsSum()/ActivityRecognitionIntentService.getWeightsSum());
     	
-    	float n = 0f;    	
-    	for(int i=0; i<weights.size(); i++){
-    		n += weights.get(i)*confidences.get(i);
-    	}
-    	
-    	Log.d(MainActivity.AppName,"EVALUATION - Quality of physical activity: " + n/weights_sum);
-    	
-    	return n/weights_sum;
+    	return ActivityRecognitionIntentService.getConfidencesWeightsSum()/ActivityRecognitionIntentService.getWeightsSum();
 	}
 	
 	

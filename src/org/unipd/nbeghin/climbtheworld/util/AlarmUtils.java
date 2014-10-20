@@ -10,8 +10,6 @@ import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.comparator.AlarmComparator;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.models.Alarm;
-import org.unipd.nbeghin.climbtheworld.models.AlarmTimeTemplate;
-import org.unipd.nbeghin.climbtheworld.models.TimeTemplate;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -25,9 +23,7 @@ import android.util.Log;
 import com.j256.ormlite.android.AndroidConnectionSource;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
-import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
-import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 

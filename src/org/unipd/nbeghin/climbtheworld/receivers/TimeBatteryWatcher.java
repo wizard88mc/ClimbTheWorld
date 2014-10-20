@@ -324,16 +324,10 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			//si fa partire il processo si activity recognition
 			if(action.equalsIgnoreCase(ACTIVITY_RECOGNITION_START_ACTION)){				
 						
-				//si resetta il numero totale di attività rilevate e quello che conta
-				//quanti valori indicano un'attività fisica
+				//si resetta il numero totale di attività rilevate, il numero di valori che
+				//indicano un'attività fisica e le variabili per la somma dei pesi e per la somma
+				//dei prodotti confidenze-pesi
 				ActivityRecognitionIntentService.clearValuesCount();
-				
-				//si cambia la coppia di liste da utilizzare per contenere i livelli di
-				//confidenza e i pesi
-				//ActivityRecognitionIntentService.setUsedList(!ActivityRecognitionIntentService.getUsedList());
-			
-				//si fa il clear delle due liste, così da svuotarle
-				ActivityRecognitionIntentService.clearLists();
 								
 				Log.d(MainActivity.AppName,"START ACTION - Reset total number of values: " + ActivityRecognitionIntentService.getValuesNumber());
 			   	Log.d(MainActivity.AppName,"START ACTION - Reset number of activities: " + ActivityRecognitionIntentService.getActivitiesNumber());
@@ -410,10 +404,10 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					//si calcola la valutazione che determina la sua attivazione o meno per la
 					//prossima settimana
 					
-					Log.d(MainActivity.AppName,"STOP ACTION - List conf size: " + ActivityRecognitionIntentService.getConfidencesList().size());
-					Log.d(MainActivity.AppName,"STOP ACTION - List weight size: " + ActivityRecognitionIntentService.getWeightsList().size());
 					Log.d(MainActivity.AppName,"STOP ACTION - Total number of values: " + ActivityRecognitionIntentService.getValuesNumber());
 					Log.d(MainActivity.AppName,"STOP ACTION - Number of activities: " + ActivityRecognitionIntentService.getActivitiesNumber());
+					Log.d(MainActivity.AppName,"STOP ACTION - Sum of weights: " + ActivityRecognitionIntentService.getWeightsSum());
+					Log.d(MainActivity.AppName,"STOP ACTION - Sum of confidences-weights products: " + ActivityRecognitionIntentService.getConfidencesWeightsSum());
 					
 					
 					IntervalEvaluationUtils.evaluateAndUpdateInterval(context, false, this_alarm_id);
