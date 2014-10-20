@@ -122,20 +122,12 @@ public class ClimbActivity extends Activity {
 	
 	private boolean firstTimeStart = true;
 	
-	private boolean stepsInGamePeriod = false;
+	private static boolean stepsInGamePeriod = false;
 	
 	//application context
 	private Context appContext = getApplicationContext();
 	// get reference to android preferences
 	private SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(appContext);
-	
-	
-	
-	//lista che conterrà gli id degli alarm che definiscono gli intervalli interessati
-	//da un periodo di gioco (lista inizializzata quando l'utente fa partire il gioco,
-	//popolata man mano che si arriva in un intervallo di ascolto, svuotata quando
-	//finisce il periodo di gioco)
-	private static ArrayList<Integer> intervals_id = new ArrayList<Integer>();
 	
 	
 	//finestra di dialogo che mostra la non disponibilità della connessione dati
@@ -209,6 +201,7 @@ public class ClimbActivity extends Activity {
 				
 				//l'utente ha fatto almeno uno scalino nel periodo di gioco corrente
 				stepsInGamePeriod=true;
+				
 			}
 			
 			
@@ -587,26 +580,47 @@ public class ClimbActivity extends Activity {
 		} else {
 			if (samplingEnabled) { // if sampling is enabled stop the classifier
 				stopClassify();
-				
-				
+								
 				//l'utente ferma il gioco, ponendo fine al "periodo di gioco" iniziato
-				//in precedenza; si valutano gli intervalli interessati da questo periodo
-				settings.edit().putInt("last_game_alarm_id", intervals_id.get(intervals_id.size()-1)).commit();
+				//in precedenza
 				
+				//se il prossimo alarm è di stop significa che si è all'interno di un
+				//intervallo di esplorazione attivo
+				int next_alarm_id = settings.getInt("alarm_id", -1);	
+				Alarm next_alarm = AlarmUtils.getAlarm(appContext, next_alarm_id);
+				if(!next_alarm.get_actionType()){
 				
-				if(intervals_id.size()>0){
-					updateIntervalsEvaluation(appContext, stepsInGamePeriod);
+					Log.d(MainActivity.AppName,"STOP GAME IN ACTIVE INTERVAL - START ACTIVITY REC");
+					
+					if(stepsInGamePeriod){
+						
+						Log.d(MainActivity.AppName,"STOP GAME IN ACTIVE INTERVAL - with steps");
+						
+						//si associa il fatto che nell'intervallo di esplorazione corrente l'utente
+						//ha fatto almeno uno scalino (salvataggio nelle preferences, così 
+						//l'informazione viene mantenuta anche se l'utente spegne il device)
+						settings.edit().putInt("last_interval_with_steps", next_alarm_id).commit();
+					
+						//si resetta a 'false' il booleano che indica se l'utente ha fatto
+						//almeno 1 scalino nel periodo di gioco corrente
+						stepsInGamePeriod=false;
+					}
+					
+					
+					//si recupera l'indice del giorno corrente all'interno della settimana
+					/////////		
+			    	//PER TEST ALGORITMO
+					int current_day_index = settings.getInt("artificialDayIndex", 0);
+					///////// altrimenti l'indice del giorno è (Calendar.getInstance().get(Calendar.DAY_OF_WEEK))-1;
+					
+					//se non è un intervallo di gioco, si ri-attiva il servizio di activity
+					//recognition
+					//TODO controllo livello batteria 					
+					if(!next_alarm.isGameInterval(current_day_index)){
+						appContext.startService(new Intent(appContext, ActivityRecognitionRecordService.class));
+					}
+					
 				}
-				else{
-					Log.d(MainActivity.AppName,"STOP GAME IN INTERVAL - non ci sono intervalli attivi interessati dal periodo ");
-				}
-				
-				
-				
-				//si svuota la lista degli id degli alarm interessati dal periodo di gioco
-				intervals_id.clear();
-				
-				
 				
 			} else { // if sampling is not enabled stop the classifier
 				climbedYesterday=StatUtils.climbedYesterday(climbing.get_id());
@@ -617,28 +631,21 @@ public class ClimbActivity extends Activity {
 				//l'utente fa partire il gioco, generando un "periodo di gioco"
 				
 				//se il prossimo alarm settato è un evento di stop allora significa che 
-				//il service di activity recognition è in esecuzione e, quindi, significa
-				//che si è in presenza di un intervallo di ascolto
-				int next_alarm_id = settings.getInt("alarm_id", -1);								
-				if(!AlarmUtils.getAlarm(appContext,next_alarm_id).get_actionType()){
+				//si è all'interno di un intervallo di esplorazione attivo; se il servizio
+				//di activity recognition è in esecuzione, viene fermato	
+				if(!AlarmUtils.getAlarm(appContext,settings.getInt("alarm_id", -1)).get_actionType()){
 										
+					Log.d(MainActivity.AppName,"START GAME IN ACTIVE INTERVAL - STOP ACTIVITY REC");
+					
 					//stop servizio di activity recognition (si tengono le variabili legate
 					//all'eventuale valutazione dell'attività svolta nel primo intervallo
-					//della lista, il cui ascolto è stato interrotto dall'inizio del gioco)
-					appContext.stopService(new Intent(appContext, ActivityRecognitionRecordService.class));
-										
+					//della lista, il cui ascolto è stato interrotto dall'inizio del gioco)					
+					if(GeneralUtils.isActivityRecognitionServiceRunning(appContext)){
+						appContext.stopService(new Intent(appContext, ActivityRecognitionRecordService.class));
+					}
 					
-					Log.d(MainActivity.AppName,"START GAME IN INTERVAL - STOP ACTIVITY REC");
-					
-					//si inseriscono nella lista gli id che definiscono l'inizio e la fine
-					//dell'intervallo di ascolto
-					intervals_id.add(next_alarm_id-1);
-					intervals_id.add(next_alarm_id);
-					
-				 	Log.d(MainActivity.AppName,"START GAME IN INTERVAL - Total number of values: " + ActivityRecognitionIntentService.getValuesNumber());
-				   	Log.d(MainActivity.AppName,"START GAME IN INTERVAL - Number of activities: " + ActivityRecognitionIntentService.getActivitiesNumber());
-					
-					
+					Log.d(MainActivity.AppName,"START GAME IN ACTIVE INTERVAL - Total number of values: " + ActivityRecognitionIntentService.getValuesNumber());
+				   	Log.d(MainActivity.AppName,"START GAME IN ACTIVE INTERVAL - Number of activities: " + ActivityRecognitionIntentService.getActivitiesNumber());	
 				}
 				
 			}
@@ -816,12 +823,12 @@ public class ClimbActivity extends Activity {
 	
 	
 	
-	public static void addAlarmsId(int id_start_alarm, int id_stop_alarm){		
-		intervals_id.add(id_start_alarm);
-		intervals_id.add(id_stop_alarm);
+	
+	public static boolean stepsInCurrentGamePeriod(){
+		return stepsInGamePeriod;
 	}
 	
-	
+	/*
 	//metodo di aggiornamento degli intervalli interessati dal periodo di gioco
 	private void updateIntervalsEvaluation(Context context, boolean steps){
 				
@@ -931,11 +938,9 @@ public class ClimbActivity extends Activity {
 				
 			}
 		}
-		
-		
 		//set next alarm per sicurezza
 		
 	}
-	
+	*/
 	
 }
