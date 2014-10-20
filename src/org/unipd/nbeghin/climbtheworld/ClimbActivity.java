@@ -178,6 +178,7 @@ public class ClimbActivity extends ActionBarActivity {
 
 	private List<TextView> group_members = new ArrayList<TextView>();
 	private List<TextView> group_steps = new ArrayList<TextView>();
+	private List<TextView> group_minus = new ArrayList<TextView>();
 
 	private boolean isCounterMode; // true if the game is on, false otherwise
 
@@ -574,10 +575,10 @@ public class ClimbActivity extends ActionBarActivity {
 			System.out.println("qui " + i);
 			int idNome = getResources().getIdentifier("nome" + i, "id", getPackageName());
 			int idPassi = getResources().getIdentifier("passi" + i, "id", getPackageName());
+			int idMinus = getResources().getIdentifier("minus" + i, "id", getPackageName());
 			group_members.add((TextView) findViewById(idNome));
 			group_steps.add((TextView) findViewById(idPassi));
-			System.out.println(idPassi);
-			System.out.println(group_members.size());
+			group_minus.add((TextView) findViewById(idMinus));
 		}
 
 		switch (GameModeType.values()[climbing.getGame_mode()]) {
@@ -914,11 +915,17 @@ public class ClimbActivity extends ActionBarActivity {
 							Toast.makeText(getApplicationContext(), getString(R.string.collab_no_available), Toast.LENGTH_SHORT).show();
 							Log.e("loadCollaboration", "Collaboration " + collaboration.getId() + " not present in Parse");
 						} else {
+							
 							// collaboration found
 							SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
 							collab_parse = collabs.get(0);
+							
+							
 							JSONObject others = collab_parse.getJSONObject("stairs");
 							JSONObject othersName = collab_parse.getJSONObject("collaborators");
+							
+							if(othersName.has(currentUser.getFBid())){
+							
 							Iterator members = others.keys();
 							int i = 0;
 							while (members.hasNext()) {
@@ -941,6 +948,26 @@ public class ClimbActivity extends ActionBarActivity {
 									group_steps.get(i).setText(String.valueOf(steps));
 									group_members.get(i).setClickable(false);
 									group_members.get(i).setVisibility(View.VISIBLE);
+									if(collaboration.getAmICreator()){
+										final Integer idx = new Integer(i);
+										final ChartMember member = new ChartMember(key, steps);
+										group_minus.get(i).setVisibility(View.VISIBLE);
+										group_minus.get(i).setClickable(true);
+										group_minus.get(i).setOnClickListener(new OnClickListener() {
+											
+											@Override
+											public void onClick(View arg0) {
+												removeFromCollaboration(member);
+												group_members.get(idx).setVisibility(View.GONE);
+												group_steps.get(idx).setVisibility(View.GONE);
+												group_minus.get(idx).setVisibility(View.GONE);
+
+											}
+										});
+										
+									}else{
+										group_minus.get(i).setVisibility(View.GONE);
+									}
 									i++;
 								}
 							}
@@ -1011,7 +1038,14 @@ public class ClimbActivity extends ActionBarActivity {
 								saveBadges();
 							}
 
+							
+						}else{
+							Toast.makeText(getApplicationContext(), "sei stato cacciato da questo gruppo", Toast.LENGTH_SHORT).show();
+							ClimbApplication.collaborationDao.delete(collaboration);
 						}
+						}
+						
+						
 					} else if (!(mode == GameModeType.SOCIAL_CLIMB)) {
 						Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 						Log.e("loadCollaboration", e.getMessage());
@@ -2085,112 +2119,137 @@ public class ClimbActivity extends ActionBarActivity {
 							compet_parse = compets.get(0);
 							JSONObject others = compet_parse.getJSONObject("stairs");
 							JSONObject othersName = compet_parse.getJSONObject("competitors");
-							try {
-								others.put(pref.getString("FBid", ""), num_steps);
-							} catch (JSONException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
-							compet_parse.put("stairs", others);
-							// compet_parse.saveEventually();
-							ParseUtils.saveCompetition(compet_parse, competition);
-							Iterator members = others.keys();
-							int i = 0;
-							chart = ModelsUtil.fromJsonToChart(others);
-							for (ChartMember entry : chart) {
-								String key = entry.getId();
-								System.out.println(key);
-								System.out.println(pref.getString("FBid", ""));
-								String name = "";
-								int steps = -1;
+
+							if (othersName.has(currentUser.getFBid())) {
+
 								try {
-									name = (String) othersName.getString(key);
-									steps = entry.getScore();// (Integer)
-																// others.getInt(key);
-								} catch (JSONException e2) {
+									others.put(pref.getString("FBid", ""), num_steps);
+								} catch (JSONException e1) {
 									// TODO Auto-generated catch block
-									e2.printStackTrace();
+									e1.printStackTrace();
 								}
-								group_members.get(i).setText(name);
-								group_steps.get(i).setVisibility(View.VISIBLE);
-								group_steps.get(i).setText(String.valueOf(steps));
-								group_members.get(i).setClickable(false);
-								group_members.get(i).setVisibility(View.VISIBLE);
-								group_members.get(i).setBackgroundColor(Color.parseColor("#dcdcdc"));
-								group_steps.get(i).setBackgroundColor(Color.parseColor("#dcdcdc"));
+								compet_parse.put("stairs", others);
+								// compet_parse.saveEventually();
+								ParseUtils.saveCompetition(compet_parse, competition);
+								Iterator members = others.keys();
+								int i = 0;
+								chart = ModelsUtil.fromJsonToChart(others);
+								for (final ChartMember entry : chart) {
+									String key = entry.getId();
 
-								if (key.equalsIgnoreCase(pref.getString("FBid", ""))) {
-									group_members.get(i).setBackgroundColor(Color.parseColor("#f7fe2e"));
-									group_steps.get(i).setBackgroundColor(Color.parseColor("#f7fe2e"));
-									if (steps >= building.getSteps()) {
-										percentage = 1.0;
-										endCompetition();
-										saveBadges();
-										Toast.makeText(getApplicationContext(), getString(R.string.competition_win), Toast.LENGTH_SHORT).show();
+									String name = "";
+									int steps = -1;
+									try {
+										name = (String) othersName.getString(key);
+										steps = entry.getScore();// (Integer)
+																	// others.getInt(key);
+									} catch (JSONException e2) {
+										// TODO Auto-generated catch block
+										e2.printStackTrace();
 									}
-								} else {
-									if (steps >= building.getSteps()) {
-										endCompetition();
-										Toast.makeText(getApplicationContext(), getString(R.string.competition_lose, name), Toast.LENGTH_SHORT).show();
+									group_members.get(i).setText(name);
+									group_steps.get(i).setVisibility(View.VISIBLE);
+									group_steps.get(i).setText(String.valueOf(steps));
+									group_members.get(i).setClickable(false);
+									group_members.get(i).setVisibility(View.VISIBLE);
+									group_members.get(i).setBackgroundColor(Color.parseColor("#dcdcdc"));
+									group_steps.get(i).setBackgroundColor(Color.parseColor("#dcdcdc"));
+
+									final TextView currentName = group_members.get(i);
+									final TextView currentSteps = group_steps.get(i);
+									final TextView currentMinus = group_minus.get(i);
+									if (competition.getAmICreator()) {
+										group_minus.get(i).setVisibility(View.VISIBLE);
+										group_minus.get(i).setClickable(true);
+										group_minus.get(i).setOnClickListener(new OnClickListener() {
+											@Override
+											public void onClick(View arg0) {
+												removeFromCompetition(entry);
+												currentName.setVisibility(View.GONE);
+												currentSteps.setVisibility(View.GONE);
+												currentMinus.setVisibility(View.GONE);
+											}
+										});
+
+									} else {
+										group_minus.get(i).setVisibility(View.GONE);
 									}
-								}
-								i++;
 
-							}
-							if (i < group_members.size() && i <= ClimbApplication.N_MEMBERS_PER_GROUP) {
-								group_steps.get(i).setVisibility(View.INVISIBLE);
-								group_members.get(i).setClickable(true);
-								group_members.get(i).setText("  +");
-								group_members.get(i).setVisibility(View.VISIBLE);
-								group_members.get(i).setBackgroundColor(Color.parseColor("#dcdcdc"));
-								group_members.get(i).setOnClickListener(new OnClickListener() {
-
-									@Override
-									public void onClick(View arg0) {
-										Bundle params = new Bundle();
-										params.putString("data", "{\"idCollab\":\"" + competition.getId_online() + "\"," + "\"idBuilding\":\"" + building.get_id() + "\"," + "\"nameBuilding\":\"" + building.getName() + "\", \"type\": \"2\"}");
-										params.putString("message", "Please, help me!!!!");
-										if (Session.getActiveSession() != null && Session.getActiveSession().isOpened()) {
-
-											WebDialog requestsDialog = (new WebDialog.RequestsDialogBuilder(ClimbActivity.this, Session.getActiveSession(), params)).setOnCompleteListener(new OnCompleteListener() {
-
-												@Override
-												public void onComplete(Bundle values, FacebookException error) {
-													if (error != null) {
-														if (error instanceof FacebookOperationCanceledException) {
-															Toast.makeText(ClimbActivity.this, getString(R.string.request_cancelled), Toast.LENGTH_SHORT).show();
-
-														} else {
-															Toast.makeText(ClimbActivity.this, getString(R.string.network_error), Toast.LENGTH_SHORT).show();
-
-														}
-													} else {
-														final String requestId = values.getString("request");
-														if (requestId != null) {
-															Toast.makeText(ClimbActivity.this, getString(R.string.request_sent), Toast.LENGTH_SHORT).show();
-														} else {
-															Toast.makeText(ClimbActivity.this, getString(R.string.request_cancelled), Toast.LENGTH_SHORT).show();
-
-														}
-													}
-												}
-
-											}).build();
-											requestsDialog.show();
-										} else {
-											Toast.makeText(ClimbActivity.this, getString(R.string.not_logged), Toast.LENGTH_SHORT).show();
+									if (key.equalsIgnoreCase(pref.getString("FBid", ""))) {
+										group_members.get(i).setBackgroundColor(Color.parseColor("#f7fe2e"));
+										group_steps.get(i).setBackgroundColor(Color.parseColor("#f7fe2e"));
+										if (steps >= building.getSteps()) {
+											percentage = 1.0;
+											endCompetition();
+											saveBadges();
+											Toast.makeText(getApplicationContext(), getString(R.string.competition_win), Toast.LENGTH_SHORT).show();
+										}
+									} else {
+										if (steps >= building.getSteps()) {
+											endCompetition();
+											Toast.makeText(getApplicationContext(), getString(R.string.competition_lose, name), Toast.LENGTH_SHORT).show();
 										}
 									}
-								});
-								i++;
-							}
-							for (; i < group_members.size(); i++) {
-								group_members.get(i).setClickable(false);
-								group_members.get(i).setVisibility(View.INVISIBLE);
-								group_steps.get(i).setVisibility(View.INVISIBLE);
+									i++;
 
-							}
+								}
+								if (i < group_members.size() && i <= ClimbApplication.N_MEMBERS_PER_GROUP) {
+									group_steps.get(i).setVisibility(View.INVISIBLE);
+									group_members.get(i).setClickable(true);
+									group_members.get(i).setText("  +");
+									group_members.get(i).setVisibility(View.VISIBLE);
+									group_members.get(i).setBackgroundColor(Color.parseColor("#dcdcdc"));
+									group_members.get(i).setOnClickListener(new OnClickListener() {
 
+										@Override
+										public void onClick(View arg0) {
+											Bundle params = new Bundle();
+											params.putString("data", "{\"idCollab\":\"" + competition.getId_online() + "\"," + "\"idBuilding\":\"" + building.get_id() + "\"," + "\"nameBuilding\":\"" + building.getName() + "\", \"type\": \"2\"}");
+											params.putString("message", "Please, help me!!!!");
+											if (Session.getActiveSession() != null && Session.getActiveSession().isOpened()) {
+
+												WebDialog requestsDialog = (new WebDialog.RequestsDialogBuilder(ClimbActivity.this, Session.getActiveSession(), params)).setOnCompleteListener(new OnCompleteListener() {
+
+													@Override
+													public void onComplete(Bundle values, FacebookException error) {
+														if (error != null) {
+															if (error instanceof FacebookOperationCanceledException) {
+																Toast.makeText(ClimbActivity.this, getString(R.string.request_cancelled), Toast.LENGTH_SHORT).show();
+
+															} else {
+																Toast.makeText(ClimbActivity.this, getString(R.string.network_error), Toast.LENGTH_SHORT).show();
+
+															}
+														} else {
+															final String requestId = values.getString("request");
+															if (requestId != null) {
+																Toast.makeText(ClimbActivity.this, getString(R.string.request_sent), Toast.LENGTH_SHORT).show();
+															} else {
+																Toast.makeText(ClimbActivity.this, getString(R.string.request_cancelled), Toast.LENGTH_SHORT).show();
+
+															}
+														}
+													}
+
+												}).build();
+												requestsDialog.show();
+											} else {
+												Toast.makeText(ClimbActivity.this, getString(R.string.not_logged), Toast.LENGTH_SHORT).show();
+											}
+										}
+									});
+									i++;
+								}
+								for (; i < group_members.size(); i++) {
+									group_members.get(i).setClickable(false);
+									group_members.get(i).setVisibility(View.INVISIBLE);
+									group_steps.get(i).setVisibility(View.INVISIBLE);
+
+								}
+							} else {
+								Toast.makeText(getApplicationContext(), "sei stato cacciato da questo gruppo", Toast.LENGTH_SHORT).show();
+								ClimbApplication.competitionDao.delete(competition);
+							}
 						}
 					} else if (!(mode == GameModeType.SOCIAL_CLIMB)) {
 						Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
@@ -2381,7 +2440,7 @@ public class ClimbActivity extends ActionBarActivity {
 		try {
 
 			Microgoal microgoal = ClimbApplication.getMicrogoalByUserAndBuilding(pref.getInt("local_id", -1), building.get_id());
-			MicrogoalText texts = ClimbApplication.getMicrogoalTextByStory(microgoal.getStory_id());
+			MicrogoalText texts = ModelsUtil.getMicrogoalTextByStory(microgoal.getStory_id());//ClimbApplication.getMicrogoalTextByStory(microgoal.getStory_id());
 
 			final Dialog dialog = new Dialog(this, R.style.FullHeightDialog); // this
 																				// is
@@ -2482,5 +2541,50 @@ public class ClimbActivity extends ActionBarActivity {
 			e.printStackTrace();
 		}
 
+	}
+	
+	private void removeFromCompetition(ChartMember member){
+		
+		JSONObject stairs = compet_parse.getJSONObject("stairs");
+		JSONObject competitors = compet_parse.getJSONObject("competitors");
+		stairs.remove(member.getId());
+		competitors.remove(member.getId());
+		compet_parse.put("stairs", stairs);
+		compet_parse.put("competitors", competitors);
+		compet_parse.saveInBackground(new SaveCallback() {
+			
+			@Override
+			public void done(ParseException e) {
+				if(e !=null){
+					Toast.makeText(getApplicationContext(), "Retry later", Toast.LENGTH_SHORT).show();
+					Log.e("removeFromCompetition", e.getMessage());
+				}
+				
+			}
+		});
+	}
+	
+	private void removeFromCollaboration(final ChartMember member){
+		
+		JSONObject stairs = collab_parse.getJSONObject("stairs");
+		JSONObject collaborators = collab_parse.getJSONObject("collaborators");
+		stairs.remove(member.getId());
+		collaborators.remove(member.getId());
+		collab_parse.put("stairs", stairs);
+		collab_parse.put("competitors", collaborators);
+		collab_parse.saveInBackground(new SaveCallback() {
+			
+			@Override
+			public void done(ParseException e) {
+				if(e !=null){
+					Toast.makeText(getApplicationContext(), "Retry later", Toast.LENGTH_SHORT).show();
+					Log.e("removeFromCollaboration", e.getMessage());
+				}else{
+					collaboration.setOthers_stairs(collaboration.getOthers_stairs() - member.getScore());
+					ClimbApplication.collaborationDao.update(collaboration);
+				}
+				
+			}
+		});
 	}
 }

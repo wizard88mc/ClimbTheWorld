@@ -322,6 +322,7 @@ public class NotificationCard extends Card {
 																collaborationLocal.setLeaved(false);
 																collaborationLocal.setUser(me);
 																collaborationLocal.setCompleted(false);
+																collaborationLocal.setAmICreator(false);
 																ClimbApplication.collaborationDao.create(collaborationLocal);
 
 																text.setText(ClimbApplication.getContext().getString(R.string.accept_req));
@@ -550,6 +551,7 @@ public class NotificationCard extends Card {
 																competitionLocal.setLeaved(false);
 																competitionLocal.setUser(me);
 																competitionLocal.setCompleted(false);
+																competitionLocal.setAmICreator(false);
 																ClimbApplication.competitionDao.create(competitionLocal);
 
 																text.setText(ClimbApplication.getContext().getString(R.string.accept_req));

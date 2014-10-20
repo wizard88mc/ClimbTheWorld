@@ -333,6 +333,17 @@ public class UpdateService extends IntentService {
 							collabParse.put("stairs", stairs);
 							collabParse.put("collaborators", collaborators);
 							collabParse.put("completed", false);
+							JSONObject creator = new JSONObject();
+
+							if(collaboration.getAmICreator()){
+								try {
+									creator.put(collaboration.getUser().getFBid(), collaboration.getUser().getName());
+								} catch (JSONException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+							}
+							collabParse.put("creator", creator);	
 							collabParse.saveInBackground(new SaveCallback() {
 								
 								@Override
@@ -374,6 +385,7 @@ public class UpdateService extends IntentService {
 //								collaboration.setSaved(true);
 //								collaborationDao.update(collaboration);
 							}else{
+								if(stairs.has(collaboration.getUser().getFBid())){
 								try {
 									stairs.put(collaboration.getUser().getFBid(), collaboration.getMy_stairs());
 									collabParse.put("stairs", stairs);
@@ -385,6 +397,9 @@ public class UpdateService extends IntentService {
 								} catch (JSONException e1) {
 									// TODO Auto-generated catch block
 									e1.printStackTrace();
+								}
+								}else{
+									ClimbApplication.collaborationDao.delete(collaboration);
 								}
 							}
 							if(collaborations.indexOf(collaboration) == (collaborations.size() - 1)){
@@ -453,6 +468,17 @@ public class UpdateService extends IntentService {
 							comp.put("stairs", stairs);
 							comp.put("building", competition.getBuilding().get_id());
 							comp.put("completed", false);
+							JSONObject creator = new JSONObject();
+
+							if(competition.getAmICreator()){
+								try {
+									creator.put(competition.getUser().getFBid(), competition.getUser().getName());
+								} catch (JSONException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+							}
+							comp.put("creator", creator);	
 							comp.saveInBackground(new SaveCallback() {
 								
 								@Override
@@ -495,6 +521,7 @@ public class UpdateService extends IntentService {
 								competitionDao.delete(competition);
 							}else{
 								try {
+									if(stairs.has(competition.getUser().getFBid())){
 									stairs.put(competition.getUser().getFBid(), competition.getMy_stairs());
 									collabParse.put("stairs", stairs);
 									//collabParse.saveEventually();
@@ -511,11 +538,16 @@ public class UpdateService extends IntentService {
 											ex.printStackTrace();
 										}
 									}
+									}else{
+										ClimbApplication.competitionDao.delete(competition);
+									}
 								} catch (JSONException e1) {
 									// TODO Auto-generated catch block
 									e1.printStackTrace();
 								}
 							}
+						
+							
 						}else if(collabs.size() == 0 && competition.isLeaved())
 						{
 							competitionDao.delete(competition);

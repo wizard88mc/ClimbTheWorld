@@ -5,10 +5,18 @@
     tools:context=".MainActivity" >
 
     <com.fima.cardsui.views.CardUI
-        android:id="@+id/cardsBuildings"
+        android:id="@+id/cardsNotification"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
     </com.fima.cardsui.views.CardUI>
     
-
+   <TextView android:id="@+id/empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:gravity="center"
+            android:text="@string/no_notifications"/>
 </RelativeLayout>
+
+
+   

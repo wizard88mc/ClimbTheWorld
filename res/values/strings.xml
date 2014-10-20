@@ -32,6 +32,8 @@
     <string name="reward">Reward: %d XP</string>
     <string name="not_yet_microgoal">Start climbing to create the first goal</string>
     <string name="back_solo_climb">Back to Solo Climb</string>
+    <string name="unlock_at_level">Unlock at level %d</string>
+    <string name="lock_message">Reach level %d to unlock this building</string>
     
     <!-- General Toasts -->
     <string name="connection_problem">Problem with connections</string>
@@ -66,6 +68,7 @@
     <string name="team_duel_completed">This team is completed</string>
     <string name="wait_notification">Wait for your choice to be saved</string>
     <string name="delete_req">Request Deleted</string>
+    <string name="no_notifications">No notifications</string>
     
     <!-- UserBadge -->
     <string name="steps_badge">Make %d steps</string>
@@ -183,7 +186,7 @@
     <string name="microGoal">Current goal</string>
     
     <!-- dialog micro goal -->
-    <string name="accept">Ok, let\'s do it!!!!</string>
+    <string name="accept">Ok, let\'s do it!</string>
     <string name="title_dialog">Goal</string>
     <string name="reward_dialog">Reward: %d XP</string>
     <string name="welcome">Hello, %s</string>

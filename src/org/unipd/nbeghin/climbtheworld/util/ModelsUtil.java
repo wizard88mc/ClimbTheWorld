@@ -12,8 +12,10 @@ import java.util.TreeMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.ChartMember;
+import org.unipd.nbeghin.climbtheworld.models.MicrogoalText;
 
 public class ModelsUtil {
 
@@ -109,5 +111,13 @@ public class ModelsUtil {
 				return true;
 		}
 		return false;
+	}
+	
+	public static MicrogoalText getMicrogoalTextByStory(int story_id){
+		for(MicrogoalText text : ClimbApplication.microgoalTexts){
+			if(text.getStory_id() == story_id)
+				return text;
+		}
+		return null;
 	}
 }

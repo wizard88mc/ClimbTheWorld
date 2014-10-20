@@ -300,7 +300,7 @@ public class ClimbApplication extends Application{
 		public static void refreshMicrogoalTexts(){
 			QueryBuilder<MicrogoalText, Integer> query = microgoalTextDao.queryBuilder();
 			Where<MicrogoalText, Integer> where = query.where();
-			try{
+			try{ System.out.println("micro goal language " + language);
 				where.eq("language", language);
 				PreparedQuery<MicrogoalText> preparedQuery = query.prepare();
 				microgoalTexts = microgoalTextDao.query(preparedQuery);

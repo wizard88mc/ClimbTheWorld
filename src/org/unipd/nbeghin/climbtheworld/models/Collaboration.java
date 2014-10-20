@@ -27,6 +27,8 @@ public class Collaboration {
 	private User	 user;
 	@DatabaseField
 	private int completed;
+	@DatabaseField
+	private int amICreator;
 
 	public Collaboration(){}
 	
@@ -134,5 +136,20 @@ public class Collaboration {
 		else
 			return false;
 	} 
+	
+	public boolean getAmICreator() {
+		if(amICreator == 1)
+			return true;
+		else
+			return false;
+	}
+
+
+	public void setAmICreator(boolean amICreator) {
+		if(amICreator)
+			this.amICreator = 1;
+		else
+			this.amICreator = 0;
+	}
 	
 }

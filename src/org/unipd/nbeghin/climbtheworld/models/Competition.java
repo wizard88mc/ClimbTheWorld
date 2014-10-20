@@ -24,6 +24,8 @@ public class Competition {
 	private User	 user;
 	@DatabaseField
 	private int completed;
+	@DatabaseField
+	private int amICreator;
 
 
 	public Competition(){}
@@ -131,6 +133,22 @@ public class Competition {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+
+	public boolean getAmICreator() {
+		if(amICreator == 1)
+			return true;
+		else
+			return false;
+	}
+
+
+	public void setAmICreator(boolean amICreator) {
+		if(amICreator)
+			this.amICreator = 1;
+		else
+			this.amICreator = 0;
 	}
 	
 	

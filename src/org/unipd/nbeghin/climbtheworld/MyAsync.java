@@ -2,6 +2,7 @@ package org.unipd.nbeghin.climbtheworld;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -519,6 +520,7 @@ public class MyAsync extends AsyncTask<Void, Void, Void> {
 			@Override
 			public void done(List<ParseObject> collabs, ParseException e) {
 				if (e == null) {
+					User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
 					ParseObject collaboration = collabs.get(0);
 					JSONObject others_steps = collaboration.getJSONObject("stairs");
 					boolean completed = collaboration.getBoolean("completed");
@@ -532,7 +534,12 @@ public class MyAsync extends AsyncTask<Void, Void, Void> {
 						coll.setMy_stairs(collaboration.getInt("my_stairs"));
 						coll.setOthers_stairs(sumOthersStep(others_steps));
 						coll.setSaved(true);
-						coll.setUser(ClimbApplication.getUserById(pref.getInt("local_id", -1)));
+						coll.setUser(me);
+						JSONObject creator = collaboration.getJSONObject("creator");
+						if(creator.has(me.getFBid()))
+							coll.setAmICreator(true);
+						else
+							coll.setAmICreator(false);
 						ClimbApplication.collaborationDao.create(coll);
 
 					} else {// update collaborazione esistente
@@ -579,6 +586,7 @@ public class MyAsync extends AsyncTask<Void, Void, Void> {
 					JSONObject others_steps = competition.getJSONObject("stairs");
 					boolean completed = competition.getBoolean("completed");
 					Competition local_compet = ClimbApplication.getCompetitionById(competition.getObjectId());
+					User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
 					if (local_compet == null) {
 						// crea nuova collaborazione
 						Competition comp = new Competition();
@@ -589,8 +597,12 @@ public class MyAsync extends AsyncTask<Void, Void, Void> {
 						// setcurrentposition
 						comp.setCurrent_position(ModelsUtil.getMyPosition(pref.getString("FBid", ""), ModelsUtil.fromJsonToSortedMap(competition.getJSONObject("stairs"))));
 						comp.setSaved(true);
-
-						comp.setUser(ClimbApplication.getUserById(pref.getInt("local_id", -1)));
+						comp.setUser(me);
+						JSONObject creator = competition.getJSONObject("creator");
+						if(creator.has(me.getFBid()))
+							comp.setAmICreator(true);
+						else
+							comp.setAmICreator(false);
 						ClimbApplication.competitionDao.create(comp);
 
 					} else {// update collaborazione esistente

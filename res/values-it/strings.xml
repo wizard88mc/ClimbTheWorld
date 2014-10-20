@@ -31,7 +31,8 @@
     <string name="reward">Premio: %d XP</string>
     <string name="not_yet_microgoal">Inizia la scalata per avere il primo obiettivo</string>
     <string name="back_solo_climb">Torna a Solo Climb</string>
-    
+    <string name="unlock_at_level">Disponibile al livello %d</string>
+    <string name="lock_message">Raggiungi il livello %d per sbloccare questo edificio</string>
     <!-- General Toasts -->
     <string name="connection_problem">Problemi di Connessione</string>
     <string name="connection_problem2">Problemi di Connessione: i tuoi dati saranno salvati alla prossima connessione</string>
@@ -65,6 +66,7 @@
     <string name="team_duel_completed">Questo team è già completo</string>
     <string name="team_duel_already_part">Fai già parte di questo team</string>
     <string name="delete_req">Richiesta eliminata</string>
+    <string name="no_notifications">Nessuna notifica</string>
     
      <!-- UserBadge -->
     <string name="steps_badge">Fai %d passi</string>
@@ -186,7 +188,7 @@
     <string name="microGoal">Goal corrente</string>
     
     <!-- dialog micro goal -->
-    <string name="accept">Ok, ci sto!!!!</string>
+    <string name="accept">Ok, ci sto!</string>
     <string name="title_dialog">Obiettivo</string>
     <string name="reward_dialog">Premio: %d XP</string>
     <string name="welcome">Ciao, %s</string>

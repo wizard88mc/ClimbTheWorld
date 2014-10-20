@@ -226,10 +226,20 @@
                 android:paddingTop="2dp" >
 
                 <TextView
+                    android:id="@+id/minus1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.2"
+                    android:background="#dcdcdc"
+                    android:gravity="center_horizontal"
+                    android:textColor="#000000"
+                    android:text=" - " />
+                
+                <TextView
                     android:id="@+id/nome1"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.6"
+                    android:layout_weight="0.5"
                     android:background="#dcdcdc"
                     android:gravity="center_horizontal"
                     android:textColor="#000000" />
@@ -238,7 +248,7 @@
                     android:id="@+id/passi1"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.4"
+                    android:layout_weight="0.3"
                     android:background="#dcdcdc"
                     android:gravity="center_horizontal"
                     android:textColor="#000000" />
@@ -257,12 +267,22 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:paddingTop="2dp" >
+                
+                <TextView
+                    android:id="@+id/minus2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.2"
+                    android:background="#dcdcdc"
+                    android:gravity="center_horizontal"
+                    android:textColor="#000000"
+                    android:text=" - " />
 
                 <TextView
                     android:id="@+id/nome2"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.6"
+                    android:layout_weight="0.5"
                     android:background="#dcdcdc"
                     android:gravity="center_horizontal"
                     android:textColor="#000000" />
@@ -271,7 +291,7 @@
                     android:id="@+id/passi2"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.4"
+                    android:layout_weight="0.3"
                     android:background="#dcdcdc"
                     android:gravity="center_horizontal"
                     android:textColor="#000000" />
@@ -285,10 +305,21 @@
                 android:paddingTop="2dp" >
 
                 <TextView
+                    android:id="@+id/minus3"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.2"
+                    android:background="#dcdcdc"
+                    android:gravity="center_horizontal"
+                    android:textColor="#000000" 
+                    android:text=" - "/>
+                
+                
+                <TextView
                     android:id="@+id/nome3"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.6"
+                    android:layout_weight="0.5"
                     android:background="#dcdcdc"
                     android:gravity="center_horizontal"
                     android:textColor="#000000" />
@@ -297,7 +328,7 @@
                     android:id="@+id/passi3"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.4"
+                    android:layout_weight="0.3"
                     android:background="#dcdcdc"
                     android:gravity="center_horizontal"
                     android:textColor="#000000" />
@@ -311,10 +342,20 @@
                 android:paddingTop="2dp" >
 
                 <TextView
+                    android:id="@+id/minus4"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.2"
+                    android:background="#dcdcdc"
+                    android:gravity="center_horizontal"
+                    android:textColor="#000000"
+                    android:text=" - " />
+                
+                <TextView
                     android:id="@+id/nome4"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.6"
+                    android:layout_weight="0.5"
                     android:background="#dcdcdc"
                     android:gravity="center_horizontal"
                     android:textColor="#000000" />
@@ -323,7 +364,7 @@
                     android:id="@+id/passi4"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.4"
+                    android:layout_weight="0.3"
                     android:background="#dcdcdc"
                     android:gravity="center_horizontal"
                     android:textColor="#000000" />
@@ -334,12 +375,22 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:paddingTop="2dp" >
+                
+                 <TextView
+                    android:id="@+id/minus5"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.2"
+                    android:background="#dcdcdc"
+                    android:gravity="center_horizontal"
+                    android:textColor="#000000" 
+                    android:text=" - "/>
 
                 <TextView
                     android:id="@+id/nome5"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.6"
+                    android:layout_weight="0.5"
                     android:background="#dcdcdc"
                     android:gravity="center_horizontal"
                     android:textColor="#000000" />
@@ -348,7 +399,7 @@
                     android:id="@+id/passi5"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.4"
+                    android:layout_weight="0.3"
                     android:background="#dcdcdc"
                     android:gravity="center_horizontal"
                     android:textColor="#000000" />
@@ -359,12 +410,22 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:paddingTop="2dp" >
+                
+                <TextView
+                    android:id="@+id/minus6"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.2"
+                    android:background="#dcdcdc"
+                    android:gravity="center_horizontal"
+                    android:textColor="#000000" 
+                    android:text=" - "/>
 
                 <TextView
                     android:id="@+id/nome6"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.6"
+                    android:layout_weight="0.5"
                     android:background="#dcdcdc"
                     android:gravity="center_horizontal"
                     android:textColor="#000000" />
@@ -373,7 +434,7 @@
                     android:id="@+id/passi6"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.4"
+                    android:layout_weight="0.3"
                     android:background="#dcdcdc"
                     android:gravity="center_horizontal"
                     android:textColor="#000000" />
