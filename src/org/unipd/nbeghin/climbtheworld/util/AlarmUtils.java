@@ -534,7 +534,7 @@ public class AlarmUtils {
 	 * @param i indice che rappresenta il giorno corrente
 	 * @return indice che rappresenta il prossimo giorno
 	 */	
-	private static int getNextDayIndex(int i){
+	public static int getNextDayIndex(int i){
 		return (i == GeneralUtils.daysOfWeek-1) ? 0 : i+1;
 	}
 	/////////

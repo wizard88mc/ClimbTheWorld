@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import org.unipd.nbeghin.climbtheworld.ClimbActivity;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
@@ -14,7 +15,6 @@ import org.unipd.nbeghin.climbtheworld.services.ActivityRecognitionRecordService
 import org.unipd.nbeghin.climbtheworld.util.AlarmUtils;
 import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
 import org.unipd.nbeghin.climbtheworld.util.IntervalEvaluationUtils;
-
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -97,6 +97,8 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				//salvandolo nelle shared preferences
 				int currentDayIndex=pref.getInt("artificialDayIndex", 0);
 								
+				int oldDayIndex=currentDayIndex;
+				
 				Calendar now = Calendar.getInstance();
 				now.set(Calendar.HOUR_OF_DAY, 0);
 				now.set(Calendar.MINUTE, 0);
@@ -180,6 +182,129 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					
 					Alarm current_next_alarm = AlarmUtils.getAlarm(context,alarm_id);
 										
+					
+					
+					//////////////////////////////////////////////
+					//SI TRACCIANO GLI INTERVALLI NON VALUTATI IN QUANTO IL DEVICE ERA SPENTO
+										
+					//si considerano gli intervalli che non sono stati valutati durante il
+					//periodo di tempo in cui il device era spento (utile per tracciarli
+					//nel file di output e,se si vuole, per cambiare la loro valutazione) 
+
+					//si calcola il numero di giorni passati dallo spegnimento
+					//se 0 si è nello stesso giorno, se 1 nel giorno successivo, e così via
+					
+					Calendar time_now = Calendar.getInstance();
+					time_now.set(Calendar.HOUR_OF_DAY, 0);
+					time_now.set(Calendar.MINUTE, 0);
+					time_now.set(Calendar.SECOND, 0);					
+					Calendar time_before = Calendar.getInstance();
+					time_before.set(Calendar.HOUR_OF_DAY, 0);
+					time_before.set(Calendar.MINUTE, 0);
+					time_before.set(Calendar.SECOND, 0);
+					time_before.set(Calendar.DATE,pref.getInt("alarm_date", -1));
+					time_before.set(Calendar.MONTH,pref.getInt("alarm_month", -1));
+					time_before.set(Calendar.YEAR,pref.getInt("alarm_year", -1));
+					
+					double time_diff = time_now.getTimeInMillis() - time_before.getTimeInMillis();					
+					time_diff = time_diff / (24 * 60 * 60 * 1000); //hours in a day, minutes in a hour,
+                    												//seconds in a minute, millis in a second
+					int days_diff = (int) Math.round(time_diff);
+					
+					List<Alarm> alarms_lst = AlarmUtils.getAllAlarms(context);
+					
+					
+					//se si tratta del primo intervallo (id_start=1 e id_stop=2) si è in
+					//presenza di un nuovo giorno; si scrive il suo indice nel file di output
+					if(alarm_id==2 && time_before.before(now)){
+						//time_before.get(Calendar.DAY_OF_WEEK)-1;
+						Log.d(MainActivity.AppName, "On Boot - device spento, giorno: " + oldDayIndex);
+					}
+					
+					boolean stop=false;	
+					//prima si considerano gli intervalli saltati nel giorno corrente
+					for(int i=alarm_id; i<alarms_lst.size() && !stop; i++){
+					
+						Alarm e = alarms_lst.get(i);						
+						//si impostano ora, minuti e secondi prendendo tali parametri dall'alarm salvato
+						time_before.set(Calendar.HOUR_OF_DAY, e.get_hour());
+						time_before.set(Calendar.MINUTE, e.get_minute());
+						time_before.set(Calendar.SECOND, e.get_second());
+						
+						//se l'alarm è già passato
+						if(time_before.before(now)){
+							//ed è un alarm di stop
+							if(!e.get_actionType()){								
+								int stop_id = e.get_id();
+								int start_id = stop_id-1;								
+								Log.d(MainActivity.AppName, "On Boot - device spento nell'intervallo: start-stop: " + start_id+"-"+stop_id);
+							}
+						}
+						else{ //l'alarm è valido, per cui l'intervallo potrà essere valutato
+							  //(anche parzialmente se è già iniziato, cioè se l'alarm è di stop)
+							stop=true;
+						}
+					}
+						
+					
+					if(stop==false){
+						
+						/////////
+						//PER TEST ALGORITMO: si inizializza l'indice artificiale 
+						int ii = oldDayIndex; //time_before.get(Calendar.DAY_OF_WEEK)-1
+						
+						//indice per scorrere il numero di giorni di differenza
+						int day_i = 0;
+						//se gli alarm del giorno precedente sono tutti passati, si incrementa
+						//il giorno 
+						while(day_i<days_diff){			
+							
+							//si resettano ora, minuti e secondi
+							time_before.set(Calendar.HOUR_OF_DAY, 0);
+							time_before.set(Calendar.MINUTE, 0);
+							time_before.set(Calendar.SECOND, 0);
+							
+							time_before.add(Calendar.DATE, 1);
+							
+							/////////	
+							//PER TEST ALGORITMO: si aggiorna l'indice artificiale man mano che
+							//si incrementa la data
+							ii=AlarmUtils.getNextDayIndex(ii);
+							/////////
+							//time_before.get(Calendar.DAY_OF_WEEK)-1
+							
+							Log.d(MainActivity.AppName, "On Boot - device spento, indice giorno: " + ii);
+							
+							
+							for(int i=0; i<alarms_lst.size() && !stop; i++){
+								Alarm e = alarms_lst.get(i);
+								
+								time_before.set(Calendar.HOUR_OF_DAY, e.get_hour());
+								time_before.set(Calendar.MINUTE, e.get_minute());
+								time_before.set(Calendar.SECOND, e.get_second());
+																
+								//se l'alarm è già passato
+								if(time_before.before(now)){
+									//ed è un alarm di stop
+									if(!e.get_actionType()){								
+										int stop_id = e.get_id();
+										int start_id = stop_id-1;								
+										Log.d(MainActivity.AppName, "On Boot - device spento nell'intervallo: start-stop: " + start_id+"-"+stop_id);
+									}
+								}
+								else{ //l'alarm è valido, per cui l'intervallo potrà essere valutato
+									  //(anche parzialmente se è già iniziato, cioè se l'alarm è di stop)
+									stop=true;
+								}
+							}
+							
+							day_i++;
+						}
+					}
+					
+					//////////////////////////////////////////////
+					
+					
 					//quando il device completa il boot non setta automaticamente l'alarm impostato
 					//precedentemente tramite l'alarm manager, quindi bisogna settarlo nuovamente
 					
@@ -188,8 +313,6 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					
 					//poi si imposta il prossimo alarm
 			    	//AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context)); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,pref.getInt("current_template", -1)))
-										
-			    	
 					Calendar alarmTime = Calendar.getInstance();
 					
 					if(MainActivity.logEnabled){
@@ -211,7 +334,9 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						+ alarmTime.get(Calendar.HOUR_OF_DAY)+":"+ alarmTime.get(Calendar.MINUTE)+":"+ alarmTime.get(Calendar.SECOND) +
 						"  "+alarmTime.get(Calendar.DATE)+"/"+month+"/"+alarmTime.get(Calendar.YEAR));		
 						Log.d(MainActivity.AppName, "On Boot - PREVIOUS ALARM MILLISECONDS: " + alarmTime.getTimeInMillis());		
-					}		
+					}					
+			    	
+					
 					
 					
 					//se il prossimo alarm che era stato impostato ha un istante di inizio
