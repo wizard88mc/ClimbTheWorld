@@ -59,8 +59,6 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		
 		Log.d(MainActivity.AppName, "TimeBatteryWatcher - ON RECEIVE");
 		
-		//TimeBatteryWatcher.context=context;
-		
 		//si recupera l'oggetto delle shared preferences
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);//context.getSharedPreferences("appPrefs", 0);
 		
@@ -71,6 +69,9 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		if (action.equalsIgnoreCase(BOOT_ACTION)) {
 			
 			Log.d(MainActivity.AppName, "TimeBatteryWatcher - BOOT ACTION");
+			
+			//riferimento all'alarm manager
+			AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 			
 			//si setta il prossimo alarm prendendo quello salvato nelle shared preferences
 			//se non c'è non si fa nulla			
@@ -145,8 +146,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    	//dopo un reboot del device quello impostato in precedenza non viene lanciato; 
 		    	//quest'ultimo viene prima cancellato attraverso l'alarm manager		    	
 		    	Intent update_index_intent = new Intent(context, TimeBatteryWatcher.class);
-		    	update_index_intent.setAction("UPDATE_DAY_INDEX_TESTING");  		    	
-		    	AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+		    	update_index_intent.setAction("UPDATE_DAY_INDEX_TESTING");  
 				alarmManager.cancel(PendingIntent.getBroadcast(context, 0, update_index_intent, 0));
 		    	//si reimposta l'alarm per l'update dell'indice artificiale
 				Calendar calendar = Calendar.getInstance();
@@ -184,14 +184,11 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					//precedentemente tramite l'alarm manager, quindi bisogna settarlo nuovamente
 					
 					//prima si cancella l'alarm che era stato settato in precedenza					
-					AlarmUtils.cancelAlarm(context, current_next_alarm);	
+					//AlarmUtils.cancelAlarm(context, current_next_alarm);	
 					
 					//poi si imposta il prossimo alarm
-			    	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context)); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,pref.getInt("current_template", -1)))
-					
-					
-			    	
-			    	/* DA USARE QUESTO, CANCELLANDO LE DUE PRECEDENTI ISTRUZIONI di cancel e setnext
+			    	//AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context)); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,pref.getInt("current_template", -1)))
+										
 			    	
 					Calendar alarmTime = Calendar.getInstance();
 					
@@ -201,15 +198,13 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						+ alarmTime.get(Calendar.HOUR_OF_DAY)+":"+ alarmTime.get(Calendar.MINUTE)+":"+ alarmTime.get(Calendar.SECOND) +
 						"  "+alarmTime.get(Calendar.DATE)+"/"+month+"/"+alarmTime.get(Calendar.YEAR));		
 						Log.d(MainActivity.AppName, "On Boot - NOW MILLISECONDS: " + alarmTime.getTimeInMillis());		
-					}		
-					
+					}							
 										
 					alarmTime.set(pref.getInt("alarm_year", -1), 
 							pref.getInt("alarm_month", -1), pref.getInt("alarm_date", -1), 
 							current_next_alarm.get_hour(), current_next_alarm.get_minute(),
 							current_next_alarm.get_second());
-					
-					
+										
 					if(MainActivity.logEnabled){
 						int month=alarmTime.get(Calendar.MONTH)+1;	
 						Log.d(MainActivity.AppName, "On Boot - PREVIOUS ALARM: h:m:s=" 
@@ -220,19 +215,32 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					
 					
 					//se il prossimo alarm che era stato impostato ha un istante di inizio
-					//già passato, allora si cancella l'alarm in questione tramite l'alarm 
-					//manager e poi si cerca e si setta un altro alarm
+					//già passato, allora si cerca e si setta un altro alarm
+					
+					//in ogni caso si cancella dall'alarm manager l'alarm precedentemente impostato 
+					AlarmUtils.cancelAlarm(context, current_next_alarm);					
 					
 					if(alarmTime.before(Calendar.getInstance())){
 						
-						System.out.println("alarm time già passato - lo cancello e ne imposto un altro");
-						
-						//si cancella l'alarm già passato
-						AlarmUtils.cancelAlarm(context, current_next_alarm);							
-						//si imposta e si lancia il prossimo alarm
+					    if(MainActivity.logEnabled){
+				 	    	Log.d(MainActivity.AppName,"On boot - the previous alarm is not valid; we set another alarm");		
+				 	    }
+												
+						//si imposta e si lancia un nuovo alarm
 				    	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context)); 
-					}				
-					*/
+					}			
+					else{			
+						//si re-imposta l'alarm precedente
+						//si crea il pending intent creando dapprima un intent con tutti i dati dell'alarm
+				    	//per identificarlo in modo univoco
+				    	PendingIntent pi = AlarmUtils.createPendingIntent(context, current_next_alarm, new int[]{alarmTime.get(Calendar.DATE), alarmTime.get(Calendar.MONTH), alarmTime.get(Calendar.YEAR)});
+				 	    alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime.getTimeInMillis(), pi);
+				 	    
+				 	    if(MainActivity.logEnabled){
+				 	    	Log.d(MainActivity.AppName,"On boot - the previous alarm is valid; we set the same alarm");		
+				 	    }
+					}
+						
 					
 					//se il next alarm settato è un evento di stop e l'intervallo che
 			    	//definisce non è un intervallo di gioco, allora significa che 

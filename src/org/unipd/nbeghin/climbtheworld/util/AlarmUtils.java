@@ -462,7 +462,7 @@ public class AlarmUtils {
 	}
 	 
 	 
-	private static PendingIntent createPendingIntent(Context context, Alarm alarm, int[] params) {
+	public static PendingIntent createPendingIntent(Context context, Alarm alarm, int[] params) {
 		 
 		Intent intent = new Intent();
 	 	    
