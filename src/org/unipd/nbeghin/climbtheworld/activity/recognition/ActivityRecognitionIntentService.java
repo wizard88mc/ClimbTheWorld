@@ -27,6 +27,26 @@ public class ActivityRecognitionIntentService extends IntentService {
 
 		
 	@Override
+	public void onCreate() {
+		// TODO Auto-generated method stub
+		super.onCreate();
+		
+		Log.d(MainActivity.AppName,"OnCreate activityRec service - n. values " + getValuesNumber());
+		
+	}
+	
+	
+	@Override
+	public void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		
+		Log.d(MainActivity.AppName,"OnDestroy activityRec service - n. values " + getValuesNumber());
+		
+	}
+	
+	
+	@Override
 	protected void onHandleIntent(Intent intent) {
 		
 		// If the incoming intent contains an update

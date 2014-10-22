@@ -125,9 +125,9 @@ public class ClimbActivity extends Activity {
 	private static boolean stepsInGamePeriod = false;
 	
 	//application context
-	private Context appContext = getApplicationContext();
-	// get reference to android preferences
-	private SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(appContext);
+	private Context appContext;
+	//reference to android preferences
+	private SharedPreferences settings;
 	
 	
 	//finestra di dialogo che mostra la non disponibilità della connessione dati
@@ -201,7 +201,7 @@ public class ClimbActivity extends Activity {
 				
 				//l'utente ha fatto almeno uno scalino nel periodo di gioco corrente
 				stepsInGamePeriod=true;
-				
+				Log.d(MainActivity.AppName,"ClimbActivity - STEP");
 			}
 			
 			
@@ -330,6 +330,11 @@ public class ClimbActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_climb);
 		
+		//si recupera il contesto dell'applicazione
+		appContext = getApplicationContext();
+		//si ottiene il riferimento alle shared preferences
+		settings = PreferenceManager.getDefaultSharedPreferences(appContext);
+				
 		//all'inizio si disabilita il bottone di start (lo si abilita in seguito alla fine del
 		//countdown oppure se la scalata è già stata completata)
 		findViewById(R.id.btnStartClimbing).setEnabled(false);
