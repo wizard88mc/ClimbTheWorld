@@ -778,10 +778,13 @@ public class ClimbActivity extends ActionBarActivity {
 			for (int i = 1; i <= ClimbApplication.N_MEMBERS_PER_GROUP; i++) {
 				int idNome = getResources().getIdentifier("nome" + i, "id", getPackageName());
 				int idPassi = getResources().getIdentifier("passi" + i, "id", getPackageName());
+				int idMinus = getResources().getIdentifier("minus" + i, "id", getPackageName());
 				group_members.add((TextView) findViewById(idNome));
 				group_steps.add((TextView) findViewById(idPassi));
+				group_minus.add((TextView) findViewById(idMinus));
 				group_members.get(i - 1).setVisibility(View.INVISIBLE);
 				group_steps.get(i - 1).setVisibility(View.INVISIBLE);
+				group_minus.get(i - 1).setVisibility(View.INVISIBLE);
 			}
 			difficulty = 1; // 1rstep = 1 vstep
 
@@ -1430,7 +1433,7 @@ public class ClimbActivity extends ActionBarActivity {
 					stats.put("begin_date", currentUser.getBegin_date());
 					stats.put("mean", 0);
 					stats.put("current_value", 0);
-					stats.put("n_days", 0);
+					stats.put("n_days", 1);
 					user.put("mean_daily_steps", stats);
 					// user.saveEventually();
 					ParseUtils.saveUserInParse(user);
@@ -1675,23 +1678,24 @@ public class ClimbActivity extends ActionBarActivity {
 	}
 
 	private void updateUserStats() {
+		Log.d("ClimbActivity", "UpdateUserStats");
 		ParseUser user = ParseUser.getCurrentUser();
-		if (ClimbApplication.are24hPassed(currentUser.getBegin_date())) {
-			currentUser.setMean(ClimbApplication.calculateNewMean((long) currentUser.getMean(), currentUser.getN_measured_days(), new_steps));
-			currentUser.setCurrent_steps_value(0);
+		if (ClimbApplication.are24hPassed(currentUser.getBegin_date())) {System.out.println("new mean");
+			currentUser.setMean(ClimbApplication.calculateNewMean((long) currentUser.getMean(), currentUser.getN_measured_days(), (currentUser.getCurrent_steps_value())));
+			currentUser.setCurrent_steps_value(new_steps);
 			currentUser.setN_measured_days(currentUser.getN_measured_days() + 1);
 			ClimbApplication.userDao.update(currentUser);
-		} else {
+		} else {System.out.println("update current value");
 			currentUser.setCurrent_steps_value(currentUser.getCurrent_steps_value() + new_steps);
 			ClimbApplication.userDao.update(currentUser);
 		}
 		if (user != null) {
 			JSONObject stats = user.getJSONObject("mean_daily_steps");
 			try {
+				stats.put("mean", currentUser.getMean());
+				stats.put("n_days", currentUser.getN_measured_days());
 				stats.put("current_value", currentUser.getCurrent_steps_value());
 				user.put("mean_daily_steps", stats);
-				user.put("mean", currentUser.getMean());
-				user.put("n_days", currentUser.getN_measured_days());
 				// user.saveEventually();
 				ParseUtils.saveUserInParse(user);
 			} catch (JSONException e) {
@@ -2367,9 +2371,11 @@ public class ClimbActivity extends ActionBarActivity {
 			userbadge.setSaved(false);
 			ClimbApplication.userBadgeDao.create(userbadge);
 		} else {
-			userbadge.setPercentage(percentage);
-			userbadge.setSaved(false);
-			ClimbApplication.userBadgeDao.update(userbadge);
+			if(userbadge.getPercentage() < percentage){
+				userbadge.setPercentage(percentage);
+				userbadge.setSaved(false);
+				ClimbApplication.userBadgeDao.update(userbadge);
+			}
 		}
 		return userbadge;
 	}

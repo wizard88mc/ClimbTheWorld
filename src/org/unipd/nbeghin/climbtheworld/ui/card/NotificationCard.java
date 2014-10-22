@@ -1184,6 +1184,7 @@ public class NotificationCard extends Card {
 		});
 		// Execute the request asynchronously.
 		Request.executeBatchAsync(request);
+		ClimbApplication.notifications.remove(notification);
 	}
 
 	@Override

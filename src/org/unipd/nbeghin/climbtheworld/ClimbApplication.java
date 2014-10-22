@@ -1114,7 +1114,7 @@ public class ClimbApplication extends Application{
 									// Hooray! The user is logged in.
 									me.setLevel(user.getInt("level"));
 			    		    				me.setXP(user.getInt("XP"));
-			    		    				JSONObject stats = user.getJSONObject("man_daily_steps");
+			    		    				JSONObject stats = user.getJSONObject("mean_daily_steps");
 			    		    				if (stats != null && stats.length() > 0) {
 			    		    				try {		
 			    		    					me.setBegin_date(String.valueOf(stats.getLong("begin_date")));
