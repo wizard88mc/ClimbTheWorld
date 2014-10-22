@@ -67,6 +67,17 @@ public class GeneralUtils {
         }
         return false;
     }
+    
+    
+    public static boolean isSamplingClassifyServiceRunning(Context context) {
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if ("org.unipd.nbeghin.climbtheworld.services.SamplingClassifyRecordService".equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
         
     /*
     public static int isServiceInRestartPhase(Context context) {

@@ -31,8 +31,7 @@ public class ActivityRecognitionIntentService extends IntentService {
 		// TODO Auto-generated method stub
 		super.onCreate();
 		
-		Log.d(MainActivity.AppName,"OnCreate activityRec service - n. values " + getValuesNumber());
-		
+		Log.d(MainActivity.AppName,"OnCreate activityRec service - n. values " + getValuesNumber());		
 	}
 	
 	
@@ -40,9 +39,8 @@ public class ActivityRecognitionIntentService extends IntentService {
 	public void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();
-		
-		Log.d(MainActivity.AppName,"OnDestroy activityRec service - n. values " + getValuesNumber());
-		
+				
+		Log.d(MainActivity.AppName,"OnDestroy activityRec service - n. values " + getValuesNumber());		
 	}
 	
 	

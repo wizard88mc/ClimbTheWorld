@@ -209,6 +209,14 @@ public class ClimbActivity extends Activity {
 		}
 	}
 
+	/*
+	public static void updateGUI(){
+		
+	}
+	*/
+	
+	
+	
 	private void apply_percentage_bonus() {
 		Log.i(MainActivity.AppName, "Applying percentage bonus");
 		percentage += percentage_bonus;

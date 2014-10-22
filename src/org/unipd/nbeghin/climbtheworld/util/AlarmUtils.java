@@ -77,8 +77,8 @@ public class AlarmUtils {
 		Alarm alm4 = new Alarm(11,27,50,false,new boolean[]{true,false},pf);
 		Alarm alm5 = new Alarm(11,40,15,true,bb,pf);
 		Alarm alm6 = new Alarm(11,45,50,false,bb,pf);
-		Alarm alm7 = new Alarm(16,54,10,true,bb,pf);
-		Alarm alm8 = new Alarm(16,55,50,false,bb,pf);
+		Alarm alm7 = new Alarm(12,59,10,true,bb,pf);
+		Alarm alm8 = new Alarm(13,03,50,false,bb,pf);
 		
 		/*
 		//creo template
