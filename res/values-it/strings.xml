@@ -201,21 +201,46 @@
     <string name="no_building">Nessun edificio</string>
     <string name="no_climbing">Ancora nessuna scalata</string>
     <string name="climbed_buildings">Edifici scalati</string>
-    <string name="n_climbed_buildings">%s edifici scalati finora</string>	
+    <!--  <string name="n_climbed_buildings">%s edifici scalati finora</string> -->	
+    <plurals name="n_climbed_buildings">
+        <item quantity="one">Un edificio scalato finora</item>
+        <item quantity="other">%d edifici scalati finora</item>
+    </plurals>
     <string name="in_progress">Scalate in corso</string>
-    <string name="n_in_progress">%s scalate in corso</string>
+    <!--  <string name="n_in_progress">%s scalate in corso</string> -->
+    <plurals name="n_in_progress">
+        <item quantity="one">Una scalata in corso</item>
+        <item quantity="other">%d scalate in corso</item>
+    </plurals>
     <string name="climbings">Scalate fatte finora</string> 
-    <string name="n_climbings">%s scalate fatte finora</string> 
+    <!--  <string name="n_climbings">%s scalate fatte finora</string> -->
+    <plurals name="n_climbings">
+        <item quantity="one">Una scalata fatta finora</item>
+        <item quantity="other">%d scalate fatte finora</item>
+    </plurals>
     <string name="available_buildings">Edifici disponibili</string>
     <string name="available_tours">Tour disponibili</string>
-    <string name="n_buildings">%s edifici</string>
-    <string name="n_tours">%s tour</string>
+    <!--  <string name="n_buildings">%s edifici</string> -->
+    <plurals name="n_buildings">
+        <item quantity="one">Un edificio</item>
+        <item quantity="other">%d edifici</item>
+    </plurals>
+    <!--  <string name="n_tours">%s tour</string> -->
+    <plurals name="n_tours">
+        <item quantity="one">Un tour</item>
+        <item quantity="other">%d tour</item>
+    </plurals>
     
     <!-- notification dialog -->
     <string name="no_notification">Nessuna notifica</string>
-    <string name="n_notification">Ci sono %d notifiche per te</string>
     <string name="download_notifications">Caricamento delle notifiche da Facebook...</string>
-    
+   
+    <!--     <string name="n_notification">Ci sono %d notifiche per te</string>
+     -->
+    <plurals name="n_notification">
+        <item quantity="one">C\'è una notifica per te</item>
+        <item quantity="other">Ci sono %d notifiche per te</item>
+    </plurals>
     <!-- FBPickFriendActivity -->
     <string name="pick_friends">Invita i tuoi amici</string>
     <string name="invite_btn">Invita</string>

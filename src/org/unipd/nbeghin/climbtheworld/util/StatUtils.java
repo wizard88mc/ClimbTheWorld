@@ -2,22 +2,24 @@ package org.unipd.nbeghin.climbtheworld.util;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
+import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.exceptions.NoStatFound;
 import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.Stat;
+import org.unipd.nbeghin.climbtheworld.models.User;
 
-
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.j256.ormlite.dao.GenericRawResults;
 
 public class StatUtils {
+	static SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
+	static User currentUser = ClimbApplication.getUserById(pref.getInt("local_id", -1));
 	/**
 	 * Check if a climbing has been performed yesterday
 	 * 
@@ -40,7 +42,7 @@ public class StatUtils {
 	public static List<Stat> calculateStats() {
 		List<Stat> stats = new ArrayList<Stat>();
 		String statName = ClimbApplication.getContext().getString(R.string.fastest);
-		String sql = "SELECT building_id,MIN(completed-created) FROM climbings WHERE completed>created";
+		String sql = "SELECT building_id,MIN(completed-created) FROM climbings WHERE completed>created AND users_id=" + currentUser.get_id();
 		try {
 			String building_id = execQuery(sql);
 			Building building = ClimbApplication.buildingDao.queryForId(Integer.valueOf(building_id));
@@ -51,20 +53,20 @@ public class StatUtils {
 			Log.e(MainActivity.AppName, "SQL exception: " + e.getMessage());
 		}
 		statName = ClimbApplication.getContext().getString(R.string.climbed_buildings);
-		sql = "SELECT COUNT(*) FROM climbings WHERE completed>0";
+		sql = "SELECT COUNT(*) FROM climbings WHERE completed>0 AND users_id=" + currentUser.get_id();
 		try {
 			String count = execQuery(sql);
-			stats.add(new Stat(statName, ClimbApplication.getContext().getString(R.string.n_climbed_buildings, count) ));
+			stats.add(new Stat(statName, ClimbApplication.getContext().getResources().getQuantityString(R.plurals.n_climbed_buildings, Integer.valueOf(count)) ));
 		} catch (NoStatFound e) {
 			stats.add(new Stat(statName, ClimbApplication.getContext().getString(R.string.no_completed_yet)));
 		} catch (Exception e) {
 			Log.e(MainActivity.AppName, "SQL exception: " + e.getMessage());
 		}
 		statName = ClimbApplication.getContext().getString(R.string.in_progress);
-		sql = "SELECT COUNT(*) FROM climbings WHERE completed=0";
+		sql = "SELECT COUNT(*) FROM climbings WHERE completed=0 AND users_id=" + currentUser.get_id();
 		try {
 			String count = execQuery(sql);
-			stats.add(new Stat(statName, ClimbApplication.getContext().getString(R.string.n_in_progress, count)));
+			stats.add(new Stat(statName, ClimbApplication.getContext().getResources().getQuantityString(R.plurals.n_in_progress, Integer.valueOf(count), Integer.valueOf(count))));
 		} catch (NoStatFound e) {
 			stats.add(new Stat(statName, ClimbApplication.getContext().getString(R.string.no_completed_yet)));
 		} catch (Exception e) {
@@ -74,7 +76,7 @@ public class StatUtils {
 		sql = "SELECT COUNT(*) FROM climbings";
 		try {
 			String count = execQuery(sql);
-			stats.add(new Stat(statName, ClimbApplication.getContext().getString(R.string.n_climbings, count)));
+			stats.add(new Stat(statName, ClimbApplication.getContext().getResources().getQuantityString(R.plurals.n_climbings, Integer.valueOf(count), Integer.valueOf(count))));
 		} catch (NoStatFound e) {
 			stats.add(new Stat(statName, ClimbApplication.getContext().getString(R.string.no_climbing)));
 		} catch (Exception e) {
@@ -84,7 +86,7 @@ public class StatUtils {
 		sql = "SELECT COUNT(*) FROM buildings";
 		try {
 			String count = execQuery(sql);
-			stats.add(new Stat(statName, ClimbApplication.getContext().getString(R.string.n_buildings,count)));
+			stats.add(new Stat(statName, ClimbApplication.getContext().getResources().getQuantityString(R.plurals.n_buildings,Integer.valueOf(count), Integer.valueOf(count))));
 		} catch (NoStatFound e) {
 			stats.add(new Stat(statName, ClimbApplication.getContext().getString(R.string.no_building)));
 		} catch (Exception e) {
@@ -94,7 +96,7 @@ public class StatUtils {
 		sql = "SELECT COUNT(*) FROM tours";
 		try {
 			String count = execQuery(sql);
-			stats.add(new Stat(statName, ClimbApplication.getContext().getString(R.string.n_tours, count)));
+			stats.add(new Stat(statName, ClimbApplication.getContext().getResources().getQuantityString(R.plurals.n_tours, Integer.valueOf(count), Integer.valueOf(count))));
 		} catch (NoStatFound e) {
 			stats.add(new Stat(statName, ClimbApplication.getContext().getString(R.string.no_tour)));
 		} catch (Exception e) {

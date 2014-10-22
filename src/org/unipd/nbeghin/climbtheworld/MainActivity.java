@@ -382,7 +382,7 @@ public class MainActivity extends ActionBarActivity {
 			if(ClimbApplication.notifications.isEmpty())
 				Toast.makeText(MainActivity.this, MainActivity.this.getString(R.string.no_notification), Toast.LENGTH_SHORT).show();
 			else
-				Toast.makeText(MainActivity.this, MainActivity.this.getString(R.string.n_notification, ClimbApplication.notifications.size()), Toast.LENGTH_SHORT).show();
+				Toast.makeText(MainActivity.this, MainActivity.this.getResources().getQuantityString(R.plurals.n_notification, ClimbApplication.notifications.size()), Toast.LENGTH_SHORT).show();
 
 		}
 	}
@@ -419,7 +419,7 @@ public class MainActivity extends ActionBarActivity {
 				if(ClimbApplication.notifications.isEmpty())
 					Toast.makeText(this, getString(R.string.no_notification), Toast.LENGTH_SHORT).show();
 				else
-					Toast.makeText(this, getString(R.string.n_notification, ClimbApplication.notifications.size()), Toast.LENGTH_SHORT).show();
+					Toast.makeText(this, getResources().getQuantityString(R.plurals.n_notification, ClimbApplication.notifications.size()), Toast.LENGTH_SHORT).show();
 
 			}
 

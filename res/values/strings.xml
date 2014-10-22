@@ -199,21 +199,44 @@
     <string name="no_building">No building</string>
     <string name="no_climbing">No climbing yet</string>
     <string name="climbed_buildings">Climbed buildings</string>
-    <string name="n_climbed_buildings">%s buildings have been climbed so far</string>	
+   <!--   <string name="n_climbed_buildings">%s buildings have been climbed so far</string> -->
+   <plurals name="n_climbed_buildings">
+       <item quantity="one">One building have been climbed so far</item>
+       <item quantity="other">%d buildings have been climbed so far</item>
+   </plurals>	
     <string name="in_progress">In-progress climbings</string>
-    <string name="n_in_progress">%s buildings in progress</string>
+    <!--  <string name="n_in_progress">%s buildings in progress</string> -->
+    <plurals name="n_in_progress">
+        <item quantity="one">One building in progress</item>
+        <item quantity="other">%d buildings in progress</item>
+    </plurals>
     <string name="climbings">Climbings so far</string> 
-    <string name="n_climbings">%s climbings so far</string>   
+    <!--  <string name="n_climbings">%s climbings so far</string>  --> 
+    <plurals name="n_climbings">
+        <item quantity="one">One climbing so far</item>
+        <item quantity="other">%d climbings so far</item>
+    </plurals>
     <string name="available_buildings">Available buildings</string>
     <string name="available_tours">Available tours</string>
-    <string name="n_buildings">%s buildings</string>
-    <string name="n_tours">%s tours</string>
+    <!--  <string name="n_buildings">%s buildings</string> -->
+    <plurals name="n_buildings">
+        <item quantity="one">One building</item>
+        <item quantity="other">%d buildings</item>
+    </plurals>
+    <!--  <string name="n_tours">%s tours</string> -->
+    <plurals name="n_tours">
+        <item quantity="one">One tour</item>
+        <item quantity="other">%d tours</item>
+    </plurals>
     
     <!-- notification dialog -->
     <string name="no_notification">No notification</string>
-    <string name="n_notification">There are %d notifications for you</string>
     <string name="download_notifications">Downloading notifications from Facebook...</string>
-    
+    <!--     <string name="n_notification">There are %d notifications for you</string> -->
+    <plurals name="n_notification">
+        <item quantity="one">There is a notification for you</item>
+        <item quantity="other">There are %d notifications for you</item>
+    </plurals>
     <!-- FBPickFriendActivity -->
     <string name="pick_friends">Invite your friends</string>
     <string name="invite_btn">Invite</string>

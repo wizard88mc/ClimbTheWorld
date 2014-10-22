@@ -2193,6 +2193,7 @@ public class ClimbActivity extends ActionBarActivity {
 									if (key.equalsIgnoreCase(pref.getString("FBid", ""))) {
 										group_members.get(i).setBackgroundColor(Color.parseColor("#f7fe2e"));
 										group_steps.get(i).setBackgroundColor(Color.parseColor("#f7fe2e"));
+										group_minus.get(i).setVisibility(View.INVISIBLE);
 										if (steps >= building.getSteps()) {
 											percentage = 1.0;
 											endCompetition();
