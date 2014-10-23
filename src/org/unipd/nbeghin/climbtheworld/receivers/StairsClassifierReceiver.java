@@ -12,12 +12,34 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-public class StairsReceiver extends BroadcastReceiver {
+public class StairsClassifierReceiver extends BroadcastReceiver {
 
 	private static final double tradeoffG = 0.001;
 	private static final double g = tradeoffG / (double)100;
 	private List<Double> history = new ArrayList<Double>();
 	private static final int historySize = 10;
+	
+	private static int steps_number = 0;	
+	private static ClimbActivity climb;
+	
+	private static StairsClassifierReceiver mInstance = null;
+	
+	
+	private StairsClassifierReceiver(){
+	}
+	
+	
+	 public static StairsClassifierReceiver getInstance() {
+	       
+	        if (mInstance == null) {
+	        	
+	            mInstance = new StairsClassifierReceiver();
+	        }
+	        else{
+	        	
+	        }
+	        return mInstance;
+	    }
 	
 	
 	@Override
@@ -27,7 +49,7 @@ public class StairsReceiver extends BroadcastReceiver {
  				
  		Double result = intent.getExtras().getDouble(ClassifierCircularBuffer.CLASSIFIER_NOTIFICATION_STATUS);
  		
- 		Log.d(MainActivity.AppName,"STAIRS RECEIVER - result: " + result);
+ 		//Log.d(MainActivity.AppName,"STAIRS RECEIVER - result: " + result);
  		
  		
 		double correction = 0.0;
@@ -41,7 +63,7 @@ public class StairsReceiver extends BroadcastReceiver {
 		
 		double finalClassification = result + correction;
 		
-		Log.d(MainActivity.AppName,"STAIRS RECEIVER - final classification: " + finalClassification);
+		//Log.d(MainActivity.AppName,"STAIRS RECEIVER - final classification: " + finalClassification);
 		
 		if (result * finalClassification >= 0) {
 			if (history.size() == historySize) {
@@ -60,14 +82,31 @@ public class StairsReceiver extends BroadcastReceiver {
 		
 		if(finalClassification>0){ //scalino
 			
-			//se il gioco è attivo si aggiorna la grafica
-			//ClimbActivity.updateGUI();
+			//se il gioco è attivo si aggiorna la grafica			
+			if(climb!=null){ // && ClimbActivity.samplingEnabled){
+				Log.d(MainActivity.AppName,"STAIRS RECEIVER - refresh GUI:");
+				climb.refreshOnStep();
+			}
 			
-			
-			
+			steps_number++;
+			Log.d(MainActivity.AppName,"STAIRS RECEIVER - steps number: " + steps_number);
 		}
 		
+		if(climb!=null) {// && ClimbActivity.samplingEnabled){
+			climb.printClassification(finalClassification);
+		}
 		
+	}
+	
+	
+	
+	public static void setClimb(ClimbActivity cl_act){
+		climb=cl_act;
+	}
+	
+	
+	public static int getStepNumber(){
+		return steps_number;
 	}
 	
 }

@@ -11,7 +11,9 @@ import org.unipd.nbeghin.climbtheworld.ClimbActivity;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionIntentService;
 import org.unipd.nbeghin.climbtheworld.models.Alarm;
+import org.unipd.nbeghin.climbtheworld.models.ClassifierCircularBuffer;
 import org.unipd.nbeghin.climbtheworld.services.ActivityRecognitionRecordService;
+import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
 import org.unipd.nbeghin.climbtheworld.util.AlarmUtils;
 import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
 import org.unipd.nbeghin.climbtheworld.util.IntervalEvaluationUtils;
@@ -21,6 +23,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -38,6 +41,9 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 	//PER TEST ALGORITMO
 	private final String UPDATE_DAY_INDEX_FOR_TESTING = "UPDATE_DAY_INDEX_TESTING";
 	/////////	
+	
+	private BroadcastReceiver stairsReceiver = StairsClassifierReceiver.getInstance();
+	private IntentFilter stairsActionFilter = new IntentFilter(ClassifierCircularBuffer.CLASSIFIER_ACTION);	
 	
 	//campi utili a registrare il receiver che "ascolta" l'attività utente; quest'ultimo sarà
 	//chiamato con qualsiasi broadcast intent che matcha con l'azione descritta dal seguente
@@ -473,7 +479,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					
 					//si controlla se questo alarm definisce un intervallo di gioco
 					//se è un intervallo di gioco, allora non si attiva il servizio di 
-					//activity recognition
+					//activity recognition, ma il classificatore scalini/non_scalini
 					if(!AlarmUtils.getAlarm(context, this_alarm_id).isGameInterval(current_day_index)){
 						
 						//non è un intervallo di gioco
@@ -494,6 +500,10 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					else{ 
 						//è un intervallo di gioco						
 						Log.d(MainActivity.AppName,"START ACTION - Intervallo di gioco");
+						
+						context.getApplicationContext().startService(new Intent(context, SamplingClassifyService.class));
+						//si registra anche il receiver
+						context.getApplicationContext().registerReceiver(stairsReceiver, stairsActionFilter);
 					}	
 				}
 				

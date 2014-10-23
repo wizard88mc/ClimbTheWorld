@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionIntentService;
-import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.exceptions.ClimbingNotFound;
 import org.unipd.nbeghin.climbtheworld.exceptions.NoFBSession;
 import org.unipd.nbeghin.climbtheworld.listeners.AccelerometerSamplingRateDetect;
@@ -16,6 +15,7 @@ import org.unipd.nbeghin.climbtheworld.models.Alarm;
 import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.ClassifierCircularBuffer;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
+import org.unipd.nbeghin.climbtheworld.receivers.StairsClassifierReceiver;
 import org.unipd.nbeghin.climbtheworld.services.ActivityRecognitionRecordService;
 import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
 import org.unipd.nbeghin.climbtheworld.services.SamplingRateDetectorService;
@@ -25,8 +25,6 @@ import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
 import org.unipd.nbeghin.climbtheworld.util.StatUtils;
 import org.unipd.nbeghin.climbtheworld.util.SystemUiHider;
-
-import com.j256.ormlite.dao.RuntimeExceptionDao;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -79,7 +77,7 @@ public class ClimbActivity extends Activity {
 	private Intent					backgroundSamplingRateDetector;																		// sampling rate detector service intent
 	private IntentFilter			classifierFilter			= new IntentFilter(ClassifierCircularBuffer.CLASSIFIER_ACTION);			// intent filter (for BroadcastReceiver)
 	private IntentFilter			samplingRateDetectorFilter	= new IntentFilter(AccelerometerSamplingRateDetect.SAMPLING_RATE_ACTION);	// intent filter (for BroadcastReceiver)
-	private BroadcastReceiver		classifierReceiver			= new ClassifierReceiver();												// implementation of BroadcastReceiver for classifier service
+	private BroadcastReceiver		classifierReceiver			= StairsClassifierReceiver.getInstance();//new ClassifierReceiver();												// implementation of BroadcastReceiver for classifier service
 	private BroadcastReceiver		sampleRateDetectorReceiver	= new SamplingRateDetectorReceiver();										// implementation of BroadcastReceiver for sampling rate detector
 	private int						num_steps					= 0;																		// number of currently detected steps
 	private double					percentage					= 0.0;																		// current progress percentage
@@ -90,7 +88,7 @@ public class ClimbActivity extends Activity {
 	private boolean					used_bonus					= false;
 	private double					percentage_bonus			= 0.25f; //0.50f
 	private boolean climbedYesterday=false;
-		
+	
 	// number of virtual step for each real step
 	/**
 	 * Whether or not the system UI should be auto-hidden after {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -139,10 +137,12 @@ public class ClimbActivity extends Activity {
 	// public static double getDetectedSamplingRate() {
 	// return detectedSamplingRate;
 	// }
+	
 	/**
 	 * Handles classifier service intents (STAIR/NON_STAIR)
 	 * 
 	 */
+	/*
 	public class ClassifierReceiver extends BroadcastReceiver {
 		
 		private static final double tradeoffG = 0.001;
@@ -181,6 +181,7 @@ public class ClimbActivity extends Activity {
 			}
 			
 			if (finalClassification > 0) {
+
 				if (climbedYesterday && percentage > 0.25f && percentage < 0.50f && used_bonus == false) { // bonus at 25%
 					apply_percentage_bonus();
 				} else { // standard, no bonus
@@ -208,12 +209,40 @@ public class ClimbActivity extends Activity {
 			((TextView) findViewById(R.id.lblClassifierOutput)).setText(finalClassification > 0 ? "STAIR" : "NON_STAIR"); // debug: show currently detected classifier output
 		}
 	}
-
-	/*
-	public static void updateGUI(){
-		
-	}
 	*/
+	
+	
+
+	
+	public void refreshOnStep(){
+		
+		if (climbedYesterday && percentage > 0.25f && percentage < 0.50f && used_bonus == false) { // bonus at 25%
+			apply_percentage_bonus();
+		} else { // standard, no bonus
+			num_steps += vstep_for_rstep; // increase the number of steps
+			seekbarIndicator.setProgress(num_steps); // increase the seekbar progress
+			percentage = (double) num_steps / (double) building.getSteps(); // increase the progress percentage
+			boolean win = (num_steps >= building.getSteps()); // user wins?
+			if (win) { // ensure it did not exceed the number of steps (when multiple steps-at-once are detected)
+				num_steps = building.getSteps();
+				percentage = 1.00;
+			}
+			updateStats(); // update the view of current stats
+			if (win) {
+				stopClassify(AlarmUtils.getAlarm(appContext, settings.getInt("alarm_id", -1)), settings.getInt("artificialDayIndex", 0)); // stop classifier service service
+				apply_win();
+			}
+		}
+		
+		//l'utente ha fatto almeno uno scalino nel periodo di gioco corrente
+		stepsInGamePeriod=true;
+		Log.d(MainActivity.AppName,"ClimbActivity - STEP");
+	}
+	
+	
+	public void printClassification(double finalClassification){
+		((TextView) findViewById(R.id.lblClassifierOutput)).setText(finalClassification > 0 ? "STAIR" : "NON_STAIR"); // debug: show currently detected classifier output
+	}
 	
 	
 	
@@ -591,20 +620,32 @@ public class ClimbActivity extends Activity {
 				startActivity(intent);
 			}
 		} else {
+			
+			System.out.println("Click button - steps: "+StairsClassifierReceiver.getStepNumber());
+			
+			
+			//si recupera il prossimo alarm impostato
+			int next_alarm_id = settings.getInt("alarm_id", -1);	
+			Alarm next_alarm = AlarmUtils.getAlarm(appContext, next_alarm_id);
+			
+			//si recupera l'indice del giorno corrente all'interno della settimana
+			/////////		
+	    	//PER TEST ALGORITMO
+			int current_day_index = settings.getInt("artificialDayIndex", 0);
+			///////// altrimenti l'indice del giorno è (Calendar.getInstance().get(Calendar.DAY_OF_WEEK))-1;
+						
 			if (samplingEnabled) { // if sampling is enabled stop the classifier
-				stopClassify();
+				stopClassify(next_alarm,current_day_index);
 								
 				//l'utente ferma il gioco, ponendo fine al "periodo di gioco" iniziato
 				//in precedenza
 				
 				//se il prossimo alarm è di stop significa che si è all'interno di un
 				//intervallo di esplorazione attivo
-				int next_alarm_id = settings.getInt("alarm_id", -1);	
-				Alarm next_alarm = AlarmUtils.getAlarm(appContext, next_alarm_id);
+			//	int next_alarm_id = settings.getInt("alarm_id", -1);	
+			//	Alarm next_alarm = AlarmUtils.getAlarm(appContext, next_alarm_id);
 				if(!next_alarm.get_actionType()){
 				
-					Log.d(MainActivity.AppName,"STOP GAME IN ACTIVE INTERVAL - START ACTIVITY REC");
-					
 					if(stepsInGamePeriod){
 						
 						Log.d(MainActivity.AppName,"STOP GAME IN ACTIVE INTERVAL - with steps");
@@ -618,20 +659,17 @@ public class ClimbActivity extends Activity {
 						//almeno 1 scalino nel periodo di gioco corrente
 						stepsInGamePeriod=false;
 					}
-					
-					
-					//si recupera l'indice del giorno corrente all'interno della settimana
-					/////////		
-			    	//PER TEST ALGORITMO
-					int current_day_index = settings.getInt("artificialDayIndex", 0);
-					///////// altrimenti l'indice del giorno è (Calendar.getInstance().get(Calendar.DAY_OF_WEEK))-1;
+										
 					
 					//se non è un intervallo di gioco, si ri-attiva il servizio di activity
 					//recognition
 					//TODO controllo livello batteria 					
 					if(!next_alarm.isGameInterval(current_day_index)){
+						Log.d(MainActivity.AppName,"STOP GAME IN ACTIVE INTERVAL - START ACTIVITY REC");
 						appContext.startService(new Intent(appContext, ActivityRecognitionRecordService.class));
 					}
+					//altrimenti è un intervallo di gioco e, quindi, continua l'esecuzione
+					//del classificatore scalini/non_scalini
 					
 				}
 				
@@ -639,14 +677,15 @@ public class ClimbActivity extends Activity {
 				climbedYesterday=StatUtils.climbedYesterday(climbing.get_id());
 				// FOR TESTING PURPOSES
 //				climbedYesterday=true;
-				startClassifyService();
+				startClassifyService(next_alarm,current_day_index);
 				
 				//l'utente fa partire il gioco, generando un "periodo di gioco"
 				
 				//se il prossimo alarm settato è un evento di stop allora significa che 
-				//si è all'interno di un intervallo di esplorazione attivo; se il servizio
-				//di activity recognition è in esecuzione, viene fermato	
-				if(!AlarmUtils.getAlarm(appContext,settings.getInt("alarm_id", -1)).get_actionType()){
+				//si è all'interno di un intervallo attivo; se quest'ultimo non è un intervallo
+				//di gioco, vuol dire che il servizio di activity recognition è in esecuzione;
+				//in questo caso tale servizio viene fermato	
+				if(!next_alarm.get_actionType() && !next_alarm.isGameInterval(current_day_index)){
 										
 					Log.d(MainActivity.AppName,"START GAME IN ACTIVE INTERVAL - STOP ACTIVITY REC");
 					
@@ -686,10 +725,22 @@ public class ClimbActivity extends Activity {
 	/**
 	 * Stop background classifier service
 	 */
-	public void stopClassify() {
-		stopService(backgroundClassifySampler); // stop background service		
+	public void stopClassify(Alarm next_alarm, int day_index) {
+		
+		//se il prossimo alarm è di start oppure è di stop e non definisce un int. di gioco
+		//allora si ferma il classificatore scalini/non_scalini
+		if(next_alarm.get_actionType() || !next_alarm.get_actionType() && !next_alarm.isGameInterval(day_index)){
+			stopService(backgroundClassifySampler); // stop background service	
+			unregisterReceiver(classifierReceiver); // unregister listener
+			Log.d(MainActivity.AppName,"Climb - STOP CLASSIFY");
+		}
+		else{
+			Log.d(MainActivity.AppName,"Climb - NO STOP CLASSIFY");
+		}
+				
+		StairsClassifierReceiver.setClimb(null);
 		samplingEnabled = false;
-		unregisterReceiver(classifierReceiver); // unregister listener		
+		
 		// update db
 		climbing.setModified(new Date().getTime()); // update climbing last edit date
 		climbing.setCompleted_steps(num_steps); // update completed steps
@@ -706,7 +757,7 @@ public class ClimbActivity extends Activity {
 	/**
 	 * Start background classifier service
 	 */
-	public void startClassifyService() {
+	public void startClassifyService(Alarm next_alarm, int day_index) {
 		
 		firstTimeStart = false; //aggiunto
 		
@@ -728,9 +779,28 @@ public class ClimbActivity extends Activity {
 		}
 		Log.i(MainActivity.AppName, "Using " + vstep_for_rstep + " steps for each real step");
 		
-		startService(backgroundClassifySampler); // start background service
-		registerReceiver(classifierReceiver, classifierFilter); // register listener		
+		
+		//se il prossimo alarm è di stop e definisce la fine di un intervallo di gioco,
+		//allora il classificatore scalini/non_scalini è già in esecuzione; quindi non lo si
+		//attiva nuovamente
+		if(next_alarm.get_actionType() || !next_alarm.get_actionType() && !next_alarm.isGameInterval(day_index)){
+			
+			System.out.println("START CLASSIFY NO GAME INTERVAL");
+			
+			startService(backgroundClassifySampler); // start background service
+			registerReceiver(classifierReceiver, classifierFilter); // register listener			
+		}		
+		
+		/*
+		if(!GeneralUtils.isSamplingClassifyServiceRunning(appContext)){
+			startService(backgroundClassifySampler); // start background service
+			registerReceiver(classifierReceiver, classifierFilter); // register listener
+		}*/
+		
+			
+		StairsClassifierReceiver.setClimb(this);
 		samplingEnabled = true;
+		
 		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.av_pause); // set button image to stop service
 		
 		//findViewById(R.id.lblReadyToClimb).setVisibility(View.GONE); // prima c'era; necessario per far rivedere il pulsante di start/stop al click
