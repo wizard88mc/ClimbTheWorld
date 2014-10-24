@@ -621,8 +621,6 @@ public class ClimbActivity extends Activity {
 			}
 		} else {
 			
-			//System.out.println("Click button - steps: "+StairsClassifierReceiver.getStepsNumber());
-						
 			//si recupera il prossimo alarm impostato
 			int next_alarm_id = settings.getInt("alarm_id", -1);	
 			Alarm next_alarm = AlarmUtils.getAlarm(appContext, next_alarm_id);
@@ -640,36 +638,51 @@ public class ClimbActivity extends Activity {
 				//in precedenza
 				
 				//se il prossimo alarm è di stop significa che si è all'interno di un
-				//intervallo di esplorazione attivo
-			//	int next_alarm_id = settings.getInt("alarm_id", -1);	
-			//	Alarm next_alarm = AlarmUtils.getAlarm(appContext, next_alarm_id);
+				//intervallo di esplorazione/intervallo con scalini attivo
 				if(!next_alarm.get_actionType()){
 				
+					//nel periodo di gioco corrente l'utente ha fatto scalini (utile per un
+					//intervallo di esplorazione)
 					if(stepsInGamePeriod){
 						
 						Log.d(MainActivity.AppName,"STOP GAME IN ACTIVE INTERVAL - with steps");
 						
-						//si associa il fatto che nell'intervallo di esplorazione corrente l'utente
-						//ha fatto almeno uno scalino (salvataggio nelle preferences, così 
-						//l'informazione viene mantenuta anche se l'utente spegne il device)
+						//si associa il fatto che nell'intervallo di esplorazione corrente
+						//l'utente ha fatto almeno uno scalino (salvataggio nelle preferences:
+						//utile per memorizzare questo fatto in caso di vari periodi di gioco 
+						//all'interno dell'intervallo, mantenendo l'informazione anche se 
+						//se l'utente spegne il device)
 						settings.edit().putInt("last_interval_with_steps", next_alarm_id).commit();
 					
 						//si resetta a 'false' il booleano che indica se l'utente ha fatto
 						//almeno 1 scalino nel periodo di gioco corrente
 						stepsInGamePeriod=false;
 					}
+					else{ 
+						//nel periodo di gioco corrente l'utente non ha fatto scalini
+						
+						//se l'intervallo definito dall'alarm di stop è un semplice 
+						//"intervallo di esplorazione" (quindi non è un "intervallo con scalini") e
+						//se in nessuno dei periodi di gioco all'interno di questo intervallo
+						//l'utente non ha fatto scalini, allora si ri-attiva il servizio di activity
+						//recognition
+						//TODO controllo livello batteria 
+						if(!next_alarm.isStepsInterval(current_day_index) && 
+							settings.getInt("last_interval_with_steps", next_alarm_id)!=next_alarm_id){
+							
+							Log.d(MainActivity.AppName,"STOP GAME IN ACTIVE INTERVAL - START ACTIVITY REC");
+							appContext.startService(new Intent(appContext, ActivityRecognitionRecordService.class));
+							
+						}
+						//se si tratta di un "intervallo con scalini" si continua
+						//l'esecuzione del classificatore scalini/non_scalini
+					}
 										
-					
-					//se non è un intervallo di gioco, si ri-attiva il servizio di activity
-					//recognition
-					//TODO controllo livello batteria 					
-					if(!next_alarm.isStepsInterval(current_day_index)){ //&&!stepsInGame
+				/*						
+					if(!next_alarm.isStepsInterval(current_day_index)){
 						Log.d(MainActivity.AppName,"STOP GAME IN ACTIVE INTERVAL - START ACTIVITY REC");
 						appContext.startService(new Intent(appContext, ActivityRecognitionRecordService.class));
-					}
-					//altrimenti è un intervallo di gioco e, quindi, continua l'esecuzione
-					//del classificatore scalini/non_scalini
-					
+					}*/
 				}
 				
 			} else { // if sampling is not enabled stop the classifier
@@ -681,16 +694,17 @@ public class ClimbActivity extends Activity {
 				//l'utente fa partire il gioco, generando un "periodo di gioco"
 				
 				//se il prossimo alarm settato è un evento di stop allora significa che 
-				//si è all'interno di un intervallo attivo; se quest'ultimo non è un intervallo
-				//di gioco, vuol dire che il servizio di activity recognition è in esecuzione;
-				//in questo caso tale servizio viene fermato	
+				//si è all'interno di un intervallo attivo; se quest'ultimo è un semplice
+				//"intervallo di esplorazione" (non è un "intervallo con scalini"), vuol
+				//dire che il servizio di activity recognition è in esecuzione; in questo
+				//caso tale servizio viene fermato	
 				if(!next_alarm.get_actionType() && !next_alarm.isStepsInterval(current_day_index)){
 										
 					Log.d(MainActivity.AppName,"START GAME IN ACTIVE INTERVAL - STOP ACTIVITY REC");
 					
 					//stop servizio di activity recognition (si tengono le variabili legate
-					//all'eventuale valutazione dell'attività svolta nel primo intervallo
-					//della lista, il cui ascolto è stato interrotto dall'inizio del gioco)					
+					//all'eventuale valutazione dell'attività svolta in precedenza nell'intervallo
+					//corrente, che è stato interrotto dall'inizio del gioco)					
 					if(GeneralUtils.isActivityRecognitionServiceRunning(appContext)){
 						appContext.stopService(new Intent(appContext, ActivityRecognitionRecordService.class));
 					}
@@ -741,8 +755,8 @@ public class ClimbActivity extends Activity {
 	 */
 	public void stopClassify(Alarm next_alarm, int day_index) {
 		
-		//se il prossimo alarm è di start oppure è di stop e non definisce un int. di gioco
-		//allora si ferma il classificatore scalini/non_scalini
+		//se il prossimo alarm è di start oppure è di stop e definisce un semplice "intervallo
+		//di esplorazione" allora si ferma il classificatore scalini/non_scalini
 		if(next_alarm.get_actionType() || !next_alarm.get_actionType() && !next_alarm.isStepsInterval(day_index)){
 			stopService(backgroundClassifySampler); // stop background service	
 			//unregisterReceiver(classifierReceiver); // unregister listener
@@ -795,14 +809,14 @@ public class ClimbActivity extends Activity {
 		Log.i(MainActivity.AppName, "Using " + vstep_for_rstep + " steps for each real step");
 		
 		
-		//se il prossimo alarm è di stop e definisce la fine di un intervallo di gioco,
+		//se il prossimo alarm è di stop e definisce la fine di un "intervallo con scalini",
 		//allora il classificatore scalini/non_scalini è già in esecuzione; quindi non lo si
 		//attiva nuovamente; se, invece, il prossimo alarm è di start (quindi non si è in
-		//un intervallo attivo) oppure è di stop ma l'intervallo in questione non è un int. di
-		//gioco, allora si deve attivare il cl. scalini/non_scalini
+		//un intervallo attivo) oppure è di stop ma l'intervallo in questione è un "intervallo
+		//di esplorazione", allora si deve attivare il classificatore scalini/non_scalini
 		if(next_alarm.get_actionType() || !next_alarm.get_actionType() && !next_alarm.isStepsInterval(day_index)){
 			
-			System.out.println("START CLASSIFY NO GAME INTERVAL");
+			System.out.println("START CLASSIFY, NO GAME INTERVAL");
 			
 			startService(backgroundClassifySampler); // start background service
 			//registerReceiver(classifierReceiver, classifierFilter); // register listener	

@@ -75,10 +75,10 @@ public class AlarmUtils {
 		Alarm alm2 = new Alarm(9,57,50,false,new boolean[]{false,true},pf);
 		Alarm alm3 = new Alarm(11,25,10,true,new boolean[]{true,false},pf); 
 		Alarm alm4 = new Alarm(11,27,50,false,new boolean[]{true,false},pf);
-		Alarm alm5 = new Alarm(14,52,15,true,bb,pf);
-		Alarm alm6 = new Alarm(14,54,50,false,bb,pf);
-		Alarm alm7 = new Alarm(14,54,51,true,bb,pf);
-		Alarm alm8 = new Alarm(14,55,50,false,bb,pf);
+		Alarm alm5 = new Alarm(20,53,15,true,bb,pf);
+		Alarm alm6 = new Alarm(20,54,50,false,bb,pf);
+		Alarm alm7 = new Alarm(20,54,51,true,bb,pf);
+		Alarm alm8 = new Alarm(20,55,50,false,bb,pf);
 		Alarm alm9 = new Alarm(15,21,10,true,bb,pf);
 		Alarm alm10 = new Alarm(15,22,50,false,bb,pf);
 		
