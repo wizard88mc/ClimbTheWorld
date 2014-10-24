@@ -4,6 +4,7 @@ import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionIntentService;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.models.Alarm;
+import org.unipd.nbeghin.climbtheworld.receivers.StairsClassifierReceiver;
 
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 
@@ -18,14 +19,14 @@ public class IntervalEvaluationUtils {
 	
 	
 	
-	public static void evaluateAndUpdateInterval(Context context, boolean withSteps, int stop_alarm_id){
+	public static void evaluateAndUpdateInterval(Context context, boolean stepsInterval, boolean withSteps, int stop_alarm_id){
 				
 		//si recupera il DAO associato alla tabella degli alarm attraverso il gestore del DB
 		RuntimeExceptionDao<Alarm, Integer> alarmDao = DbHelper.getInstance(context).getAlarmDao();
 						
 		//dal DB si ottengono l'alarm di start e di stop che definiscono questo intervallo
-		//di esplorazione (gli alarm vengono salvati in un modo da avere un alarm di start 
-		//seguito dal relativo alarm di stop così da definire un intervallo)				
+		//di esplorazione/con scalini (gli alarm vengono salvati in un modo da avere un alarm
+		//di start seguito dal relativo alarm di stop così da definire un intervallo)				
 		Alarm previous_start_alarm = AlarmUtils.getAlarm(context, stop_alarm_id-1);
 		Alarm this_stop_alarm = AlarmUtils.getAlarm(context, stop_alarm_id);
 				
@@ -39,43 +40,77 @@ public class IntervalEvaluationUtils {
 				
 		Log.d(MainActivity.AppName,"alarm start prima: " + previous_start_alarm.getRepeatingDay(current_day_index));
 		
-		//si valuta l'intervallo di esplorazione e, a seconda della valutazione, lo si attiva
-		//o meno per la prossima settimana (un intervallo non attivo può essere poi attivato
-		//con la mutazione)
+		//si valuta l'intervallo di esplorazione/con scalini e, a seconda della valutazione,
+		//lo si attiva o meno per la prossima settimana (un intervallo non attivo può essere
+		//poi attivato con la mutazione)
 				
 		float evaluation = 0f;
 		
-		//se l'intervallo è interessato da un periodo di gioco dove finora l'utente ha fatto
-		//almeno uno scalino allora si aggiorna la sua valutazione: si pone valutazione=1 e
-		//tale intervallo diventa un "intervallo di gioco"	
-		if(withSteps){			
+		//è un "intervallo con scalini"
+		if(stepsInterval){
 			
-			//all'intervallo si assegna una valutazione=1
-			evaluation=1.0f;	
-			//è un "intervallo di gioco"
-			previous_start_alarm.setGameInterval(current_day_index, true);	
-			this_stop_alarm.setGameInterval(current_day_index, true);					
-		}
-		else{
-			//si calcola la valutazione che considera quantità e qualità
-			//dell'attività fisica svolta
-			evaluation = 0f;
+			Log.d(MainActivity.AppName,"EVALUATION - It is a 'interval with steps'");
 			
-			float qn = activityAmountValue();
-			
-			Log.d(MainActivity.AppName,"EVALUATION - Amount of physical activity: " + qn);
-			
-						
-			if(qn > 0){
-				evaluation = qn * activityQualityValue();
-				Log.d(MainActivity.AppName,"EVALUATION - qn*ql: " + evaluation);
+			//se nell'intervallo l'utente fa scalini, è confermato come "intervallo con scalini"
+			if(StairsClassifierReceiver.getStepsNumber()>=1){
+				
+				Log.d(MainActivity.AppName,"EVALUATION - steps>=1: OK");
+				
+				previous_start_alarm.setStepsInterval(current_day_index, true);	
+				this_stop_alarm.setStepsInterval(current_day_index, true);
+				evaluation = 1.0f;
 			}
-			
-			//non è un "intervallo di gioco"
-			previous_start_alarm.setGameInterval(current_day_index, false);	
-			this_stop_alarm.setGameInterval(current_day_index, false);				
+			else{ 
+				
+				Log.d(MainActivity.AppName,"EVALUATION - steps=0: back to an EXPLORATION INTERVAL");
+				
+				//l'utente non fa scalinie, quindi, l'intervallo ritorna ad essere un
+				//semplice intervallo di esplorazione
+				previous_start_alarm.setStepsInterval(current_day_index, false);	
+				this_stop_alarm.setStepsInterval(current_day_index, false);			
+				
+				//all'intervallo viene data una valutazione pari a 0.5 in modo da attivarlo
+				//comunque la prossima settimana
+				evaluation = 0.5f;
+			}			
 		}
-		
+		else{ //è un "intervallo di esplorazione"
+			
+			Log.d(MainActivity.AppName,"EVALUATION - It is a 'exploration interval'");
+			
+			//se l'intervallo è interessato da un periodo di gioco dove finora l'utente ha fatto
+			//almeno uno scalino allora si aggiorna la sua valutazione: si pone valutazione=1 e
+			//tale intervallo diventa un "intervallo con scalini"	
+			if(withSteps){			
+				
+				Log.d(MainActivity.AppName,"EVALUATION - 'exploration interval' with steps");
+				
+				//all'intervallo si assegna una valutazione=1
+				evaluation=1.0f;	
+				//diventa un "intervallo con scalini"
+				previous_start_alarm.setStepsInterval(current_day_index, true);	
+				this_stop_alarm.setStepsInterval(current_day_index, true);					
+			}
+			else{
+				//si calcola la valutazione che considera quantità e qualità
+				//dell'attività fisica svolta
+				evaluation = 0f;
+				
+				float qn = activityAmountValue();
+				
+				Log.d(MainActivity.AppName,"EVALUATION - Amount of physical activity: " + qn);
+				
+							
+				if(qn > 0){
+					evaluation = qn * activityQualityValue();
+					Log.d(MainActivity.AppName,"EVALUATION - qn*ql: " + evaluation);
+				}
+				
+				//non è un "intervallo con scalini"
+				previous_start_alarm.setStepsInterval(current_day_index, false);	
+				this_stop_alarm.setStepsInterval(current_day_index, false);				
+			}
+		}
 		
 		previous_start_alarm.setEvaluation(current_day_index, evaluation);
 		this_stop_alarm.setEvaluation(current_day_index, evaluation);

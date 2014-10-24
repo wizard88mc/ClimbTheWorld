@@ -663,7 +663,7 @@ public class ClimbActivity extends Activity {
 					//se non è un intervallo di gioco, si ri-attiva il servizio di activity
 					//recognition
 					//TODO controllo livello batteria 					
-					if(!next_alarm.isGameInterval(current_day_index)){
+					if(!next_alarm.isStepsInterval(current_day_index)){ //&&!stepsInGame
 						Log.d(MainActivity.AppName,"STOP GAME IN ACTIVE INTERVAL - START ACTIVITY REC");
 						appContext.startService(new Intent(appContext, ActivityRecognitionRecordService.class));
 					}
@@ -684,7 +684,7 @@ public class ClimbActivity extends Activity {
 				//si è all'interno di un intervallo attivo; se quest'ultimo non è un intervallo
 				//di gioco, vuol dire che il servizio di activity recognition è in esecuzione;
 				//in questo caso tale servizio viene fermato	
-				if(!next_alarm.get_actionType() && !next_alarm.isGameInterval(current_day_index)){
+				if(!next_alarm.get_actionType() && !next_alarm.isStepsInterval(current_day_index)){
 										
 					Log.d(MainActivity.AppName,"START GAME IN ACTIVE INTERVAL - STOP ACTIVITY REC");
 					
@@ -723,7 +723,7 @@ public class ClimbActivity extends Activity {
 			int current_day_index = settings.getInt("artificialDayIndex", 0);
 			///////// altrimenti l'indice del giorno è (Calendar.getInstance().get(Calendar.DAY_OF_WEEK))-1;
 						
-			if(next_alarm.get_actionType() || !next_alarm.get_actionType() && !next_alarm.isGameInterval(current_day_index)){
+			if(next_alarm.get_actionType() || !next_alarm.get_actionType() && !next_alarm.isStepsInterval(current_day_index)){
 				
 				appContext.getPackageManager().setComponentEnabledSetting(new ComponentName(appContext, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
 				stopService(backgroundClassifySampler);
@@ -743,7 +743,7 @@ public class ClimbActivity extends Activity {
 		
 		//se il prossimo alarm è di start oppure è di stop e non definisce un int. di gioco
 		//allora si ferma il classificatore scalini/non_scalini
-		if(next_alarm.get_actionType() || !next_alarm.get_actionType() && !next_alarm.isGameInterval(day_index)){
+		if(next_alarm.get_actionType() || !next_alarm.get_actionType() && !next_alarm.isStepsInterval(day_index)){
 			stopService(backgroundClassifySampler); // stop background service	
 			//unregisterReceiver(classifierReceiver); // unregister listener
 			appContext.getPackageManager().setComponentEnabledSetting(new ComponentName(appContext, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
@@ -800,7 +800,7 @@ public class ClimbActivity extends Activity {
 		//attiva nuovamente; se, invece, il prossimo alarm è di start (quindi non si è in
 		//un intervallo attivo) oppure è di stop ma l'intervallo in questione non è un int. di
 		//gioco, allora si deve attivare il cl. scalini/non_scalini
-		if(next_alarm.get_actionType() || !next_alarm.get_actionType() && !next_alarm.isGameInterval(day_index)){
+		if(next_alarm.get_actionType() || !next_alarm.get_actionType() && !next_alarm.isStepsInterval(day_index)){
 			
 			System.out.println("START CLASSIFY NO GAME INTERVAL");
 			

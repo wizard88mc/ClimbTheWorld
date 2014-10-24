@@ -67,22 +67,12 @@ public class Alarm {
     private float evaluations[] = new float[GeneralUtils.daysOfWeek]; // =  new float[7];
     
      
-    //i valori di tale array indicano se l'alarm definisce un "intervallo di gioco",
-    //cioè un intervallo in cui l'utente la settimana precedente ha fatto scalini;
-    //quindi non si fa partire il servizio di activity recognition, ma ci si aspetta che 
-    //l'utente faccia scalini; se non li fa può essere un momento buono per lanciare un 
-    //trigger    
+    //i valori di tale array indicano se l'alarm definisce un "intervallo con scalini",
+    //cioè un intervallo in cui l'utente la settimana precedente ha fatto scalini (usando
+    //il gioco o senza); in un intervallo di questo tipo non si fa partire il servizio di
+    //activity recognition, bensì il classificatore scalini/non_scalini
     @DatabaseField(dataType = DataType.SERIALIZABLE)
-    private boolean gameInterval[] = new boolean[GeneralUtils.daysOfWeek]; // =  new float[7];
-    
-    
-    
-    
-    /*NO
-    // [ aggiungere altri due array di 7 elementi: per probabilità e numero
-    //   scalini fatti in quel giorno (array da considerare solo se day=false
-    //   per vedere se ri-considerare l'alarm in quel giorno) ] FORSE NO
-    */
+    private boolean stepsInterval[] = new boolean[GeneralUtils.daysOfWeek]; // =  new float[7];
     
     
     /**
@@ -116,8 +106,8 @@ public class Alarm {
     	for(int i=0; i<evaluations.length; i++)
     		this.evaluations[i]=evaluations[i];
     	
-    	for(int i=0; i<gameInterval.length; i++)
-    		this.gameInterval[i]=false;
+    	for(int i=0; i<stepsInterval.length; i++)
+    		this.stepsInterval[i]=false;
     	
 	}
 
@@ -146,8 +136,8 @@ public class Alarm {
     	for(int i=0; i<evaluations.length; i++)
     		this.evaluations[i]=0.25f;
     	
-    	for(int i=0; i<gameInterval.length; i++)
-    		this.gameInterval[i]=false;    	
+    	for(int i=0; i<stepsInterval.length; i++)
+    		this.stepsInterval[i]=false;    	
 	}
     
     
@@ -237,13 +227,13 @@ public class Alarm {
     }
     
     
-    public void setGameInterval(int dayOfWeek, boolean value) {
+    public void setStepsInterval(int dayOfWeek, boolean value) {
     	
-    	gameInterval[dayOfWeek] = value;
+    	stepsInterval[dayOfWeek] = value;
     }
     
-    public boolean isGameInterval(int dayOfWeek) {
-        return gameInterval[dayOfWeek];
+    public boolean isStepsInterval(int dayOfWeek) {
+        return stepsInterval[dayOfWeek];
     }
     
 }

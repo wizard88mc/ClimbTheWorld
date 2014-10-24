@@ -34,8 +34,8 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 	//(questo receiver potrà quindi ricevere gli intent mandati da sendBroadcast() che hanno
 	//impostato queste azioni)	
 	private final String BOOT_ACTION = "android.intent.action.BOOT_COMPLETED";
-	private final String ACTIVITY_RECOGNITION_START_ACTION = "ACTIVITY_RECOGNITION_START";
-	private final String ACTIVITY_RECOGNITION_STOP_ACTION = "ACTIVITY_RECOGNITION_STOP";
+	private final String INTERVAL_START_ACTION = "INTERVAL_START";
+	private final String INTERVAL_STOP_ACTION = "INTERVAL_STOP";
 	
 	/////////	
 	//PER TEST ALGORITMO
@@ -383,7 +383,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			    	
 					if(!next_alarm.get_actionType()){
 						
-						if(!next_alarm.isGameInterval(currentDayIndex)){
+						if(!next_alarm.isStepsInterval(currentDayIndex)){
 							context.startService(new Intent(context, ActivityRecognitionRecordService.class));
 						   	//si registra anche il receiver per la registrazione dell'attività utente
 							//context.getApplicationContext().registerReceiver(userMotionReceiver, userMotionFilter);
@@ -447,7 +447,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		/////////
 		else{				
 			
-			//id del prossimo alarm impostato
+			//id dell'alarm che era stato impostato, cioè questo
 			int this_alarm_id = pref.getInt("alarm_id",-1);			
 			
 			//si recupera l'indice del giorno corrente all'interno della settimana
@@ -461,7 +461,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			//di registrazione dell'attività utente allora si controlla se questo processo è
 			//già in esecuzione o meno; se non è attivo e se il gioco non è in esecuzione, allora
 			//si fa partire il processo si activity recognition
-			if(action.equalsIgnoreCase(ACTIVITY_RECOGNITION_START_ACTION)){				
+			if(action.equalsIgnoreCase(INTERVAL_START_ACTION)){				
 						
 				//si resetta il numero totale di attività rilevate, il numero di valori che
 				//indicano un'attività fisica e le variabili per la somma dei pesi e per la somma
@@ -487,7 +487,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					//si controlla se questo alarm definisce un intervallo di gioco
 					//se è un intervallo di gioco, allora non si attiva il servizio di 
 					//activity recognition, ma il classificatore scalini/non_scalini
-					if(!AlarmUtils.getAlarm(context, this_alarm_id).isGameInterval(current_day_index)){
+					if(!AlarmUtils.getAlarm(context, this_alarm_id).isStepsInterval(current_day_index)){
 						
 						//non è un intervallo di gioco
 						
@@ -513,16 +513,17 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						//context.getApplicationContext().registerReceiver(stairsReceiver, stairsActionFilter);
 						context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);					
 					}	
-				}
+				} 
+				//se il gioco è attivo, si continua con esso
 				
 			}
 			//se tale receiver riceve un intent che rappresenta un'azione di stop del processo
 			//di registrazione dell'attività utente allora il servizio viene fermato
-			else if(action.equalsIgnoreCase(ACTIVITY_RECOGNITION_STOP_ACTION)){
+			else if(action.equalsIgnoreCase(INTERVAL_STOP_ACTION)){
 							
 				
 				//l'intervallo appena concluso attualmente non è un int. di gioco 
-				if(!AlarmUtils.getAlarm(context, this_alarm_id).isGameInterval(current_day_index)){
+				if(!AlarmUtils.getAlarm(context, this_alarm_id).isStepsInterval(current_day_index)){
 					
 					//innanzitutto si ferma il servizio di activity recognition, se questo
 					//è attivo
@@ -540,6 +541,9 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					// oppure nel periodo di gioco corrente che è ancora in esecuzione (in entrambi i casi
 					//il periodo di gioco può essere iniziato in un precedente intervallo e finire in
 					//questo)					
+										
+					System.out.println("LAST INTERVAL WITH STEPS: " +pref.getInt("last_interval_with_steps", -1));
+					System.out.println("STEPS IN CURRENT GAME: " +ClimbActivity.stepsInCurrentGamePeriod());
 					
 					if(pref.getInt("last_interval_with_steps", -1)==this_alarm_id || ClimbActivity.stepsInCurrentGamePeriod()){
 						
@@ -549,7 +553,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						
 						Log.d(MainActivity.AppName,"STOP ACTION - L'intervallo ha un periodo di gioco con >= 1 scalino");
 						
-						IntervalEvaluationUtils.evaluateAndUpdateInterval(context, true, this_alarm_id);
+						IntervalEvaluationUtils.evaluateAndUpdateInterval(context, false, true, this_alarm_id);
 					}
 					else{
 						
@@ -565,7 +569,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						Log.d(MainActivity.AppName,"STOP ACTION - Sum of confidences-weights products: " + ActivityRecognitionIntentService.getConfidencesWeightsSum());
 						
 						
-						IntervalEvaluationUtils.evaluateAndUpdateInterval(context, false, this_alarm_id);
+						IntervalEvaluationUtils.evaluateAndUpdateInterval(context, false, false, this_alarm_id);
 					}	
 				}
 				else{ //l'intervallo appena concluso è un intervallo di gioco
@@ -590,7 +594,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					
 					Log.d(MainActivity.AppName,"STOP ACTION - Game interval; steps in interval: " + StairsClassifierReceiver.getStepsNumber());
 					
-					
+					IntervalEvaluationUtils.evaluateAndUpdateInterval(context, true, false, this_alarm_id);
 					
 					
 					

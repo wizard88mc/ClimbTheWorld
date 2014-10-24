@@ -19,29 +19,12 @@ public class StairsClassifierReceiver extends BroadcastReceiver {
 	private List<Double> history = new ArrayList<Double>();
 	private static final int historySize = 10;
 	
+	//
 	private static int steps_number = 0;	
-	private static ClimbActivity climb;
 	
-	//private static StairsClassifierReceiver mInstance = null;
-	
-	
-	/*
-	private StairsClassifierReceiver(){
-	}
-	
-	
-	 public static StairsClassifierReceiver getInstance() {
-	       
-	        if (mInstance == null) {
-	        	
-	            mInstance = new StairsClassifierReceiver();
-	        }
-	        else{
-	        	
-	        }
-	        return mInstance;
-	    }
-	*/
+	//riferimento all'activity di climbing corrente (se null significa che il gioco non
+	//è attivo)
+	private static ClimbActivity climb=null;
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {

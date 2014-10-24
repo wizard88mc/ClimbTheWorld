@@ -75,13 +75,15 @@ public class AlarmUtils {
 		Alarm alm2 = new Alarm(9,57,50,false,new boolean[]{false,true},pf);
 		Alarm alm3 = new Alarm(11,25,10,true,new boolean[]{true,false},pf); 
 		Alarm alm4 = new Alarm(11,27,50,false,new boolean[]{true,false},pf);
-		Alarm alm5 = new Alarm(11,40,15,true,bb,pf);
-		Alarm alm6 = new Alarm(11,45,50,false,bb,pf);
-		Alarm alm7 = new Alarm(10,07,10,true,bb,pf);
-		Alarm alm8 = new Alarm(10,9,50,false,bb,pf);
+		Alarm alm5 = new Alarm(14,52,15,true,bb,pf);
+		Alarm alm6 = new Alarm(14,54,50,false,bb,pf);
+		Alarm alm7 = new Alarm(14,54,51,true,bb,pf);
+		Alarm alm8 = new Alarm(14,55,50,false,bb,pf);
+		Alarm alm9 = new Alarm(15,21,10,true,bb,pf);
+		Alarm alm10 = new Alarm(15,22,50,false,bb,pf);
 		
-		alm7.setGameInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
-		alm8.setGameInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
+		alm9.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
+		alm10.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
 		
 		/*
 		//creo template
@@ -114,6 +116,8 @@ public class AlarmUtils {
 		helper.getAlarmDao().createIfNotExists(alm6);
 		helper.getAlarmDao().createIfNotExists(alm7);
 		helper.getAlarmDao().createIfNotExists(alm8);
+		helper.getAlarmDao().createIfNotExists(alm9);
+		helper.getAlarmDao().createIfNotExists(alm10);
 		
 		/*
 		helper.getTimeTemplateDao().createIfNotExists(tt1);
@@ -243,11 +247,7 @@ public class AlarmUtils {
 		RuntimeExceptionDao<Alarm, Integer> alarmDao = DbHelper.getInstance(context).getAlarmDao();    	
 		
 		int artificialIndex = PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0);//context.getSharedPreferences("appPrefs", 0).getInt("artificialDayIndex", 0);
-		
-		
-		//servirà per implementare la probabilità di riconsiderare un alarm scartato
-		//Random rand = new Random(); 
-		
+				
 		if(MainActivity.logEnabled){
 			Log.d(MainActivity.AppName, "AlarmUtils - SetNextAlarm: lista prima di collection sort");
 			for (Alarm e : alarms) {		    
@@ -262,6 +262,7 @@ public class AlarmUtils {
 		//gli alarm non sono stati inseriti in ordine di orario; utile anche per il 
 		//fatto di poterne aggiungere/togliere in futuro senza doversi preoccupare
 		//del loro ordinamento)
+		//FORSE DA TOGLIERE SE SI INSERISCONO GLI ALARM GIA' PRONTI
 		Collections.sort(alarms,new AlarmComparator());
 		
 		
@@ -469,13 +470,13 @@ public class AlarmUtils {
 		 
 		Intent intent = new Intent();
 	 	    
-		//si imposta il tipo di action dell'intent a seconda se è un alarm per far partire o
-		//fermare il service di classificazione
+		//si imposta il tipo di action dell'intent a seconda se è un alarm per far iniziare o
+		//finire l'intervallo
 		if(alarm.get_actionType()){
-			intent.setAction("ACTIVITY_RECOGNITION_START");
+			intent.setAction("INTERVAL_START");
 		}
 		else{
-			intent.setAction("ACTIVITY_RECOGNITION_STOP");
+			intent.setAction("INTERVAL_STOP");
 		}
 	 	    
 		intent.putExtra("id", alarm.get_id());
@@ -508,13 +509,13 @@ public class AlarmUtils {
 		if(rand.nextFloat() <= probability){
 			
 			a_start.setRepeatingDay(current_day_index, true);
-			a_start.setGameInterval(current_day_index, false);						
+			a_start.setStepsInterval(current_day_index, false);						
 			//si recupera dalla lista il relativo alarm di stop 
 			//(c'è sicuramente visto che un alarm di start deve essere seguito
 			//dal suo alarm di stop)
 			Alarm a_stop = alarms.get(list_index+1); 
 			a_stop.setRepeatingDay(current_day_index, true);
-			a_stop.setGameInterval(current_day_index, false);
+			a_stop.setStepsInterval(current_day_index, false);
 			//la valutazione dell'intervallo verrà aggiornata quando lo si esplorerà
 			
 			//si salvano le modifiche anche nel db
@@ -544,22 +545,19 @@ public class AlarmUtils {
 	 
 	 
 	 
-	 //TODO: fare metodo per considerare una coppia di alarm start-stop consecutivi
+	 // fare metodo per considerare una coppia di alarm start-stop consecutivi
 	 //      l'idea è che se si seleziona un alarm di start scartato per dargli una 
 	 //      probabilità (peso) di attivarsi la prossima volta, allora si deve
 	 //      attivare anche il relativo alarm di stop (attivare con day=true)
 	 
-	 //TODO: fare metodo che metta day=true ad un alarm (da usare, ad esempio, dopo
+	 // fare metodo che metta day=true ad un alarm (da usare, ad esempio, dopo
 	 //      che si vede che l'intervallo a false per tot volte consecutive in cui
 	 //      si è attivato è risultato sempre "buono")
 	 
-	 //TODO: fare metodo che ritorni tutti gli intervalli a false per un certo 
+	 // fare metodo che ritorni tutti gli intervalli a false per un certo 
 	 //      giorno (utile, ad esempio, per diminuire la probabilità a tutti di
 	 //      essere scelti in quanto c'è poca batteria)
 	 
-	 
-	 //TODO: fare metodo per eliminare alarm  (EDIT: forse no se intervalli 
-	 //      prestabiliti che possono venire ri-considerati)
 	 
 	 
 	 
