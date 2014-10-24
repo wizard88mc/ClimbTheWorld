@@ -11,7 +11,6 @@ import org.unipd.nbeghin.climbtheworld.ClimbActivity;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionIntentService;
 import org.unipd.nbeghin.climbtheworld.models.Alarm;
-import org.unipd.nbeghin.climbtheworld.models.ClassifierCircularBuffer;
 import org.unipd.nbeghin.climbtheworld.services.ActivityRecognitionRecordService;
 import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
 import org.unipd.nbeghin.climbtheworld.util.AlarmUtils;
@@ -21,10 +20,11 @@ import org.unipd.nbeghin.climbtheworld.util.IntervalEvaluationUtils;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -42,8 +42,8 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 	private final String UPDATE_DAY_INDEX_FOR_TESTING = "UPDATE_DAY_INDEX_TESTING";
 	/////////	
 	
-	private BroadcastReceiver stairsReceiver = StairsClassifierReceiver.getInstance();
-	private IntentFilter stairsActionFilter = new IntentFilter(ClassifierCircularBuffer.CLASSIFIER_ACTION);	
+	//private BroadcastReceiver stairsReceiver = StairsClassifierReceiver.getInstance();
+	//private IntentFilter stairsActionFilter = new IntentFilter(ClassifierCircularBuffer.CLASSIFIER_ACTION);	
 	
 	//campi utili a registrare il receiver che "ascolta" l'attività utente; quest'ultimo sarà
 	//chiamato con qualsiasi broadcast intent che matcha con l'azione descritta dal seguente
@@ -471,8 +471,15 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				Log.d(MainActivity.AppName,"START ACTION - Reset total number of values: " + ActivityRecognitionIntentService.getValuesNumber());
 			   	Log.d(MainActivity.AppName,"START ACTION - Reset number of activities: " + ActivityRecognitionIntentService.getActivitiesNumber());
 				
+			   	
+			   	//si resetta il numero di scalini rilevati con il classificatore 
+			   	//scalini/non_scalini (si tiene comunque il fatto che in un periodo di gioco
+			   	//possono essere stati fatti degli scalini)
+			   	StairsClassifierReceiver.clearStepsNumber();
+			   	Log.d(MainActivity.AppName,"START ACTION - Reset number of steps: " + StairsClassifierReceiver.getStepsNumber());
+			   	
+			   	
 				//se è attivo il gioco non si fa partire il servizio di activity recognition
-				
 				if(!ClimbActivity.samplingEnabled){//il gioco non è attivo
 					
 					Log.d(MainActivity.AppName,"START ACTION - Gioco non attivo");
@@ -503,7 +510,8 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						
 						context.getApplicationContext().startService(new Intent(context, SamplingClassifyService.class));
 						//si registra anche il receiver
-						context.getApplicationContext().registerReceiver(stairsReceiver, stairsActionFilter);
+						//context.getApplicationContext().registerReceiver(stairsReceiver, stairsActionFilter);
+						context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);					
 					}	
 				}
 				
@@ -511,50 +519,84 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			//se tale receiver riceve un intent che rappresenta un'azione di stop del processo
 			//di registrazione dell'attività utente allora il servizio viene fermato
 			else if(action.equalsIgnoreCase(ACTIVITY_RECOGNITION_STOP_ACTION)){
-								
-				//innanzitutto si ferma il servizio di activity recognition, se questo
-				//è attivo
-				if(GeneralUtils.isActivityRecognitionServiceRunning(context)){
-					Log.d(MainActivity.AppName,"STOP ACTION - Stop activity recognition");
-				   	context.stopService(new Intent(context, ActivityRecognitionRecordService.class));
-					//si disabilita anche il receiver per la registrazione dell'attività utente
-					//context.getApplicationContext().unregisterReceiver(userMotionReceiver);
-					//context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
-				}
-									
-				//quando viene lanciato questo evento di stop (fine di un intervallo di esplorazione
-				//attivo) si controlla se in questo intervallo l'utente ha fatto almeno 1 scalino:
-				//può averlo fatto in uno dei precedenti periodi di gioco all'interno dell'intervallo
-				// oppure nel periodo di gioco corrente che è ancora in esecuzione (in entrambi i casi
-				//il periodo di gioco può essere iniziato in un precedente intervallo e finire in
-				//questo)
+							
 				
-				if(pref.getInt("last_interval_with_steps", -1)==this_alarm_id || ClimbActivity.stepsInCurrentGamePeriod()){
+				//l'intervallo appena concluso attualmente non è un int. di gioco 
+				if(!AlarmUtils.getAlarm(context, this_alarm_id).isGameInterval(current_day_index)){
+					
+					//innanzitutto si ferma il servizio di activity recognition, se questo
+					//è attivo
+					if(GeneralUtils.isActivityRecognitionServiceRunning(context)){
+						Log.d(MainActivity.AppName,"STOP ACTION - Stop activity recognition");
+					   	context.stopService(new Intent(context, ActivityRecognitionRecordService.class));
+						//si disabilita anche il receiver per la registrazione dell'attività utente
+						//context.getApplicationContext().unregisterReceiver(userMotionReceiver);
+						//context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+					}					
+					
+					//quando viene lanciato questo evento di stop (fine di un intervallo di esplorazione
+					//attivo) si controlla se in questo intervallo l'utente ha fatto almeno 1 scalino:
+					//può averlo fatto in uno dei precedenti periodi di gioco all'interno dell'intervallo
+					// oppure nel periodo di gioco corrente che è ancora in esecuzione (in entrambi i casi
+					//il periodo di gioco può essere iniziato in un precedente intervallo e finire in
+					//questo)					
+					
+					if(pref.getInt("last_interval_with_steps", -1)==this_alarm_id || ClimbActivity.stepsInCurrentGamePeriod()){
 						
-					//l'intervallo appena concluso ha presentato un periodo di gioco in cui 
-					//l'utente ha fatto almeno 1 scalino; l'intervallo diventa quindi un
-					//"intervallo di gioco": sarà sicuramente attivo la prossima settimana
+						//l'intervallo appena concluso ha presentato un periodo di gioco in cui 
+						//l'utente ha fatto almeno 1 scalino; l'intervallo diventa quindi un
+						//"intervallo di gioco": sarà sicuramente attivo la prossima settimana
+						
+						Log.d(MainActivity.AppName,"STOP ACTION - L'intervallo ha un periodo di gioco con >= 1 scalino");
+						
+						IntervalEvaluationUtils.evaluateAndUpdateInterval(context, true, this_alarm_id);
+					}
+					else{
+						
+						Log.d(MainActivity.AppName,"STOP ACTION - L'intervallo non ha un periodo di gioco con scalini");
 					
-					Log.d(MainActivity.AppName,"STOP ACTION - L'intervallo ha un periodo di gioco con >= 1 scalino");
-					
-					IntervalEvaluationUtils.evaluateAndUpdateInterval(context, true, this_alarm_id);
+						//l'intervallo viene valutato con i dati del classificatore Google;				
+						//si calcola la valutazione che determina la sua attivazione o meno per la
+						//prossima settimana
+						
+						Log.d(MainActivity.AppName,"STOP ACTION - Total number of values: " + ActivityRecognitionIntentService.getValuesNumber());
+						Log.d(MainActivity.AppName,"STOP ACTION - Number of activities: " + ActivityRecognitionIntentService.getActivitiesNumber());
+						Log.d(MainActivity.AppName,"STOP ACTION - Sum of weights: " + ActivityRecognitionIntentService.getWeightsSum());
+						Log.d(MainActivity.AppName,"STOP ACTION - Sum of confidences-weights products: " + ActivityRecognitionIntentService.getConfidencesWeightsSum());
+						
+						
+						IntervalEvaluationUtils.evaluateAndUpdateInterval(context, false, this_alarm_id);
+					}	
 				}
-				else{
+				else{ //l'intervallo appena concluso è un intervallo di gioco
 					
-					Log.d(MainActivity.AppName,"STOP ACTION - L'intervallo non ha un periodo di gioco con scalini");
+					//se il gioco non è attivo allora si ferma il classificatore
+					//scalini/non_scalini, disabilitando anche il relativo receiver
+					if(!ClimbActivity.samplingEnabled){
+						
+						Log.d(MainActivity.AppName,"STOP ACTION - int. di gioco, no gioco attivo ");
+						
+						context.getApplicationContext().stopService(new Intent(context, SamplingClassifyService.class));
+						//si disabilita anche il receiver
+						//context.getApplicationContext().unregisterReceiver(stairsReceiver);
+						context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);					
+					
+					}			
+					
+					//in ogni caso si valuta l'intervallo di gioco per confermarlo o meno
+					//per la prossima settimana
+					//TODO controllare se l'utente ha fatto scalini (es. sopra una soglia) per
+					//confermare questo intervallo interessante
+					
+					Log.d(MainActivity.AppName,"STOP ACTION - Game interval; steps in interval: " + StairsClassifierReceiver.getStepsNumber());
+					
+					
+					
+					
+					
+				}
 				
-					//l'intervallo viene valutato con i dati del classificatore Google;				
-					//si calcola la valutazione che determina la sua attivazione o meno per la
-					//prossima settimana
-					
-					Log.d(MainActivity.AppName,"STOP ACTION - Total number of values: " + ActivityRecognitionIntentService.getValuesNumber());
-					Log.d(MainActivity.AppName,"STOP ACTION - Number of activities: " + ActivityRecognitionIntentService.getActivitiesNumber());
-					Log.d(MainActivity.AppName,"STOP ACTION - Sum of weights: " + ActivityRecognitionIntentService.getWeightsSum());
-					Log.d(MainActivity.AppName,"STOP ACTION - Sum of confidences-weights products: " + ActivityRecognitionIntentService.getConfidencesWeightsSum());
-					
-					
-					IntervalEvaluationUtils.evaluateAndUpdateInterval(context, false, this_alarm_id);
-				}		
+				
 			}
 			
 			int aa_id = pref.getInt("alarm_id", -1);

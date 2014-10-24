@@ -77,8 +77,8 @@ public class AlarmUtils {
 		Alarm alm4 = new Alarm(11,27,50,false,new boolean[]{true,false},pf);
 		Alarm alm5 = new Alarm(11,40,15,true,bb,pf);
 		Alarm alm6 = new Alarm(11,45,50,false,bb,pf);
-		Alarm alm7 = new Alarm(22,13,10,true,bb,pf);
-		Alarm alm8 = new Alarm(22,14,50,false,bb,pf);
+		Alarm alm7 = new Alarm(10,07,10,true,bb,pf);
+		Alarm alm8 = new Alarm(10,9,50,false,bb,pf);
 		
 		alm7.setGameInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
 		alm8.setGameInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);

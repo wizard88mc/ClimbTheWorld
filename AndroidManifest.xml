@@ -151,6 +151,13 @@
    	      </intent-filter>
         </receiver>
         
+        <receiver android:name="org.unipd.nbeghin.climbtheworld.receivers.StairsClassifierReceiver" 
+            android:exported="false">
+  	      <intent-filter>
+      	    <action android:name="org.unipd.nbeghin.classifier.notification" />
+   	      </intent-filter>
+        </receiver>
+        
     </application>
 
 </manifest>

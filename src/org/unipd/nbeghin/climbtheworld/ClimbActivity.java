@@ -75,9 +75,9 @@ public class ClimbActivity extends Activity {
 	private double					minimumSamplingRate			= 13;																		// minimum sampling rate for using this app
 	private Intent					backgroundClassifySampler;																				// classifier background service intent
 	private Intent					backgroundSamplingRateDetector;																		// sampling rate detector service intent
-	private IntentFilter			classifierFilter			= new IntentFilter(ClassifierCircularBuffer.CLASSIFIER_ACTION);			// intent filter (for BroadcastReceiver)
+	//private IntentFilter			classifierFilter			= new IntentFilter(ClassifierCircularBuffer.CLASSIFIER_ACTION);			// intent filter (for BroadcastReceiver)
 	private IntentFilter			samplingRateDetectorFilter	= new IntentFilter(AccelerometerSamplingRateDetect.SAMPLING_RATE_ACTION);	// intent filter (for BroadcastReceiver)
-	private BroadcastReceiver		classifierReceiver			= StairsClassifierReceiver.getInstance();//new ClassifierReceiver();												// implementation of BroadcastReceiver for classifier service
+	//private BroadcastReceiver		classifierReceiver			= new ClassifierReceiver();												// implementation of BroadcastReceiver for classifier service
 	private BroadcastReceiver		sampleRateDetectorReceiver	= new SamplingRateDetectorReceiver();										// implementation of BroadcastReceiver for sampling rate detector
 	private int						num_steps					= 0;																		// number of currently detected steps
 	private double					percentage					= 0.0;																		// current progress percentage
@@ -621,9 +621,8 @@ public class ClimbActivity extends Activity {
 			}
 		} else {
 			
-			System.out.println("Click button - steps: "+StairsClassifierReceiver.getStepNumber());
-			
-			
+			//System.out.println("Click button - steps: "+StairsClassifierReceiver.getStepsNumber());
+						
 			//si recupera il prossimo alarm impostato
 			int next_alarm_id = settings.getInt("alarm_id", -1);	
 			Alarm next_alarm = AlarmUtils.getAlarm(appContext, next_alarm_id);
@@ -715,8 +714,23 @@ public class ClimbActivity extends Activity {
 			Log.e(MainActivity.AppName, "Sampling rate service not running or unable to stop");
 		}
 		try {
-			unregisterReceiver(classifierReceiver);
-			stopService(backgroundClassifySampler);
+			//si recupera il prossimo alarm impostato
+			int next_alarm_id = settings.getInt("alarm_id", -1);	
+			Alarm next_alarm = AlarmUtils.getAlarm(appContext, next_alarm_id);			
+			//si recupera l'indice del giorno corrente all'interno della settimana
+			/////////		
+	    	//PER TEST ALGORITMO
+			int current_day_index = settings.getInt("artificialDayIndex", 0);
+			///////// altrimenti l'indice del giorno è (Calendar.getInstance().get(Calendar.DAY_OF_WEEK))-1;
+						
+			if(next_alarm.get_actionType() || !next_alarm.get_actionType() && !next_alarm.isGameInterval(current_day_index)){
+				
+				appContext.getPackageManager().setComponentEnabledSetting(new ComponentName(appContext, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+				stopService(backgroundClassifySampler);
+			}
+			
+			//unregisterReceiver(classifierReceiver);
+			//stopService(backgroundClassifySampler);
 		} catch (Exception e) {
 			Log.e(MainActivity.AppName, "Classifier service not running or unable to stop");
 		}
@@ -731,11 +745,12 @@ public class ClimbActivity extends Activity {
 		//allora si ferma il classificatore scalini/non_scalini
 		if(next_alarm.get_actionType() || !next_alarm.get_actionType() && !next_alarm.isGameInterval(day_index)){
 			stopService(backgroundClassifySampler); // stop background service	
-			unregisterReceiver(classifierReceiver); // unregister listener
-			Log.d(MainActivity.AppName,"Climb - STOP CLASSIFY");
+			//unregisterReceiver(classifierReceiver); // unregister listener
+			appContext.getPackageManager().setComponentEnabledSetting(new ComponentName(appContext, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+			Log.d(MainActivity.AppName,"Climb - STOP CLASSIFY: is not a game interval");
 		}
 		else{
-			Log.d(MainActivity.AppName,"Climb - NO STOP CLASSIFY");
+			Log.d(MainActivity.AppName,"Climb - NO STOP CLASSIFY: is a game interval");
 		}
 				
 		StairsClassifierReceiver.setClimb(null);
@@ -782,13 +797,16 @@ public class ClimbActivity extends Activity {
 		
 		//se il prossimo alarm è di stop e definisce la fine di un intervallo di gioco,
 		//allora il classificatore scalini/non_scalini è già in esecuzione; quindi non lo si
-		//attiva nuovamente
+		//attiva nuovamente; se, invece, il prossimo alarm è di start (quindi non si è in
+		//un intervallo attivo) oppure è di stop ma l'intervallo in questione non è un int. di
+		//gioco, allora si deve attivare il cl. scalini/non_scalini
 		if(next_alarm.get_actionType() || !next_alarm.get_actionType() && !next_alarm.isGameInterval(day_index)){
 			
 			System.out.println("START CLASSIFY NO GAME INTERVAL");
 			
 			startService(backgroundClassifySampler); // start background service
-			registerReceiver(classifierReceiver, classifierFilter); // register listener			
+			//registerReceiver(classifierReceiver, classifierFilter); // register listener	
+			appContext.getPackageManager().setComponentEnabledSetting(new ComponentName(appContext, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
 		}		
 		
 		/*

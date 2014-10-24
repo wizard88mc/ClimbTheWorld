@@ -22,9 +22,10 @@ public class StairsClassifierReceiver extends BroadcastReceiver {
 	private static int steps_number = 0;	
 	private static ClimbActivity climb;
 	
-	private static StairsClassifierReceiver mInstance = null;
+	//private static StairsClassifierReceiver mInstance = null;
 	
 	
+	/*
 	private StairsClassifierReceiver(){
 	}
 	
@@ -40,7 +41,7 @@ public class StairsClassifierReceiver extends BroadcastReceiver {
 	        }
 	        return mInstance;
 	    }
-	
+	*/
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
@@ -105,8 +106,14 @@ public class StairsClassifierReceiver extends BroadcastReceiver {
 	}
 	
 	
-	public static int getStepNumber(){
+	public static int getStepsNumber(){
 		return steps_number;
 	}
+	
+	
+	public static void clearStepsNumber(){
+		steps_number=0;
+	}
+	
 	
 }
