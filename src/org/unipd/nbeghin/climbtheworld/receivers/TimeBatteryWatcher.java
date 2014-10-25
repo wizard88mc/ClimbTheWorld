@@ -457,10 +457,12 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			///////// altrimenti l'indice del giorno è (Calendar.getInstance().get(Calendar.DAY_OF_WEEK))-1;
 			
 			
-			//se tale receiver riceve un intent che rappresenta un'azione di start del processo
-			//di registrazione dell'attività utente allora si controlla se questo processo è
-			//già in esecuzione o meno; se non è attivo e se il gioco non è in esecuzione, allora
-			//si fa partire il processo si activity recognition
+			//tale receiver riceve un intent che rappresenta un'azione di start di un intervallo:
+			//si controlla se quello che inizia è un "intervallo di esplorazione" o un "intervallo
+			//con scalini"; nel primo caso si attiva il classificatore Google di activity
+			//recognition, mentre nel secondo il classificatore scalini/non_scalini;
+			//in entrambi i casi, se il gioco è in esecuzione non viene fatto partire alcun
+			//classificatore (il cl. scalini/non_scalini è già attivo in questo caso)
 			if(action.equalsIgnoreCase(INTERVAL_START_ACTION)){				
 						
 				//si resetta il numero totale di attività rilevate, il numero di valori che
@@ -470,8 +472,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 								
 				Log.d(MainActivity.AppName,"START ACTION - Reset total number of values: " + ActivityRecognitionIntentService.getValuesNumber());
 			   	Log.d(MainActivity.AppName,"START ACTION - Reset number of activities: " + ActivityRecognitionIntentService.getActivitiesNumber());
-				
-			   	
+							   	
 			   	//si resetta il numero di scalini rilevati con il classificatore 
 			   	//scalini/non_scalini (si tiene comunque il fatto che in un periodo di gioco
 			   	//possono essere stati fatti degli scalini)
@@ -479,17 +480,18 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			   	Log.d(MainActivity.AppName,"START ACTION - Reset number of steps: " + StairsClassifierReceiver.getStepsNumber());
 			   	
 			   	
-				//se è attivo il gioco non si fa partire il servizio di activity recognition
+				//se è attivo il gioco non si fa partire il servizio di activity recognition/
+			   	//il cl. scalini/non_scalini
 				if(!ClimbActivity.samplingEnabled){//il gioco non è attivo
 					
 					Log.d(MainActivity.AppName,"START ACTION - Gioco non attivo");
 					
-					//si controlla se questo alarm definisce un intervallo di gioco
-					//se è un intervallo di gioco, allora non si attiva il servizio di 
+					//si controlla se questo alarm definisce un "intervallo con scalini";
+					//se è un "intervallo con scalini", allora non si attiva il servizio di 
 					//activity recognition, ma il classificatore scalini/non_scalini
 					if(!AlarmUtils.getAlarm(context, this_alarm_id).isStepsInterval(current_day_index)){
 						
-						//non è un intervallo di gioco
+						//non è un "intervallo con scalini"
 						
 						if(!GeneralUtils.isActivityRecognitionServiceRunning(context)){							
 						    Intent activityRecognitionIntent = new Intent(context, ActivityRecognitionRecordService.class);
@@ -505,8 +507,8 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						
 					}					
 					else{ 
-						//è un intervallo di gioco						
-						Log.d(MainActivity.AppName,"START ACTION - Intervallo di gioco");
+						//è un "intervallo con scalini"			
+						Log.d(MainActivity.AppName,"START ACTION - 'Intervallo con scalini'");
 						
 						context.getApplicationContext().startService(new Intent(context, SamplingClassifyService.class));
 						//si registra anche il receiver
@@ -517,13 +519,19 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				//se il gioco è attivo, si continua con esso
 				
 			}
-			//se tale receiver riceve un intent che rappresenta un'azione di stop del processo
-			//di registrazione dell'attività utente allora il servizio viene fermato
+			//tale receiver riceve un intent che rappresenta un'azione di stop di un intervallo:
+			//si controlla se quello appena concluso è un "intervallo di esplorazione" o un
+			//"intervallo con scalini"; nel primo caso si ferma il classificatore Google di
+			//activity recognition e si valuta l'intervallo tenendo conto dell'attività
+			//svolta o degli scalini fatti (valutazione massima in quest'ultimo caso); nel
+			//secondo caso si ferma il classificatore scalini/non_scalini (se il gioco non è
+			//attivo) e la valutazione dell'intervallo è data dalla quantità di scalini fatti
 			else if(action.equalsIgnoreCase(INTERVAL_STOP_ACTION)){
-							
 				
-				//l'intervallo appena concluso attualmente non è un int. di gioco 
+				//l'intervallo appena concluso attualmente è un "intervallo di esplorazione"
 				if(!AlarmUtils.getAlarm(context, this_alarm_id).isStepsInterval(current_day_index)){
+					
+					Log.d(MainActivity.AppName,"STOP ACTION - 'Intervallo di esplorazione'");
 					
 					//innanzitutto si ferma il servizio di activity recognition, se questo
 					//è attivo
@@ -538,7 +546,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					//quando viene lanciato questo evento di stop (fine di un intervallo di esplorazione
 					//attivo) si controlla se in questo intervallo l'utente ha fatto almeno 1 scalino:
 					//può averlo fatto in uno dei precedenti periodi di gioco all'interno dell'intervallo
-					// oppure nel periodo di gioco corrente che è ancora in esecuzione (in entrambi i casi
+					//oppure nel periodo di gioco corrente che è ancora in esecuzione (in entrambi i casi
 					//il periodo di gioco può essere iniziato in un precedente intervallo e finire in
 					//questo)					
 										
@@ -549,7 +557,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						
 						//l'intervallo appena concluso ha presentato un periodo di gioco in cui 
 						//l'utente ha fatto almeno 1 scalino; l'intervallo diventa quindi un
-						//"intervallo di gioco": sarà sicuramente attivo la prossima settimana
+						//"intervallo con scalini": sarà sicuramente attivo la prossima settimana
 						
 						Log.d(MainActivity.AppName,"STOP ACTION - L'intervallo ha un periodo di gioco con >= 1 scalino");
 						
@@ -572,35 +580,29 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						IntervalEvaluationUtils.evaluateAndUpdateInterval(context, false, false, this_alarm_id);
 					}	
 				}
-				else{ //l'intervallo appena concluso è un intervallo di gioco
+				else{ //l'intervallo appena concluso è un "intervallo con scalini"
+					
+					Log.d(MainActivity.AppName,"STOP ACTION - 'Intervallo con scalini'");
 					
 					//se il gioco non è attivo allora si ferma il classificatore
 					//scalini/non_scalini, disabilitando anche il relativo receiver
 					if(!ClimbActivity.samplingEnabled){
 						
-						Log.d(MainActivity.AppName,"STOP ACTION - int. di gioco, no gioco attivo ");
+						Log.d(MainActivity.AppName,"STOP ACTION - Gioco non attivo, si ferma il classificatore scalini");
 						
 						context.getApplicationContext().stopService(new Intent(context, SamplingClassifyService.class));
 						//si disabilita anche il receiver
 						//context.getApplicationContext().unregisterReceiver(stairsReceiver);
 						context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);					
 					
-					}			
-					
+					}	
 					//in ogni caso si valuta l'intervallo di gioco per confermarlo o meno
 					//per la prossima settimana
-					//TODO controllare se l'utente ha fatto scalini (es. sopra una soglia) per
-					//confermare questo intervallo interessante
 					
-					Log.d(MainActivity.AppName,"STOP ACTION - Game interval; steps in interval: " + StairsClassifierReceiver.getStepsNumber());
+					Log.d(MainActivity.AppName,"STOP ACTION - Steps in interval: " + StairsClassifierReceiver.getStepsNumber());
 					
-					IntervalEvaluationUtils.evaluateAndUpdateInterval(context, true, false, this_alarm_id);
-					
-					
-					
+					IntervalEvaluationUtils.evaluateAndUpdateInterval(context, true, false, this_alarm_id);					
 				}
-				
-				
 			}
 			
 			int aa_id = pref.getInt("alarm_id", -1);
