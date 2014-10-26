@@ -761,10 +761,10 @@ public class ClimbActivity extends Activity {
 			stopService(backgroundClassifySampler); // stop background service	
 			//unregisterReceiver(classifierReceiver); // unregister listener
 			appContext.getPackageManager().setComponentEnabledSetting(new ComponentName(appContext, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
-			Log.d(MainActivity.AppName,"Climb - STOP CLASSIFY: is not a game interval");
+			Log.d(MainActivity.AppName,"Climb - STOP CLASSIFY: is not a 'interval with steps'");
 		}
 		else{
-			Log.d(MainActivity.AppName,"Climb - NO STOP CLASSIFY: is a game interval");
+			Log.d(MainActivity.AppName,"Climb - NO STOP CLASSIFY: is a 'interval with steps'");
 		}
 				
 		StairsClassifierReceiver.setClimb(null);
@@ -816,7 +816,7 @@ public class ClimbActivity extends Activity {
 		//di esplorazione", allora si deve attivare il classificatore scalini/non_scalini
 		if(next_alarm.get_actionType() || !next_alarm.get_actionType() && !next_alarm.isStepsInterval(day_index)){
 			
-			System.out.println("START CLASSIFY, NO GAME INTERVAL");
+			Log.d(MainActivity.AppName, "It is not a 'interval with steps', START STAIRS CLASSIFIER");
 			
 			startService(backgroundClassifySampler); // start background service
 			//registerReceiver(classifierReceiver, classifierFilter); // register listener	

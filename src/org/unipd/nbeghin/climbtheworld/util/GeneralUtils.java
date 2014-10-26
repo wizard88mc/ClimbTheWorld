@@ -153,7 +153,7 @@ public class GeneralUtils {
     	//si creano gli alarm
 		AlarmUtils.createAlarms(context);     	    	
     	//si imposta e si lancia il prossimo alarm
-    	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context)); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,1))    
+    	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context),true,-1); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,1))    
     }   
     
 }

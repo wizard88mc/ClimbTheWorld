@@ -358,7 +358,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				 	    }
 												
 						//si imposta e si lancia un nuovo alarm
-				    	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context)); 
+				    	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context),true,alarm_id); 
 					}			
 					else{			
 						//si re-imposta l'alarm precedente
@@ -605,13 +605,13 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				}
 			}
 			
-			int aa_id = pref.getInt("alarm_id", -1);
-			System.out.println("ID da cancellare " + aa_id);
+			//int aa_id = pref.getInt("alarm_id", -1);
+			System.out.println("ID da cancellare " + this_alarm_id);
 			
 			//si cancella l'alarm che è stato "consumato" da questo on receive
-			AlarmUtils.cancelAlarm(context, AlarmUtils.getAlarm(context,aa_id));							
+			AlarmUtils.cancelAlarm(context, AlarmUtils.getAlarm(context,this_alarm_id));							
 			//si imposta e si lancia il prossimo alarm
-	    	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context)); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,pref.getInt("current_template", -1)))	
+	    	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context),false,this_alarm_id); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,pref.getInt("current_template", -1)))	
 		}
 	}
 	

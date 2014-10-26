@@ -71,11 +71,11 @@ public class AlarmUtils {
     	boolean bb[] = new boolean[] {true,true};
     	//float pf[] = new float[] {0.25f,0.25f,0.25f,0.25f,0.25f,0.25f,0.25f};
     	float pf[] = new float[] {0.25f,0.25f};
-		Alarm alm1 = new Alarm(9,55,50,true,new boolean[]{false,true},pf);
-		Alarm alm2 = new Alarm(9,57,50,false,new boolean[]{false,true},pf);
-		Alarm alm3 = new Alarm(11,25,10,true,new boolean[]{true,false},pf); 
-		Alarm alm4 = new Alarm(11,27,50,false,new boolean[]{true,false},pf);
-		Alarm alm5 = new Alarm(14,53,15,true,bb,pf); //boolean[]{false,true}
+		Alarm alm1 = new Alarm(11,01,10,true,new boolean[]{false,false},pf);
+		Alarm alm2 = new Alarm(11,01,50,false,new boolean[]{false,false},pf);
+		Alarm alm3 = new Alarm(11,13,51,true,new boolean[]{true,false},pf); 
+		Alarm alm4 = new Alarm(11,14,50,false,new boolean[]{true,false},pf);
+		/*Alarm alm5 = new Alarm(14,53,15,true,bb,pf); //boolean[]{false,true}
 		Alarm alm6 = new Alarm(14,54,50,false,bb,pf);
 		Alarm alm7 = new Alarm(14,54,51,true,bb,pf);
 		Alarm alm8 = new Alarm(14,55,50,false,bb,pf);
@@ -88,7 +88,7 @@ public class AlarmUtils {
 		
 		alm9.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
 		alm10.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
-		
+		*/
 		/*
 		//creo template
 		
@@ -116,12 +116,12 @@ public class AlarmUtils {
 		helper.getAlarmDao().createIfNotExists(alm2);
 		helper.getAlarmDao().createIfNotExists(alm3);
 		helper.getAlarmDao().createIfNotExists(alm4);
-		helper.getAlarmDao().createIfNotExists(alm5);
+		/*helper.getAlarmDao().createIfNotExists(alm5);
 		helper.getAlarmDao().createIfNotExists(alm6);
 		helper.getAlarmDao().createIfNotExists(alm7);
 		helper.getAlarmDao().createIfNotExists(alm8);
 		helper.getAlarmDao().createIfNotExists(alm9);
-		helper.getAlarmDao().createIfNotExists(alm10);
+		helper.getAlarmDao().createIfNotExists(alm10);*/
 		
 		/*
 		helper.getTimeTemplateDao().createIfNotExists(tt1);
@@ -246,14 +246,16 @@ public class AlarmUtils {
      * @param context context of the application.
      * @param alarms list of all alarms saved in the database.
      */
-	public static void setNextAlarm(Context context, List<Alarm> alarms){
+	public static void setNextAlarm(Context context, List<Alarm> alarms, boolean onBoot, int current_alarm_id){
 				
 		RuntimeExceptionDao<Alarm, Integer> alarmDao = DbHelper.getInstance(context).getAlarmDao();    	
 		
 		int artificialIndex = PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0);//context.getSharedPreferences("appPrefs", 0).getInt("artificialDayIndex", 0);
 				
+		Log.d(MainActivity.AppName, "AlarmUtils - SetNextAlarm: list size " + alarms.size());
+		
 		if(MainActivity.logEnabled){
-			Log.d(MainActivity.AppName, "AlarmUtils - SetNextAlarm: lista prima di collection sort");
+			Log.d(MainActivity.AppName, "AlarmUtils - SetNextAlarm: list elements");
 			for (Alarm e : alarms) {		    
 				Log.d(MainActivity.AppName,"Alarm id: " + e.get_id() + " - hms: " + e.get_hour() + "," + e.get_minute() + "," + e.get_second());			
 			}
@@ -261,7 +263,8 @@ public class AlarmUtils {
 			
 		
 		Alarm nextAlarm=null;
-				
+			
+		/*
 		//prima si ordina la lista di alarm per orario (perché magari all'inizio 
 		//gli alarm non sono stati inseriti in ordine di orario; utile anche per il 
 		//fatto di poterne aggiungere/togliere in futuro senza doversi preoccupare
@@ -275,7 +278,9 @@ public class AlarmUtils {
 			for (Alarm e : alarms) {		    
 				Log.d(MainActivity.AppName,"Alarm id: " + e.get_id() + " - hms: " + e.get_hour() + "," + e.get_minute() + "," + e.get_second());			
 			}
-		}
+		}*/
+		
+		
 		
 		Calendar now = Calendar.getInstance();
 		Calendar alarmTime=Calendar.getInstance();	
@@ -283,68 +288,96 @@ public class AlarmUtils {
 		//int today = alarmTime.get(Calendar.DAY_OF_WEEK)-1;
 				
 		
-		boolean stop=false;
+		boolean stop=false;		
 		
-		for(int i=0; i<alarms.size() && !stop; i++){
-			
-			Alarm e = alarms.get(i);
-			
-			//Calendar alarmTime=Calendar.getInstance();	
-			//si impostano ora, minuti e secondi prendendo tali parametri dall'alarm salvato
-			alarmTime.set(Calendar.HOUR_OF_DAY, e.get_hour());
-			alarmTime.set(Calendar.MINUTE, e.get_minute());
-			alarmTime.set(Calendar.SECOND, e.get_second());
-			
-			
-			/////////
-			//PER TEST ALGORITMO: l'indice del giorno corrente è impostato "artificialmente",
-			//in quanto lo deve rappresentare all'interno della settimana "corta";
-			//normalmente l'indice è dato dalla data corrente: e.getRepeatingDay(today)
-			/////////
-			
-			
-			//l'alarm è attivato per questo giorno
-			//cio' significa che è attivato anche l'altro alarm a lui associato (perchè una
-			//coppia di alarm (start,stop) definisce un intervallo: quando un alarm di start
-			//viene attivato (disattivato) viene attivato (disattivato) anche l'alarm di stop
-			//successivo)
-			if(e.getRepeatingDay(artificialIndex)){
+		//se si deve impostare il prossimo alarm 
+		if(onBoot){ 
+						
+			for(int i=0; i<alarms.size() && !stop; i++){
 				
-				if(alarmTime.after(now)){					
-					//se si è arrivati qui vuol dire che l'alarm è attivo in questo
-					//giorno della settimana ed è valido per essere lanciato e, quindi, 
-					//lo si seleziona per essere il prossimo alarm ad essere lanciato								
+				Alarm e = alarms.get(i);
+				
+				//Calendar alarmTime=Calendar.getInstance();	
+				//si impostano ora, minuti e secondi prendendo tali parametri dall'alarm salvato
+				alarmTime.set(Calendar.HOUR_OF_DAY, e.get_hour());
+				alarmTime.set(Calendar.MINUTE, e.get_minute());
+				alarmTime.set(Calendar.SECOND, e.get_second());
+				
+				
+				/////////
+				//PER TEST ALGORITMO: l'indice del giorno corrente è impostato "artificialmente",
+				//in quanto lo deve rappresentare all'interno della settimana "corta";
+				//normalmente l'indice è dato dalla data corrente: e.getRepeatingDay(today)
+				/////////
+				
+				
+				//l'alarm è attivato per questo giorno
+				//cio' significa che è attivato anche l'altro alarm a lui associato (perchè una
+				//coppia di alarm (start,stop) definisce un intervallo: quando un alarm di start
+				//viene attivato (disattivato) viene attivato (disattivato) anche l'alarm di stop
+				//successivo)
+				if(e.getRepeatingDay(artificialIndex)){
 					
+					if(alarmTime.after(now)){					
+						//se si è arrivati qui vuol dire che l'alarm è attivo in questo
+						//giorno della settimana ed è valido per essere lanciato e, quindi, 
+						//lo si seleziona per essere il prossimo alarm ad essere lanciato								
+						
+						nextAlarm=e;
+						stop=true;
+					}
+				}
+				else{ //l'alarm non è attivato per questo giorno;
+					  //se questo è un alarm di start vuol dire che il relativo intervallo 
+					  //non è stato attivato per questo giorno				
+					
+					//si controlla se è un alarm di start; solo in questo caso si può provare
+					//ad eseguire la mutazione (intervallo che da 0 va a 1 con una certa
+					//probabilità) in quanto per attivare un intervallo è necessario agire sulla
+					//coppia di alarm (start,stop) che lo definisce
+					if(e.get_actionType() && alarmTime.after(now)){					
+						//è un alarm di start
+						
+						//si prova ad effettuare la mutazione, attivando l'intervallo
+						stop=intervalMutated(e, alarms, i, artificialIndex, alarmDao);
+						if(stop){
+							nextAlarm=e;
+						}
+					}
+				}					
+			}			
+		}
+		else{ 
+			//dato un certo alarm che è stato consumato, il prossimo alarm che viene
+			//settato ha un id maggiore del precedente (infatti gli alarm sono ordinati
+			//per orario); quindi, per cercare il prossimo alarm si parte dall'id
+			//successivo a quello dell'alarm corrente (che ha id>=1, visto che nel database
+			//gli id autoincrementanti partono da 1)
+			
+			for(int i=current_alarm_id+1; i<=alarms.size() && !stop; i++){
+				Alarm e = alarms.get(i-1);
+				
+				if(e.getRepeatingDay(artificialIndex)){
 					nextAlarm=e;
 					stop=true;
 				}
-			}
-			else{ //l'alarm non è attivato per questo giorno;
-				  //se questo è un alarm di start vuol dire che il relativo intervallo 
-				  //non è stato attivato per questo giorno				
-				
-				//si controlla se è un alarm di start; solo in questo caso si può provare
-				//ad eseguire la mutazione (intervallo che da 0 va a 1 con una certa
-				//probabilità) in quanto per attivare un intervallo è necessario agire sulla
-				//coppia di alarm (start,stop) che lo definisce
-				if(e.get_actionType() && alarmTime.after(now)){					
-					//è un alarm di start
-					
-					//si prova ad effettuare la mutazione, attivando l'intervallo
-					stop=intervalMutated(e, alarms, i, artificialIndex, alarmDao);
-					if(stop){
-						nextAlarm=e;
-					}
+				else{
+					if(e.get_actionType()){
+						//è un alarm di start						
+						//si prova ad effettuare la mutazione, attivando l'intervallo
+						stop=intervalMutated(e, alarms, i, artificialIndex, alarmDao);
+						if(stop){
+							nextAlarm=e;
+						}
+					}							
 				}
-			}
-				
+			}			
 		}
 		
-		//Se nessun alarm scatta nel giorno corrente, allora si cerca un primo alarm che
-		//scatta in un giorno successivo a questo (un prossimo alarm lo si trova 
-		//sicuramente perché un alarm deve essere attivo in almeno un giorno della settimana,
-		//altrimenti sarebbe inutile)				
-		
+		//se nessun alarm scatta nel giorno corrente, allora si cerca un primo alarm che
+		//scatta in un giorno successivo a questo (ci può essere anche il caso in cui tutti 
+		//gli intervalli della settimana non sono attivi, ma grazie alla mutazione prima o
+		//poi ne verrà attivato uno in un certo giorno)
 		if(nextAlarm==null)	{
 			
 			//si resettano ora, minuti e secondi
@@ -512,7 +545,10 @@ public class AlarmUtils {
 		
 		//con una certa probabilità si attiva l'intervallo (la coppia di alarm
 		//start-stop)
-		if(rand.nextFloat() <= probability){
+		float nn = rand.nextFloat();
+		Log.d(MainActivity.AppName,"Mutation - rand: " + nn);
+		
+		if(nn <= probability){
 			
 			Log.d(MainActivity.AppName,"Set next alarm - interval mutated");		
 			
