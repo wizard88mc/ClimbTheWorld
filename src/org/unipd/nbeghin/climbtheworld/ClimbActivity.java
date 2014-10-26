@@ -2393,7 +2393,8 @@ public class ClimbActivity extends ActionBarActivity {
 				ub.setObj_id(tour.get_id());
 				if (percentage >= 1.00)
 					num_steps = building.getSteps();
-				double percentage = ((double) (num_steps) / (double) tour.getTotalSteps());
+				double percentage = ((double) tour.getDoneSteps(new_steps, building.get_id()) / (double) tour.getTotalSteps());
+				//double percentage = ((double) (num_steps) / (double) tour.getTotalSteps());
 				ub.setPercentage(percentage);
 				ub.setUser(me);
 				ub.setSaved(false);
@@ -2401,7 +2402,8 @@ public class ClimbActivity extends ActionBarActivity {
 			} else {
 				if (percentage >= 1.00)
 					num_steps = building.getSteps();
-				double percentage = ((double) (num_steps) / (double) tour.getTotalSteps());
+				double percentage = ((double) tour.getDoneSteps(new_steps, building.get_id()) / (double) tour.getTotalSteps());
+				//double percentage = ((double) (num_steps) / (double) tour.getTotalSteps());
 				ub.setPercentage(percentage);
 				ub.setSaved(false);
 				ClimbApplication.userBadgeDao.update(ub);

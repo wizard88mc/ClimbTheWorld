@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 
+import android.content.SharedPreferences;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -64,6 +66,20 @@ public class Tour {
 		}
 		return total;
 
+	}
+	
+	public int getDoneSteps(int new_steps, int currentBuilding_id){
+		SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
+		int total = 0;
+		List<BuildingTour> buildingsTour = ClimbApplication.getBuildingsForTour(_id);
+		for(BuildingTour bt : buildingsTour){
+			if(bt.get_id() != currentBuilding_id){
+				Climbing climb = ClimbApplication.getClimbingForBuildingAndUser(bt.getBuilding().get_id(), pref.getInt("local_id", -1));
+				total += climb.getCompleted_steps();
+			}else
+				total += new_steps;
+		}
+		return total;
 	}
 	
 }
