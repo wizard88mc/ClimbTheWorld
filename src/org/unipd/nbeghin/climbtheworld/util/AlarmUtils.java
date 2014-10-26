@@ -283,16 +283,117 @@ public class AlarmUtils {
 		
 		
 		Calendar now = Calendar.getInstance();
-		Calendar alarmTime=Calendar.getInstance();	
+		Calendar alarmTime = Calendar.getInstance();	
 		//DA RIPRISTINARE CON SETTIMANA DI 7 GIORNI
 		//int today = alarmTime.get(Calendar.DAY_OF_WEEK)-1;
 				
 		
 		boolean stop=false;		
 		
-		//se si deve impostare il prossimo alarm 
+		//se si è al primo avvio dell'applicazione o all'evento di boot del device, allora
+		//per cercare il prossimo alarm si considera tutta la lista di alarm e si sceglie
+		//il primo che risulta valido per essere lanciato nel giorno corrente (o in uno
+		//successivo); in tal caso si esegue una ricerca binaria
 		if(onBoot){ 
+			
+			int begin = 0;
+			int end = alarms.size()-1;
+			int center = 0;
+			
+			while(begin <= end){
+				
+				//indice dell'elemento della lista da recuperare
+				center = (begin+end)/2;
+				
+				//si ottiene l'alarm
+				Alarm e = alarms.get(center);	
+				
+				//si impostano ora, minuti e secondi prendendo tali parametri dall'alarm salvato
+				alarmTime.set(Calendar.HOUR_OF_DAY, e.get_hour());
+				alarmTime.set(Calendar.MINUTE, e.get_minute());
+				alarmTime.set(Calendar.SECOND, e.get_second());
+				
+				if(alarmTime.before(now)){ 
+					begin=center+1;
+				}
+				else{
+					nextAlarm=e;
+					end=center-1;
+				}
+			}
+			
+			
+			if(nextAlarm!=null){
+				//se si arriva qui significa che la ricerca binaria precedente ha trovato
+				//un alarm con tempo di inizio valido per il giorno corrente
+				
+				//ora si controlla se questo alarm è attivo nel giorno corrente;
+				//se questo è il caso significa che è attivato anche l'altro alarm a lui
+				//associato (perchè una coppia di alarm (start,stop) definisce un intervallo:
+				//quando un alarm di start viene attivato (disattivato) viene attivato
+				//(disattivato) anche l'alarm di stop successivo)
+				
+				//se l'alarm non è attivato per questo giorno e se esso è di start, vuol dire
+				//che il relativo intervallo non è stato attivato per questo giorno					
+				if(!nextAlarm.getRepeatingDay(artificialIndex)){
+					
+					//se è un alarm di start
+					if(nextAlarm.get_actionType()){
 						
+						//si prova ad effettuare la mutazione, attivando l'intervallo
+						if(!intervalMutated(nextAlarm, alarms, center, artificialIndex, alarmDao)){
+							nextAlarm=null;
+						}
+					}
+				}
+			}
+			//se l'alarm trovato non è attivo per il giorno corrente, allora si prova a
+			//cercarne un altro partendo da quello successivo; gli alarm che nella lista
+			//vengono dopo a quello trovato hanno tutti tempo di inizio valido per il
+			//giorno corrente
+			if(nextAlarm==null){
+							
+				//se si arriva qui per il fatto che non è stato trovato alcun alarm 
+				//valido per il giorno corrente (quindi l'indice a cui si è arrivati è
+				//pari alla size() della lista) allora non si entra nel ciclo, ma si passa
+				//direttamente al giorno successivo
+				
+				for(int i=center+1; i<alarms.size() && !stop; i++){
+					
+					Alarm e = alarms.get(i);					
+					
+					/////////
+					//PER TEST ALGORITMO: l'indice del giorno corrente è impostato "artificialmente",
+					//in quanto lo deve rappresentare all'interno della settimana "corta";
+					//normalmente l'indice è dato dalla data corrente: e.getRepeatingDay(today)
+					/////////
+					
+					if(e.getRepeatingDay(artificialIndex)){
+						//l'alarm è attivato per questo giorno
+						//cio' significa che è attivato anche l'altro alarm a lui associato (perchè una
+						//coppia di alarm (start,stop) definisce un intervallo: quando un alarm di start
+						//viene attivato (disattivato) viene attivato (disattivato) anche l'alarm di stop
+						//successivo)
+						nextAlarm=e;
+						stop=true;
+					}
+					else{//l'alarm non è attivato per questo giorno;
+						 //se questo è un alarm di start vuol dire che il relativo intervallo 
+						 //non è stato attivato per questo giorno	
+						if(e.get_actionType()){					
+							//è un alarm di start
+							
+							//si prova ad effettuare la mutazione, attivando l'intervallo
+							stop=intervalMutated(e, alarms, i, artificialIndex, alarmDao);
+							if(stop){
+								nextAlarm=e;
+							}
+						}
+					}
+				}
+			}				
+				
+			/*
 			for(int i=0; i<alarms.size() && !stop; i++){
 				
 				Alarm e = alarms.get(i);
@@ -345,9 +446,9 @@ public class AlarmUtils {
 						}
 					}
 				}					
-			}			
+			}*/			
 		}
-		else{ 
+		else{ //non si è al primo avvio dell'app o al boot del device
 			//dato un certo alarm che è stato consumato, il prossimo alarm che viene
 			//settato ha un id maggiore del precedente (infatti gli alarm sono ordinati
 			//per orario); quindi, per cercare il prossimo alarm si parte dall'id
