@@ -182,7 +182,7 @@ public class MainActivity extends ActionBarActivity {
 		mPager.setAdapter(this.mPagerAdapter);
 
 		try {
-			WekaClassifier.initializeParameters(getResources().openRawResource(R.raw.modelvsw30osl0));
+			WekaClassifier.initializeParameters(getResources().openRawResource(R.raw.newmodelvsw30osl0));
 		} catch (IOException exc) {
 			this.finish();
 		}
@@ -738,28 +738,10 @@ public class MainActivity extends ActionBarActivity {
 		shareDb();
 	}
 
-	public void onInviteFacebookFriends(MenuItem v) {
-		/*
-		 * Intent intent = new Intent(sContext, FBPickFriendActivity.class);
-		 * startActivity(intent);
-		 */
-		if (FacebookUtils.isOnline(this)){
-			sendInviteToFriends();			
-		}else
-			Toast.makeText(getApplicationContext(), getString(R.string.check_connection), Toast.LENGTH_LONG).show();
-	}
+	
 
 	
-	private void sendInviteToFriends() {
-		Session session = Session.getActiveSession();
-		if (session == null || !session.isOpened()) {
-			Toast.makeText(getApplicationContext(), getString(R.string.not_logged_in), Toast.LENGTH_LONG).show();
-			return;
-		}
-		 Intent intent = new Intent(sContext, FBPickFriendActivity.class);
-		 startActivity(intent);
-
-	}
+	
 
 	/**
 	 * Send invite to user's facebook friends.

@@ -41,6 +41,7 @@
     <string name="no_fb_connection">You are not connected to Facebook</string>
     <string name="collaboration_not_exists">This collaboration does not exists anymore</string>
     <string name="check_connection">Check your internet connection</string>
+    <string name="fb_connect_invite">Login with Facebook to send invites</string>
     
     <!-- TourCard -->
     <string name="num_buildings">%d buildings</string>

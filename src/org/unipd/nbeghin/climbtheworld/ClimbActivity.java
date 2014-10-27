@@ -1311,17 +1311,23 @@ public class ClimbActivity extends ActionBarActivity {
 		int tot_steps = ClimbApplication.generateStepsToDo(climbing.getRemaining_steps(), currentUser.getMean());
 		int story_id;
 		try {
+			User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
 			story_id = ClimbApplication.getRandomStoryId();
 			microgoal = new Microgoal();
 			microgoal.setUser(ClimbApplication.getUserById(pref.getInt("local_id", -1)));
 			microgoal.setBuilding(building);
 			microgoal.setDeleted(false);
-			microgoal.setSaved(false);
 			microgoal.setDone_steps(0);
 			microgoal.setTot_steps(tot_steps);
 			microgoal.setStory_id(story_id);
-			ClimbApplication.microgoalDao.create(microgoal);
-			saveMicrogoalInParse();
+			if(!me.getFBid().equalsIgnoreCase("empty")){
+				microgoal.setSaved(false);
+				ClimbApplication.microgoalDao.create(microgoal);
+				saveMicrogoalInParse();
+			}else{
+				microgoal.setSaved(true);
+				ClimbApplication.microgoalDao.create(microgoal);
+			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

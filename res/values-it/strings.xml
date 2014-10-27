@@ -90,6 +90,8 @@
     <string name="not_logged_in">Login non eseguito</string>
     <string name="no_user_defined">Nessun utente definito</string>
     <string name="check_connection">Controlla di essere connesso a Internet</string>
+    <string name="fb_connect_invite">Connettiti a Facebook per invitare i tuoi amici</string>
+    
     
     <!-- ProfileActivity -->
     <string name="level">Livello: %s</string>

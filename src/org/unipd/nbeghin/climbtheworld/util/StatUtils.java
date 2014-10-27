@@ -56,7 +56,7 @@ public class StatUtils {
 		sql = "SELECT COUNT(*) FROM climbings WHERE completed>0 AND users_id=" + currentUser.get_id();
 		try {
 			String count = execQuery(sql);
-			stats.add(new Stat(statName, ClimbApplication.getContext().getResources().getQuantityString(R.plurals.n_climbed_buildings, Integer.valueOf(count)) ));
+			stats.add(new Stat(statName, ClimbApplication.getContext().getResources().getQuantityString(R.plurals.n_climbed_buildings, Integer.valueOf(count), Integer.valueOf(count)) ));
 		} catch (NoStatFound e) {
 			stats.add(new Stat(statName, ClimbApplication.getContext().getString(R.string.no_completed_yet)));
 		} catch (Exception e) {

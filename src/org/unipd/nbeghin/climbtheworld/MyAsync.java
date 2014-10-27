@@ -95,6 +95,8 @@ public class MyAsync extends AsyncTask<Void, Void, Void> {
 		PD.dismiss();
 		if(activity instanceof MainActivity)
 			((MainActivity)activity).onUpdateNotifications(null);
+		else if(activity instanceof ProfileActivity)
+			((ProfileActivity)activity).updateGameData();
 		Toast.makeText(activity, activity.getString(R.string.welcome, me.getName()), Toast.LENGTH_SHORT).show();
 
 	}

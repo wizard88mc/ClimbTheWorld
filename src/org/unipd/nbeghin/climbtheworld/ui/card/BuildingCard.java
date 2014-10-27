@@ -135,6 +135,7 @@ public class BuildingCard extends Card {
 	public View getCardContent(Context context) {
 		View view = LayoutInflater.from(context).inflate(R.layout.card_building_ex, null);
 		gameMode = ((TextView) view.findViewById(R.id.textModalita));
+		gameMode.setText(ClimbApplication.getContext().getString(R.string.mode));
 		socialClimbButton = ((Button) view.findViewById(R.id.socialClimbButton));
 		socialChallengeButton = ((Button) view.findViewById(R.id.socialChallengeButton));
 		teamVsTeamButton = ((Button) view.findViewById(R.id.teamVsTeamButton));
@@ -199,16 +200,25 @@ public class BuildingCard extends Card {
 			updateStatus();
 			if (climbing != null && climbing.getGame_mode() == 0) {
 				if (climbing.getPercentage() >= 1.00) {
-					socialClimbButton.setEnabled(false);
+					//socialClimbButton.setEnabled(false);
+					socialClimbButton.setVisibility(View.INVISIBLE);
+					socialChallengeButton.setVisibility(View.VISIBLE);
 					socialChallengeButton.setEnabled(true);
+					teamVsTeamButton.setVisibility(View.VISIBLE);
 					teamVsTeamButton.setEnabled(true);
 				} else {
+					socialChallengeButton.setVisibility(View.VISIBLE);
+					socialClimbButton.setVisibility(View.VISIBLE);
+					teamVsTeamButton.setVisibility(View.VISIBLE);
 					socialClimbButton.setEnabled(true);
 					socialChallengeButton.setEnabled(true);
 					teamVsTeamButton.setEnabled(true);
 				}
 			} else if (climbing == null) {
 				climbingStatus.setText(ClimbApplication.getContext().getString(R.string.notClimbedYet));
+				socialChallengeButton.setVisibility(View.VISIBLE);
+				socialClimbButton.setVisibility(View.VISIBLE);
+				teamVsTeamButton.setVisibility(View.VISIBLE);
 				socialClimbButton.setEnabled(true);
 				socialChallengeButton.setEnabled(true);
 				teamVsTeamButton.setEnabled(true);
@@ -755,22 +765,29 @@ public class BuildingCard extends Card {
 	void setSocialClimb() {
 		gameMode.setText(ClimbApplication.getContext().getString(R.string.mode) + setModeText());
 		socialClimbButton.setText(ClimbApplication.getContext().getString(R.string.back_solo_climb));
-		socialChallengeButton.setEnabled(false);
-		teamVsTeamButton.setEnabled(false);
+		socialChallengeButton.setVisibility(View.INVISIBLE);
+		teamVsTeamButton.setVisibility(View.INVISIBLE);
+		//socialChallengeButton.setEnabled(false);
+		//teamVsTeamButton.setEnabled(false);
 	}
 
 	void setSocialChallenge() {
 		gameMode.setText(ClimbApplication.getContext().getString(R.string.mode) + setModeText());
 		socialChallengeButton.setText(ClimbApplication.getContext().getString(R.string.back_solo_climb));
-		socialClimbButton.setEnabled(false);
-		teamVsTeamButton.setEnabled(false);
+		teamVsTeamButton.setVisibility(View.INVISIBLE);
+		socialClimbButton.setVisibility(View.INVISIBLE);
+		//socialClimbButton.setEnabled(false);
+		//teamVsTeamButton.setEnabled(false);
 	}
 
 	void setTeamChallenge() {
 		gameMode.setText(ClimbApplication.getContext().getString(R.string.mode) + setModeText());
-		teamVsTeamButton.setEnabled(false);
-		socialClimbButton.setEnabled(false);
-		socialChallengeButton.setEnabled(false);
+		teamVsTeamButton.setVisibility(View.INVISIBLE);
+		socialClimbButton.setVisibility(View.INVISIBLE);
+		socialChallengeButton.setVisibility(View.INVISIBLE);
+		//teamVsTeamButton.setEnabled(false);
+		//socialClimbButton.setEnabled(false);
+		//socialChallengeButton.setEnabled(false);
 	}
 
 	/**
@@ -1043,10 +1060,13 @@ public class BuildingCard extends Card {
 					Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 					Log.e("updateClimbingInParse", e.getMessage());
 				}
+				socialChallengeButton.setVisibility(View.VISIBLE);
 				socialChallengeButton.setEnabled(true);
+				socialClimbButton.setVisibility(View.VISIBLE);
 				socialClimbButton.setEnabled(true);
+				teamVsTeamButton.setVisibility(View.VISIBLE);
 				teamVsTeamButton.setEnabled(true);
-				socialClimbButton.setText("Collab");
+				socialClimbButton.setText("Social Climb");
 				mode = GameModeType.SOLO_CLIMB;
 				gameMode.setText(ClimbApplication.getContext().getString(R.string.mode) + setModeText());
 			}
@@ -1096,10 +1116,13 @@ public class BuildingCard extends Card {
 					Toast.makeText(ClimbApplication.getContext(), "7 Connection Problems", Toast.LENGTH_SHORT).show();
 					Log.e("leaveCompetition", e.getMessage());
 				}
+				socialChallengeButton.setVisibility(View.VISIBLE);
 				socialChallengeButton.setEnabled(true);
+				socialClimbButton.setVisibility(View.VISIBLE);
 				socialClimbButton.setEnabled(true);
+				teamVsTeamButton.setVisibility(View.VISIBLE);
 				teamVsTeamButton.setEnabled(true);
-				socialChallengeButton.setText("Competiz");
+				socialChallengeButton.setText("Social Challenge");
 				mode = GameModeType.SOLO_CLIMB;
 				gameMode.setText(ClimbApplication.getContext().getString(R.string.mode) + setModeText());
 			}
@@ -1283,12 +1306,18 @@ public class BuildingCard extends Card {
 	 */
 	private void graphicsRollBack(int type) {
 		if (climbing.getPercentage() >= 1.00) {
+			socialChallengeButton.setVisibility(View.VISIBLE);
 			socialChallengeButton.setEnabled(true);
+			socialClimbButton.setVisibility(View.INVISIBLE);
 			socialClimbButton.setEnabled(false);
+			teamVsTeamButton.setVisibility(View.VISIBLE);
 			teamVsTeamButton.setEnabled(true);
 		} else {
+			socialChallengeButton.setVisibility(View.VISIBLE);
 			socialChallengeButton.setEnabled(true);
+			socialClimbButton.setVisibility(View.VISIBLE);
 			socialClimbButton.setEnabled(true);
+			teamVsTeamButton.setVisibility(View.VISIBLE);
 			teamVsTeamButton.setEnabled(true);
 		}
 		switch (type) {
