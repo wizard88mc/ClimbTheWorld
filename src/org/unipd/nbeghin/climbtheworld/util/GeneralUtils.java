@@ -147,6 +147,7 @@ public class GeneralUtils {
     	}
     	/////////
     	
+    	//System.out.println(FileUtils.readFromFile(context));
     	
     	//si fa il setup del db per gli alarm
     	AlarmUtils.setupAlarmsDB(context); 
