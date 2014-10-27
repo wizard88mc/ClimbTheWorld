@@ -1,5 +1,10 @@
 package org.unipd.nbeghin.climbtheworld.util;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -14,6 +19,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.AssetManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
@@ -156,5 +162,53 @@ public class GeneralUtils {
     	//si imposta e si lancia il prossimo alarm
     	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context),true,-1); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,1))    
     }   
+    
+    
+    
+    private static String readIntervalsFromFile(Context context) {
+
+	    String ret = "";
+	    AssetManager assetManager = context.getResources().getAssets();
+	    	    
+	    try {
+	    	
+	        InputStream inputStream = assetManager.open("intervals.txt");
+
+	        if (inputStream!=null) {
+	            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+	            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+	            String receiveString = "";
+	            StringBuilder stringBuilder = new StringBuilder();
+	            
+	            Calendar cal = Calendar.getInstance();
+	        	SimpleDateFormat calFormat = new SimpleDateFormat("HH:mm:ss");
+	        	String dateFormatted = calFormat.format(cal.getTime());
+	            
+
+	            while ((receiveString = bufferedReader.readLine())!=null) {
+	            
+	            	//stringBuilder.append(receiveString);
+	            
+	            	String str_startTime = receiveString.substring(0,receiveString.indexOf(";",0)-1);
+	            	String str_stopTime = receiveString.substring(0,receiveString.indexOf(";",0)-1);
+	            	
+	            	
+	            	
+	            	
+	            }
+
+	            inputStream.close();
+	            ret = stringBuilder.toString();
+	        }
+	    }
+	    catch (FileNotFoundException e) {
+	        Log.e(MainActivity.AppName, " - File not found: " + e.toString());
+	    } catch (IOException e) {
+	        Log.e(MainActivity.AppName, " - Can not read file: " + e.toString());
+	    }
+
+	    return ret;
+	}
+    
     
 }

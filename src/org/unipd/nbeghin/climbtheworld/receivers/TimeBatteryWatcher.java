@@ -195,8 +195,8 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 										
 					//si considerano gli intervalli che non sono stati valutati durante il
 					//periodo di tempo in cui il device era spento (utile per tracciarli
-					//nel file di output e,se si vuole, per cambiare la loro valutazione) 
-
+					//nel file di output e, se si vuole, per cambiare la loro valutazione) 
+ 
 					//si calcola il numero di giorni passati dallo spegnimento
 					//se 0 si è nello stesso giorno, se 1 nel giorno successivo, e così via
 					
@@ -217,28 +217,54 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
                     												//seconds in a minute, millis in a second
 					int days_diff = (int) Math.round(time_diff);
 					
+					Log.d(MainActivity.AppName, "On Boot - device spento, day diff: " + days_diff);
+					
 					List<Alarm> alarms_lst = AlarmUtils.getAllAlarms(context);
 					
+					//si resettano ora, minuti e secondi per riportarli all'orario corrente
+					time_now = Calendar.getInstance();
+					
+
+					if(MainActivity.logEnabled){
+						int month=time_now.get(Calendar.MONTH)+1;	
+						Log.d(MainActivity.AppName, "TIME NOW: h:m:s=" 
+						+ time_now.get(Calendar.HOUR_OF_DAY)+":"+ time_now.get(Calendar.MINUTE)+":"+ time_now.get(Calendar.SECOND) +
+						"  "+time_now.get(Calendar.DATE)+"/"+month+"/"+time_now.get(Calendar.YEAR));		
+					
+						month=time_before.get(Calendar.MONTH)+1;	
+						Log.d(MainActivity.AppName, "TIME BEFORE: h:m:s=" 
+						+ time_before.get(Calendar.HOUR_OF_DAY)+":"+ time_before.get(Calendar.MINUTE)+":"+ time_before.get(Calendar.SECOND) +
+						"  "+time_before.get(Calendar.DATE)+"/"+month+"/"+time_before.get(Calendar.YEAR));		
+					}		
+					
+					
+					
+					time_before.set(Calendar.HOUR_OF_DAY, current_next_alarm.get_hour());
+					time_before.set(Calendar.MINUTE, current_next_alarm.get_minute());
+					time_before.set(Calendar.SECOND, current_next_alarm.get_minute());
 					
 					//se si tratta del primo intervallo (id_start=1 e id_stop=2) si è in
 					//presenza di un nuovo giorno; si scrive il suo indice nel file di output
-					if(alarm_id==2 && time_before.before(now)){
+					if(alarm_id==2 && time_before.before(time_now)){
 						//time_before.get(Calendar.DAY_OF_WEEK)-1;
 						Log.d(MainActivity.AppName, "On Boot - device spento, giorno: " + oldDayIndex);
 					}
 					
-					boolean stop=false;	
+					boolean stop=false; 
 					//prima si considerano gli intervalli saltati nel giorno corrente
-					for(int i=alarm_id; i<alarms_lst.size() && !stop; i++){
-					
-						Alarm e = alarms_lst.get(i);						
+					for(int i=alarm_id; i<=alarms_lst.size() && !stop; i++){
+						
+						Alarm e = alarms_lst.get(i-1);						
 						//si impostano ora, minuti e secondi prendendo tali parametri dall'alarm salvato
 						time_before.set(Calendar.HOUR_OF_DAY, e.get_hour());
 						time_before.set(Calendar.MINUTE, e.get_minute());
 						time_before.set(Calendar.SECOND, e.get_second());
 						
+						Log.d(MainActivity.AppName, "for - id: " + e.get_id());
+						
 						//se l'alarm è già passato
-						if(time_before.before(now)){
+						if(time_before.before(time_now)){
+							Log.d(MainActivity.AppName, "for - before ");
 							//ed è un alarm di stop
 							if(!e.get_actionType()){								
 								int stop_id = e.get_id();
@@ -248,12 +274,15 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						}
 						else{ //l'alarm è valido, per cui l'intervallo potrà essere valutato
 							  //(anche parzialmente se è già iniziato, cioè se l'alarm è di stop)
+							Log.d(MainActivity.AppName, "for - after ");
 							stop=true;
 						}
 					}
 						
 					
 					if(stop==false){
+						
+						Log.d(MainActivity.AppName, "On Boot - device spento; si passa al giorno successivo");
 						
 						/////////
 						//PER TEST ALGORITMO: si inizializza l'indice artificiale 
@@ -290,7 +319,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 								time_before.set(Calendar.SECOND, e.get_second());
 																
 								//se l'alarm è già passato
-								if(time_before.before(now)){
+								if(time_before.before(time_now)){
 									//ed è un alarm di stop
 									if(!e.get_actionType()){								
 										int stop_id = e.get_id();

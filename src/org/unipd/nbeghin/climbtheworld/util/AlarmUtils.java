@@ -62,6 +62,8 @@ public class AlarmUtils {
     	
     	DbHelper helper = DbHelper.getInstance(context);
     	
+    	RuntimeExceptionDao<Alarm, Integer> alarmDao = helper.getAlarmDao();
+    	
     	//esempi    	
     	
     	//creo alarm
@@ -77,10 +79,10 @@ public class AlarmUtils {
 		Alarm alm4 = new Alarm(11,14,50,false,new boolean[]{true,false},pf);
 		Alarm alm5 = new Alarm(14,53,15,true,bb,pf); //boolean[]{false,true}
 		Alarm alm6 = new Alarm(14,54,50,false,bb,pf);
-		Alarm alm7 = new Alarm(22,11,10,true,bb,pf);
-		Alarm alm8 = new Alarm(22,12,50,false,bb,pf);
-		Alarm alm9 = new Alarm(22,12,51,true,bb,pf);
-		Alarm alm10 = new Alarm(22,14,50,false,bb,pf);
+		Alarm alm7 = new Alarm(22,35,10,true,bb,pf);
+		Alarm alm8 = new Alarm(22,35,50,false,bb,pf);
+		Alarm alm9 = new Alarm(22,35,51,true,bb,pf);
+		Alarm alm10 = new Alarm(22,36,50,false,bb,pf);
 		
 		alm7.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
 		alm8.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
@@ -112,16 +114,16 @@ public class AlarmUtils {
 	    */
 				
 		// persist the alarm object to the database
-		helper.getAlarmDao().createIfNotExists(alm1);
-		helper.getAlarmDao().createIfNotExists(alm2);
-		helper.getAlarmDao().createIfNotExists(alm3);
-		helper.getAlarmDao().createIfNotExists(alm4);
-		helper.getAlarmDao().createIfNotExists(alm5);
-		helper.getAlarmDao().createIfNotExists(alm6);
-		helper.getAlarmDao().createIfNotExists(alm7);
-		helper.getAlarmDao().createIfNotExists(alm8);
-		helper.getAlarmDao().createIfNotExists(alm9);
-		helper.getAlarmDao().createIfNotExists(alm10);
+		alarmDao.createIfNotExists(alm1);
+		alarmDao.createIfNotExists(alm2);
+		alarmDao.createIfNotExists(alm3);
+		alarmDao.createIfNotExists(alm4);
+		alarmDao.createIfNotExists(alm5);
+		alarmDao.createIfNotExists(alm6);
+		alarmDao.createIfNotExists(alm7);
+		alarmDao.createIfNotExists(alm8);
+		alarmDao.createIfNotExists(alm9);
+		alarmDao.createIfNotExists(alm10);
 		
 		/*
 		helper.getTimeTemplateDao().createIfNotExists(tt1);
@@ -643,8 +645,8 @@ public class AlarmUtils {
 		}
 		
 		int ll=list_index+1;
-		
-		Log.d(MainActivity.AppName,"Mutation " + list_index + "-" + ll + " - probability: " + probability);	
+		int ll1=ll+1;
+		Log.d(MainActivity.AppName,"Mutation " + ll + "-" + ll1 + " - probability: " + probability);	
 		
 		//con una certa probabilità si attiva l'intervallo (la coppia di alarm
 		//start-stop)
@@ -653,7 +655,7 @@ public class AlarmUtils {
 		
 		if(nn <= probability){
 			
-			Log.d(MainActivity.AppName,"Set next alarm - interval " + list_index + "-" + list_index+1 + " mutated");		
+			Log.d(MainActivity.AppName,"Set next alarm - interval " + ll + "-" + ll1 + " mutated");		
 			
 			a_start.setRepeatingDay(current_day_index, true);
 			a_start.setStepsInterval(current_day_index, false);						
