@@ -144,19 +144,20 @@
    	      </intent-filter>
         </receiver>
         
-        <receiver android:name="org.unipd.nbeghin.climbtheworld.receivers.UserMotionReceiver" 
-            android:exported="false">
-  	      <intent-filter>
-      	    
-   	      </intent-filter>
-        </receiver>
-        
-        <receiver android:name="org.unipd.nbeghin.climbtheworld.receivers.StairsClassifierReceiver" 
+         <receiver android:name="org.unipd.nbeghin.climbtheworld.receivers.StairsClassifierReceiver" 
             android:exported="false">
   	      <intent-filter>
       	    <action android:name="org.unipd.nbeghin.classifier.notification" />
    	      </intent-filter>
         </receiver>
+        
+       <!--   <receiver android:name="org.unipd.nbeghin.climbtheworld.receivers.UserMotionReceiver" 
+            android:exported="false">
+  	      <intent-filter>
+      	    
+   	      </intent-filter>
+        </receiver>
+       -->
         
     </application>
 
