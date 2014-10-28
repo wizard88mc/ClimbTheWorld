@@ -26,6 +26,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.facebook.RequestBatch;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -38,7 +39,7 @@ import com.parse.ParseUser;
  * @author Silvia
  *
  */
-public class MyAsync extends AsyncTask<Void, Void, Void> {
+public class MyAsync {
 
 	final SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
 
@@ -47,90 +48,39 @@ public class MyAsync extends AsyncTask<Void, Void, Void> {
 	private Activity activity;
 	private ProgressDialog PD;
 	private User me;
+	private boolean inside;
 	
-	MyAsync(/*ParseUser user, */Activity activity, ProgressDialog PD) {
+	MyAsync(/*ParseUser user, */Activity activity, ProgressDialog PD, boolean inside) {
 		// session = session;
 		//this.user = user;
+		this.inside = inside;
 		this.activity = activity;
 		this.PD = PD;
-	}
-
-	@Override
-	protected void onPreExecute() {
-
-		super.onPreExecute();
 		me = ClimbApplication.getUserById(activity.getSharedPreferences("UserSession", 0).getInt("local_id", -1));
-		PD = new ProgressDialog(activity);
-		PD.setTitle(activity.getString(R.string.wait));
-		PD.setMessage(activity.getString(R.string.loading_progress));
-		PD.setCancelable(false);
-		PD.show();
 	}
 
-	@Override
-	protected Void doInBackground(Void... params) {
+
+
+	protected Void execute() {
 		ClimbApplication.BUSY = true;
-		ClimbApplication.loadFriendsFromFacebook();
+		//NetworkRequestAsyncTask.setMessage("load friends");
+		RequestBatch requestBatch = ClimbApplication.loadFriendsFromFacebook();
+		// Execute the batch of requests asynchronously
+		if(inside) requestBatch.executeAsync();
+		else requestBatch.executeAndWait();
+		//NetworkRequestAsyncTask.setMessage("load badge");
 		saveBadges();
+		//NetworkRequestAsyncTask.setMessage("load microgoal");
 		loadMicrogoalFromParse();
+		//NetworkRequestAsyncTask.setMessage("load progress");
 		loadProgressFromParse();
-		synchronized (ClimbApplication.lock) {
-			while (ClimbApplication.BUSY) {
-				try {
-					ClimbApplication.lock.wait();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
+		
 
 		// updateFacebookSession(session, session.getState());
 		return null;
 	}
 
-	@Override
-	protected void onPostExecute(Void result) {
-		super.onPostExecute(result);
-		PD.dismiss();
-		if(activity instanceof MainActivity)
-			((MainActivity)activity).onUpdateNotifications(null);
-		else if(activity instanceof ProfileActivity)
-			((ProfileActivity)activity).updateGameData();
-		Toast.makeText(activity, activity.getString(R.string.welcome, me.getName()), Toast.LENGTH_SHORT).show();
-
-	}
 	
-//	private void saveBadges(JSONArray badges) {
-//		Log.d("SettingsActivity", "saveBadges");
-//		SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
-//
-//		ClimbApplication.refreshUserBadge();
-//		for (int i = 0; i < badges.length(); i++) {
-//			try {
-//				JSONObject badge = badges.getJSONObject(i);
-//				int badge_id = badge.getInt("badge_id");
-//				int obj_id = badge.getInt("obj_id");
-//				int user_id = pref.getInt("local_id", -1);
-//				UserBadge userBadge = ClimbApplication.getUserBadgeForUserAndBadge(badge_id, obj_id, user_id);
-//				if (userBadge == null) {
-//					UserBadge ub = new UserBadge();
-//					ub.setBadge(ClimbApplication.getBadgeById(badge_id));
-//					ub.setObj_id(obj_id);
-//					ub.setUser(ClimbApplication.getUserById(user_id));
-//					ub.setPercentage(badge.getDouble("percentage"));
-//					ClimbApplication.userBadgeDao.create(ub);
-//				} else {
-//					userBadge.setPercentage(badge.getDouble("percentage"));
-//					ClimbApplication.userBadgeDao.update(userBadge);
-//				}
-//			} catch (JSONException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//		ClimbApplication.refreshUserBadge();
-//
-//	}
 	
 	/**
 	 * Saved user's badges locally

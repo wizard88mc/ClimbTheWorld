@@ -138,6 +138,7 @@ public class ClimbApplication extends Application{
 	
 	static DbHelper dbHelper;
 	private static Context sContext;
+	public static GraphUser user;
 	
 	private static ClimbApplication singleton;
 	
@@ -1089,7 +1090,10 @@ public class ClimbApplication extends Application{
 				//m.saveEventually();
 				ParseUtils.saveMicrogoal(m, micro);
 			}
-		}
+			synchronized (ClimbApplication.lock) {
+				ClimbApplication.lock.notify();
+				ClimbApplication.BUSY = false;
+			}		}
 		
 		/**
 		 * Checks if current fb logged in user exists in Parse and, if it does, logs him in parse and downloads/updates its progress and data with the one in the cloud.
@@ -1127,7 +1131,7 @@ public class ClimbApplication extends Application{
 											}
 			    		    				}
 			    		    				ClimbApplication.userDao.update(me);
-									new MyAsync(activity, PD).execute();
+									new MyAsync(activity, PD, true).execute();
 								} else {
 									// Signup failed. Look at the ParseException to
 									// see what happened.
@@ -1147,7 +1151,7 @@ public class ClimbApplication extends Application{
 		 * returns friends that have installed the game (if using Platform v2.0).
 		 *     
 		 */
-		public static void loadFriendsFromFacebook() {
+		public static RequestBatch loadFriendsFromFacebook() {
 			Log.d("ClimbApplication", "loadFriendsFromFacebook");
 			final Session session = Session.getActiveSession();
 			
@@ -1192,7 +1196,6 @@ public class ClimbApplication extends Application{
 						
 			
 
-			// Execute the batch of requests asynchronously
-			requestBatch.executeAndWait();
+			return requestBatch;
 		}
 }

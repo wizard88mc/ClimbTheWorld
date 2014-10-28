@@ -42,7 +42,7 @@ import com.facebook.model.GraphUser;
 import com.facebook.widget.ProfilePictureView;
 import com.parse.ParseUser;
 
-public class ProfileActivity extends ActionBarActivity {
+public class ProfileActivity extends ActionBarActivity implements NetworkRequests {
 
 	Button improveBtn;
 	private Session.StatusCallback callback = new Session.StatusCallback() {
@@ -56,6 +56,19 @@ public class ProfileActivity extends ActionBarActivity {
 	private TextView lblFacebookUser;
 	private Session mSession;
 	private User me;
+	SharedPreferences pref;
+	public ProfilePictureView profilePictureView;
+
+	public void setProfileData(GraphUser user) {
+		profilePictureView.setCropped(true);
+		profilePictureView.setProfileId(user.getId());
+		lblFacebookUser.setText(user.getName());
+		updateUserData();
+	}
+
+	public ProfilePictureView getProfilePictureView() {
+		return profilePictureView;
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -63,18 +76,50 @@ public class ProfileActivity extends ActionBarActivity {
 		uiHelper = new UiLifecycleHelper(this, callback);
 		uiHelper.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_profile);
-		
-		lblFacebookUser = ((TextView) findViewById(R.id.textUserName));
 
-		
+		lblFacebookUser = ((TextView) findViewById(R.id.textUserName));
+		profilePictureView = (ProfilePictureView) findViewById(R.id.fb_profile_picture2);
+		pref = getApplicationContext().getSharedPreferences("UserSession", 0);
+		me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
+		updateUserData();
+
+		// Session session = Session.getActiveSession();
+		// if (session != null && session.isOpened()) {
+		// updateFacebookSession(session, session.getState());
+		// }
+
 		Session session = Session.getActiveSession();
 		if (session != null && session.isOpened()) {
-			updateFacebookSession(session, session.getState());
+			setProfilePicture(session, session.getState());
+		}
+
+	}
+
+	private void setProfilePicture(final Session session, SessionState state) {
+		if (state.isOpened()) {
+			Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
+				@Override
+				public void onCompleted(GraphUser user, Response response) {
+					if (session == Session.getActiveSession()) {
+						if (user != null && profilePictureView != null) {
+							profilePictureView.setCropped(true);
+							profilePictureView.setProfileId(user.getId());
+						} else
+							System.err.println("no user");
+					}
+					if (response.getError() != null) {
+						Log.e(MainActivity.AppName, "FB exception: " + response.getError());
+					}
+				}
+			});
+			request.executeAsync();
+		} else if (state.isClosed()) {
+			Log.i(MainActivity.AppName, "Logged out...");
+			profilePictureView.setProfileId(null);
 		}
 	}
-	
-	private void updateUserData(){
-		SharedPreferences pref = getSharedPreferences("UserSession", 0);
+
+	private void updateUserData() {
 		me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
 		List<Stat> stats = StatUtils.calculateStats();
 		((ListView) findViewById(R.id.listStatistics)).setAdapter(new StatAdapter(this, R.layout.stat_item, stats));
@@ -138,6 +183,7 @@ public class ProfileActivity extends ActionBarActivity {
 	}
 
 	private void onSessionStateChange(final Session session, SessionState state, Exception exception) {
+		System.out.println("onSessionStateChange");
 		updateFacebookSession(session, state);
 	}
 
@@ -160,102 +206,14 @@ public class ProfileActivity extends ActionBarActivity {
 	}
 
 	private void updateFacebookSession(final Session session, SessionState state) {
+
 		if (FacebookUtils.isOnline(this)) {
 			System.out.println("sono online");
-			final ProfilePictureView profilePictureView = (ProfilePictureView) findViewById(R.id.fb_profile_picture2);
-			final SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
 
 			if (state.isOpened()) {
 				System.out.println("opened");
+				new NetworkRequestAsyncTask(session, this).execute();
 
-				Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
-					@Override
-					public void onCompleted(GraphUser user, Response response) {
-						if (session == Session.getActiveSession()) {
-							if (user != null && profilePictureView != null) {
-								// if current user is not logged with facebook
-								if (pref.getString("FBid", "none").equalsIgnoreCase("none")) {
-									// look for my FBid
-									Map<String, Object> conditions = new HashMap<String, Object>();
-									conditions.put("FBid", user.getId());
-									User newUser = null;
-									List<User> users = ClimbApplication.userDao.queryForFieldValuesArgs(conditions);
-
-									Map<String, Object> conditions2 = new HashMap<String, Object>();
-									conditions2.put("owner", 1);
-									List<User> users2 = ClimbApplication.userDao.queryForFieldValuesArgs(conditions2);
-
-									// already connected FB account????
-									if (users.isEmpty()) {
-										// no, am I the owner????
-										if (!users2.isEmpty()) { // there is an
-																	// owner
-																	// locally
-											if (users2.get(0).getFBid().equalsIgnoreCase("empty")) {
-												// this is FBid of the owner
-												newUser = users2.get(0);
-												newUser.setFBid(user.getId());
-												newUser.setName(user.getName());
-												ClimbApplication.userDao.update(newUser);
-											} else {
-												// new host user
-												newUser = new User();
-												newUser.setFBid(user.getId());
-												newUser.setName(user.getName());
-												newUser.setLevel(0);
-												newUser.setXP(0);
-												newUser.setOwner(false);
-												ClimbApplication.userDao.create(newUser);
-												createBadges();
-											}
-											// no, connect it now
-										} else {
-											// create new local user owner
-											User userOwner = new User();
-											userOwner.setFBid("empty");
-											userOwner.setLevel(0);
-											userOwner.setXP(0);
-											userOwner.setOwner(true);
-
-											user.setName("user owner");
-											ClimbApplication.userDao.create(userOwner);
-											createBadges();
-
-											Editor editor = pref.edit();
-											editor.putInt("local_id", userOwner.get_id());
-											editor.commit();
-											Log.d("local id", String.valueOf(userOwner.get_id()));
-										}
-									} else {// yes, get my account
-										newUser = users.get(0);
-									}
-									String own = newUser.isOwner() ? "\n" + getString(R.string.owner) : "";
-									Toast.makeText(getApplicationContext(), getString(R.string.logged_as, newUser.getName()) + own, Toast.LENGTH_SHORT).show();
-									// save data locally
-									SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
-									Editor editor = pref.edit();
-									editor.putString("FBid", newUser.getFBid());
-									editor.putString("username", newUser.getName());
-									editor.putInt("local_id", newUser.get_id());
-									editor.commit();
-
-									ClimbApplication.setCurrentUser(newUser);
-									// ClimbApplication.loadFriendsFromFacebook();
-									ClimbApplication.userExists(user, session, PD, ProfileActivity.this);
-
-								}
-								profilePictureView.setCropped(true);
-								profilePictureView.setProfileId(user.getId());
-								lblFacebookUser.setText(user.getName());
-							} else
-								System.err.println("no user");
-						}
-						if (response.getError() != null) {
-							Log.e("Settings Activity", "FB exception: " + response.getError());
-						}
-					}
-				});
-				request.executeAsync();
 				// }
 			} else if (state.isClosed()) {
 				Log.i("Climb The World", "Logged out...");
@@ -296,31 +254,12 @@ public class ProfileActivity extends ActionBarActivity {
 					updateUserData();
 					profilePictureView.setProfileId(null);
 					lblFacebookUser.setText(getString(R.string.not_logged_in));
+					updateGameData();
 				}
 
 			}
 		} else
 			Toast.makeText(getApplicationContext(), getString(R.string.check_connection), Toast.LENGTH_LONG).show();
-	}
-
-	/**
-	 * Creates UserBadges for the current logged in user
-	 */
-	private void createBadges() {
-		SharedPreferences pref = getSharedPreferences("UserSession", 0);
-		boolean emptybadges = ClimbApplication.areThereUserBadges(pref.getInt("local_id", -1)) == 0 ? false : true;
-		if (emptybadges) {
-			for (Building building : ClimbApplication.buildings) {
-				UserBadge ub = new UserBadge();
-				ub.setBadge(ClimbApplication.getBadgeByCategory(0));
-				ub.setObj_id(building.get_id());
-				ub.setPercentage(0.0);
-				ub.setSaved(true);
-				ub.setUser(ClimbApplication.getUserById(pref.getInt("local_id", -1)));
-				ClimbApplication.userBadgeDao.create(ub);
-			}
-		}
-		ClimbApplication.refreshUserBadge();
 	}
 
 	public void updateGameData() {
@@ -334,7 +273,7 @@ public class ProfileActivity extends ActionBarActivity {
 		Session session = Session.getActiveSession();
 
 		if (session != null && (session.isOpened() || session.isClosed())) {
-			onSessionStateChange(session, session.getState(), null);
+			//onSessionStateChange(session, session.getState(), null);
 		}
 
 		uiHelper.onResume();
@@ -375,7 +314,7 @@ public class ProfileActivity extends ActionBarActivity {
 				sendInviteToFriends();
 			} else
 				Toast.makeText(getApplicationContext(), getString(R.string.check_connection), Toast.LENGTH_LONG).show();
-		}else{
+		} else {
 			Toast.makeText(getApplicationContext(), getString(R.string.fb_connect_invite), Toast.LENGTH_LONG).show();
 		}
 	}
@@ -389,5 +328,130 @@ public class ProfileActivity extends ActionBarActivity {
 		Intent intent = new Intent(getApplicationContext(), FBPickFriendActivity.class);
 		startActivity(intent);
 
+	}
+
+	@Override
+	public void makeRequest(final Session session, final ProgressDialog PD) {
+		Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
+			@Override
+			public void onCompleted(GraphUser user, Response response) {
+				System.out.println("make req pa");
+
+				if (session == Session.getActiveSession()) {
+					if (user != null && profilePictureView != null) {
+						ClimbApplication.user = user;
+						// if current user is not logged with facebook
+						if (pref.getString("FBid", "none").equalsIgnoreCase("none")) {
+							// look for my FBid
+							Map<String, Object> conditions = new HashMap<String, Object>();
+							conditions.put("FBid", user.getId());
+							User newUser = null;
+							List<User> users = ClimbApplication.userDao.queryForFieldValuesArgs(conditions);
+
+							Map<String, Object> conditions2 = new HashMap<String, Object>();
+							conditions2.put("owner", 1);
+							List<User> users2 = ClimbApplication.userDao.queryForFieldValuesArgs(conditions2);
+
+							// already connected FB account????
+							if (users.isEmpty()) {
+								// no, am I the owner????
+								if (!users2.isEmpty()) { // there is an
+															// owner
+															// locally
+									if (users2.get(0).getFBid().equalsIgnoreCase("empty")) {
+										// this is FBid of the owner
+										newUser = users2.get(0);
+										newUser.setFBid(user.getId());
+										newUser.setName(user.getName());
+										ClimbApplication.userDao.update(newUser);
+									} else {
+										// new host user
+										newUser = new User();
+										newUser.setFBid(user.getId());
+										newUser.setName(user.getName());
+										newUser.setLevel(0);
+										newUser.setXP(0);
+										newUser.setOwner(false);
+										ClimbApplication.userDao.create(newUser);
+										createBadges();
+									}
+									// no, connect it now
+								} else {
+									// create new local user owner
+									User userOwner = new User();
+									userOwner.setFBid("empty");
+									userOwner.setLevel(0);
+									userOwner.setXP(0);
+									userOwner.setOwner(true);
+
+									user.setName("user owner");
+									ClimbApplication.userDao.create(userOwner);
+									createBadges();
+
+									Editor editor = pref.edit();
+									editor.putInt("local_id", userOwner.get_id());
+									editor.commit();
+									Log.d("local id", String.valueOf(userOwner.get_id()));
+								}
+							} else {// yes, get my account
+								newUser = users.get(0);
+							}
+							System.out.println("qui");
+							// save data locally
+							SharedPreferences pref = getSharedPreferences("UserSession", 0);
+							Editor editor = pref.edit();
+							editor.putString("FBid", newUser.getFBid());
+							editor.putString("username", newUser.getName());
+							editor.putInt("local_id", newUser.get_id());
+							editor.commit();
+
+							ClimbApplication.setCurrentUser(newUser);
+							// ClimbApplication.loadFriendsFromFacebook();
+							ClimbApplication.userExists(user, session, PD, ProfileActivity.this);
+
+						}
+					} else {
+						System.err.println("no user");
+						synchronized (ClimbApplication.lock) {
+							ClimbApplication.lock.notify();
+							ClimbApplication.BUSY = false;
+						}
+					}
+				} else {
+					synchronized (ClimbApplication.lock) {
+						ClimbApplication.lock.notify();
+						ClimbApplication.BUSY = false;
+					}
+				}
+
+				if (response.getError() != null) {
+					Log.e("Settings Activity", "FB exception: " + response.getError());
+					synchronized (ClimbApplication.lock) {
+						ClimbApplication.lock.notify();
+						ClimbApplication.BUSY = false;
+					}
+				}
+			}
+		});
+		request.executeAndWait();
+	}
+
+	/**
+	 * Creates UserBadges for the current logged in user
+	 */
+	private void createBadges() {
+		boolean emptybadges = ClimbApplication.areThereUserBadges(pref.getInt("local_id", -1)) == 0 ? false : true;
+		if (emptybadges) {
+			for (Building building : ClimbApplication.buildings) {
+				UserBadge ub = new UserBadge();
+				ub.setBadge(ClimbApplication.getBadgeByCategory(0));
+				ub.setObj_id(building.get_id());
+				ub.setPercentage(0.0);
+				ub.setSaved(true);
+				ub.setUser(ClimbApplication.getUserById(pref.getInt("local_id", -1)));
+				ClimbApplication.userBadgeDao.create(ub);
+			}
+		}
+		ClimbApplication.refreshUserBadge();
 	}
 }

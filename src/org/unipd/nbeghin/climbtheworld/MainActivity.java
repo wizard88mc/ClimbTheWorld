@@ -103,7 +103,7 @@ import com.parse.SignUpCallback;
  * 
  */
 @SuppressLint("NewApi")
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements NetworkRequests{
 	private static final String APP_TITLE = "Climb the world";
 	public static final String AppName = "ClimbTheWorld";
 
@@ -161,10 +161,7 @@ public class MainActivity extends ActionBarActivity {
 
 		sContext = getApplicationContext();
 
-		//if not logged in, login default owner user
-		if (pref.getInt("local_id", -1) == -1) {
-			setUserOwner();
-		}
+		
 
 		// loading fragments
 		fragments.add(Fragment.instantiate(this, BuildingsFragment.class.getName())); // instance
@@ -187,6 +184,15 @@ public class MainActivity extends ActionBarActivity {
 			this.finish();
 		}
 
+	}
+	
+	@Override
+	protected void onStart(){
+		super.onStart();
+		//if not logged in, login default owner user
+				if (pref.getInt("local_id", -1) == -1) {
+					setUserOwner();
+				}
 	}
 
 	private void onSessionStateChange(final Session session, SessionState state, Exception exception) {
@@ -271,53 +277,7 @@ public class MainActivity extends ActionBarActivity {
 				//this check is necessary not to repeat the newMeRequest twice
 				if (mSession == null || isSessionChanged(session)) {
 					mSession = session;
-
-					Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
-						@Override
-						public void onCompleted(GraphUser user, Response response) {
-							if (session == Session.getActiveSession()) {
-								if (user != null && pref.getString("FBid", "none").equalsIgnoreCase("none")) {
-									// look for my FBid
-									Map<String, Object> conditions = new HashMap<String, Object>();
-									conditions.put("FBid", user.getId());
-									User newUser = null;
-									
-									List<User> users = ClimbApplication.userDao.queryForFieldValuesArgs(conditions);
-									if (users.size() > 0) {
-										//this FBid is already linked to a user
-										newUser = users.get(0);
-										ClimbApplication.setCurrentUser(newUser);
-										// save data locally
-										SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
-										Editor editor = pref.edit();
-										editor.putString("FBid", newUser.getFBid());
-										editor.putString("username", newUser.getName());
-										editor.putInt("local_id", newUser.get_id());
-										editor.commit();
-										String own = newUser.isOwner() ? "\n" + getString(R.string.owner) : "";
-										Toast.makeText(getApplicationContext(), getString(R.string.logged_as, newUser.getName()) + own, Toast.LENGTH_SHORT).show();
-							
-										ClimbApplication.userExists(user, session, PD, MainActivity.this);
-									} else {
-										Toast.makeText(getApplicationContext(), getString(R.string.not_logged), Toast.LENGTH_SHORT).show();
-									}
-								} else {
-									System.err.println("no user");
-									//to do only when the user opens main activity for the first time
-									if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && pref.getBoolean("openedFirst", false)){
-										new MyAsync(MainActivity.this, PD).execute();
-										Editor edit = pref.edit();
-										edit.putBoolean("openedFirst", false);
-										edit.commit();
-									}
-								}
-							}
-							if (response.getError() != null) {
-								Log.e(MainActivity.AppName, "FB exception: " + response.getError());
-							}
-						}
-					});
-					request.executeAsync();
+						new NetworkRequestAsyncTask(session, this).execute();
 				}
 			} else if (state.isClosed()) {
 				Log.i(MainActivity.AppName, "Logged out...");
@@ -885,5 +845,62 @@ public class MainActivity extends ActionBarActivity {
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		uiHelper.onSaveInstanceState(outState);
+	}
+
+	@Override
+	public void makeRequest(final Session session, final ProgressDialog PD) {
+		Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
+			@Override
+			public void onCompleted(GraphUser user, Response response) {
+				if (session == Session.getActiveSession()) {
+					ClimbApplication.user = user;
+					if (user != null && pref.getString("FBid", "none").equalsIgnoreCase("none")) {
+						// look for my FBid
+						Map<String, Object> conditions = new HashMap<String, Object>();
+						conditions.put("FBid", user.getId());
+						User newUser = null;
+						
+						List<User> users = ClimbApplication.userDao.queryForFieldValuesArgs(conditions);
+						if (users.size() > 0) {
+							//this FBid is already linked to a user
+							newUser = users.get(0);
+							ClimbApplication.setCurrentUser(newUser);
+							// save data locally
+							Editor editor = pref.edit();
+							editor.putString("FBid", newUser.getFBid());
+							editor.putString("username", newUser.getName());
+							editor.putInt("local_id", newUser.get_id());
+							editor.commit();
+							String own = newUser.isOwner() ? "\n" + getString(R.string.owner) : "";
+							Toast.makeText(MainActivity.this, getString(R.string.logged_as, newUser.getName()) + own, Toast.LENGTH_SHORT).show();
+				
+							ClimbApplication.userExists(user, session, PD, MainActivity.this);
+						} else {
+							Toast.makeText(MainActivity.this, getString(R.string.not_logged), Toast.LENGTH_SHORT).show();
+						}
+					} else {
+						System.err.println("no user");
+						//to do only when the user opens main activity for the first time
+						if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && pref.getBoolean("openedFirst", false)){
+							System.out.println("open first");
+							new MyAsync(MainActivity.this, PD, false).execute();
+							Editor edit = pref.edit();
+							edit.putBoolean("openedFirst", false);
+							edit.commit();
+						}else{
+							System.out.println("not open first");
+							synchronized (ClimbApplication.lock) {
+								ClimbApplication.lock.notify();
+								ClimbApplication.BUSY = false;
+							}
+						}
+					}
+				}
+				if (response.getError() != null) {
+					Log.e(MainActivity.AppName, "FB exception: " + response.getError());
+				}
+			}
+		});
+		request.executeAndWait();
 	}
 }
