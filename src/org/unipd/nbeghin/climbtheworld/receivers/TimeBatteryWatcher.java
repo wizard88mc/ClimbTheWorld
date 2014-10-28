@@ -122,7 +122,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					e.printStackTrace();
 				}
 				before.setTime(date);
-						
+				
 				double diff = now.getTimeInMillis() - before.getTimeInMillis();
 				diff = diff / (24 * 60 * 60 * 1000); //hours in a day, minutes in a hour,
 				                                     //seconds in a minute, millis in a second
