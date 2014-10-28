@@ -686,16 +686,17 @@ public class ClimbActivity extends ActionBarActivity {
 			}
 		});
 		// Set up the user interaction to manually show or hide the system UI.
-		contentView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				if (TOGGLE_ON_CLICK) {
-					mSystemUiHider.toggle();
-				} else {
-					mSystemUiHider.show();
-				}
-			}
-		});
+//		contentView.setOnClickListener(new View.OnClickListener() {
+//			@Override
+//			public void onClick(View view) {
+//				if (TOGGLE_ON_CLICK) {
+//					mSystemUiHider.toggle();
+//				} else {
+//					mSystemUiHider.show();
+//				}
+//			}
+//		});
+		mSystemUiHider.show();
 		// Upon interacting with UI controls, delay any scheduled hide()
 		// operations to prevent the jarring behavior of controls going away
 		// while interacting with the UI.
@@ -1522,20 +1523,20 @@ public class ClimbActivity extends ActionBarActivity {
 		}
 	};
 	Handler mHideHandler = new Handler();
-	Runnable mHideRunnable = new Runnable() {
-		@Override
-		public void run() {
-			mSystemUiHider.hide();
-		}
-	};
+//	Runnable mHideRunnable = new Runnable() {
+//		@Override
+//		public void run() {
+//			mSystemUiHider.hide();
+//		}
+//	};
 
 	/**
 	 * Schedules a call to hide() in [delay] milliseconds, canceling any
 	 * previously scheduled calls.
 	 */
 	private void delayedHide(int delayMillis) {
-		mHideHandler.removeCallbacks(mHideRunnable);
-		mHideHandler.postDelayed(mHideRunnable, delayMillis);
+	//	mHideHandler.removeCallbacks(mHideRunnable);
+	//	mHideHandler.postDelayed(mHideRunnable, delayMillis);
 	}
 
 	/**
