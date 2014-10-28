@@ -57,9 +57,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NavUtils;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -76,7 +76,6 @@ import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VerticalSeekBar;
@@ -1498,9 +1497,9 @@ public class ClimbActivity extends ActionBarActivity {
 			// TODO: If Settings has multiple levels, Up should navigate up
 			// that hierarchy.
 			// NavUtils.navigateUpFromSameTask(this);
-			if (samplingEnabled == false)
+			if (samplingEnabled == false){
 				finish();
-			else { // disable back button if sampling is enabled
+			}else { // disable back button if sampling is enabled
 				Toast.makeText(getApplicationContext(), getString(R.string.sampling_enabled), Toast.LENGTH_SHORT).show();
 			}
 			return true;
@@ -2297,6 +2296,10 @@ public class ClimbActivity extends ActionBarActivity {
 	}
 
 	private void updatePoints(boolean penalty) {
+		if(difficulty == 0){
+			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+			difficulty = Integer.parseInt(settings.getString("difficulty", "10"));
+		}
 		int realSteps = new_steps / difficulty;
 		int newXP = 0;
 		switch (difficulty) {
