@@ -65,14 +65,16 @@ public class BuildingsFragment extends Fragment {
 								Toast.makeText(getActivity(), "Connect to save data online before playing", Toast.LENGTH_SHORT).show();
 							else {
 								Log.i("Building Fragment", "Building id clicked: " + building.getBuilding().get_id());
-								Intent intent = new Intent(getActivity().getApplicationContext(), TeamPreparationActivity.class);
+								Intent intent = new Intent(getActivity(), TeamPreparationActivity.class);
 								intent.putExtra(ClimbApplication.counter_mode, false);
 								intent.putExtra(ClimbApplication.building_text_intent_object, building.getBuilding().get_id());
+								intent.setAction("back");
 								getActivity().startActivity(intent);
 							}
 						} else {
 							Log.i("Building Fragment", "Building id clicked: " + building.getBuilding().get_id());
-							Intent intent = new Intent(getActivity().getApplicationContext(), ClimbActivity.class);
+							Intent intent = new Intent(getActivity(), ClimbActivity.class);
+							intent.setAction("back");
 							intent.putExtra(ClimbApplication.counter_mode, false);
 							intent.putExtra(ClimbApplication.building_text_intent_object, building.get_id());
 							startActivity(intent);
@@ -80,9 +82,10 @@ public class BuildingsFragment extends Fragment {
 
 					} else {
 						Log.i("Building Fragment", "Building id clicked: " + building.getBuilding().get_id());
-						Intent intent = new Intent(getActivity().getApplicationContext(), ClimbActivity.class);
+						Intent intent = new Intent(getActivity(), ClimbActivity.class);
 						intent.putExtra(ClimbApplication.counter_mode, false);
 						intent.putExtra(ClimbApplication.building_text_intent_object, building.get_id());
+						intent.setAction("back");
 						startActivity(intent);
 					}
 

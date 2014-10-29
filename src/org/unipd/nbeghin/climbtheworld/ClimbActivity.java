@@ -44,6 +44,7 @@ import org.unipd.nbeghin.climbtheworld.util.StatUtils;
 import org.unipd.nbeghin.climbtheworld.util.SystemUiHider;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
@@ -51,6 +52,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.hardware.SensorManager;
 import android.os.Build;
@@ -58,9 +60,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -646,6 +650,10 @@ public class ClimbActivity extends ActionBarActivity {
 		setContentView(R.layout.activity_climb);
 		setupActionBar();
 		pref = getSharedPreferences("UserSession", 0);
+		SharedPreferences paused = getSharedPreferences("state", 0);
+		Editor editor = paused.edit();
+		editor.putBoolean("paused", false);
+		editor.commit();
 		currentUser = ClimbApplication.getUserById(pref.getInt("local_id", -1));
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		final View contentView = findViewById(R.id.lblReadyToClimb);
@@ -1470,6 +1478,11 @@ public class ClimbActivity extends ActionBarActivity {
 			getActionBar().setDisplayHomeAsUpEnabled(true);
 		}
 	}
+	
+	private final boolean shouldUpRecreateTask(Activity from){
+	    String action = from.getIntent().getAction();
+	    return action != null && action.equals("back");
+	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -1499,7 +1512,22 @@ public class ClimbActivity extends ActionBarActivity {
 			// that hierarchy.
 			// NavUtils.navigateUpFromSameTask(this);
 			if (samplingEnabled == false){
-				finish();
+				//finish();
+				SharedPreferences paused = getSharedPreferences("state", 0);
+
+	            Intent upIntent = NavUtils.getParentActivityIntent(this);
+				if ((NavUtils.shouldUpRecreateTask(this, upIntent) ) || paused.getBoolean("paused", true)) {
+					System.out.println("ricrea");
+					Editor editor = paused.edit();
+					editor.putBoolean("paused", false);
+					editor.commit();
+				      TaskStackBuilder.create(this)
+				       .addNextIntentWithParentStack(upIntent)
+				       .startActivities();
+				 } else { System.out.println("torna su");
+				       //fillUpIntentWithExtras(upIntent);
+				       NavUtils.navigateUpTo(this, upIntent);
+				 }
 			}else { // disable back button if sampling is enabled
 				Toast.makeText(getApplicationContext(), getString(R.string.sampling_enabled), Toast.LENGTH_SHORT).show();
 			}
@@ -1877,7 +1905,11 @@ public class ClimbActivity extends ActionBarActivity {
 	protected void onPause() {
 		Log.i(MainActivity.AppName, "ClimbActivity onPause");
 		super.onPause();
-		this.finish();
+		SharedPreferences paused = getSharedPreferences("state", 0);
+		Editor editor = paused.edit();
+		editor.putBoolean("paused", true);
+		editor.commit();
+		//this.finish();
 	}
 
 	@Override
@@ -1889,12 +1921,51 @@ public class ClimbActivity extends ActionBarActivity {
 
 	@Override
 	public void onBackPressed() {
-		if (samplingEnabled == false)
-			super.onBackPressed();
-		else { // disable back button if sampling is enabled
+		if (samplingEnabled == false){
+			//super.onBackPressed();
+			SharedPreferences paused = getSharedPreferences("state", 0);
+
+        Intent upIntent = NavUtils.getParentActivityIntent(this);
+		if ((NavUtils.shouldUpRecreateTask(this, upIntent) ) || paused.getBoolean("paused", true)) {
+			System.out.println("ricrea btn");
+			Editor editor = paused.edit();
+			editor.putBoolean("paused", false);
+			editor.commit();
+		      TaskStackBuilder.create(this)
+		       .addNextIntentWithParentStack(upIntent)
+		       .startActivities();
+		 } else { System.out.println("torna su btn");
+		       //fillUpIntentWithExtras(upIntent);
+		       NavUtils.navigateUpTo(this, upIntent);
+		 }
+		}else { // disable back button if sampling is enabled
 			Toast.makeText(getApplicationContext(), getString(R.string.sampling_enabled), Toast.LENGTH_SHORT).show();
 		}
 	}
+/*	
+	// Working for all API levels
+	  @Override
+	  public boolean onKeyDown(int keyCode, KeyEvent event) {
+	    if (keyCode == KeyEvent.KEYCODE_BACK) {
+	    	SharedPreferences paused = getSharedPreferences("state", 0);
+
+            Intent upIntent = NavUtils.getParentActivityIntent(this);
+			if ((NavUtils.shouldUpRecreateTask(this, upIntent) ) || paused.getBoolean("paused", true)) {
+				System.out.println("ricrea");
+				Editor editor = paused.edit();
+				editor.putBoolean("paused", false);
+				editor.commit();
+			      TaskStackBuilder.create(this)
+			       .addNextIntentWithParentStack(upIntent)
+			       .startActivities();
+			 } else { System.out.println("torna su");
+			       //fillUpIntentWithExtras(upIntent);
+			       NavUtils.navigateUpTo(this, upIntent);
+			 }
+	    }
+	    return super.onKeyDown(keyCode, event);
+	  }
+*/
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
