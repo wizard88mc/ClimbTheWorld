@@ -1644,9 +1644,11 @@ public class ClimbActivity extends ActionBarActivity {
 	 */
 	public void stopClassify() {
 		Log.i("ClimbActivity", "stopClassify");
-		stopService(backgroundClassifySampler); // stop background service
-		samplingEnabled = false;
-		unregisterReceiver(classifierReceiver); // unregister listener
+		if(samplingEnabled){
+			stopService(backgroundClassifySampler); // stop background service
+			samplingEnabled = false;
+			unregisterReceiver(classifierReceiver); // unregister listener
+		}
 		updateUserStats();
 
 		if (!isCounterMode) {
@@ -1915,7 +1917,75 @@ public class ClimbActivity extends ActionBarActivity {
 		Editor editor = paused.edit();
 		editor.putBoolean("paused", true);
 		editor.commit();
+		if(samplingEnabled)
+			saveBeforeQuit();
 		//this.finish();
+	}
+	
+	private void saveBeforeQuit(){
+		if (!isCounterMode) {
+			System.out.println("save before quit");
+			// update db
+			updateMicrogoalInParse();
+			climbing.setModified(new Date().getTime()); // update climbing last
+														// edit
+														// date
+			climbing.setCompleted_steps(num_steps); // update completed steps
+			climbing.setPercentage(percentage); // update progress percentage
+			climbing.setRemaining_steps(building.getSteps() - num_steps); // update
+																			// remaining
+																			// steps
+			if (percentage >= 1.00 && (mode != GameModeType.SOCIAL_CHALLENGE) && (mode != GameModeType.TEAM_VS_TEAM))
+				climbing.setCompleted(new Date().getTime());
+			if (percentage >= 1.00) {
+				switch (mode) {
+				case SOCIAL_CLIMB: // come back in Solo Climb
+					updateOthers(false);
+					climbing.setGame_mode(0);
+					climbing.setId_mode("");
+					ClimbApplication.climbingDao.update(climbing); // save to db
+					if (!pref.getString("FBid", "none").equalsIgnoreCase("none"))
+						updateClimbingInParse(climbing, false);
+					break;
+				case SOCIAL_CHALLENGE:
+					updateChart(false);
+					break;
+				case TEAM_VS_TEAM:
+					updateTeams(false);
+					break;
+				case SOLO_CLIMB:
+					ClimbApplication.climbingDao.update(climbing); // save to db
+					if (!pref.getString("FBid", "none").equalsIgnoreCase("none"))
+						updateClimbingInParse(climbing, false);
+					break;
+				}
+				/*
+				 * climbing.setGame_mode(0); climbing.setId_mode("");
+				 */
+			} else {
+				ClimbApplication.climbingDao.update(climbing); // save to db
+				System.out.println(pref.getString("FBid", "none"));
+				if (!pref.getString("FBid", "none").equalsIgnoreCase("none"))
+					updateClimbingInParse(climbing, false);
+			}
+
+			Log.i(MainActivity.AppName, "Updated climbing #" + climbing.get_id());
+			// button
+			// icon
+			// to
+			// play
+			// again
+
+			if (mode == GameModeType.SOCIAL_CLIMB && collaboration != null)
+				saveCollaborationData();
+			else if (mode == GameModeType.SOCIAL_CHALLENGE && competition != null)
+				saveCompetitionData();
+			else if (mode == GameModeType.TEAM_VS_TEAM && teamDuel != null)
+				saveTeamDuelData();
+
+			updatePoints(false);
+			saveBadges();
+		}
 	}
 
 	@Override
@@ -1923,6 +1993,8 @@ public class ClimbActivity extends ActionBarActivity {
 		Log.i(MainActivity.AppName, "ClimbActivity onDestroy");
 		stopAllServices(); // make sure to stop all background services
 		super.onDestroy();
+		if(samplingEnabled)
+			saveBeforeQuit();
 	}
 
 	@Override
