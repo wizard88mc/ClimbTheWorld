@@ -297,7 +297,10 @@ public class ClimbActivity extends ActionBarActivity {
 							setThresholdText();
 						} else if (mode == GameModeType.TEAM_VS_TEAM) {
 							// consider my team's steps
+							Toast.makeText(getApplicationContext(), String.valueOf(myTeamScore()), Toast.LENGTH_SHORT).show();
 							win = ((myTeamScore()) >= building.getSteps());
+							System.out.println(win);
+							System.out.println(isCounterMode);
 							setThresholdText();
 						} else
 							win = ((num_steps) >= building.getSteps()); // consider
@@ -312,7 +315,7 @@ public class ClimbActivity extends ActionBarActivity {
 						}
 					}
 					updateStats(); // update the view of current stats
-					if (win && isCounterMode) {
+					if (win && !isCounterMode) {
 						stopClassify(); // stop classifier service service
 						apply_win();
 					}
@@ -1637,7 +1640,7 @@ public class ClimbActivity extends ActionBarActivity {
 	 * Stop background classifier service
 	 */
 	public void stopClassify() {
-
+		Log.i("ClimbActivity", "stopClassify");
 		stopService(backgroundClassifySampler); // stop background service
 		samplingEnabled = false;
 		unregisterReceiver(classifierReceiver); // unregister listener
