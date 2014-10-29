@@ -9,6 +9,13 @@
         climbtheworld:actionViewClass="android.support.v7.widget.SearchView"
         climbtheworld:showAsAction="ifRoom|collapseActionView">
     </item>
+   
+    <item
+        android:id="@+id/show_algorithm_log"
+        android:title="Log"
+   	    android:onClick="onShowLog"
+        climbtheworld:showAsAction="never">
+    </item>    
     <item
         android:id="@+id/itemProfile"
         android:icon="@drawable/ic_action_user"

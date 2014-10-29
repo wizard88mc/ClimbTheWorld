@@ -167,7 +167,7 @@ public class GeneralUtils {
     	/////////
     	
     	
-    	
+    	writeLogFile(context, "ALGORITMO");
     	
     	
     	//si fa il setup del db per gli alarm
@@ -321,7 +321,8 @@ public class GeneralUtils {
     	File logFile = new File(appdir, "algorithm_log");
     	
     	try {    	
-    		if(!logFile.exists()){    		
+    		if(!logFile.exists()){    	    			
+    			Log.e(MainActivity.AppName, "Log file not exists");
 				logFile.createNewFile();
     		}
     	    	

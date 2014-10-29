@@ -10,6 +10,8 @@
     <string name="title_activity_tour_detail">Tour detail</string>
     <string name="title_activity_gallery">Gallery</string>
     <string name="title_activity_photo_pager_activity">Gallery</string>
+    <string name="title_activity_log">Algorithm log</string>
+    <string name="refresh_log_data">Refresh</string>
     <string name="app_id">1444608782432270</string>
     <!--  <string name="app_name">ClimbTheWorld</string> -->
     <!-- <string name="app_id">370546396320150</string> -->

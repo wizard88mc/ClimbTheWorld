@@ -165,6 +165,12 @@ public class MainActivity extends ActionBarActivity {
 		startActivity(intent);
 	}
 
+	public void onShowLog(MenuItem v) {
+		Intent intent = new Intent(getApplicationContext(), ShowLogActivity.class);
+		startActivity(intent);
+	}
+	
+	
 	/**
 	 * Reload all buildings
 	 */
