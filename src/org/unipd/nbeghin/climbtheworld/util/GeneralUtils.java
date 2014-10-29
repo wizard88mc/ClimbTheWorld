@@ -1,13 +1,19 @@
 package org.unipd.nbeghin.climbtheworld.util;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
@@ -27,6 +33,8 @@ import android.content.SharedPreferences.Editor;
 import android.content.res.AssetManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.text.Spanned;
+import android.text.SpannedString;
 import android.util.Log;
 
 /**
@@ -165,8 +173,8 @@ public class GeneralUtils {
     	//si fa il setup del db per gli alarm
     	AlarmUtils.setupAlarmsDB(context); 
     	//si creano gli alarm
-		//AlarmUtils.createAlarms(context);  
-    	readIntervalsFromFile(context);
+		AlarmUtils.createAlarms(context);  
+    	//readIntervalsFromFile(context);
 		
     	//si imposta e si lancia il prossimo alarm
     	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context),true,-1); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,1))    
@@ -304,5 +312,58 @@ public class GeneralUtils {
 	        Log.e(MainActivity.AppName, " - Can not read file: " + e.toString());
 	    }
 	}
+    
+    
+    //start-stop, 0/1 attuale, se attivo valutazione, 0/1 la prossima settimana
+    public static void writeLogFile(Context context, String text){
+    	   	    	
+    	File appdir = context.getDir("climbTheWorld_dir", Context.MODE_PRIVATE); 
+    	File logFile = new File(appdir, "algorithm_log");
+    	
+    	try {    	
+    		if(!logFile.exists()){    		
+				logFile.createNewFile();
+    		}
+    	    	
+    		//'true' per aggiungere il testo al file esistente
+    		BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true)); 
+    		buf.append(text);
+    		buf.newLine();
+    		buf.close();
+    	} catch (IOException e) {
+			e.printStackTrace();
+		}
+    }
+        
+    
+    //carica il contenuto del file di log
+    public static List<Spanned> loadLogFile(File logFile) throws IOException {
+
+        //get a new list of spanned strings
+        List<Spanned> content = new ArrayList<Spanned>();
+        
+        //if no log file exists yet, return the empty List
+        if (!logFile.exists()) {
+            return content;
+        }
+
+        //create a new buffered file reader based on the log file
+        BufferedReader reader = new BufferedReader(new FileReader(logFile));
+
+        //get a string instance to hold input from the log file
+        String line;
+
+        //read until end-of-file from the log file, and store the input line as a
+        //spanned string in the List
+        while ((line = reader.readLine()) != null) {
+            content.add(new SpannedString(line));
+        }
+
+        //close the file
+        reader.close();
+
+        //return the data from the log file
+        return content;
+    }
     
 }
