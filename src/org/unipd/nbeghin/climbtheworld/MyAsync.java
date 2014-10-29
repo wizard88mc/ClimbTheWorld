@@ -163,6 +163,7 @@ public class MyAsync {
 							current_microgoal.setTot_steps(microgoal.getInt("tot_steps"));
 							current_microgoal.setUser(user);
 							current_microgoal.setBuilding(building);
+							current_microgoal.setReward(5);
 							ClimbApplication.microgoalDao.create(current_microgoal);
 						} else {
 							System.out.println("update microgoal");

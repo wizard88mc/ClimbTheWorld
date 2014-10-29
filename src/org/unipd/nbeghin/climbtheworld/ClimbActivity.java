@@ -79,6 +79,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -1042,7 +1043,7 @@ public class ClimbActivity extends ActionBarActivity {
 								});
 								i++;
 							}
-							seekbarIndicator.setProgress(climbing.getCompleted_steps() + sumOthersStep());
+							seekbarIndicator.setProgress(num_steps + sumOthersStep());
 							for (; i < group_members.size(); i++) {
 								group_members.get(i).setClickable(false);
 								group_members.get(i).setVisibility(View.INVISIBLE);
@@ -1332,6 +1333,7 @@ public class ClimbActivity extends ActionBarActivity {
 			microgoal.setDone_steps(0);
 			microgoal.setTot_steps(tot_steps);
 			microgoal.setStory_id(story_id);
+			microgoal.setReward(5);
 			if(!me.getFBid().equalsIgnoreCase("empty")){
 				microgoal.setSaved(false);
 				ClimbApplication.microgoalDao.create(microgoal);
@@ -2595,12 +2597,13 @@ public class ClimbActivity extends ActionBarActivity {
 //			int randomNum1 = rand.nextInt((10 - 1) + 1) + 1;
 //			int randomNum2 = rand.nextInt((20 - randomNum1) + 1) + randomNum1;
 			int randomNum1 = Integer.valueOf(climbs[0]) / 5;
-			int randomNum2 = Integer.valueOf(climbs[0] + climbs[1]) / 5;
 
 			if (checked_size == 1)
 				intro = String.format(texts.getIntro(), randomNum1);
-			else if (checked_size == 2)
+			else if (checked_size == 2){
+				int randomNum2 = Integer.valueOf(climbs[0] + climbs[1]) / 5;
 				intro = String.format(texts.getIntro(), randomNum1, randomNum2);
+			}
 
 			// to set the message
 			TextView message = (TextView) dialog.findViewById(R.id.tvmessagedialogtext);
@@ -2629,7 +2632,7 @@ public class ClimbActivity extends ActionBarActivity {
 				cb.setText(steps[i]);
 				cb.setTextColor(Color.BLACK);
 				cb.setChecked(checked[i]);
-				cb.setEnabled(false);
+				cb.setClickable(false);
 			}
 
 			// add some action to the buttons
@@ -2645,6 +2648,14 @@ public class ClimbActivity extends ActionBarActivity {
 			// int width = metrics.widthPixels;
 			// int height = metrics.heightPixels;
 			// dialog.getWindow().setLayout((6 * width)/7, (4 * height)/5);
+			
+			ProgressBar pb = (ProgressBar) dialog.findViewById(R.id.progressBarDialog);
+			TextView perc = (TextView) dialog.findViewById(R.id.textPercentageDialog);
+			double percentage = Math.round(((double) microgoal.getDone_steps() / (double) microgoal.getTot_steps()) * 100);
+			pb.setIndeterminate(false);
+			pb.setProgress((int)percentage);
+			perc.setText(String.valueOf(percentage) + "%");
+			
 			dialog.show();
 
 		} catch (JSONException e) {

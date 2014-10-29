@@ -231,6 +231,7 @@ public class BuildingCard extends Card {
 												// microgoal
 
 					try {
+	
 						Microgoal microgoal = ClimbApplication.getMicrogoalByUserAndBuilding(pref.getInt("local_id", -1), building.get_id());
 						if (microgoal != null) {
 							MicrogoalText texts = ModelsUtil.getMicrogoalTextByStory(microgoal.getStory_id());//ClimbApplication.getMicrogoalTextByStory(microgoal.getStory_id());
@@ -273,13 +274,13 @@ public class BuildingCard extends Card {
 //							int randomNum2 = rand.nextInt((20 - randomNum1) + 1) + randomNum1;
 							
 							int randomNum1 = Integer.valueOf(climbs[0]) / 5;
-							int randomNum2 = Integer.valueOf(climbs[0] + climbs[1]) / 5;
 
 							if (checked_size == 1)
 								intro = String.format(texts.getIntro(), randomNum1);
-							else if (checked_size == 2)
+							else if (checked_size == 2){
+								int randomNum2 = Integer.valueOf(climbs[0] + climbs[1]) / 5;
 								intro = String.format(texts.getIntro(), randomNum1, randomNum2);
-
+							}
 							// to set the message
 							TextView message = (TextView) dialog.findViewById(R.id.tvmessagedialogtext);
 							message.setText(intro);
@@ -311,7 +312,7 @@ public class BuildingCard extends Card {
 								cb.setText(steps[i]);
 								cb.setTextColor(Color.BLACK);
 								cb.setChecked(checked[i]);
-								cb.setEnabled(false);
+								cb.setClickable(false);
 							}
 
 							// add some action to the buttons
@@ -329,6 +330,14 @@ public class BuildingCard extends Card {
 							// int height = metrics.heightPixels;
 							// dialog.getWindow().setLayout((6 * width)/7, (4 *
 							// height)/5);
+							
+							ProgressBar pb = (ProgressBar) dialog.findViewById(R.id.progressBarDialog);
+							TextView perc = (TextView) dialog.findViewById(R.id.textPercentageDialog);
+							double percentage = Math.round(((double) microgoal.getDone_steps() / (double) microgoal.getTot_steps()) * 100);
+							pb.setIndeterminate(false);
+							pb.setProgress((int)percentage);
+							perc.setText(String.valueOf(percentage) + "%");
+							
 							dialog.show();
 						} else {
 							Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.not_yet_microgoal), Toast.LENGTH_SHORT).show();
