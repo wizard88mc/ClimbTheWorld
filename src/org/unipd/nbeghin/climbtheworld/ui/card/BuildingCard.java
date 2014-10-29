@@ -252,6 +252,7 @@ public class BuildingCard extends Card {
 
 							String steps[] = new String[checked_size];
 							Boolean checked[] = new Boolean[checked_size];
+							Integer climbs[] = new Integer[checked_size];
 
 							Iterator<String> keys = steps_obj.keys();
 
@@ -261,14 +262,18 @@ public class BuildingCard extends Card {
 									currents_steps += resume;
 								steps[k] = String.format((steps_obj.getString(keys.next())), currents_steps);
 								checked[k] = microgoal.getDone_steps() >= currents_steps ? true : false;
+								climbs[k] = currents_steps;
 							}
 
 							TableLayout layout = (TableLayout) dialog.findViewById(R.id.checkBoxesLayout);
 
 							String intro = "";
-							Random rand = new Random();
-							int randomNum1 = rand.nextInt((10 - 1) + 1) + 1;
-							int randomNum2 = rand.nextInt((20 - randomNum1) + 1) + randomNum1;
+//							Random rand = new Random();
+//							int randomNum1 = rand.nextInt((10 - 1) + 1) + 1;
+//							int randomNum2 = rand.nextInt((20 - randomNum1) + 1) + randomNum1;
+							
+							int randomNum1 = Integer.valueOf(climbs[0]) / 5;
+							int randomNum2 = Integer.valueOf(climbs[0] + climbs[1]) / 5;
 
 							if (checked_size == 1)
 								intro = String.format(texts.getIntro(), randomNum1);

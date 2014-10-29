@@ -268,6 +268,9 @@ public class ClimbActivity extends ActionBarActivity {
 											// update the microgoal progress
 											// only if game mode is on
 						microgoal.setDone_steps(microgoal.getDone_steps() + vstep_for_rstep);
+						ClimbApplication.microgoalDao.update(microgoal);
+						Toast.makeText(getApplicationContext(), String.valueOf(microgoal.getDone_steps()), Toast.LENGTH_SHORT).show();
+
 						// increase the seekbar progress
 						if (mode == GameModeType.SOCIAL_CLIMB) {
 							seekbarIndicator.setProgress(num_steps + sumOthersStep());
@@ -297,10 +300,7 @@ public class ClimbActivity extends ActionBarActivity {
 							setThresholdText();
 						} else if (mode == GameModeType.TEAM_VS_TEAM) {
 							// consider my team's steps
-							Toast.makeText(getApplicationContext(), String.valueOf(myTeamScore()), Toast.LENGTH_SHORT).show();
 							win = ((myTeamScore()) >= building.getSteps());
-							System.out.println(win);
-							System.out.println(isCounterMode);
 							setThresholdText();
 						} else
 							win = ((num_steps) >= building.getSteps()); // consider
@@ -403,9 +403,10 @@ public class ClimbActivity extends ActionBarActivity {
 			multiplier = 3;
 			break;
 		}
-		me.setXP(me.getXP() + microgoal.getReward() * multiplier);
+		int reward = microgoal.getReward() * multiplier;
+		me.setXP(me.getXP() + reward);
 		ClimbApplication.userDao.update(me);
-		Toast.makeText(this, getString(R.string.microgoal_terminated, me.getXP()), Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, getString(R.string.microgoal_terminated, reward), Toast.LENGTH_SHORT).show();
 		deleteMicrogoalInParse();
 	}
 
@@ -2575,7 +2576,7 @@ public class ClimbActivity extends ActionBarActivity {
 
 			String steps[] = new String[checked_size];
 			Boolean checked[] = new Boolean[checked_size];
-
+			Integer climbs[] = new Integer[checked_size];
 			Iterator<String> keys = steps_obj.keys();
 
 			for (int k = 0; k < checked_size; k++) {
@@ -2584,14 +2585,17 @@ public class ClimbActivity extends ActionBarActivity {
 					currents_steps += resume;
 				steps[k] = String.format((steps_obj.getString(keys.next())), currents_steps);
 				checked[k] = microgoal.getDone_steps() >= currents_steps ? true : false;
+				climbs[k] = currents_steps;
 			}
 
 			TableLayout layout = (TableLayout) dialog.findViewById(R.id.checkBoxesLayout);
 
 			String intro = "";
-			Random rand = new Random();
-			int randomNum1 = rand.nextInt((10 - 1) + 1) + 1;
-			int randomNum2 = rand.nextInt((20 - randomNum1) + 1) + randomNum1;
+//			Random rand = new Random();
+//			int randomNum1 = rand.nextInt((10 - 1) + 1) + 1;
+//			int randomNum2 = rand.nextInt((20 - randomNum1) + 1) + randomNum1;
+			int randomNum1 = Integer.valueOf(climbs[0]) / 5;
+			int randomNum2 = Integer.valueOf(climbs[0] + climbs[1]) / 5;
 
 			if (checked_size == 1)
 				intro = String.format(texts.getIntro(), randomNum1);
