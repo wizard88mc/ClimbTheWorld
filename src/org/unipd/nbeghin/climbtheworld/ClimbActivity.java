@@ -362,7 +362,7 @@ public class ClimbActivity extends ActionBarActivity {
 		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.social_share);
 		findViewById(R.id.btnAccessPhotoGallery).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_fade_in));
 		findViewById(R.id.btnAccessPhotoGallery).setVisibility(View.VISIBLE);
-		((ImageButton) findViewById(R.id.btnAccessPhotoGallery)).setImageResource(R.drawable.device_access_video);
+		((ImageButton) findViewById(R.id.btnAccessPhotoGallery)).setImageResource(R.drawable.ic_action_video);
 		switch (climbing.getGame_mode()) {
 		case 1:
 			setThresholdText();
@@ -513,6 +513,7 @@ public class ClimbActivity extends ActionBarActivity {
 			Intent intent = new Intent(this, GalleryActivity.class);
 			intent.putExtra("gallery_building_id", building.get_id());
 			startActivity(intent);
+			finish();
 		} else {
 			FacebookUtils fb = new FacebookUtils(this);
 
@@ -1321,7 +1322,7 @@ public class ClimbActivity extends ActionBarActivity {
 	}
 
 	private void createMicrogoal() {
-		int tot_steps = ClimbApplication.generateStepsToDo(climbing.getRemaining_steps(), currentUser.getMean());
+		int tot_steps = ClimbApplication.generateStepsToDo(climbing.getRemaining_steps(), currentUser.getMean(), difficulty);
 		int story_id;
 		try {
 			User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
@@ -1534,6 +1535,7 @@ public class ClimbActivity extends ActionBarActivity {
 				       //fillUpIntentWithExtras(upIntent);
 				       NavUtils.navigateUpTo(this, upIntent);
 				 }
+				finish();
 			}else { // disable back button if sampling is enabled
 				Toast.makeText(getApplicationContext(), getString(R.string.sampling_enabled), Toast.LENGTH_SHORT).show();
 			}
@@ -1891,7 +1893,7 @@ public class ClimbActivity extends ActionBarActivity {
 																									// service
 		findViewById(R.id.lblReadyToClimb).setVisibility(View.GONE);
 		findViewById(R.id.encouragment).setVisibility(View.INVISIBLE);
-		findViewById(R.id.btnAccessPhotoGallery).setVisibility(View.INVISIBLE);
+		findViewById(R.id.btnAccessPhotoGallery).setVisibility(View.GONE);
 		findViewById(R.id.progressBarClimbing).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_fade_in));
 		findViewById(R.id.progressBarClimbing).setVisibility(View.VISIBLE);
 	}
@@ -2016,6 +2018,7 @@ public class ClimbActivity extends ActionBarActivity {
 		       //fillUpIntentWithExtras(upIntent);
 		       NavUtils.navigateUpTo(this, upIntent);
 		 }
+		finish();
 		}else { // disable back button if sampling is enabled
 			Toast.makeText(getApplicationContext(), getString(R.string.sampling_enabled), Toast.LENGTH_SHORT).show();
 		}

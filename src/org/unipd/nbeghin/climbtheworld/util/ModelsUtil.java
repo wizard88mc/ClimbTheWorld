@@ -14,6 +14,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.models.Building;
+import org.unipd.nbeghin.climbtheworld.models.BuildingText;
 import org.unipd.nbeghin.climbtheworld.models.ChartMember;
 import org.unipd.nbeghin.climbtheworld.models.MicrogoalText;
 
@@ -116,6 +117,14 @@ public class ModelsUtil {
 	public static MicrogoalText getMicrogoalTextByStory(int story_id){
 		for(MicrogoalText text : ClimbApplication.microgoalTexts){
 			if(text.getStory_id() == story_id)
+				return text;
+		}
+		return null;
+	}
+	
+	public static BuildingText getBuildingTextFromBuildingId(int id){
+		for(BuildingText text : ClimbApplication.buildingTexts){
+			if(text.getBuilding().get_id() == id)
 				return text;
 		}
 		return null;

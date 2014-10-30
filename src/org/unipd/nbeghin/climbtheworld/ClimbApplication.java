@@ -174,9 +174,7 @@ public class ClimbApplication extends Application{
 	    Parse.initialize(this, "e9wlYQPdpXlFX3XQc9Lq0GJFecuYrDSzwVNSovvd",
 				"QVII1Qhy8pXrjAZiL07qaTKbaWpkB87zc88UMWv2");
 		ParseFacebookUtils.initialize(getString(R.string.app_id));
-		
 		loadDb();
-		
 		SharedPreferences pref = sContext.getSharedPreferences("UserSession", 0);
 		Editor edit = pref.edit();
 		edit.putBoolean("openedFirst", true);
@@ -999,11 +997,11 @@ public class ClimbApplication extends Application{
 		 * @param d average daily steps of a given user
 		 * @return number of steps to be done in order to complete a microgoal
 		 */
-		public static int generateStepsToDo(int remainingSteps, double d){
+		public static int generateStepsToDo(int remainingSteps, double d, int difficulty){
 			if(d >= remainingSteps)
 				return remainingSteps;
 			else{
-				return (int) roundUpMultiple10(d);
+				return (int) (roundUpMultiple10(d))*difficulty;
 			}
 		}
 		

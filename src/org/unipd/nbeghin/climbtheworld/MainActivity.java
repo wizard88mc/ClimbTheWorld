@@ -161,7 +161,7 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 
 		sContext = getApplicationContext();
 
-		
+		System.out.println("START");
 
 		// loading fragments
 		fragments.add(Fragment.instantiate(this, BuildingsFragment.class.getName())); // instance
@@ -177,13 +177,11 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 		mPagerAdapter = new PagerAdapter(super.getSupportFragmentManager(), fragments);
 		mPager = (ViewPager) super.findViewById(R.id.pager);
 		mPager.setAdapter(this.mPagerAdapter);
-
-		try {
+		try { //RALLENTA L'APERTURA di MainActivity
 			WekaClassifier.initializeParameters(getResources().openRawResource(R.raw.newmodelvsw30osl0));
 		} catch (IOException exc) {
 			this.finish();
 		}
-
 	}
 	
 	@Override

@@ -1,8 +1,8 @@
 package org.unipd.nbeghin.climbtheworld.models;
 
 import org.unipd.nbeghin.climbtheworld.ClimbApplication;
-
 import org.unipd.nbeghin.climbtheworld.R;
+import org.unipd.nbeghin.climbtheworld.util.ModelsUtil;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
@@ -91,8 +91,9 @@ public class UserBadge {
 	public String getDescription(){
 		switch(badge.getCategory()){
 		case BUILDING_COMPLETED:
-			Building building = ClimbApplication.getBuildingById(obj_id);
-			return ClimbApplication.getContext().getString(R.string.complete_building, building.getName());
+			//Building building = ClimbApplication.getBuildingById(obj_id);
+			BuildingText text = ModelsUtil.getBuildingTextFromBuildingId(obj_id);
+			return ClimbApplication.getContext().getString(R.string.complete_building, text.getName());
 		case TOUR_COMPLETED:
 			Tour tour = ClimbApplication.getTourById(obj_id);
 			return ClimbApplication.getContext().getString(R.string.complete_tour, tour.getTitle());
