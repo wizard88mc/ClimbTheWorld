@@ -73,23 +73,25 @@ public class AlarmUtils {
     	boolean bb[] = new boolean[] {true,true};
     	//float pf[] = new float[] {0.25f,0.25f,0.25f,0.25f,0.25f,0.25f,0.25f};
     	float pf[] = new float[] {0.25f,0.25f};
-		Alarm alm1 = new Alarm(9,01,10,true,new boolean[]{false,false},pf);
-		Alarm alm2 = new Alarm(9,03,50,false,new boolean[]{false,false},pf);
-		Alarm alm3 = new Alarm(11,13,51,true,new boolean[]{true,false},pf); 
-		Alarm alm4 = new Alarm(11,14,50,false,new boolean[]{true,false},pf);
-		Alarm alm5 = new Alarm(14,53,15,true,bb,pf); //boolean[]{false,true}
-		Alarm alm6 = new Alarm(14,54,50,false,bb,pf);
-		Alarm alm7 = new Alarm(22,35,10,true,bb,pf);
-		Alarm alm8 = new Alarm(22,35,50,false,bb,pf);
-		Alarm alm9 = new Alarm(22,35,51,true,bb,pf);
-		Alarm alm10 = new Alarm(22,36,50,false,bb,pf);
+    	Alarm alm1 = new Alarm(0,01,10,true,new boolean[]{true,true},pf);
+		Alarm alm2 = new Alarm(0,03,50,false,new boolean[]{true,true},pf);
+		Alarm alm3 = new Alarm(9,01,10,true,new boolean[]{false,false},pf);
+		Alarm alm4 = new Alarm(9,03,50,false,new boolean[]{false,false},pf);
+		Alarm alm5 = new Alarm(11,13,51,true,new boolean[]{true,false},pf); 
+		Alarm alm6 = new Alarm(11,14,50,false,new boolean[]{true,false},pf);
+		Alarm alm7 = new Alarm(14,53,15,true,bb,pf); //boolean[]{false,true}
+		Alarm alm8 = new Alarm(14,54,50,false,bb,pf);
+		Alarm alm9 = new Alarm(22,35,10,true,bb,pf);
+		Alarm alm10 = new Alarm(22,35,50,false,bb,pf);
+		Alarm alm11 = new Alarm(23,57,51,true,bb,pf);
+		Alarm alm12 = new Alarm(23,59,50,false,bb,pf);
 		
 		alm7.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
 		alm8.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
 		
 		
-		alm9.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
-		alm10.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
+		alm11.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
+		alm12.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
 		
 		/*
 		//creo template
@@ -124,6 +126,8 @@ public class AlarmUtils {
 		alarmDao.createIfNotExists(alm8);
 		alarmDao.createIfNotExists(alm9);
 		alarmDao.createIfNotExists(alm10);
+		alarmDao.createIfNotExists(alm11);
+		alarmDao.createIfNotExists(alm12);
 		
 		/*
 		helper.getTimeTemplateDao().createIfNotExists(tt1);
@@ -300,7 +304,8 @@ public class AlarmUtils {
 			
 			int begin = 0;
 			int end = alarms.size()-1;
-			int center = 0;
+			int center = 0;			
+			int final_index=0;
 			
 			while(begin <= end){
 				
@@ -321,6 +326,9 @@ public class AlarmUtils {
 				else{
 					nextAlarm=e;
 					end=center-1;
+					final_index=nextAlarm.get_id();
+										
+					System.out.println("next alarm id: "+nextAlarm.get_id()+" end index: "+end);
 				}
 			}
 			
@@ -328,6 +336,8 @@ public class AlarmUtils {
 			if(nextAlarm!=null){
 				//se si arriva qui significa che la ricerca binaria precedente ha trovato
 				//un alarm con tempo di inizio valido per il giorno corrente
+				
+				System.out.println("binaria ok");
 				
 				//ora si controlla se questo alarm è attivo nel giorno corrente;
 				//se questo è il caso significa che è attivato anche l'altro alarm a lui
@@ -342,8 +352,10 @@ public class AlarmUtils {
 					//se è un alarm di start
 					if(nextAlarm.get_actionType()){
 						
+						System.out.println("next alarm non attivo e di start");
+						
 						//si prova ad effettuare la mutazione, attivando l'intervallo
-						if(!intervalMutated(nextAlarm, alarms, center, artificialIndex, alarmDao)){
+						if(!intervalMutated(nextAlarm, alarms, artificialIndex, alarmDao)){
 							nextAlarm=null;
 						}
 					}
@@ -360,7 +372,7 @@ public class AlarmUtils {
 				//pari alla size() della lista) allora non si entra nel ciclo, ma si passa
 				//direttamente al giorno successivo
 				
-				for(int i=center+1; i<alarms.size() && !stop; i++){
+				for(int i=final_index; i<alarms.size() && !stop; i++){
 					
 					Alarm e = alarms.get(i);					
 					
@@ -386,7 +398,7 @@ public class AlarmUtils {
 							//è un alarm di start
 							
 							//si prova ad effettuare la mutazione, attivando l'intervallo
-							stop=intervalMutated(e, alarms, i, artificialIndex, alarmDao);
+							stop=intervalMutated(e, alarms, artificialIndex, alarmDao);
 							if(stop){
 								nextAlarm=e;
 							}
@@ -468,7 +480,7 @@ public class AlarmUtils {
 					if(e.get_actionType()){
 						//è un alarm di start						
 						//si prova ad effettuare la mutazione, attivando l'intervallo
-						stop=intervalMutated(e, alarms, i, artificialIndex, alarmDao);
+						stop=intervalMutated(e, alarms, artificialIndex, alarmDao);
 						if(stop){
 							nextAlarm=e;
 						}
@@ -544,7 +556,7 @@ public class AlarmUtils {
 							//è un alarm di start
 							
 							//si prova ad effettuare la mutazione, attivando l'intervallo
-							stop=intervalMutated(e, alarms, i, currentIndex, alarmDao);
+							stop=intervalMutated(e, alarms, currentIndex, alarmDao);
 							if(stop){
 								nextAlarm=e;
 							}
@@ -632,7 +644,7 @@ public class AlarmUtils {
 	 
 	
 	
-	private static boolean intervalMutated(Alarm a_start, List<Alarm> alarms, int list_index, 
+	private static boolean intervalMutated(Alarm a_start, List<Alarm> alarms, 
 			int current_day_index, RuntimeExceptionDao<Alarm, Integer> alarmDao){
 		
 		//la probabilità di attivare l'intervallo è data dalla sua valutazione v
@@ -644,9 +656,9 @@ public class AlarmUtils {
 			probability=0.1f;
 		}
 		
-		int ll=list_index+1;
-		int ll1=ll+1;
-		Log.d(MainActivity.AppName,"Mutation " + ll + "-" + ll1 + " - probability: " + probability);	
+		int id_start=a_start.get_id();
+		int id_stop=id_start+1;
+		Log.d(MainActivity.AppName,"Mutation " + id_start + "-" + id_stop + " - probability: " + probability);	
 		
 		//con una certa probabilità si attiva l'intervallo (la coppia di alarm
 		//start-stop)
@@ -655,14 +667,14 @@ public class AlarmUtils {
 		
 		if(nn <= probability){
 			
-			Log.d(MainActivity.AppName,"Set next alarm - interval " + ll + "-" + ll1 + " mutated");		
+			Log.d(MainActivity.AppName,"Set next alarm - interval " + id_start + "-" + id_stop + " mutated");		
 			
 			a_start.setRepeatingDay(current_day_index, true);
 			a_start.setStepsInterval(current_day_index, false);						
 			//si recupera dalla lista il relativo alarm di stop 
 			//(c'è sicuramente visto che un alarm di start deve essere seguito
 			//dal suo alarm di stop)
-			Alarm a_stop = alarms.get(list_index+1); 
+			Alarm a_stop = alarms.get(id_stop); 
 			a_stop.setRepeatingDay(current_day_index, true);
 			a_stop.setStepsInterval(current_day_index, false);
 			//la valutazione dell'intervallo verrà aggiornata quando lo si esplorerà

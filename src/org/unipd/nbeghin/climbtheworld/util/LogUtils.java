@@ -244,11 +244,6 @@ public class LogUtils {
 			//il giorno 
 			while(day_i<days_diff){			
 				
-				//si resettano ora, minuti e secondi
-				time_before.set(Calendar.HOUR_OF_DAY, 0);
-				time_before.set(Calendar.MINUTE, 0);
-				time_before.set(Calendar.SECOND, 0);
-				
 				time_before.add(Calendar.DATE, 1);
 				
 				/////////	
@@ -261,7 +256,54 @@ public class LogUtils {
 				Log.d(MainActivity.AppName, "On Boot - device spento, indice giorno: " + ii);
 				
 				
-				for(int i=0; i<alarms_lst.size() && !stop; i++){
+				//se si tratta del primo intervallo (id_start=1 e id_stop=2) si è in
+		    	//presenza di un nuovo giorno; si scrive il suo indice nel file di output
+				Alarm first_interval_stop = AlarmUtils.getAlarm(context, 2);
+				time_before.set(Calendar.HOUR_OF_DAY, first_interval_stop.get_hour());
+				time_before.set(Calendar.MINUTE, first_interval_stop.get_minute());
+				time_before.set(Calendar.SECOND, first_interval_stop.get_second());
+		    	if(time_before.before(time_now)){ //time_before.get(Calendar.DAY_OF_WEEK)-1;
+		    		Log.d(MainActivity.AppName, "Intervals tracking - day index: " + ii);   
+		    		dd=time_before.get(Calendar.DATE);
+		    		mm=time_before.get(Calendar.MONTH)+1;
+		    		yyyy=time_before.get(Calendar.YEAR);  		    				
+		    		writeLogFile(context,"Indice giorno: "+ii+" - "+dd+"/"+mm+"/"+yyyy);
+		    		
+		    		//se l'alarm di stop per il giorno considerato è passato, è passato anche
+		    		//il precedente alarm di start; quindi, si scrive l'intervallo nel log file 
+		    		Alarm first_interval_start = AlarmUtils.getAlarm(context, 1);
+		    				    		
+		    		String status="";
+					
+					if(first_interval_stop.isStepsInterval(ii)){
+						status="Intervallo con scalini";
+					}
+					else{
+						status="Intervallo di esplorazione";
+					}
+					
+					if(first_interval_stop.getRepeatingDay(ii)){
+						status=status+" attivo";
+					}
+					else{
+						status=status+" non attivo";
+					}					
+										
+					
+					writeLogFile(context,status+": " + first_interval_start.get_hour()+":"+
+							first_interval_start.get_minute()+":"+first_interval_start.get_second()+" - "+
+							first_interval_stop.get_hour()+":"+first_interval_stop.get_minute()+":"+
+							first_interval_stop.get_second()+" | "+not_evaluated_cause+" | "+
+							status+" la prossima settimana");
+		    		
+		    	}
+				
+				//si resettano ora, minuti e secondi
+				time_before.set(Calendar.HOUR_OF_DAY, 0);
+				time_before.set(Calendar.MINUTE, 0);
+				time_before.set(Calendar.SECOND, 0);
+				
+				for(int i=2; i<alarms_lst.size() && !stop; i++){
 					Alarm e = alarms_lst.get(i);
 					
 					time_before.set(Calendar.HOUR_OF_DAY, e.get_hour());
@@ -278,14 +320,14 @@ public class LogUtils {
 						
 							String status="";
 							
-							if(e.isStepsInterval(lastDayIndex)){
+							if(e.isStepsInterval(ii)){
 								status="Intervallo con scalini";
 							}
 							else{
 								status="Intervallo di esplorazione";
 							}
 							
-							if(e.getRepeatingDay(lastDayIndex)){
+							if(e.getRepeatingDay(ii)){
 								status=status+" attivo";
 							}
 							else{
