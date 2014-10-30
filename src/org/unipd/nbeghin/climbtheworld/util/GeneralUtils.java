@@ -144,7 +144,7 @@ public class GeneralUtils {
     	//all'interno della settimana corta
     	alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     	Intent intent = new Intent(context, TimeBatteryWatcher.class);
-    	intent.setAction("UPDATE_DAY_INDEX_TESTING");    	
+    	intent.setAction("org.unipd.nbeghin.climbtheworld.UPDATE_DAY_INDEX_TESTING");    	
     	Calendar calendar = Calendar.getInstance();
     	//si imposta a partire dalla mezzanotte del giorno successivo
     	calendar.add(Calendar.DATE, 1); 

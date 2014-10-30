@@ -146,9 +146,9 @@
             android:exported="false" android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
   	      <intent-filter>
       	    <action android:name="android.intent.action.BOOT_COMPLETED" />
-      	    <action android:name="INTERVAL_START"/>   
-      	    <action android:name="INTERVAL_STOP"/> 
-      	    <action android:name="UPDATE_DAY_INDEX_TESTING"/>      	    
+      	    <action android:name="org.unipd.nbeghin.climbtheworld.INTERVAL_START"/>   
+      	    <action android:name="org.unipd.nbeghin.climbtheworld.INTERVAL_STOP"/> 
+      	    <action android:name="org.unipd.nbeghin.climbtheworld.UPDATE_DAY_INDEX_TESTING"/>      	    
    	      </intent-filter>
         </receiver>
         

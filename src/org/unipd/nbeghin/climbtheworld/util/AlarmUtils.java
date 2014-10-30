@@ -73,8 +73,8 @@ public class AlarmUtils {
     	boolean bb[] = new boolean[] {true,true};
     	//float pf[] = new float[] {0.25f,0.25f,0.25f,0.25f,0.25f,0.25f,0.25f};
     	float pf[] = new float[] {0.25f,0.25f};
-		Alarm alm1 = new Alarm(11,01,10,true,new boolean[]{false,false},pf);
-		Alarm alm2 = new Alarm(11,01,50,false,new boolean[]{false,false},pf);
+		Alarm alm1 = new Alarm(9,01,10,true,new boolean[]{false,false},pf);
+		Alarm alm2 = new Alarm(9,03,50,false,new boolean[]{false,false},pf);
 		Alarm alm3 = new Alarm(11,13,51,true,new boolean[]{true,false},pf); 
 		Alarm alm4 = new Alarm(11,14,50,false,new boolean[]{true,false},pf);
 		Alarm alm5 = new Alarm(14,53,15,true,bb,pf); //boolean[]{false,true}
@@ -613,10 +613,10 @@ public class AlarmUtils {
 		//si imposta il tipo di action dell'intent a seconda se è un alarm per far iniziare o
 		//finire l'intervallo
 		if(alarm.get_actionType()){
-			intent.setAction("INTERVAL_START");
+			intent.setAction("org.unipd.nbeghin.climbtheworld.INTERVAL_START");
 		}
 		else{
-			intent.setAction("INTERVAL_STOP");
+			intent.setAction("org.unipd.nbeghin.climbtheworld.INTERVAL_STOP");
 		}
 	 	    
 		intent.putExtra("id", alarm.get_id());

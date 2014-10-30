@@ -34,12 +34,12 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 	//(questo receiver potrà quindi ricevere gli intent mandati da sendBroadcast() che hanno
 	//impostato queste azioni)	
 	private final String BOOT_ACTION = "android.intent.action.BOOT_COMPLETED";
-	private final String INTERVAL_START_ACTION = "INTERVAL_START";
-	private final String INTERVAL_STOP_ACTION = "INTERVAL_STOP";
+	private final String INTERVAL_START_ACTION = "org.unipd.nbeghin.climbtheworld.INTERVAL_START";
+	private final String INTERVAL_STOP_ACTION = "org.unipd.nbeghin.climbtheworld.INTERVAL_STOP";
 	
 	/////////	
 	//PER TEST ALGORITMO
-	private final String UPDATE_DAY_INDEX_FOR_TESTING = "UPDATE_DAY_INDEX_TESTING";
+	private final String UPDATE_DAY_INDEX_FOR_TESTING = "org.unipd.nbeghin.climbtheworld.UPDATE_DAY_INDEX_TESTING";
 	/////////	
 	
 	//private BroadcastReceiver stairsReceiver = StairsClassifierReceiver.getInstance();
