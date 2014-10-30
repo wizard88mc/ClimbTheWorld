@@ -107,13 +107,13 @@ public class LogUtils {
     		dd=time_before.get(Calendar.DATE);
     		mm=time_before.get(Calendar.MONTH);
     		yyyy=time_before.get(Calendar.YEAR);  
-    		not_evaluated_cause="Non valutato perché app installata dopo";
+    		not_evaluated_cause="Non considerato perché algoritmo non ancora configurato";
     	}
     	else{
     		dd=pref.getInt("alarm_date", -1);
     		mm=pref.getInt("alarm_month", -1);
     		yyyy=pref.getInt("alarm_year", -1);		
-    		not_evaluated_cause="Non valutato perché device spento";
+    		not_evaluated_cause="Non considerato perché device spento";
     	}    	
 
 		time_before.set(Calendar.DATE,dd);
@@ -294,8 +294,7 @@ public class LogUtils {
 							first_interval_start.get_minute()+":"+first_interval_start.get_second()+" - "+
 							first_interval_stop.get_hour()+":"+first_interval_stop.get_minute()+":"+
 							first_interval_stop.get_second()+" | "+not_evaluated_cause+" | "+
-							status+" la prossima settimana");
-		    		
+							status+" la prossima settimana");		    		
 		    	}
 				
 				//si resettano ora, minuti e secondi

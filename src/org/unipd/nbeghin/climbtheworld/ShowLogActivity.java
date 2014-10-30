@@ -7,12 +7,8 @@ import java.util.List;
 import org.unipd.nbeghin.climbtheworld.util.LogUtils;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.Spanned;
 import android.util.Log;
 import android.view.View;
@@ -29,13 +25,6 @@ public class ShowLogActivity extends Activity {
 
     private Context context;
 	
-   /* 
-    //Intent filter for incoming broadcasts from the IntentService
-    IntentFilter mBroadcastFilter;
-
-    // Instance of a local broadcast manager
-    private LocalBroadcastManager mBroadcastManager;
-    */
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {		
@@ -57,41 +46,14 @@ public class ShowLogActivity extends Activity {
 
         // Bind the adapter to the status list
         logListView.setAdapter(logAdapter);
-		
-
-        // Set the broadcast receiver intent filer
-       // mBroadcastManager = LocalBroadcastManager.getInstance(this);
-
-        // Create a new Intent filter for the broadcast receiver
-        //mBroadcastFilter = new IntentFilter(ActivityUtils.ACTION_REFRESH_STATUS_LIST);
-        //mBroadcastFilter.addCategory(ActivityUtils.CATEGORY_LOCATION_SERVICES);
-
-        
-		
 	}
 	
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
-		// Register the broadcast receiver
-       /* mBroadcastManager.registerReceiver(
-                updateListReceiver,
-                mBroadcastFilter);*/
-		
 		refreshLogData();
-		
 	}
-	
-	@Override
-	protected void onPause() {
-        // Stop listening to broadcasts when the Activity isn't visible.
-       // mBroadcastManager.unregisterReceiver(updateListReceiver);
-        
-		super.onPause();
-	}
-	
 	
 	/**
      * Display the algorithm history stored in the
@@ -124,28 +86,7 @@ public class ShowLogActivity extends Activity {
     }
     
     
-    public void onRefreshLogData(View view){
-    	
+    public void onRefreshLogData(View view){    	
     	refreshLogData();
     }
-    
-    
-    /*
-    //Broadcast receiver that receives activity update intents
-    //It checks to see if the ListView contains items. If it doesn't, it pulls in history.
-    //This receiver is local only. It can't read broadcast Intents from other apps
-    BroadcastReceiver updateListReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            
-            //When an Intent is received from the update listener IntentService, update
-            //the displayed log
-        	refreshLogData();
-        }
-    };
-	*/
-    
-    
-    
 }
