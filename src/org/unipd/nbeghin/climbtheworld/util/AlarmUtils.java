@@ -673,6 +673,10 @@ public class AlarmUtils {
 			
 			return true;
 		}
+		
+		
+		
+		
 		//altrimenti l'intervallo (coppia alarm start-stop) rimane disattivato (0)
 		return false;		
 	}

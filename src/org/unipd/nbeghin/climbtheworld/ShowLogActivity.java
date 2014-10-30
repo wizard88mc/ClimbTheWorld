@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
+import org.unipd.nbeghin.climbtheworld.util.LogUtils;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -104,7 +104,7 @@ public class ShowLogActivity extends Activity {
         	File logFile = new File(context.getDir("climbTheWorld_dir", Context.MODE_PRIVATE), "algorithm_log");
         	
             //load log file records into the list
-            List<Spanned> lines = GeneralUtils.loadLogFile(logFile);
+            List<Spanned> lines = LogUtils.loadLogFile(logFile);
 
             //clear the adapter of existing data
             logAdapter.clear();

@@ -128,7 +128,7 @@ public class GeneralUtils {
     	Editor editor = prefs.edit();    	
     	editor.putBoolean("firstRun", false); // si memorizza che non è il primo run dell'app
     	//editor.putInt("current_template", 1); // il template orario che si usa è il primo    	
-       	//si salvano le credenziali
+    	//si salvano le credenziali
     	editor.commit();  
     	
     	/////////		
@@ -167,7 +167,7 @@ public class GeneralUtils {
     	/////////
     	
     	
-    	writeLogFile(context, "ALGORITMO");
+    	LogUtils.writeLogFile(context, "ALGORITMO\n");
     	
     	
     	//si fa il setup del db per gli alarm
@@ -175,6 +175,8 @@ public class GeneralUtils {
     	//si creano gli alarm
 		AlarmUtils.createAlarms(context);  
     	//readIntervalsFromFile(context);
+				
+		LogUtils.offIntervalsTracking(context, prefs, prefs.getInt("artificialDayIndex", -1), -1);
 		
     	//si imposta e si lancia il prossimo alarm
     	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context),true,-1); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,1))    
@@ -312,59 +314,5 @@ public class GeneralUtils {
 	        Log.e(MainActivity.AppName, " - Can not read file: " + e.toString());
 	    }
 	}
-    
-    
-    //start-stop, 0/1 attuale, se attivo valutazione, 0/1 la prossima settimana
-    public static void writeLogFile(Context context, String text){
-    	   	    	
-    	File appdir = context.getDir("climbTheWorld_dir", Context.MODE_PRIVATE); 
-    	File logFile = new File(appdir, "algorithm_log");
-    	
-    	try {    	
-    		if(!logFile.exists()){    	    			
-    			Log.e(MainActivity.AppName, "Log file not exists");
-				logFile.createNewFile();
-    		}
-    	    	
-    		//'true' per aggiungere il testo al file esistente
-    		BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true)); 
-    		buf.append(text);
-    		buf.newLine();
-    		buf.close();
-    	} catch (IOException e) {
-			e.printStackTrace();
-		}
-    }
-        
-    
-    //carica il contenuto del file di log
-    public static List<Spanned> loadLogFile(File logFile) throws IOException {
-
-        //get a new list of spanned strings
-        List<Spanned> content = new ArrayList<Spanned>();
-        
-        //if no log file exists yet, return the empty List
-        if (!logFile.exists()) {
-            return content;
-        }
-
-        //create a new buffered file reader based on the log file
-        BufferedReader reader = new BufferedReader(new FileReader(logFile));
-
-        //get a string instance to hold input from the log file
-        String line;
-
-        //read until end-of-file from the log file, and store the input line as a
-        //spanned string in the List
-        while ((line = reader.readLine()) != null) {
-            content.add(new SpannedString(line));
-        }
-
-        //close the file
-        reader.close();
-
-        //return the data from the log file
-        return content;
-    }
     
 }
