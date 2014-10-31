@@ -356,7 +356,28 @@ public class AlarmUtils {
 						
 						//si prova ad effettuare la mutazione, attivando l'intervallo
 						if(!intervalMutated(nextAlarm, alarms, artificialIndex, alarmDao)){
-							nextAlarm=null;
+							
+							////////////////////////////
+							//LOG
+							//si scrive nel file di log che questo intervallo non è mutato
+							//e, quindi, non viene valutato
+							String status="";							
+							if(nextAlarm.isStepsInterval(artificialIndex)){
+								status="Intervallo con scalini non attivo";
+							}
+							else{
+								status="Intervallo di esplorazione non attivo";
+							}			
+							//si ottiene il relativo alarm di stop (esiste sicuramente)
+							Alarm next_stop= getAlarm(context, nextAlarm.get_id()+1); 							
+							
+							LogUtils.writeLogFile(context,status+": " + nextAlarm.get_hour()+":"+nextAlarm.get_minute()+
+									":"+nextAlarm.get_second()+" - "+next_stop.get_hour()+":"+next_stop.get_minute()+
+									":"+next_stop.get_second()+ " | Non valutato perché non mutato | "+
+									status+" la prossima settimana");
+							////////////////////////////
+							
+							nextAlarm=null;							
 						}
 					}
 				}
@@ -402,6 +423,29 @@ public class AlarmUtils {
 							if(stop){
 								nextAlarm=e;
 							}
+							////////////////////////////
+							//LOG
+							else{ //l'intervallo non è mutato
+								
+								//si scrive nel file di log che questo intervallo non è mutato
+								//e, quindi, non viene valutato
+								String status="";							
+								if(e.isStepsInterval(artificialIndex)){
+									status="Intervallo con scalini non attivo";
+								}
+								else{
+									status="Intervallo di esplorazione non attivo";
+								}			
+								//si ottiene il relativo alarm di stop (esiste sicuramente)
+								Alarm next_stop= getAlarm(context, e.get_id()+1); 							
+								
+								LogUtils.writeLogFile(context,status+": " + e.get_hour()+":"+e.get_minute()+
+										":"+e.get_second()+" - "+next_stop.get_hour()+":"+next_stop.get_minute()+
+										":"+next_stop.get_second()+ " | Non valutato perché non mutato | "+
+										status+" la prossima settimana");
+								
+							}
+							////////////////////////////
 						}
 					}
 				}
@@ -484,6 +528,28 @@ public class AlarmUtils {
 						if(stop){
 							nextAlarm=e;
 						}
+						///////////////////////////
+						//LOG
+						else{ //l'intervallo non è mutato
+							//si scrive nel file di log che questo intervallo non è mutato
+							//e, quindi, non viene valutato
+							String status="";							
+							if(e.isStepsInterval(artificialIndex)){
+								status="Intervallo con scalini non attivo";
+							}
+							else{
+								status="Intervallo di esplorazione non attivo";
+							}			
+							//si ottiene il relativo alarm di stop (esiste sicuramente)
+							Alarm next_stop= getAlarm(context, e.get_id()+1); 							
+							
+							LogUtils.writeLogFile(context,status+": " + e.get_hour()+":"+e.get_minute()+
+									":"+e.get_second()+" - "+next_stop.get_hour()+":"+next_stop.get_minute()+
+									":"+next_stop.get_second()+ " | Non valutato perché non mutato | "+
+									status+" la prossima settimana");
+							
+						}
+						////////////////////////////
 					}							
 				}
 			}			
@@ -560,6 +626,27 @@ public class AlarmUtils {
 							if(stop){
 								nextAlarm=e;
 							}
+							////////////////////////////
+							//LOG
+							else{ //l'intervallo non è mutato
+								//si scrive nel file di log che questo intervallo non è mutato
+								//e, quindi, non viene valutato
+								String status="";							
+								if(e.isStepsInterval(currentIndex)){
+									status="Intervallo con scalini non attivo";
+								}
+								else{
+									status="Intervallo di esplorazione non attivo";
+								}			
+								//si ottiene il relativo alarm di stop (esiste sicuramente)
+								Alarm next_stop= getAlarm(context, e.get_id()+1); 							
+								
+								LogUtils.writeLogFile(context,status+": " + e.get_hour()+":"+e.get_minute()+
+										":"+e.get_second()+" - "+next_stop.get_hour()+":"+next_stop.get_minute()+
+										":"+next_stop.get_second()+ " | Non valutato perché non mutato | "+
+										status+" la prossima settimana");								
+							}
+							////////////////////////////
 						}
 					}
 					
