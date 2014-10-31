@@ -29,14 +29,32 @@ public class IntervalEvaluationUtils {
 		//di start seguito dal relativo alarm di stop così da definire un intervallo)				
 		Alarm previous_start_alarm = AlarmUtils.getAlarm(context, stop_alarm_id-1);
 		Alarm this_stop_alarm = AlarmUtils.getAlarm(context, stop_alarm_id);
-				
-
+						
 		//si recupera l'indice del giorno corrente all'interno della settimana
 		/////////		
 		//PER TEST ALGORITMO
 		int current_day_index = PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0);
 		///////// altrimenti l'indice del giorno è (Calendar.getInstance().get(Calendar.DAY_OF_WEEK))-1;
 
+		
+		String log_string="";		
+
+		if(stepsInterval){
+			log_string="Intervallo con scalini";
+		}
+		else{
+			log_string="Intervallo di esplorazione";
+		}
+		/*
+		if(first_interval_stop.getRepeatingDay(ii)){
+			status=status+" attivo";
+		}
+		else{
+			status=status+" non attivo";
+		}					
+		*/
+		
+		
 				
 		Log.d(MainActivity.AppName,"alarm start prima: " + previous_start_alarm.getRepeatingDay(current_day_index));
 		
@@ -143,7 +161,7 @@ public class IntervalEvaluationUtils {
 		Log.d(MainActivity.AppName,"alarm start dopo: " + AlarmUtils.getAlarm(context, stop_alarm_id-1).getRepeatingDay(current_day_index));
 	
 		/*
-		//forse divedere casi tra gioco senza scalini e niente gioco
+		//forse rivedere casi tra gioco senza scalini e niente gioco
 		float evaluation = 0f;			
 		if(qn>0){
 			evaluation=(GeneralUtils.evaluateInterval(qn, ActivityRecognitionIntentService.getConfidencesList(), ActivityRecognitionIntentService.getWeightsList()) 
