@@ -114,8 +114,6 @@ public class GeneralUtils {
      * @param prefs reference to android shared preferences. 
      */
     public static void initializeAlarmsAndPrefs(Context context, SharedPreferences prefs) {
-    	    	
-    	//SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);//context.getSharedPreferences("appPrefs", 0);
     	
     	Editor editor = prefs.edit();    	
     	editor.putBoolean("firstRun", false); // si memorizza che non è il primo run dell'app
@@ -158,8 +156,14 @@ public class GeneralUtils {
     	}
     	/////////
     	
+    	////////////////////////////
+    	//utile per scrivere il LOG
+    	editor.putBoolean("next_alarm_mutated", false).commit();
+    	////////////////////////////
+    	
     	
     	LogUtils.writeLogFile(context, "ALGORITMO\n");
+    	
     	
     	
     	//si fa il setup del db per gli alarm

@@ -254,9 +254,13 @@ public class AlarmUtils {
      */
 	public static void setNextAlarm(Context context, List<Alarm> alarms, boolean onBoot, int current_alarm_id){
 				
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		
 		RuntimeExceptionDao<Alarm, Integer> alarmDao = DbHelper.getInstance(context).getAlarmDao();    	
 		
-		int artificialIndex = PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0);//context.getSharedPreferences("appPrefs", 0).getInt("artificialDayIndex", 0);
+		//si usa l'indice artificiale per il test dell'algoritmo (altrimenti l'indice del
+		//giorno si può ricavare dalla data corrente) 
+		int artificialIndex = prefs.getInt("artificialDayIndex", 0);//context.getSharedPreferences("appPrefs", 0).getInt("artificialDayIndex", 0);
 				
 		Log.d(MainActivity.AppName, "AlarmUtils - SetNextAlarm: list size " + alarms.size());
 		
@@ -355,7 +359,7 @@ public class AlarmUtils {
 						System.out.println("next alarm non attivo e di start");
 						
 						//si prova ad effettuare la mutazione, attivando l'intervallo
-						if(!intervalMutated(nextAlarm, alarms, artificialIndex, alarmDao)){
+						if(!intervalMutated(nextAlarm, alarms, artificialIndex, alarmDao,context)){
 							
 							////////////////////////////
 							//LOG
@@ -383,7 +387,7 @@ public class AlarmUtils {
 				}
 			}
 			//se l'alarm trovato non è attivo per il giorno corrente, allora si prova a
-			//cercarne un altro partendo da quello successivo; gli alarm che nella lista
+			//cercarne un altro partendo dall'alarm successivo; gli alarm che nella lista
 			//vengono dopo a quello trovato hanno tutti tempo di inizio valido per il
 			//giorno corrente
 			if(nextAlarm==null){
@@ -419,7 +423,7 @@ public class AlarmUtils {
 							//è un alarm di start
 							
 							//si prova ad effettuare la mutazione, attivando l'intervallo
-							stop=intervalMutated(e, alarms, artificialIndex, alarmDao);
+							stop=intervalMutated(e, alarms, artificialIndex, alarmDao,context);
 							if(stop){
 								nextAlarm=e;
 							}
@@ -524,7 +528,7 @@ public class AlarmUtils {
 					if(e.get_actionType()){
 						//è un alarm di start						
 						//si prova ad effettuare la mutazione, attivando l'intervallo
-						stop=intervalMutated(e, alarms, artificialIndex, alarmDao);
+						stop=intervalMutated(e, alarms, artificialIndex, alarmDao, context);
 						if(stop){
 							nextAlarm=e;
 						}
@@ -622,7 +626,7 @@ public class AlarmUtils {
 							//è un alarm di start
 							
 							//si prova ad effettuare la mutazione, attivando l'intervallo
-							stop=intervalMutated(e, alarms, currentIndex, alarmDao);
+							stop=intervalMutated(e, alarms, currentIndex, alarmDao, context);
 							if(stop){
 								nextAlarm=e;
 							}
@@ -669,8 +673,7 @@ public class AlarmUtils {
 		}		
 		
 		//nell'oggetto shared preferences si imposta l'id del prossimo alarm e degli interi che indicano il giorno, il mese e 
-		//l'anno in cui scatta (ora, minuti e secondi sono all'interno dell'oggetto Alarm)		
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);//context.getSharedPreferences("appPrefs", 0);    	
+		//l'anno in cui scatta (ora, minuti e secondi sono all'interno dell'oggetto Alarm)
     	Editor editor = prefs.edit();	
     	//si imposta l'id del prossimo alarm nelle preferenze
     	editor.putInt("alarm_id", nextAlarm.get_id());
@@ -732,7 +735,7 @@ public class AlarmUtils {
 	
 	
 	private static boolean intervalMutated(Alarm a_start, List<Alarm> alarms, 
-			int current_day_index, RuntimeExceptionDao<Alarm, Integer> alarmDao){
+			int current_day_index, RuntimeExceptionDao<Alarm, Integer> alarmDao, Context context){
 		
 		//la probabilità di attivare l'intervallo è data dalla sua valutazione v
 		//(0 <= v <= valore_soglia) 
@@ -770,11 +773,13 @@ public class AlarmUtils {
 			alarmDao.update(a_start);
 			alarmDao.update(a_stop);
 			
+			////////////////////////////
+			//utile per scrivere il LOG
+			PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean("next_alarm_mutated", true).commit();
+			////////////////////////////	
+			
 			return true;
 		}
-		
-		
-		
 		
 		//altrimenti l'intervallo (coppia alarm start-stop) rimane disattivato (0)
 		return false;		

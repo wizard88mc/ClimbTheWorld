@@ -190,7 +190,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 								
 					
 					//////////////////////////////////////////////
-					//SI TRACCIANO GLI INTERVALLI NON VALUTATI IN QUANTO IL DEVICE ERA SPENTO
+					//SI TRACCIANO GLI INTERVALLI NON VALUTATI A CAUSA DEL DEVICE SPENTO
 					LogUtils.offIntervalsTracking(context, pref, oldDayIndex, alarm_id);					
 					//////////////////////////////////////////////
 					
@@ -239,6 +239,11 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				 	    	Log.d(MainActivity.AppName,"On boot - the previous alarm is not valid; we set another alarm");		
 				 	    }
 												
+					    ////////////////////////////
+					    //utile per scrivere il LOG
+					    pref.edit().putBoolean("next_alarm_mutated", false).commit();
+					    ////////////////////////////
+					    
 						//si imposta e si lancia un nuovo alarm
 				    	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context),true,alarm_id); 
 					}			
@@ -491,6 +496,11 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					
 					IntervalEvaluationUtils.evaluateAndUpdateInterval(context, true, false, this_alarm_id);					
 				}
+				
+				////////////////////////////
+				//utile per scrivere il LOG
+				pref.edit().putBoolean("next_alarm_mutated", false).commit();
+				////////////////////////////				
 			}
 			
 			//int aa_id = pref.getInt("alarm_id", -1);
