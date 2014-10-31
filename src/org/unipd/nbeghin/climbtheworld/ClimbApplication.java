@@ -1,5 +1,6 @@
 package org.unipd.nbeghin.climbtheworld;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -34,6 +35,7 @@ import org.unipd.nbeghin.climbtheworld.models.TourText;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.models.UserBadge;
 import org.unipd.nbeghin.climbtheworld.util.ParseUtils;
+import org.unipd.nbeghin.climbtheworld.weka.WekaClassifier;
 
 import android.app.Activity;
 import android.app.Application;
@@ -175,6 +177,12 @@ public class ClimbApplication extends Application{
 				"QVII1Qhy8pXrjAZiL07qaTKbaWpkB87zc88UMWv2");
 		ParseFacebookUtils.initialize(getString(R.string.app_id));
 		loadDb();
+		try { 
+			Log.i("ClimbApplication", "Loading game model");
+			WekaClassifier.initializeParameters(getResources().openRawResource(R.raw.newmodelvsw30osl0));
+		} catch (IOException exc) {
+			//finish();
+		}
 		SharedPreferences pref = sContext.getSharedPreferences("UserSession", 0);
 		Editor edit = pref.edit();
 		edit.putBoolean("openedFirst", true);

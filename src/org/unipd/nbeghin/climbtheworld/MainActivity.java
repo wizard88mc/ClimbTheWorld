@@ -177,11 +177,7 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 		mPagerAdapter = new PagerAdapter(super.getSupportFragmentManager(), fragments);
 		mPager = (ViewPager) super.findViewById(R.id.pager);
 		mPager.setAdapter(this.mPagerAdapter);
-		try { //RALLENTA L'APERTURA di MainActivity
-			WekaClassifier.initializeParameters(getResources().openRawResource(R.raw.newmodelvsw30osl0));
-		} catch (IOException exc) {
-			this.finish();
-		}
+		
 	}
 	
 	@Override
@@ -275,7 +271,12 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 				//this check is necessary not to repeat the newMeRequest twice
 				if (mSession == null || isSessionChanged(session)) {
 					mSession = session;
+					if(!pref.getString("FBid", "none").equalsIgnoreCase("none") && pref.getBoolean("openedFirst", false)){
 						new NetworkRequestAsyncTask(session, this).execute();
+						Editor edit = pref.edit();
+						edit.putBoolean("openedFirst", false);
+						edit.commit();
+					}
 				}
 			} else if (state.isClosed()) {
 				Log.i(MainActivity.AppName, "Logged out...");
