@@ -372,8 +372,16 @@ public class AlarmUtils {
 							else{
 								status="Intervallo di esplorazione non attivo";
 							}			
+										
+							int id_start = nextAlarm.get_id();
+							
+							if(id_start==1){
+					    		int month = alarmTime.get(Calendar.MONTH)+1;
+					    		LogUtils.writeLogFile(context,"Indice giorno: "+artificialIndex+" - "+alarmTime.get(Calendar.DATE)+"/"+month+"/"+alarmTime.get(Calendar.YEAR));
+					    	}
+							
 							//si ottiene il relativo alarm di stop (esiste sicuramente)
-							Alarm next_stop= getAlarm(context, nextAlarm.get_id()+1); 							
+							Alarm next_stop= getAlarm(context, id_start+1); 							
 							
 							LogUtils.writeLogFile(context,status+": " + nextAlarm.get_hour()+":"+nextAlarm.get_minute()+
 									":"+nextAlarm.get_second()+" - "+next_stop.get_hour()+":"+next_stop.get_minute()+
@@ -440,8 +448,16 @@ public class AlarmUtils {
 								else{
 									status="Intervallo di esplorazione non attivo";
 								}			
+								
+								int id_start=e.get_id();
+								
+								if(id_start==1){
+						    		int month = alarmTime.get(Calendar.MONTH)+1;
+						    		LogUtils.writeLogFile(context,"Indice giorno: "+artificialIndex+" - "+alarmTime.get(Calendar.DATE)+"/"+month+"/"+alarmTime.get(Calendar.YEAR));
+						    	}
+								
 								//si ottiene il relativo alarm di stop (esiste sicuramente)
-								Alarm next_stop= getAlarm(context, e.get_id()+1); 							
+								Alarm next_stop= getAlarm(context, id_start+1); 							
 								
 								LogUtils.writeLogFile(context,status+": " + e.get_hour()+":"+e.get_minute()+
 										":"+e.get_second()+" - "+next_stop.get_hour()+":"+next_stop.get_minute()+
@@ -544,8 +560,16 @@ public class AlarmUtils {
 							else{
 								status="Intervallo di esplorazione non attivo";
 							}			
+							
+							int id_start=e.get_id();
+							
+							if(id_start==1){
+					    		int month = alarmTime.get(Calendar.MONTH)+1;
+					    		LogUtils.writeLogFile(context,"Indice giorno: "+artificialIndex+" - "+alarmTime.get(Calendar.DATE)+"/"+month+"/"+alarmTime.get(Calendar.YEAR));
+					    	}
+							
 							//si ottiene il relativo alarm di stop (esiste sicuramente)
-							Alarm next_stop= getAlarm(context, e.get_id()+1); 							
+							Alarm next_stop= getAlarm(context, id_start+1); 							
 							
 							LogUtils.writeLogFile(context,status+": " + e.get_hour()+":"+e.get_minute()+
 									":"+e.get_second()+" - "+next_stop.get_hour()+":"+next_stop.get_minute()+
@@ -642,8 +666,16 @@ public class AlarmUtils {
 								else{
 									status="Intervallo di esplorazione non attivo";
 								}			
+								
+								int id_start=e.get_id();
+								
+								if(id_start==1){
+						    		int month = alarmTime.get(Calendar.MONTH)+1;
+						    		LogUtils.writeLogFile(context,"Indice giorno: "+currentIndex+" - "+alarmTime.get(Calendar.DATE)+"/"+month+"/"+alarmTime.get(Calendar.YEAR));
+						    	}
+								
 								//si ottiene il relativo alarm di stop (esiste sicuramente)
-								Alarm next_stop= getAlarm(context, e.get_id()+1); 							
+								Alarm next_stop= getAlarm(context, id_start+1); 							
 								
 								LogUtils.writeLogFile(context,status+": " + e.get_hour()+":"+e.get_minute()+
 										":"+e.get_second()+" - "+next_stop.get_hour()+":"+next_stop.get_minute()+

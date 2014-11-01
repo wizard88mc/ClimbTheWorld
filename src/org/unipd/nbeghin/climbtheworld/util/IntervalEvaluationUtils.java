@@ -1,5 +1,7 @@
 package org.unipd.nbeghin.climbtheworld.util;
 
+import java.util.Calendar;
+
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionIntentService;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
@@ -36,6 +38,14 @@ public class IntervalEvaluationUtils {
 		int current_day_index = PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0);
 		///////// altrimenti l'indice del giorno è (Calendar.getInstance().get(Calendar.DAY_OF_WEEK))-1;
 
+		////////////////////////////
+		//LOG
+		Calendar now = Calendar.getInstance();
+		if(stop_alarm_id-1==1){
+    		int month = now.get(Calendar.MONTH)+1;
+    		LogUtils.writeLogFile(context,"Indice giorno: "+current_day_index+" - "+now.get(Calendar.DATE)+"/"+month+"/"+now.get(Calendar.YEAR));
+    	}
+		
 		
 		String log_string="";
 		String status=" attivo";
@@ -49,8 +59,7 @@ public class IntervalEvaluationUtils {
 		status = status +": "+ previous_start_alarm.get_hour()+":"+previous_start_alarm.get_minute()+":"
 				+previous_start_alarm.get_second()+" - "+this_stop_alarm.get_hour()+":"
 				+this_stop_alarm.get_minute()+":"+this_stop_alarm.get_second()+" | ";
-		
-		
+		////////////////////////////
 		
 				
 		Log.d(MainActivity.AppName,"alarm start prima: " + previous_start_alarm.getRepeatingDay(current_day_index));
@@ -64,7 +73,10 @@ public class IntervalEvaluationUtils {
 		//è un "intervallo con scalini"
 		if(stepsInterval){
 			
+			////////////////////////////
+			//LOG
 			log_string="Intervallo con scalini"+status;
+			////////////////////////////
 			
 			Log.d(MainActivity.AppName,"EVALUATION - It is a 'interval with steps'");
 			
@@ -79,6 +91,8 @@ public class IntervalEvaluationUtils {
 				this_stop_alarm.setStepsInterval(current_day_index, true);
 				evaluation = 1.0f;
 				
+				////////////////////////////
+				//LOG
 				if(steps_number==1){
 					log_string=log_string+"Valutazione: 1 (1 scalino) ";
 				}
@@ -87,6 +101,7 @@ public class IntervalEvaluationUtils {
 				}
 				
 				log_string=log_string+" | Rimane un intervallo con scalini, ATTIVO la prossima settimana";
+				////////////////////////////
 			}
 			else{ 
 				
@@ -101,14 +116,20 @@ public class IntervalEvaluationUtils {
 				//comunque la prossima settimana
 				evaluation = 0.5f;
 				
+				////////////////////////////
+				//LOG
 				log_string=log_string+"Valutazione 0 (0 scalini) | Ritorna ad essere un intervallo di esplorazione, ATTIVO la prossima settimana";
+				////////////////////////////
 			}			
 			
 						
 		}
 		else{ //è un "intervallo di esplorazione"
 			
+			////////////////////////////
+			//LOG
 			log_string="Intervallo di esplorazione"+status;
+			////////////////////////////
 			
 			Log.d(MainActivity.AppName,"EVALUATION - It is a 'exploration interval'");
 			
@@ -125,7 +146,10 @@ public class IntervalEvaluationUtils {
 				previous_start_alarm.setStepsInterval(current_day_index, true);	
 				this_stop_alarm.setStepsInterval(current_day_index, true);	
 				
+				////////////////////////////
+				//LOG
 				log_string=log_string+"Valutazione: 1 (>=1 scalino) | Diventa un intervallo con scalini, ATTIVO la prossima settimana";
+				////////////////////////////
 			}
 			else{
 				//si calcola la valutazione che considera quantità e qualità
@@ -147,8 +171,10 @@ public class IntervalEvaluationUtils {
 				this_stop_alarm.setStepsInterval(current_day_index, false);				
 			}
 			
+			////////////////////////////
+			//LOG
 			log_string=log_string+"Valutazione: "+evaluation+" | ";
-			
+			////////////////////////////
 		}
 		
 		previous_start_alarm.setEvaluation(current_day_index, evaluation);
@@ -162,7 +188,10 @@ public class IntervalEvaluationUtils {
 		//scelta migliore (alla fine si porta avanti l'individuo che presenta la 
 		//fitness maggiore tra i diversi individui possibili)
 		 
+		////////////////////////////
+		//LOG
 		String str_eval=" Rimane un intervallo di esplorazione, ";
+		////////////////////////////
 		
 		if(evaluation>=eval_threshold){	
 			//l'intervallo viene attivato per la prossima settimana
@@ -170,14 +199,20 @@ public class IntervalEvaluationUtils {
 			previous_start_alarm.setRepeatingDay(current_day_index, true);
 			this_stop_alarm.setRepeatingDay(current_day_index, true);	
 			
+			////////////////////////////
+			//LOG
 			str_eval=str_eval+"ATTIVO la prossima settimana";
+			////////////////////////////
 		}
 		else{
 			Log.d(MainActivity.AppName,"FITNESS - intervallo non buono, lo disattivo per la prossima settimana");
 			previous_start_alarm.setRepeatingDay(current_day_index, false);
 			this_stop_alarm.setRepeatingDay(current_day_index, false);
 			
+			////////////////////////////
+			//LOG
 			str_eval=str_eval+"NON ATTIVO la prossima settimana";
+			////////////////////////////
 		}
 			
 		
@@ -199,12 +234,15 @@ public class IntervalEvaluationUtils {
 		}
 		*/
 		
+		////////////////////////////
+		//LOG
 		if(!stepsInterval && !withSteps){
 			log_string=log_string+str_eval;
 		}
 		
 		//si scrive sul file di log la valutazione dell'intervallo	
 		LogUtils.writeLogFile(context, log_string);
+		////////////////////////////
 	}
 	
 	
