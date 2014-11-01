@@ -81,10 +81,10 @@ public class AlarmUtils {
 		Alarm alm6 = new Alarm(11,14,50,false,new boolean[]{true,false},pf);
 		Alarm alm7 = new Alarm(14,53,15,true,bb,pf); //boolean[]{false,true}
 		Alarm alm8 = new Alarm(14,54,50,false,bb,pf);
-		Alarm alm9 = new Alarm(22,35,10,true,bb,pf);
-		Alarm alm10 = new Alarm(22,35,50,false,bb,pf);
-		Alarm alm11 = new Alarm(23,57,51,true,bb,pf);
-		Alarm alm12 = new Alarm(23,59,50,false,bb,pf);
+		Alarm alm9 = new Alarm(21,10,10,true,bb,pf);
+		Alarm alm10 = new Alarm(21,12,50,false,bb,pf);
+		Alarm alm11 = new Alarm(21,13,51,true,bb,pf);
+		Alarm alm12 = new Alarm(21,15,50,false,bb,pf);
 		
 		alm7.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
 		alm8.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
@@ -309,7 +309,9 @@ public class AlarmUtils {
 			int begin = 0;
 			int end = alarms.size()-1;
 			int center = 0;			
-			int final_index=0;
+			//indice per l'id dell'alarm restituito dalla ricerca binaria (final_index>0 se
+			//restituisce un alarm, in quanto gli id partono da 1)
+			int final_index=0; 
 			
 			while(begin <= end){
 				
@@ -398,13 +400,9 @@ public class AlarmUtils {
 			//cercarne un altro partendo dall'alarm successivo; gli alarm che nella lista
 			//vengono dopo a quello trovato hanno tutti tempo di inizio valido per il
 			//giorno corrente
-			if(nextAlarm==null){
-							
-				//se si arriva qui per il fatto che non è stato trovato alcun alarm 
-				//valido per il giorno corrente (quindi l'indice a cui si è arrivati è
-				//pari alla size() della lista) allora non si entra nel ciclo, ma si passa
-				//direttamente al giorno successivo
+			if(nextAlarm==null && final_index!=0){
 				
+				//si prende l'alarm successivo a quello trovato
 				for(int i=final_index; i<alarms.size() && !stop; i++){
 					
 					Alarm e = alarms.get(i);					
