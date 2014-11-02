@@ -275,6 +275,10 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 		if (session != null && (session.isOpened() || session.isClosed())) {
 			//onSessionStateChange(session, session.getState(), null);
 		}
+		me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
+		((TextView) findViewById(R.id.MyStepsText)).setText(getString(R.string.mean_text, String.valueOf(me.getMean())));
+		((TextView) findViewById(R.id.textCurrentValue)).setText(getString(R.string.today_step, String.valueOf(me.getCurrent_steps_value())));
+		
 
 		uiHelper.onResume();
 

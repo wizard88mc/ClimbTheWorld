@@ -169,8 +169,12 @@ public class ClimbApplication extends Application{
 	  {
 	    super.onCreate();
 	    Log.d("ClimbApplication", "onCreate");
-		singleton = this;
 		sContext = getApplicationContext();
+		SharedPreferences pref = sContext.getSharedPreferences("UserSession", 0);
+		Editor edit = pref.edit();
+		edit.putBoolean("openedFirst", true);
+		edit.commit();
+		singleton = this;
 		language = getString(R.string.language);
 	    //Parse initialize
 	    Parse.initialize(this, "e9wlYQPdpXlFX3XQc9Lq0GJFecuYrDSzwVNSovvd",
@@ -183,10 +187,8 @@ public class ClimbApplication extends Application{
 		} catch (IOException exc) {
 			//finish();
 		}
-		SharedPreferences pref = sContext.getSharedPreferences("UserSession", 0);
-		Editor edit = pref.edit();
-		edit.putBoolean("openedFirst", true);
-		edit.commit();
+		
+		System.out.println("END APP");
 	  }
 	 
 	 /**
@@ -1126,7 +1128,7 @@ public class ClimbApplication extends Application{
 			    		    				me.setXP(user.getInt("XP"));
 			    		    				JSONObject stats = user.getJSONObject("mean_daily_steps");
 			    		    				if (stats != null && stats.length() > 0) {
-			    		    				try {		
+			    		    				try {
 			    		    					me.setBegin_date(String.valueOf(stats.getLong("begin_date")));
 				    		    				me.setMean(stats.getLong("mean"));
 				    		    				me.setN_measured_days(stats.getInt("n_days"));

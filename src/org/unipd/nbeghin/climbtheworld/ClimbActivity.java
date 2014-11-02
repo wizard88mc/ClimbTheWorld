@@ -1728,6 +1728,7 @@ public class ClimbActivity extends ActionBarActivity {
 			currentUser.setMean(ClimbApplication.calculateNewMean((long) currentUser.getMean(), currentUser.getN_measured_days(), (currentUser.getCurrent_steps_value())));
 			currentUser.setCurrent_steps_value(new_steps);
 			currentUser.setN_measured_days(currentUser.getN_measured_days() + 1);
+			currentUser.setBegin_date(String.valueOf(new Date().getTime()));
 			ClimbApplication.userDao.update(currentUser);
 		} else {System.out.println("update current value");
 			currentUser.setCurrent_steps_value(currentUser.getCurrent_steps_value() + new_steps);
@@ -1739,6 +1740,7 @@ public class ClimbActivity extends ActionBarActivity {
 				stats.put("mean", currentUser.getMean());
 				stats.put("n_days", currentUser.getN_measured_days());
 				stats.put("current_value", currentUser.getCurrent_steps_value());
+				stats.put("begin_date", currentUser.getBegin_date());
 				user.put("mean_daily_steps", stats);
 				// user.saveEventually();
 				ParseUtils.saveUserInParse(user);

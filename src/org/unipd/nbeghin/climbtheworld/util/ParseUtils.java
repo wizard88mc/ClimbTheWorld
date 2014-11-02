@@ -1,5 +1,7 @@
 package org.unipd.nbeghin.climbtheworld.util;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
@@ -7,11 +9,14 @@ import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.Competition;
 import org.unipd.nbeghin.climbtheworld.models.Microgoal;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
+import org.unipd.nbeghin.climbtheworld.models.User;
 
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.parse.DeleteCallback;
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -190,5 +195,35 @@ public class ParseUtils {
 				
 			}
 		});
+	}
+	
+	public static void updateCurrentUserData(){
+		ParseUser.getCurrentUser().fetchInBackground(new GetCallback<ParseUser>() {
+			  public void done(ParseUser object, ParseException e) {
+				    if (e == null) {
+				    	SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
+				    	User me = ClimbApplication.getUserByFBId(pref.getString("FBid", "none"));
+						ParseUser user = ParseUser.getCurrentUser();
+						me.setLevel(user.getInt("level"));
+						me.setXP(user.getInt("XP"));
+						JSONObject stats = user.getJSONObject("mean_daily_steps");
+						if (stats != null && stats.length() > 0) {
+						try {
+							me.setBegin_date(String.valueOf(stats.getLong("begin_date")));
+							me.setMean(stats.getLong("mean"));
+							me.setN_measured_days(stats.getInt("n_days"));
+							me.setCurrent_steps_value(stats.getInt("current_value"));
+						} catch (JSONException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						}
+						ClimbApplication.userDao.update(me);
+				    } else {
+				    		Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+						Log.e(getClass().getName(), e.getMessage());
+				    }
+				  }
+				});
 	}
 }

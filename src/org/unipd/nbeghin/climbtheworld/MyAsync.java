@@ -68,6 +68,7 @@ public class MyAsync {
 		// Execute the batch of requests asynchronously
 		if(inside) requestBatch.executeAsync();
 		else requestBatch.executeAndWait();
+		ParseUtils.updateCurrentUserData();
 		//NetworkRequestAsyncTask.setMessage("load badge");
 		saveBadges();
 		//NetworkRequestAsyncTask.setMessage("load microgoal");
