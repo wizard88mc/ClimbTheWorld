@@ -212,6 +212,10 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 
 			if (state.isOpened()) {
 				System.out.println("opened");
+				SharedPreferences pref = getSharedPreferences("UserSession", 0);
+				Editor edit = pref.edit();
+				edit.putBoolean("openedFirst", false);
+				edit.commit();
 				new NetworkRequestAsyncTask(session, this).execute();
 
 				// }

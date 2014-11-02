@@ -272,9 +272,9 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 				//this check is necessary not to repeat the newMeRequest twice
 				if (mSession == null || isSessionChanged(session)) {
 					mSession = session;
-					System.out.println("fb id "  + pref.getString("FBid", "none"));
 					System.out.println(pref.getBoolean("openedFirst", false));
 					if(!pref.getString("FBid", "none").equalsIgnoreCase("none") && pref.getBoolean("openedFirst", false)){
+						System.out.println("open first");
 						new NetworkRequestAsyncTask(session, this).execute();
 						Editor edit = pref.edit();
 						edit.putBoolean("openedFirst", false);
@@ -856,8 +856,6 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 			public void onCompleted(GraphUser user, Response response) {
 				if (session == Session.getActiveSession()) {
 					ClimbApplication.user = user;
-					System.out.println(pref.getString("FBid", "none"));
-					System.out.println(pref.getBoolean("openedFirst", false));
 					if (user != null && pref.getString("FBid", "none").equalsIgnoreCase("none")) {
 						// look for my FBid
 						Map<String, Object> conditions = new HashMap<String, Object>();
@@ -886,7 +884,6 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 						System.err.println("no user");
 						//to do only when the user opens main activity for the first time
 //						if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && pref.getBoolean("openedFirst", false)){
-							System.out.println("open first");
 							new MyAsync(MainActivity.this, PD, false).execute();
 							Editor edit = pref.edit();
 							edit.putBoolean("openedFirst", false);
