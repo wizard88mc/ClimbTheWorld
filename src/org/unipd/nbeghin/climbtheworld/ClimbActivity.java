@@ -368,7 +368,7 @@ public class ClimbActivity extends Activity {
 		setContentView(R.layout.activity_climb);
 		
 		//si recupera il contesto dell'applicazione
-		appContext = getApplicationContext();
+		appContext = ClimbActivity.this;
 		//si ottiene il riferimento alle shared preferences
 		settings = PreferenceManager.getDefaultSharedPreferences(appContext);
 				

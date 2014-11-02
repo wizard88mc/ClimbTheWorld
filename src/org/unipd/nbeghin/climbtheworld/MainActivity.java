@@ -80,7 +80,7 @@ public class MainActivity extends ActionBarActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		sContext = getApplicationContext();
+		sContext = MainActivity.this;
 		loadDb(); // instance db connection
 		// loading fragments
 		fragments.add(Fragment.instantiate(this, BuildingsFragment.class.getName())); // instance building fragments
@@ -129,10 +129,10 @@ public class MainActivity extends ActionBarActivity {
 	 * Load db and setup DAOs NB: extracts DB from assets/databases/ClimbTheWorld.zip
 	 */
 	private void loadDb() {
-		PreExistingDbLoader preExistingDbLoader = new PreExistingDbLoader(getApplicationContext()); // extract db from zip
+		PreExistingDbLoader preExistingDbLoader = new PreExistingDbLoader(sContext); // extract db from zip
 		SQLiteDatabase db = preExistingDbLoader.getReadableDatabase();
 		db.close(); // close connection to extracted db
-		dbHelper = DbHelper.getInstance(getApplicationContext()); //new DbHelper(getApplicationContext()); // instance new db connection to now-standard db
+		dbHelper = DbHelper.getInstance(sContext); //new DbHelper(getApplicationContext()); // instance new db connection to now-standard db
 		buildingDao = dbHelper.getBuildingDao(); // create building DAO
 		climbingDao = dbHelper.getClimbingDao(); // create climbing DAO
 		tourDao = dbHelper.getTourDao(); // create tour DAO
@@ -156,17 +156,17 @@ public class MainActivity extends ActionBarActivity {
 	
 	
 	public void onShowActionProfile(MenuItem v) {
-		Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+		Intent intent = new Intent(sContext, ProfileActivity.class);
 		startActivity(intent);
 	}
 
 	public void onShowSettings(MenuItem v) {
-		Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+		Intent intent = new Intent(sContext, SettingsActivity.class);
 		startActivity(intent);
 	}
 
 	public void onShowLog(MenuItem v) {
-		Intent intent = new Intent(getApplicationContext(), ShowLogActivity.class);
+		Intent intent = new Intent(sContext, ShowLogActivity.class);
 		startActivity(intent);
 	}
 	
@@ -261,7 +261,7 @@ public class MainActivity extends ActionBarActivity {
 			i.setType("*/*");
 			startActivity(Intent.createChooser(i, "Share to"));
 		} catch (Exception e) {
-			Toast.makeText(getApplicationContext(), "Unable to export db: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+			Toast.makeText(sContext, "Unable to export db: " + e.getMessage(), Toast.LENGTH_SHORT).show();
 			Log.e(AppName, e.getMessage());
 		}
 	}
