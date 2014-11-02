@@ -30,6 +30,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -81,6 +82,7 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 		profilePictureView = (ProfilePictureView) findViewById(R.id.fb_profile_picture2);
 		pref = getApplicationContext().getSharedPreferences("UserSession", 0);
 		me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
+		
 		updateUserData();
 
 		// Session session = Session.getActiveSession();
@@ -93,6 +95,13 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 			setProfilePicture(session, session.getState());
 		}
 
+	}
+	
+	@Override
+	protected void onStart(){
+		super.onStart();
+//		ScrollView sw = (ScrollView) findViewById(R.id.scrollViewProfile);
+//		sw.fullScroll(View.FOCUS_UP);
 	}
 
 	private void setProfilePicture(final Session session, SessionState state) {

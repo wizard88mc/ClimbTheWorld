@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.unipd.nbeghin.climbtheworld.comparator.UserBadgeComperator;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.db.PreExistingDbLoader;
 import org.unipd.nbeghin.climbtheworld.models.Badge;
@@ -356,6 +357,7 @@ public class ClimbApplication extends Application{
 				where.eq("user_id", pref.getInt("local_id", -1));
 				PreparedQuery<UserBadge> preparedQuery = query.prepare();
 				userBadges = userBadgeDao.query(preparedQuery);
+				System.out.println("userbadges size " + userBadges.size());
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

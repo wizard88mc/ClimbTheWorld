@@ -120,6 +120,7 @@ public class MyAsync {
 							ex.printStackTrace();
 						}
 					}
+					ClimbApplication.refreshUserBadge();
 					}else{
 						badges = new JSONArray();
 						user.put("badges", badges);

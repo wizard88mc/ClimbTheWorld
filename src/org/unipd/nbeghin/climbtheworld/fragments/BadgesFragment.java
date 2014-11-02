@@ -1,7 +1,11 @@
 package org.unipd.nbeghin.climbtheworld.fragments;
 
+import java.util.Collections;
+
 import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.R;
+import org.unipd.nbeghin.climbtheworld.comparator.UserBadgeComperator;
+import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.UserBadge;
 import org.unipd.nbeghin.climbtheworld.ui.card.BadgeCard;
 
@@ -19,8 +23,9 @@ public class BadgesFragment extends Fragment{
 	public CardUI badgeCards;
 	
 	public void refresh() {
+		Collections.sort(ClimbApplication.userBadges, new UserBadgeComperator());
 		badgeCards.clearCards();
-		for (final UserBadge badge : ClimbApplication.userBadgeDao) {
+		for (final UserBadge badge : ClimbApplication.userBadges) {
 			BadgeCard badgeCard = new BadgeCard(badge);
 			badgeCards.addCard(badgeCard);
 		}

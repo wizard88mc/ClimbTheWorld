@@ -12,24 +12,26 @@
         android:layout_marginBottom="0dp" 
         android:layout_alignParentBottom="true"/>
 
-    <ScrollView
-        android:id="@+id/scrollView1"
+  <!--  <ScrollView
+        android:id="@+id/scrollViewProfile"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/login_button" >
+        android:layout_height="fill_parent"
+        android:layout_above="@+id/login_button" 
+        >   -->
 
         <LinearLayout
             android:id="@+id/linearLayout1"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-  
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/login_button"
             android:orientation="vertical" >
 
             <TextView
                 style="?android:attr/listSeparatorTextViewStyle"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/profile_title" />
+                android:text="@string/profile_title" 
+                android:layout_weight="0.03"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -106,12 +108,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
                 android:layout_marginTop="5dp"
-                android:text="@string/results_title" />
+                android:text="@string/results_title" 
+                android:layout_weight="0.3"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="3.58" >
+                android:layout_weight="0.3" >
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -174,18 +177,22 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:text="@string/statistic_title" />
+                android:text="@string/statistic_title" 
+                android:layout_weight="0.3"/>
 
             <ListView
                 android:id="@+id/listStatistics"
                 android:layout_width="match_parent"
-                android:layout_height="288dp"
-                android:layout_marginTop="5dp" >
-
+                android:layout_height="match_parent"
+                android:layout_marginTop="5dp"
+                android:fillViewport="true"
+                android:layout_weight="10" >
             </ListView>
+
+           
 
         </LinearLayout>
 
-    </ScrollView>
+ <!--     </ScrollView>  -->
 
 </RelativeLayout>
