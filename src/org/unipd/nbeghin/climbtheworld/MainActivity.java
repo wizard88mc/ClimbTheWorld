@@ -187,6 +187,14 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 		//if not logged in, login default owner user
 				if (pref.getInt("local_id", -1) == -1) {
 					setUserOwner();
+				}else{
+					ClimbApplication.refreshClimbings();
+					ClimbApplication.refreshCollaborations();
+					ClimbApplication.refreshCompetitions();
+					ClimbApplication.refreshMicrogoals();
+					ClimbApplication.refreshTeamDuels();
+					ClimbApplication.refreshUserBadge();
+					System.out.println("END REFRESH");
 				}
 	}
 
@@ -229,6 +237,7 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 		ClimbApplication.refreshCompetitions();
 		ClimbApplication.refreshTeamDuels();
 		ClimbApplication.refreshUserBadge();
+		ClimbApplication.refreshMicrogoals();
 
 		if (FacebookUtils.isOnline(this)) {
 			Session session = Session.getActiveSession();
