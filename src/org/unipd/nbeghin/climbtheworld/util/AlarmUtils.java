@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import org.unipd.nbeghin.climbtheworld.ClimbTheWorldApp;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.comparator.AlarmComparator;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
@@ -79,10 +80,10 @@ public class AlarmUtils {
 		Alarm alm4 = new Alarm(1,00,50,false,new boolean[]{true,false},pf);
 		Alarm alm5 = new Alarm(11,13,51,true,new boolean[]{true,false},pf); 
 		Alarm alm6 = new Alarm(11,14,50,false,new boolean[]{true,false},pf);
-		Alarm alm7 = new Alarm(14,53,15,true,bb,pf); //boolean[]{false,true}
-		Alarm alm8 = new Alarm(14,54,50,false,bb,pf);
-		Alarm alm9 = new Alarm(21,10,10,true,bb,pf);
-		Alarm alm10 = new Alarm(21,12,50,false,bb,pf);
+		Alarm alm7 = new Alarm(14,21,15,true,bb,pf); //boolean[]{false,true}
+		Alarm alm8 = new Alarm(14,22,50,false,bb,pf);
+		Alarm alm9 = new Alarm(14,22,51,true,bb,pf);
+		Alarm alm10 = new Alarm(14,23,50,false,bb,pf);
 		Alarm alm11 = new Alarm(21,13,51,true,bb,pf);
 		Alarm alm12 = new Alarm(21,15,50,false,bb,pf);
 		
@@ -252,12 +253,12 @@ public class AlarmUtils {
      * @param context context of the application.
      * @param alarms list of all alarms saved in the database.
      */
-	public static void setNextAlarm(Context context, List<Alarm> alarms, boolean onBoot, int current_alarm_id){
+	public static void setNextAlarm(final Context context, final List<Alarm> alarms, final boolean onBoot, final int current_alarm_id){
 				
-		//Thread thread = new Thread(){
+		Thread thread = new Thread(){
 			
-		//	@Override
-		//	public void run() {
+			@Override
+			public void run() {		
 				
 				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 				
@@ -727,15 +728,12 @@ public class AlarmUtils {
 		 	   if(MainActivity.logEnabled){
 					Log.d(MainActivity.AppName,"AlarmUtils - pending intent for next alarm set in the alarm manager");		
 		 	   }
-				
-				
-				
 			}
-			
-	//	};
+		};		
 		
-		
-	//}
+		//si fa partire il thread che imposta il prossimo alarm
+		thread.start();		
+	}
 	
 	//non cancello le preferences perché vengono sovrascritte con i dati del prossimo alarm
 	public static void cancelAlarm(Context context, Alarm alarm) {
