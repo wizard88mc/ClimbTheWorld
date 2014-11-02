@@ -106,8 +106,12 @@
     <!-- ProfileActivity -->
     <string name="level">Level: %s</string>
     <string name="climbBtn">Improve yourself</string>
-    <string name="mean_text">Average daily steps: %s</string>
-    <string name="today_step">Today\'s steps: %s</string>
+    <string name="mean_text">Average daily steps: \t %s</string>
+    <string name="today_step">Today\'s steps: \t %s</string>
+    <string name="profile_title">Profile</string>
+    <string name="statistic_title">Statistics</string>
+    <string name="results_title">Climb Results</string>
+    <string name="height_text">Total height reached</string>
     
     <!-- PickGroupActivity -->
     <string name="pick_group">  Pick this group</string>

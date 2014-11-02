@@ -5,160 +5,187 @@
     android:layout_height="match_parent"
     tools:context=".ProfileActivity" >
 
-    <LinearLayout
-        android:id="@+id/linearLayout1"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical" >
-
-<!--         <ImageView -->
-<!--             android:id="@+id/imgRocket" -->
-<!--             android:layout_width="wrap_content" -->
-<!--             android:layout_height="wrap_content" -->
-<!--             android:layout_gravity="right" -->
-<!--             android:src="@drawable/social_person" /> -->
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.5"
-            android:layout_marginTop="5dp" >
-
-    <!--         <ImageView
-                android:id="@+id/profilePicture"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:layout_marginTop="10dp"
-                android:src="@drawable/social_person" /> -->
-
-            <com.facebook.widget.ProfilePictureView
-                android:id="@+id/fb_profile_picture2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:layout_marginTop="10dp"
-                android:adjustViewBounds="true"
-        android:minHeight="50dp"
-        android:minWidth="50dp"
-        android:maxHeight="50dp"
-        android:maxWidth="50dp"
-                facebook:preset_size="small" >
-            </com.facebook.widget.ProfilePictureView>
-            
-            
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="76dp"
-                android:layout_weight="0.95"
-                android:orientation="vertical" >
-
-                <TextView
-                    android:id="@+id/textUserName"
-                    style="@style/CardText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Username" 
-                    android:layout_marginTop="2dp"/>
-
-                <TextView
-                    android:id="@+id/textXP"
-                    style="@style/CardText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="XP" 
-                    android:layout_marginTop="2dp"/>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal" 
-                    android:layout_marginTop="2dp">
-
-                    <TextView
-                        android:id="@+id/textLevel"
-                        style="@style/CardText"                        
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0.8"
-                        android:text="Level" />
-
-                    <ProgressBar
-                        android:id="@+id/progressBarLevel"
-                        style="?android:attr/progressBarStyleHorizontal"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0.2" 
-                        android:layout_marginRight="5dp"/>
-                </LinearLayout>
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.5" >
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="0.93"
-                android:orientation="vertical" >
-
-                <TextView
-                    android:id="@+id/textCurrentValue"
-                    style="@style/CardText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="2dp"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:layout_weight="0.62"
-                    android:text="CurrentValue" />
-
-                <TextView
-                    android:id="@+id/MyStepsText"
-                    style="@style/CardText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:layout_weight="0.72"
-                    android:text="MySteps" />
-            </LinearLayout>
-
-            <Button
-                android:id="@+id/buttonCounter"
-                style="@style/btnStyleCard"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:text="@string/climbBtn" />
-
-        </LinearLayout>
-
-        <ListView
-            android:id="@+id/listStatistics"
-            android:layout_width="fill_parent"
-            android:layout_height="350dp"
-            android:layout_weight="2.92" 
-            android:layout_marginTop="5dp">
-
-        </ListView>
-
-    </LinearLayout>
-    
     <com.facebook.widget.LoginButton
         android:id="@+id/login_button"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="0dp"
-        
-        />
+        android:layout_marginBottom="0dp" 
+        android:layout_alignParentBottom="true"/>
+
+    <ScrollView
+        android:id="@+id/scrollView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/login_button" >
+
+        <LinearLayout
+            android:id="@+id/linearLayout1"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+  
+            android:orientation="vertical" >
+
+            <TextView
+                style="?android:attr/listSeparatorTextViewStyle"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_title" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_weight="0.3" >
+
+                <com.facebook.widget.ProfilePictureView
+                    android:id="@+id/fb_profile_picture2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginTop="10dp"
+                    android:adjustViewBounds="true"
+                    android:gravity="center_horizontal"
+                    android:maxHeight="50dp"
+                    android:maxWidth="50dp"
+                    android:minHeight="50dp"
+                    android:minWidth="50dp"
+                    facebook:preset_size="small" >
+                </com.facebook.widget.ProfilePictureView>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="76dp"
+                    android:layout_weight="0.95"
+                    android:orientation="vertical" >
+
+                    <TextView
+                        android:id="@+id/textUserName"
+                        style="@style/CardText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Username" />
+
+                    <TextView
+                        android:id="@+id/textXP"
+                        style="@style/CardText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="XP" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:orientation="horizontal" >
+
+                        <TextView
+                            android:id="@+id/textLevel"
+                            style="@style/CardText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.8"
+                            android:text="Level" />
+
+                        <ProgressBar
+                            android:id="@+id/progressBarLevel"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="5dp"
+                            android:layout_weight="0.2" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                style="?android:attr/listSeparatorTextViewStyle"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
+                android:text="@string/results_title" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="3.58" >
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.71"
+                    android:orientation="vertical" >
+
+                    <TextView
+                        android:id="@+id/textCurrentValue"
+                        style="@style/CardText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="2dp"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:paddingBottom="2dp"
+                        android:layout_weight="0.3"
+                        android:text="CurrentValue" />
+
+                    <TextView
+                        android:id="@+id/MyStepsText"
+                        style="@style/CardText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="2dp"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:paddingBottom="2dp"
+                                                android:layout_weight="0.3"
+                        
+                        android:text="MySteps" />
+
+                    <TextView
+                        android:id="@+id/textHeight"
+                        style="@style/CardText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="2dp"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:paddingBottom="2dp"
+                                                android:layout_weight="0.3"
+                        
+                        android:text="Tot Height" />
+
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/buttonCounter"
+                    style="@style/btnStyleCard"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:text="@string/climbBtn" />
+            </LinearLayout>
+
+            <TextView
+                style="?android:attr/listSeparatorTextViewStyle"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="@string/statistic_title" />
+
+            <ListView
+                android:id="@+id/listStatistics"
+                android:layout_width="match_parent"
+                android:layout_height="288dp"
+                android:layout_marginTop="5dp" >
+
+            </ListView>
+
+        </LinearLayout>
+
+    </ScrollView>
 
 </RelativeLayout>

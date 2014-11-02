@@ -7,7 +7,7 @@
     <string name="title_activity_climb">Scala l\'edificio!</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
-    <string name="title_activity_profile">Profilo</string>
+    <string name="title_activity_profile">Il tuo profilo</string>
     <string name="title_activity_team_preparation">Formazione dei team</string>
     <string name="title_activity_tour_detail">Tour - Dettagli</string>
     <string name="title_activity_gallery">Galleria</string>
@@ -96,8 +96,12 @@
     <!-- ProfileActivity -->
     <string name="level">Livello: %s</string>
     <string name="climbBtn">Migliorati</string>
-    <string name="mean_text">Media scalini giornalieri: %s</string>
-    <string name="today_step">Scalini di oggi: %s</string>
+    <string name="mean_text">Media scalini giornalieri: \t %s</string>
+    <string name="today_step">Scalini di oggi: \t %s</string>
+    <string name="profile_title">Profilo</string>
+    <string name="statistic_title">Statistiche</string>
+    <string name="results_title">Risultati</string>
+    <string name="height_text">Altitudine totale raggiunta</string>
     
     <!-- PickGroupActivity -->
     <string name="pick_group">  Scegli questo gruppo</string>
@@ -243,8 +247,10 @@
         <item quantity="one">C\'è una notifica per te</item>
         <item quantity="other">Ci sono %d notifiche per te</item>
     </plurals>
+    
     <!-- FBPickFriendActivity -->
     <string name="pick_friends">Invita i tuoi amici</string>
     <string name="invite_btn">Invita</string>
     <string name="no_invitable">Nessun amico da invitare</string>
+    
 </resources>

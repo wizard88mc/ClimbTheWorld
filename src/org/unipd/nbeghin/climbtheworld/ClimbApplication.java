@@ -188,7 +188,6 @@ public class ClimbApplication extends Application{
 			//finish();
 		}
 		
-		System.out.println("END APP");
 	  }
 	 
 	 /**
@@ -1126,6 +1125,7 @@ public class ClimbApplication extends Application{
 									// Hooray! The user is logged in.
 									me.setLevel(user.getInt("level"));
 			    		    				me.setXP(user.getInt("XP"));
+			    		    				me.setHeight(user.getLong("height"));
 			    		    				JSONObject stats = user.getJSONObject("mean_daily_steps");
 			    		    				if (stats != null && stats.length() > 0) {
 			    		    				try {
@@ -1205,5 +1205,9 @@ public class ClimbApplication extends Application{
 			
 
 			return requestBatch;
+		}
+		
+		public static double fromStepsToMeters(int steps){
+			return (double) steps * Building.average_step_height / (double) 100;
 		}
 }

@@ -1456,6 +1456,7 @@ public class ClimbActivity extends ActionBarActivity {
 					stats.put("current_value", 0);
 					stats.put("n_days", 1);
 					user.put("mean_daily_steps", stats);
+					user.put("height", currentUser.getHeight());
 					// user.saveEventually();
 					ParseUtils.saveUserInParse(user);
 				} catch (JSONException e) {
@@ -1729,11 +1730,13 @@ public class ClimbActivity extends ActionBarActivity {
 			currentUser.setCurrent_steps_value(new_steps);
 			currentUser.setN_measured_days(currentUser.getN_measured_days() + 1);
 			currentUser.setBegin_date(String.valueOf(new Date().getTime()));
-			ClimbApplication.userDao.update(currentUser);
+			//ClimbApplication.userDao.update(currentUser);
 		} else {System.out.println("update current value");
 			currentUser.setCurrent_steps_value(currentUser.getCurrent_steps_value() + new_steps);
-			ClimbApplication.userDao.update(currentUser);
 		}
+		currentUser.setHeight(currentUser.getHeight() + ClimbApplication.fromStepsToMeters(new_steps));
+		ClimbApplication.userDao.update(currentUser);
+
 		if (user != null) {
 			JSONObject stats = user.getJSONObject("mean_daily_steps");
 			try {
@@ -1742,6 +1745,7 @@ public class ClimbActivity extends ActionBarActivity {
 				stats.put("current_value", currentUser.getCurrent_steps_value());
 				stats.put("begin_date", currentUser.getBegin_date());
 				user.put("mean_daily_steps", stats);
+				user.put("height", currentUser.getHeight());
 				// user.saveEventually();
 				ParseUtils.saveUserInParse(user);
 			} catch (JSONException e) {

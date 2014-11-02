@@ -128,6 +128,7 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 		((TextView) findViewById(R.id.textXP)).setText(String.valueOf(me.getXP()) + " XP");
 		((TextView) findViewById(R.id.MyStepsText)).setText(getString(R.string.mean_text, String.valueOf(me.getMean())));
 		((TextView) findViewById(R.id.textCurrentValue)).setText(getString(R.string.today_step, String.valueOf(me.getCurrent_steps_value())));
+		((TextView) findViewById(R.id.textHeight)).setText(getString(R.string.height_text) + ": \t " + String.valueOf(me.getHeight()) + "mt");
 		int total = ClimbApplication.levelToXP(me.getLevel() + 1);
 		int percentage = 0;
 		if (total != 0)
@@ -282,7 +283,8 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 		me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
 		((TextView) findViewById(R.id.MyStepsText)).setText(getString(R.string.mean_text, String.valueOf(me.getMean())));
 		((TextView) findViewById(R.id.textCurrentValue)).setText(getString(R.string.today_step, String.valueOf(me.getCurrent_steps_value())));
-		
+		((TextView) findViewById(R.id.textHeight)).setText(getString(R.string.height_text) + ": " + String.valueOf(me.getHeight()) + "mt");
+
 
 		uiHelper.onResume();
 

@@ -41,6 +41,8 @@ public class User implements Serializable{
 	private int				current_steps_value;
 	@DatabaseField
 	private int				n_measured_days;
+	@DatabaseField
+	private double				height;
 	
 	
 	public User(){} //needed by ormlite
@@ -127,6 +129,14 @@ public class User implements Serializable{
 
 	public void setN_measured_days(int n_measured_days) {
 		this.n_measured_days = n_measured_days;
+	}
+
+	public double getHeight() {
+		return height;
+	}
+
+	public void setHeight(double height) {
+		this.height = height;
 	}
 
 	
