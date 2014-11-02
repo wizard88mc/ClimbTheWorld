@@ -1,5 +1,6 @@
 package org.unipd.nbeghin.climbtheworld;
 
+import java.security.InvalidAlgorithmParameterException;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -7,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.IllegalFormatException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -2679,13 +2681,14 @@ public class ClimbActivity extends ActionBarActivity {
 //			int randomNum2 = rand.nextInt((20 - randomNum1) + 1) + randomNum1;
 			int randomNum1 = Integer.valueOf(climbs[0]) / 5;
 
+			
 			if (checked_size == 1)
 				intro = String.format(texts.getIntro(), randomNum1);
 			else if (checked_size == 2){
 				int randomNum2 = Integer.valueOf(climbs[0] + climbs[1]) / 5;
 				intro = String.format(texts.getIntro(), randomNum1, randomNum2);
 			}
-
+			
 			// to set the message
 			TextView message = (TextView) dialog.findViewById(R.id.tvmessagedialogtext);
 			message.setText(intro);
