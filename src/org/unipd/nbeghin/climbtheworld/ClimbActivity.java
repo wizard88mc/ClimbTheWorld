@@ -667,9 +667,13 @@ public class ClimbActivity extends Activity {
 						//l'utente non ha fatto scalini, allora si ri-attiva il servizio di activity
 						//recognition
 						//TODO controllo livello batteria 
+						
+						//System.out.println("last interval with steps (default next alarm id): " + settings.getInt("last_interval_with_steps", next_alarm_id));
+						//System.out.println("next alarm id: " + next_alarm_id);
+						
 						if(!next_alarm.isStepsInterval(current_day_index) && 
-							settings.getInt("last_interval_with_steps", next_alarm_id)!=next_alarm_id){
-							
+							settings.getInt("last_interval_with_steps", -1)!=next_alarm_id){
+														
 							Log.d(MainActivity.AppName,"STOP GAME IN ACTIVE INTERVAL - START ACTIVITY REC");
 							appContext.startService(new Intent(appContext, ActivityRecognitionRecordService.class));
 							

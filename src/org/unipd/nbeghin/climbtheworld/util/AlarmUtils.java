@@ -73,10 +73,10 @@ public class AlarmUtils {
     	boolean bb[] = new boolean[] {true,true};
     	//float pf[] = new float[] {0.25f,0.25f,0.25f,0.25f,0.25f,0.25f,0.25f};
     	float pf[] = new float[] {0.25f,0.25f};
-    	Alarm alm1 = new Alarm(0,01,10,true,new boolean[]{true,true},pf);
-		Alarm alm2 = new Alarm(0,03,50,false,new boolean[]{true,true},pf);
-		Alarm alm3 = new Alarm(9,01,10,true,new boolean[]{false,false},pf);
-		Alarm alm4 = new Alarm(9,03,50,false,new boolean[]{false,false},pf);
+    	Alarm alm1 = new Alarm(0,45,50,true,new boolean[]{true,true},pf);
+		Alarm alm2 = new Alarm(0,46,50,false,new boolean[]{true,true},pf);
+		Alarm alm3 = new Alarm(0,59,51,true,new boolean[]{true,false},pf);
+		Alarm alm4 = new Alarm(1,00,50,false,new boolean[]{true,false},pf);
 		Alarm alm5 = new Alarm(11,13,51,true,new boolean[]{true,false},pf); 
 		Alarm alm6 = new Alarm(11,14,50,false,new boolean[]{true,false},pf);
 		Alarm alm7 = new Alarm(14,53,15,true,bb,pf); //boolean[]{false,true}
