@@ -10,6 +10,8 @@ import org.unipd.nbeghin.climbtheworld.models.ClassifierCircularBuffer;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class StairsClassifierReceiver extends BroadcastReceiver {
@@ -33,6 +35,8 @@ public class StairsClassifierReceiver extends BroadcastReceiver {
  				
  		Double result = intent.getExtras().getDouble(ClassifierCircularBuffer.CLASSIFIER_NOTIFICATION_STATUS);
  		
+ 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+ 		 		
  		//Log.d(MainActivity.AppName,"STAIRS RECEIVER - result: " + result);
  		
  		
@@ -72,8 +76,11 @@ public class StairsClassifierReceiver extends BroadcastReceiver {
 				climb.refreshOnStep();
 			}
 			
+			
+			prefs.edit().putInt("steps_number", prefs.getInt("steps_number", 0)+1).commit();
+					
 			steps_number++;
-			Log.d(MainActivity.AppName,"STAIRS RECEIVER - steps number: " + steps_number);
+			Log.d(MainActivity.AppName,"STAIRS RECEIVER - steps number: " + getStepsNumber(prefs));
 		}
 		
 		if(climb!=null) {// && ClimbActivity.samplingEnabled){
@@ -89,13 +96,15 @@ public class StairsClassifierReceiver extends BroadcastReceiver {
 	}
 	
 	
-	public static int getStepsNumber(){
-		return steps_number;
+	public static int getStepsNumber(SharedPreferences prefs){
+		//return steps_number;		
+		return prefs.getInt("steps_number", 0);
 	}
 	
 	
-	public static void clearStepsNumber(){
-		steps_number=0;
+	public static void clearStepsNumber(SharedPreferences prefs){
+		//steps_number=0;
+		prefs.edit().putInt("steps_number", 0).commit();
 	}
 	
 	

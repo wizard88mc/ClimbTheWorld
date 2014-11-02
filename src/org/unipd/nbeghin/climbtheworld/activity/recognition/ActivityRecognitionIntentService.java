@@ -7,6 +7,9 @@ import com.google.android.gms.location.DetectedActivity;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class ActivityRecognitionIntentService extends IntentService {
@@ -21,6 +24,8 @@ public class ActivityRecognitionIntentService extends IntentService {
 	private static float confidences_weights_sum = 0f;
 	
 	
+	private SharedPreferences prefs;
+	
 	public ActivityRecognitionIntentService() {
 		 super("ActivityRecognitionIntentService");
 	}
@@ -31,16 +36,11 @@ public class ActivityRecognitionIntentService extends IntentService {
 		// TODO Auto-generated method stub
 		super.onCreate();
 		
-		Log.d(MainActivity.AppName,"OnCreate activityRec service - n. values " + getValuesNumber());		
-	}
+		prefs=PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		
+		Log.d(MainActivity.AppName,"OnCreate activityRec service - n. values " + getValuesNumber(prefs));		
 	
 	
-	@Override
-	public void onDestroy() {
-		// TODO Auto-generated method stub
-		super.onDestroy();
-				
-		Log.d(MainActivity.AppName,"OnDestroy activityRec service - n. values " + getValuesNumber());		
 	}
 	
 	
@@ -82,8 +82,10 @@ public class ActivityRecognitionIntentService extends IntentService {
 	    	}
                         
             
-            values_number++;
-            handleActivity(activityType,confidence);
+            prefs.edit().putInt("ar_values_number", prefs.getInt("ar_values_number", 0)+1).commit();
+            //values_number++;
+            
+            handleActivity(prefs,activityType,confidence);
            
         } else {
            //This implementation ignores intents that don't contain
@@ -97,8 +99,8 @@ public class ActivityRecognitionIntentService extends IntentService {
 	
 	
 	
-	private void handleActivity(int activityType, int confidence){
-		
+	private void handleActivity(SharedPreferences prefs, int activityType, int confidence){
+		/*
 		switch(activityType) { 
 		  case DetectedActivity.ON_FOOT:
 			  weights_sum += 30;
@@ -120,11 +122,37 @@ public class ActivityRecognitionIntentService extends IntentService {
 			  confidences_weights_sum += 80*((float)confidence/100);
               activities_number++;
               break;
+		}*/
+		
+		
+		switch(activityType) { 
+		  case DetectedActivity.ON_FOOT:
+			  prefs.edit().putInt("ar_weights_sum", prefs.getInt("ar_weights_sum", 0)+30)
+			  	.putFloat("ar_confidences_weights_sum", prefs.getFloat("ar_confidences_weights_sum", 0f)+30*((float)confidence/100))
+			  	.putInt("ar_activities_number", prefs.getInt("ar_activities_number", 0)+1)
+			  	.commit();
+            break;
+		  case DetectedActivity.WALKING:  
+			  prefs.edit().putInt("ar_weights_sum", prefs.getInt("ar_weights_sum", 0)+60)
+			  	.putFloat("ar_confidences_weights_sum", prefs.getFloat("ar_confidences_weights_sum", 0f)+60*((float)confidence/100))
+			  	.putInt("ar_activities_number", prefs.getInt("ar_activities_number", 0)+1)
+			  	.commit();
+            break;
+		  case DetectedActivity.RUNNING:  
+			  prefs.edit().putInt("ar_weights_sum", prefs.getInt("ar_weights_sum", 0)+100)
+			  	.putFloat("ar_confidences_weights_sum", prefs.getFloat("ar_confidences_weights_sum", 0f)+100*((float)confidence/100))
+			  	.putInt("ar_activities_number", prefs.getInt("ar_activities_number", 0)+1)
+			  	.commit();
+            break;
+		  case DetectedActivity.ON_BICYCLE: 
+			  prefs.edit().putInt("ar_weights_sum", prefs.getInt("ar_weights_sum", 0)+80)
+			  	.putFloat("ar_confidences_weights_sum", prefs.getFloat("ar_confidences_weights_sum", 0f)+80*((float)confidence/100))
+			  	.putInt("ar_activities_number", prefs.getInt("ar_activities_number", 0)+1)
+			  	.commit();
+            break;
 		}
 		
 	}
-	
-	
 	
 	
 	
@@ -154,30 +182,41 @@ public class ActivityRecognitionIntentService extends IntentService {
 	
 	
 	
-	public static void clearValuesCount(){
-		values_number=0;
+	public static void clearValuesCount(SharedPreferences prefs){
+		/*values_number=0;
 		activities_number=0;
 		weights_sum=0;
-		confidences_weights_sum=0f;
+		confidences_weights_sum=0f;*/
+		
+		prefs.edit().putInt("ar_values_number", 0).putInt("ar_activities_number", 0).
+			putInt("ar_weights_sum", 0).putFloat("ar_confidences_weights_sum", 0f).commit();
 	}
 	
 	
-	public static int getValuesNumber(){
-		return values_number;
+	public static int getValuesNumber(SharedPreferences prefs){
+		//return values_number;
+		
+		return prefs.getInt("ar_values_number", 0);
 	}
 	
 	
-	public static int getActivitiesNumber(){
-		return activities_number;
+	public static int getActivitiesNumber(SharedPreferences prefs){
+		//return activities_number;
+		
+		return prefs.getInt("ar_activities_number", 0);
 	}
 	
-	public static float getConfidencesWeightsSum(){				
-		return confidences_weights_sum;
+	public static float getConfidencesWeightsSum(SharedPreferences prefs){				
+		//return confidences_weights_sum;
+		
+		return prefs.getFloat("ar_confidences_weights_sum", 0f);
 	}
 	
 	
-	public static int getWeightsSum(){	
-		return weights_sum;
+	public static int getWeightsSum(SharedPreferences prefs){	
+		//return weights_sum;
+		
+		return prefs.getInt("ar_weights_sum", 0);
 	}
 	
 }

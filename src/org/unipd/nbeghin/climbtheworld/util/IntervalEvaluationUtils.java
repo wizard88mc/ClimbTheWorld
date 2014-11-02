@@ -11,6 +11,7 @@ import org.unipd.nbeghin.climbtheworld.receivers.StairsClassifierReceiver;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -23,6 +24,8 @@ public class IntervalEvaluationUtils {
 	
 	public static void evaluateAndUpdateInterval(Context context, boolean stepsInterval, boolean withSteps, int stop_alarm_id){
 				
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		
 		//si recupera il DAO associato alla tabella degli alarm attraverso il gestore del DB
 		RuntimeExceptionDao<Alarm, Integer> alarmDao = DbHelper.getInstance(context).getAlarmDao();
 						
@@ -80,7 +83,7 @@ public class IntervalEvaluationUtils {
 			
 			Log.d(MainActivity.AppName,"EVALUATION - It is a 'interval with steps'");
 			
-			int steps_number =  StairsClassifierReceiver.getStepsNumber();
+			int steps_number =  StairsClassifierReceiver.getStepsNumber(prefs);
 			
 			//se nell'intervallo l'utente fa scalini, è confermato come "intervallo con scalini"
 			if(steps_number>=1){
@@ -156,13 +159,13 @@ public class IntervalEvaluationUtils {
 				//dell'attività fisica svolta
 				evaluation = 0f;
 				
-				float qn = activityAmountValue();
+				float qn = activityAmountValue(prefs);
 				
 				Log.d(MainActivity.AppName,"EVALUATION - Amount of physical activity: " + qn);
 				
 							
 				if(qn > 0){
-					evaluation = qn * activityQualityValue();
+					evaluation = qn * activityQualityValue(prefs);
 					Log.d(MainActivity.AppName,"EVALUATION - qn*ql: " + evaluation);
 				}
 				
@@ -247,13 +250,13 @@ public class IntervalEvaluationUtils {
 	
 	
 	
-	private static float activityAmountValue(){	
+	private static float activityAmountValue(SharedPreferences prefs){	
 		
-		int values_number = ActivityRecognitionIntentService.getValuesNumber();
+		int values_number = ActivityRecognitionIntentService.getValuesNumber(prefs);
 		float amount = 0f;
 		
 		if(values_number>0){
-			amount = (float) ActivityRecognitionIntentService.getActivitiesNumber()/values_number;			
+			amount = (float) ActivityRecognitionIntentService.getActivitiesNumber(prefs)/values_number;			
 			if(amount>0.9f)
 				amount=0.9f;
 		}
@@ -263,12 +266,12 @@ public class IntervalEvaluationUtils {
 	
 	
 	
-	private static float activityQualityValue(){
+	private static float activityQualityValue(SharedPreferences prefs){
     	
     	Log.d(MainActivity.AppName,"EVALUATION - Quality of physical activity: " + 
-    			ActivityRecognitionIntentService.getConfidencesWeightsSum()/ActivityRecognitionIntentService.getWeightsSum());
+    			ActivityRecognitionIntentService.getConfidencesWeightsSum(prefs)/ActivityRecognitionIntentService.getWeightsSum(prefs));
     	
-    	return ActivityRecognitionIntentService.getConfidencesWeightsSum()/ActivityRecognitionIntentService.getWeightsSum();
+    	return ActivityRecognitionIntentService.getConfidencesWeightsSum(prefs)/ActivityRecognitionIntentService.getWeightsSum(prefs);
 	}
 	
 	

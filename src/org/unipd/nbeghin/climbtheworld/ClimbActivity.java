@@ -713,8 +713,8 @@ public class ClimbActivity extends Activity {
 						appContext.stopService(new Intent(appContext, ActivityRecognitionRecordService.class));
 					}
 					
-					Log.d(MainActivity.AppName,"START GAME IN ACTIVE INTERVAL - Total number of values: " + ActivityRecognitionIntentService.getValuesNumber());
-				   	Log.d(MainActivity.AppName,"START GAME IN ACTIVE INTERVAL - Number of activities: " + ActivityRecognitionIntentService.getActivitiesNumber());	
+					Log.d(MainActivity.AppName,"START GAME IN ACTIVE INTERVAL - Total number of values: " + ActivityRecognitionIntentService.getValuesNumber(settings));
+				   	Log.d(MainActivity.AppName,"START GAME IN ACTIVE INTERVAL - Number of activities: " + ActivityRecognitionIntentService.getActivitiesNumber(settings));	
 				}
 				
 			}

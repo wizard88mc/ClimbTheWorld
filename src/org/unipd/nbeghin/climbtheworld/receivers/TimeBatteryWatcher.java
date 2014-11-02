@@ -361,16 +361,16 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				//si resetta il numero totale di attività rilevate, il numero di valori che
 				//indicano un'attività fisica e le variabili per la somma dei pesi e per la somma
 				//dei prodotti confidenze-pesi
-				ActivityRecognitionIntentService.clearValuesCount();
+				ActivityRecognitionIntentService.clearValuesCount(pref);
 								
-				Log.d(MainActivity.AppName,"START ACTION - Reset total number of values: " + ActivityRecognitionIntentService.getValuesNumber());
-			   	Log.d(MainActivity.AppName,"START ACTION - Reset number of activities: " + ActivityRecognitionIntentService.getActivitiesNumber());
+				Log.d(MainActivity.AppName,"START ACTION - Reset total number of values: " + ActivityRecognitionIntentService.getValuesNumber(pref));
+			   	Log.d(MainActivity.AppName,"START ACTION - Reset number of activities: " + ActivityRecognitionIntentService.getActivitiesNumber(pref));
 							   	
 			   	//si resetta il numero di scalini rilevati con il classificatore 
 			   	//scalini/non_scalini (si tiene comunque il fatto che in un periodo di gioco
 			   	//possono essere stati fatti degli scalini)
-			   	StairsClassifierReceiver.clearStepsNumber();
-			   	Log.d(MainActivity.AppName,"START ACTION - Reset number of steps: " + StairsClassifierReceiver.getStepsNumber());
+			   	StairsClassifierReceiver.clearStepsNumber(pref);
+			   	Log.d(MainActivity.AppName,"START ACTION - Reset number of steps: " + StairsClassifierReceiver.getStepsNumber(pref));
 			   	
 			   	
 				//se è attivo il gioco non si fa partire il servizio di activity recognition/
@@ -464,10 +464,10 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						//si calcola la valutazione che determina la sua attivazione o meno per la
 						//prossima settimana
 						
-						Log.d(MainActivity.AppName,"STOP ACTION - Total number of values: " + ActivityRecognitionIntentService.getValuesNumber());
-						Log.d(MainActivity.AppName,"STOP ACTION - Number of activities: " + ActivityRecognitionIntentService.getActivitiesNumber());
-						Log.d(MainActivity.AppName,"STOP ACTION - Sum of weights: " + ActivityRecognitionIntentService.getWeightsSum());
-						Log.d(MainActivity.AppName,"STOP ACTION - Sum of confidences-weights products: " + ActivityRecognitionIntentService.getConfidencesWeightsSum());
+						Log.d(MainActivity.AppName,"STOP ACTION - Total number of values: " + ActivityRecognitionIntentService.getValuesNumber(pref));
+						Log.d(MainActivity.AppName,"STOP ACTION - Number of activities: " + ActivityRecognitionIntentService.getActivitiesNumber(pref));
+						Log.d(MainActivity.AppName,"STOP ACTION - Sum of weights: " + ActivityRecognitionIntentService.getWeightsSum(pref));
+						Log.d(MainActivity.AppName,"STOP ACTION - Sum of confidences-weights products: " + ActivityRecognitionIntentService.getConfidencesWeightsSum(pref));
 						
 						
 						IntervalEvaluationUtils.evaluateAndUpdateInterval(context, false, false, this_alarm_id);
@@ -492,7 +492,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					//in ogni caso si valuta l'intervallo di gioco per confermarlo o meno
 					//per la prossima settimana
 					
-					Log.d(MainActivity.AppName,"STOP ACTION - Steps in interval: " + StairsClassifierReceiver.getStepsNumber());
+					Log.d(MainActivity.AppName,"STOP ACTION - Steps in interval: " + StairsClassifierReceiver.getStepsNumber(pref));
 					
 					IntervalEvaluationUtils.evaluateAndUpdateInterval(context, true, false, this_alarm_id);					
 				}
