@@ -14,7 +14,7 @@
         android:id="@+id/show_algorithm_log"
         android:title="Log"
    	    android:onClick="onShowLog"
-        climbtheworld:showAsAction="never">
+        climbtheworld:showAsAction="ifRoom">
     </item>    
     <item
         android:id="@+id/itemProfile"

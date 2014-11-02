@@ -171,13 +171,15 @@ public class IntervalEvaluationUtils {
 				
 				//non è un "intervallo con scalini"
 				previous_start_alarm.setStepsInterval(current_day_index, false);	
-				this_stop_alarm.setStepsInterval(current_day_index, false);				
+				this_stop_alarm.setStepsInterval(current_day_index, false);		
+				
+				////////////////////////////
+				//LOG
+				log_string=log_string+"Valutazione: "+evaluation+" | ";
+				////////////////////////////
 			}
 			
-			////////////////////////////
-			//LOG
-			log_string=log_string+"Valutazione: "+evaluation+" | ";
-			////////////////////////////
+			
 		}
 		
 		previous_start_alarm.setEvaluation(current_day_index, evaluation);

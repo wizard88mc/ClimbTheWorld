@@ -82,17 +82,17 @@ public class AlarmUtils {
 		Alarm alm6 = new Alarm(11,14,50,false,new boolean[]{true,false},pf);
 		Alarm alm7 = new Alarm(15,51,15,true,bb,pf); //boolean[]{false,true}
 		Alarm alm8 = new Alarm(15,52,50,false,bb,pf);
-		Alarm alm9 = new Alarm(17,07,51,true,bb,pf);
-		Alarm alm10 = new Alarm(17,9,50,false,bb,pf);
-		Alarm alm11 = new Alarm(21,13,51,true,bb,pf);
-		Alarm alm12 = new Alarm(21,15,50,false,bb,pf);
+		Alarm alm9 = new Alarm(19,40,00,true,bb,pf);
+		Alarm alm10 = new Alarm(19,43,50,false,bb,pf);
+		Alarm alm11 = new Alarm(19,43,51,true,bb,pf);
+		Alarm alm12 = new Alarm(19,45,50,false,bb,pf);
 		
 		alm7.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
 		alm8.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
 		
 		
-		alm11.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
-		alm12.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
+		//alm11.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
+		//alm12.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
 		
 		/*
 		//creo template
