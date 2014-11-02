@@ -273,15 +273,27 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						
 						//è un "intervallo di esplorazione"
 						if(!next_alarm.isStepsInterval(currentDayIndex)){ 
-							context.startService(new Intent(context, ActivityRecognitionRecordService.class));
-						   	//si registra anche il receiver per la registrazione dell'attività utente
-							//context.getApplicationContext().registerReceiver(userMotionReceiver, userMotionFilter);
-						   	//context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+							
+							//si fa ripartire il service di activity recognition solo se
+							//l'intervallo non è stato interessato da un periodo di gioco
+							//con scalini
+							if(pref.getInt("last_interval_with_steps", -1)!=alarm_id){
+								context.startService(new Intent(context, ActivityRecognitionRecordService.class));
+							   	//si registra anche il receiver per la registrazione dell'attività utente
+								//context.getApplicationContext().registerReceiver(userMotionReceiver, userMotionFilter);
+							   	//context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+							}
 						}				
 						else{ //è un "intervallo con scalini"
-							context.getApplicationContext().startService(new Intent(context, SamplingClassifyService.class));
-							//si registra anche il receiver
-							context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);					
+							
+							//si fa ripartire il classificatore scalini solo se il numero
+							//di scalini contati fino ad ora nell'intervallo è inferiore
+							//alla soglia (soglia=1 per ora)
+							if(StairsClassifierReceiver.getStepsNumber(pref)<1){
+								context.getApplicationContext().startService(new Intent(context, SamplingClassifyService.class));
+								//si registra anche il receiver
+								context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);					
+							}
 						}
 					}					
 				}			    	
