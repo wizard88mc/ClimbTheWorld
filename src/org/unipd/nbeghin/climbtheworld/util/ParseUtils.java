@@ -206,7 +206,7 @@ public class ParseUtils {
 						ParseUser user = ParseUser.getCurrentUser();
 						me.setLevel(user.getInt("level"));
 						me.setXP(user.getInt("XP"));
-						me.setHeight(user.getLong("height"));
+						me.setHeight(user.getDouble("height"));
 						JSONObject stats = user.getJSONObject("mean_daily_steps");
 						if (stats != null && stats.length() > 0) {
 						try {

@@ -830,6 +830,7 @@ public class UpdateService extends IntentService {
 					if(e == null){
 						parseUser.put("XP", user.getXP());
 						parseUser.put("level", user.getLevel());
+						parseUser.put("height", user.getHeight());
 						JSONObject stats = parseUser.getJSONObject("mean_daily_steps");
 						try {
 							stats.put("begin_date", user.getBegin_date());

@@ -114,12 +114,12 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.3" >
+                android:layout_weight="0.01" >
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.71"
+                    android:layout_weight="0.8"
                     android:orientation="vertical" >
 
                     <TextView
@@ -131,7 +131,6 @@
                         android:layout_marginLeft="5dp"
                         android:layout_marginRight="5dp"
                         android:paddingBottom="2dp"
-                        android:layout_weight="0.3"
                         android:text="CurrentValue" />
 
                     <TextView
@@ -143,8 +142,6 @@
                         android:layout_marginLeft="5dp"
                         android:layout_marginRight="5dp"
                         android:paddingBottom="2dp"
-                                                android:layout_weight="0.3"
-                        
                         android:text="MySteps" />
 
                     <TextView
@@ -156,8 +153,6 @@
                         android:layout_marginLeft="5dp"
                         android:layout_marginRight="5dp"
                         android:paddingBottom="2dp"
-                                                android:layout_weight="0.3"
-                        
                         android:text="Tot Height" />
 
                 </LinearLayout>
@@ -186,7 +181,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginTop="5dp"
                 android:fillViewport="true"
-                android:layout_weight="10" >
+                android:layout_weight="16" >
             </ListView>
 
            
