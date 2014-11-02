@@ -242,8 +242,10 @@
         <item quantity="one">There is a notification for you</item>
         <item quantity="other">There are %d notifications for you</item>
     </plurals>
+    
     <!-- FBPickFriendActivity -->
-    <string name="pick_friends">Invite your friends</string>
+    <string name="pick_friends">Select friends to invite</string>
     <string name="invite_btn">Invite</string>
     <string name="no_invitable">No more friends to invite</string>  
+    <string name="all_friends">All friends</string>
 </resources>

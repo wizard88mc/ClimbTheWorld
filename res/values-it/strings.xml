@@ -249,8 +249,10 @@
     </plurals>
     
     <!-- FBPickFriendActivity -->
-    <string name="pick_friends">Invita i tuoi amici</string>
+    <string name="pick_friends">Seleziona gli amici che vuoi invitare</string>
     <string name="invite_btn">Invita</string>
     <string name="no_invitable">Nessun amico da invitare</string>
+    <string name="all_friends">Tutti i tuoi amici</string>
+    
     
 </resources>
