@@ -1005,14 +1005,18 @@ public class ClimbApplication extends Application{
 		/**
 		 * Calculates the number of steps to be done in a microgoal
 		 * @param remainingSteps remaining steps to do to complete a given climbing
-		 * @param d average daily steps of a given user
+		 * @param current_mean average daily steps of a given user
 		 * @return number of steps to be done in order to complete a microgoal
 		 */
-		public static int generateStepsToDo(int remainingSteps, double d, int difficulty){
-			if(d >= remainingSteps)
+		public static int generateStepsToDo(int remainingSteps, double current_mean, int difficulty){
+			if(current_mean >= remainingSteps)
 				return remainingSteps;
 			else{
-				return (int) (roundUpMultiple10(d))*difficulty;
+				int stepsToDo = (int) (roundUpMultiple10(current_mean))*difficulty;
+				if(stepsToDo >= remainingSteps)
+					return remainingSteps;
+				else
+					return stepsToDo;	
 			}
 		}
 		

@@ -248,4 +248,12 @@
     <string name="invite_btn">Invite</string>
     <string name="no_invitable">No more friends to invite</string>  
     <string name="all_friends">All friends</string>
+    
+    <!-- dialog lock level -->
+    <string name="lock_level_msg">You can climb this building at level %d</string>
+    <string name="lock_level_title">Locked building</string>
+    
+    <!-- invalid input dialog -->
+    <string name="invalid_input_msg">You cannot set the profile name empty</string>
+    <string name="invalid_input_title">Invalid input</string>
 </resources>

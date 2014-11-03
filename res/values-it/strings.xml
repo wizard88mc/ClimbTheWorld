@@ -254,5 +254,12 @@
     <string name="no_invitable">Nessun amico da invitare</string>
     <string name="all_friends">Tutti i tuoi amici</string>
     
+    <!-- dialog lock level -->
+    <string name="lock_level_msg">Potrai scalare questo edificio al livello %d</string>
+    <string name="lock_level_title">Edificio bloccato</string>
+    
+    <!-- invalid input dialog -->
+    <string name="invalid_input_msg">Non puoi lasciare il nome del profilo vuoto</string>
+    <string name="invalid_input_title">Nome profilo non valido</string>
     
 </resources>

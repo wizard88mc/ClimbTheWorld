@@ -1,36 +1,11 @@
 package org.unipd.nbeghin.climbtheworld;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.SimpleTimeZone;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.unipd.nbeghin.climbtheworld.models.Building;
-import org.unipd.nbeghin.climbtheworld.models.Climbing;
-import org.unipd.nbeghin.climbtheworld.models.Collaboration;
-import org.unipd.nbeghin.climbtheworld.models.Competition;
-import org.unipd.nbeghin.climbtheworld.models.Group;
-import org.unipd.nbeghin.climbtheworld.models.Microgoal;
-import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
-import org.unipd.nbeghin.climbtheworld.models.User;
-import org.unipd.nbeghin.climbtheworld.models.UserBadge;
-import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
-import org.unipd.nbeghin.climbtheworld.util.ModelsUtil;
-
 import android.annotation.TargetApi;
-import android.app.ProgressDialog;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -42,7 +17,6 @@ import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.facebook.Request;
 import com.facebook.Response;
@@ -51,13 +25,6 @@ import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.ProfilePictureView;
-import com.parse.FindCallback;
-import com.parse.LogInCallback;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
-import com.parse.SignUpCallback;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -78,6 +45,7 @@ public class SettingsActivity extends PreferenceActivity {
 	 * shown on tablets.
 	 */
 	private static final boolean ALWAYS_SIMPLE_PREFS = true;
+	private static SettingsActivity current_activity;
 	private UiLifecycleHelper uiHelper;
 	private Session.StatusCallback callback = new Session.StatusCallback() {
 		@Override
@@ -85,6 +53,10 @@ public class SettingsActivity extends PreferenceActivity {
 			onSessionStateChange(session, state, exception);
 		}
 	};
+	
+	protected static Activity getThisActivity(){
+		return current_activity;
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +65,8 @@ public class SettingsActivity extends PreferenceActivity {
 		uiHelper = new UiLifecycleHelper(this, callback);
 		uiHelper.onCreate(savedInstanceState);
 
+		current_activity = SettingsActivity.this;
+		
 		Session session = Session.getActiveSession();
 		if (session != null && session.isOpened()) {
 			updateFacebookSession(session, session.getState());
@@ -240,7 +214,7 @@ public class SettingsActivity extends PreferenceActivity {
 	 * A preference value change listener that updates the preference's summary
 	 * to reflect its new value.
 	 */
-	private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
+	public static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
 		@Override
 		public boolean onPreferenceChange(Preference preference, Object value) {
 			String stringValue = value.toString();
@@ -254,7 +228,15 @@ public class SettingsActivity extends PreferenceActivity {
 			} else {
 				// For all other preferences, set the summary to the value's
 				// simple string representation.
-				preference.setSummary(stringValue);
+				if(stringValue.isEmpty()){
+					 final AlertDialog.Builder builder = new AlertDialog.Builder(current_activity);
+	                    builder.setTitle(R.string.invalid_input_title);
+	                    builder.setMessage(R.string.invalid_input_msg);
+	                    builder.setPositiveButton(android.R.string.ok, null);
+	                    builder.show();
+	                    return false;
+				}else
+					preference.setSummary(stringValue);
 			}
 			return true;
 		}

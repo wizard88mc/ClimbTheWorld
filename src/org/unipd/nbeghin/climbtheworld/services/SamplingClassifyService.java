@@ -37,7 +37,7 @@ public class SamplingClassifyService extends IntentService {
 	public void onCreate() {
 		try {
 			notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-			showNotification(); // show notification about background classifier
+			//showNotification(); // show notification about background classifier
 			mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 			Log.i(MainActivity.AppName, "Sensor manager instanced");
 			mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);

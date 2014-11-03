@@ -76,7 +76,13 @@
         android:layout_height="wrap_content"
         android:background="@drawable/selectable_background_cardbank"
         android:gravity="fill_vertical"
+        android:orientation="horizontal"
         android:padding="4dp" >
+        
+        <RelativeLayout 
+  	android:layout_width="wrap_content"
+  	android:layout_height="wrap_content"
+  	>
 
         <ImageView
             android:id="@+id/photo"
@@ -86,7 +92,16 @@
             android:baselineAlignBottom="true"
             android:scaleType="centerCrop"
             android:src="@drawable/url1" />
-
+        <ImageView
+            android:id="@+id/photoLock"
+            android:layout_width="113dp"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:baselineAlignBottom="true"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_action_secure"
+            android:background="@color/black_overlay" />
+</RelativeLayout>
         <TextView
             android:id="@+id/description"
             style="@style/CardText"

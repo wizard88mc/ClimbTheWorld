@@ -1324,6 +1324,10 @@ public class ClimbActivity extends ActionBarActivity {
 	}
 
 	private void createMicrogoal() {
+		if(difficulty == 0){
+			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+			difficulty = Integer.parseInt(settings.getString("difficulty", "10"));
+		}
 		int tot_steps = ClimbApplication.generateStepsToDo(climbing.getRemaining_steps(), currentUser.getMean(), difficulty);
 		int story_id;
 		try {
@@ -2066,6 +2070,8 @@ public class ClimbActivity extends ActionBarActivity {
 			for (int i = 0; i < menu.size(); i++)
 				menu.getItem(i).setVisible(false);
 		}
+		if(mode.equals(GameModeType.SOLO_CLIMB))
+			menu.getItem(0).setVisible(false); //hide update
 
 		return true;
 	}

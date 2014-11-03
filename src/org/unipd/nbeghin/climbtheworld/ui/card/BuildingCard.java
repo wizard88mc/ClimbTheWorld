@@ -93,6 +93,7 @@ public class BuildingCard extends Card {
 	Button teamVsTeamButton;
 	ImageButton microGoalBtn;
 	ProgressBar progressBar;
+	ImageView photo;
 
 	public BuildingCard(BuildingText building, Activity activity) {
 		super(building.getBuilding().getName());
@@ -141,10 +142,12 @@ public class BuildingCard extends Card {
 		teamVsTeamButton = ((Button) view.findViewById(R.id.teamVsTeamButton));
 		microGoalBtn = ((ImageButton) view.findViewById(R.id.microGoalBtn));
 		progressBar = ((ProgressBar) view.findViewById(R.id.progressBarClimb));
+		photo = ((ImageView) view.findViewById(R.id.photo));
 		((TextView) view.findViewById(R.id.title)).setText(buildingText.getName());
 		int imageId = ClimbApplication.getBuildingImageResource(building);
 		if (imageId > 0)
-			((ImageView) view.findViewById(R.id.photo)).setImageResource(imageId);
+			photo.setImageResource(imageId);
+		LayoutParams paramsPhoto = (LayoutParams) photo.getLayoutParams();
 		((TextView) view.findViewById(R.id.buildingStat)).setMinLines(2);
 		((TextView) view.findViewById(R.id.buildingStat)).setText(building.getSteps() + " " + ClimbApplication.getContext().getString(R.string.steps) + building.getHeight() + "m)" + "\n" + ClimbApplication.getContext().getString(R.string.reward, ClimbApplication.XPforStep(building.getSteps())));
 		((TextView) view.findViewById(R.id.location)).setText(buildingText.getLocation());
@@ -152,11 +155,19 @@ public class BuildingCard extends Card {
 		if (building.getBase_level() > ClimbApplication.getUserById(pref.getInt("local_id", -1)).getLevel()) {
 			((TextView) view.findViewById(R.id.description)).setText(ClimbApplication.getContext().getString(R.string.unlock_at_level, building.getBase_level()));
 			isUnlocked = false;
+			ImageView photoLock = ((ImageView) view.findViewById(R.id.photoLock));
+			photoLock.setVisibility(View.VISIBLE);
+			photoLock.setLayoutParams(paramsPhoto);
+			socialClimbButton.setVisibility(View.INVISIBLE);
+			socialChallengeButton.setVisibility(View.INVISIBLE);
+			teamVsTeamButton.setVisibility(View.INVISIBLE);
+			microGoalBtn.setVisibility(View.INVISIBLE);
 		} else {
 			((TextView) view.findViewById(R.id.description)).setText(buildingText.getDescription());
+			((ImageView) view.findViewById(R.id.photoLock)).setVisibility(View.INVISIBLE);
 			isUnlocked = true;
 			climbingStatus = (TextView) view.findViewById(R.id.climbingStatus);
-
+			
 			List<Climbing> climbs = ClimbApplication.getClimbingListForBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
 			if (climbs.size() == 0)
 				climbing = null;

@@ -1,6 +1,5 @@
 package org.unipd.nbeghin.climbtheworld.fragments;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -11,9 +10,10 @@ import org.unipd.nbeghin.climbtheworld.TeamPreparationActivity;
 import org.unipd.nbeghin.climbtheworld.comparator.BuildingTextComparator;
 import org.unipd.nbeghin.climbtheworld.models.BuildingText;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
-import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.ui.card.BuildingCard;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -24,7 +24,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fima.cardsui.views.CardUI;
@@ -37,7 +36,6 @@ public class BuildingsFragment extends Fragment {
 	public CardUI buildingCards;
 	final SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
 
-	
 	private class LoadBuildingsTask extends AsyncTask<Void, Void, Void> {
 		@Override
 		protected Void doInBackground(Void... unused) {
@@ -51,46 +49,69 @@ public class BuildingsFragment extends Fragment {
 		Collections.sort(ClimbApplication.buildingTexts, new BuildingTextComparator());
 		for (final BuildingText building : ClimbApplication.buildingTexts) {
 			BuildingCard buildingCard = new BuildingCard(building, getActivity());
-			if(building.getBuilding().getBase_level() <= ClimbApplication.getUserById(pref.getInt("local_id", -1)).getLevel() ){
+			if (building.getBuilding().getBase_level() <= ClimbApplication.getUserById(pref.getInt("local_id", -1)).getLevel()) {
 
-			buildingCard.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					final SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
-					if (pref.getInt("local_id", -1) != -1) {
-						List<Climbing> climbs = ClimbApplication.getClimbingListForBuildingAndUser(building.getBuilding().get_id(), pref.getInt("local_id", -1));
-						if ((climbs.size() == 2 && (climbs.get(0).getGame_mode() == 3 || climbs.get(1).getGame_mode() == 3)) || (climbs.size() == 1 && climbs.get(0).getGame_mode() == 3)) {
-							Climbing climb = climbs.get(0).getGame_mode() == 3 ? climbs.get(0) : climbs.get(1);
-							if (climb.getId_mode() == null || climb.getId_mode().equals(""))
-								Toast.makeText(getActivity(), "Connect to save data online before playing", Toast.LENGTH_SHORT).show();
-							else {
+				buildingCard.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						final SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
+						if (pref.getInt("local_id", -1) != -1) {
+							List<Climbing> climbs = ClimbApplication.getClimbingListForBuildingAndUser(building.getBuilding().get_id(), pref.getInt("local_id", -1));
+							if ((climbs.size() == 2 && (climbs.get(0).getGame_mode() == 3 || climbs.get(1).getGame_mode() == 3)) || (climbs.size() == 1 && climbs.get(0).getGame_mode() == 3)) {
+								Climbing climb = climbs.get(0).getGame_mode() == 3 ? climbs.get(0) : climbs.get(1);
+								if (climb.getId_mode() == null || climb.getId_mode().equals(""))
+									Toast.makeText(getActivity(), "Connect to save data online before playing", Toast.LENGTH_SHORT).show();
+								else {
+									Log.i("Building Fragment", "Building id clicked: " + building.getBuilding().get_id());
+									Intent intent = new Intent(getActivity(), TeamPreparationActivity.class);
+									intent.putExtra(ClimbApplication.counter_mode, false);
+									intent.putExtra(ClimbApplication.building_text_intent_object, building.getBuilding().get_id());
+									intent.setAction("back");
+									getActivity().startActivity(intent);
+								}
+							} else {
 								Log.i("Building Fragment", "Building id clicked: " + building.getBuilding().get_id());
-								Intent intent = new Intent(getActivity(), TeamPreparationActivity.class);
-								intent.putExtra(ClimbApplication.counter_mode, false);
-								intent.putExtra(ClimbApplication.building_text_intent_object, building.getBuilding().get_id());
+								Intent intent = new Intent(getActivity(), ClimbActivity.class);
 								intent.setAction("back");
-								getActivity().startActivity(intent);
+								intent.putExtra(ClimbApplication.counter_mode, false);
+								intent.putExtra(ClimbApplication.building_text_intent_object, building.get_id());
+								startActivity(intent);
 							}
+
 						} else {
 							Log.i("Building Fragment", "Building id clicked: " + building.getBuilding().get_id());
 							Intent intent = new Intent(getActivity(), ClimbActivity.class);
-							intent.setAction("back");
 							intent.putExtra(ClimbApplication.counter_mode, false);
 							intent.putExtra(ClimbApplication.building_text_intent_object, building.get_id());
+							intent.setAction("back");
 							startActivity(intent);
 						}
 
-					} else {
-						Log.i("Building Fragment", "Building id clicked: " + building.getBuilding().get_id());
-						Intent intent = new Intent(getActivity(), ClimbActivity.class);
-						intent.putExtra(ClimbApplication.counter_mode, false);
-						intent.putExtra(ClimbApplication.building_text_intent_object, building.get_id());
-						intent.setAction("back");
-						startActivity(intent);
 					}
+				});
+			} else {
 
-				}
-			});
+				buildingCard.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						// 1. Instantiate an AlertDialog.Builder with its
+						// constructor
+						AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+						// 2. Chain together various setter methods to set the
+						// dialog characteristics
+						builder.setMessage(getString(R.string.lock_level_msg, building.getBuilding().getBase_level()))
+							.setTitle(R.string.lock_level_title)
+							.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int id) {
+								}
+							});
+
+						// 3. Get the AlertDialog from create()
+						AlertDialog dialog = builder.create();
+						dialog.show();
+					}
+				});
 			}
 			buildingCards.addCard(buildingCard);
 		}
