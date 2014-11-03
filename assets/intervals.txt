@@ -1,8 +1,7 @@
 #FORMATO FILE: in una riga viene definito un intervallo come segue: orario start (HH:mm:ss); orario stop (HH:mm:ss); stato iniziale per ogni giorno della settimana (0/1);
 #Gli intervalli devono essere ordinati per orario crescente. Un intervallo valido (orario start < orario stop) viene inserito solo se il suo inizio viene dopo la fine del precedente intervallo valido. Test eseguiti con la settimana formata da 2 giorni.
-00:01:00; 00:01:50; 0:1;
-00:01:51; 0:02:00; 1:0;
-00:5:00; 00:5:50; 0:1;
+00:01:00; 00:5:20; 0:1;
+00:10:00; 00:11:0; 0:1;
 08:45:00; 8:50:00; 0:0;
 08:50:01; 8:55:00; 0:0;
 08:55:1; 9:00:00; 0:1;
