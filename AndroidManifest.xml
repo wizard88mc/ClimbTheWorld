@@ -141,7 +141,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.unipd.nbeghin.climbtheworld.MainActivity" />
         </activity>
-        
+       
     </application>
 
 </manifest>

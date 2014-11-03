@@ -17,6 +17,14 @@
    >
     </item>
     
+    <item
+        android:id="@+id/itemHelp"
+        android:icon="@drawable/ic_action_help"
+        android:title="@string/microGoal"
+        climbtheworld:showAsAction="ifRoom"
+   >
+    </item>
+    
    
     
      

@@ -1501,6 +1501,9 @@ public class ClimbActivity extends ActionBarActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+		case R.id.itemHelp:
+			new HelpDialogActivity(this, R.style.Transparent, mode, climbing.getPercentage()).show();
+			return true;
 		case R.id.itemMicroGoal:
 			onMicroGoalClicked();
 			return true;
@@ -2067,7 +2070,7 @@ public class ClimbActivity extends ActionBarActivity {
 		// We should save our menu so we can use it to reset our updater.
 		mymenu = menu;
 		if (isCounterMode || climbing.getPercentage() >= 1.00) {
-			for (int i = 0; i < menu.size(); i++)
+			for (int i = 0; i < menu.size() - 1; i++)
 				menu.getItem(i).setVisible(false);
 		}
 		if(mode.equals(GameModeType.SOLO_CLIMB))
