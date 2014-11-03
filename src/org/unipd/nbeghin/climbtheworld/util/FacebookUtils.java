@@ -59,6 +59,11 @@ public class FacebookUtils {
 	    return false;
 	}
 	
+	public static boolean isLoggedIn() {
+	    Session session = Session.getActiveSession();
+	    return (session != null && session.isOpened());
+	}
+	
 	protected boolean hasPublishPermission() {
 		Session session = Session.getActiveSession();
 		return session != null && session.getPermissions().contains("publish_actions");

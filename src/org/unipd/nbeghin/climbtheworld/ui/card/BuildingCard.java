@@ -153,6 +153,7 @@ public class BuildingCard extends Card {
 		((TextView) view.findViewById(R.id.location)).setText(buildingText.getLocation());
 
 		if (building.getBase_level() > ClimbApplication.getUserById(pref.getInt("local_id", -1)).getLevel()) {
+			//locked building
 			((TextView) view.findViewById(R.id.description)).setText(ClimbApplication.getContext().getString(R.string.unlock_at_level, building.getBase_level()));
 			isUnlocked = false;
 			ImageView photoLock = ((ImageView) view.findViewById(R.id.photoLock));
@@ -163,6 +164,7 @@ public class BuildingCard extends Card {
 			teamVsTeamButton.setVisibility(View.INVISIBLE);
 			microGoalBtn.setVisibility(View.INVISIBLE);
 		} else {
+			//unlocked building
 			((TextView) view.findViewById(R.id.description)).setText(buildingText.getDescription());
 			((ImageView) view.findViewById(R.id.photoLock)).setVisibility(View.INVISIBLE);
 			isUnlocked = true;
@@ -209,6 +211,9 @@ public class BuildingCard extends Card {
 			}
 
 			updateStatus();
+			
+			if(FacebookUtils.isLoggedIn()){
+			
 			if (climbing != null && climbing.getGame_mode() == 0) {
 				if (climbing.getPercentage() >= 1.00) {
 					//socialClimbButton.setEnabled(false);
@@ -234,7 +239,11 @@ public class BuildingCard extends Card {
 				socialChallengeButton.setEnabled(true);
 				teamVsTeamButton.setEnabled(true);
 			}
-
+			}else{
+				socialChallengeButton.setVisibility(View.INVISIBLE);
+				socialClimbButton.setVisibility(View.INVISIBLE);
+				teamVsTeamButton.setVisibility(View.INVISIBLE);
+			}
 			microGoalBtn.setOnClickListener(new OnClickListener() {
 
 				@Override

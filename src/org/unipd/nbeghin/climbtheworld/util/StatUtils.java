@@ -2,7 +2,9 @@ package org.unipd.nbeghin.climbtheworld.util;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
@@ -26,17 +28,20 @@ public class StatUtils {
 	 * @return boolean
 	 */
 	public static boolean climbedYesterday(int climbing_id) {
-//		try {
-			return true; // for testing purposes
-//			String max_modified = execQuery("SELECT MAX(modified) FROM climbings WHERE id!="+climbing_id);
-//			long diff = new Date().getTime() - Long.parseLong(max_modified);
-//			Log.i(MainActivity.AppName, "Last climbing diff: "+diff);
-//			return diff <= 86400000;
-//		} catch (SQLException e) {
-//			return false;
-//		} catch (NoStatFound e) {
-//			return false;
-//		}
+		try {
+			//return true; // for testing purposes
+			String max_modified = execQuery("SELECT MAX(modified) FROM climbings WHERE _id!="+climbing_id);
+			long max_mod = 0;
+			if(max_modified != null)
+				max_mod = Long.parseLong(max_modified);
+			long diff = new Date().getTime() - max_mod;//Long.parseLong(max_modified);
+			Log.i(MainActivity.AppName, "Last climbing diff: "+ TimeUnit.MILLISECONDS.toDays(diff) + " " + (diff <= 86400000));
+			return diff <= 86400000;
+		} catch (SQLException e) {
+			return false;
+		} catch (NoStatFound e) {
+			return false;
+		}
 	}
 
 	public static List<Stat> calculateStats() {

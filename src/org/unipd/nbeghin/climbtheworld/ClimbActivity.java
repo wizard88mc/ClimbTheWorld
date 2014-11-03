@@ -259,7 +259,7 @@ public class ClimbActivity extends ActionBarActivity {
 			}
 
 			if (finalClassification > 0) {
-				if (climbedYesterday && percentage > 0.25f && percentage < 0.50f && used_bonus == false) { // bonus
+				if (climbedYesterday && percentage > 0.25f && percentage < 0.50f && used_bonus == false && building.get_id() != 6) { // bonus
 																											// at
 																											// 25%
 					apply_percentage_bonus();
