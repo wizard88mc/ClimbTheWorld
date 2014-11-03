@@ -808,7 +808,8 @@ public class AlarmUtils {
 			//si recupera dalla lista il relativo alarm di stop 
 			//(c'è sicuramente visto che un alarm di start deve essere seguito
 			//dal suo alarm di stop)
-			Alarm a_stop = alarms.get(id_stop); 
+			Alarm a_stop = alarms.get(id_start);//'id_start' perché indice_lista = alarm_id-1 
+			System.out.println("Alarm stop: id: "+a_stop.get_id()+" index: "+id_start);
 			a_stop.setRepeatingDay(current_day_index, true);
 			a_stop.setStepsInterval(current_day_index, false);
 			//la valutazione dell'intervallo verrà aggiornata quando lo si esplorerà
