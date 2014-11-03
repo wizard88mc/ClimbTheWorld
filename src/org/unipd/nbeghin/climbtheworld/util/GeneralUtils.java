@@ -113,7 +113,7 @@ public class GeneralUtils {
      * @param context context of the application.
      * @param prefs reference to android shared preferences. 
      */
-    public static void initializeAlarmsAndPrefs(Context context, SharedPreferences prefs) {
+    public static void initializeAlarmsAndPrefs(final Context context, final SharedPreferences prefs) {
     	
     	Editor editor = prefs.edit();    	
     	editor.putBoolean("firstRun", false); // si memorizza che non è il primo run dell'app
@@ -160,22 +160,24 @@ public class GeneralUtils {
     	//utile per scrivere il LOG
     	editor.putBoolean("next_alarm_mutated", false).commit();
     	////////////////////////////
-    	
-    	
+    	    	
     	LogUtils.writeLogFile(context, "ALGORITMO\n");
-    	
-    	
-    	
+    	    	
     	//si fa il setup del db per gli alarm
     	AlarmUtils.setupAlarmsDB(context); 
     	//si creano gli alarm
-		AlarmUtils.createAlarms(context);  
-    	//readIntervalsFromFile(context);
+		//AlarmUtils.createAlarms(context);  
+    	readIntervalsFromFile(context);
 				
-		LogUtils.offIntervalsTracking(context, prefs, prefs.getInt("artificialDayIndex", -1), -1);
-		
-    	//si imposta e si lancia il prossimo alarm
-    	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context),true,-1); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,1))    
+    	Thread thread = new Thread(){
+    		@Override
+    		public void run() {
+    			LogUtils.offIntervalsTracking(context, prefs, -1);    			
+    	    	//si imposta e si lancia il prossimo alarm
+    	    	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context),true,-1); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,1))    
+    		}
+    	};
+    	thread.start();
     }   
     
     

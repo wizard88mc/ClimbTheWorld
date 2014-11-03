@@ -15,6 +15,7 @@ import org.unipd.nbeghin.climbtheworld.models.Alarm;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.text.Spanned;
 import android.text.SpannedString;
 import android.util.Log;
@@ -78,14 +79,12 @@ public class LogUtils {
     
     
     //
-    public static void offIntervalsTracking(Context context, SharedPreferences pref, int lastDayIndex, int alarm_id){
+    public static void offIntervalsTracking(Context context, SharedPreferences pref, int alarm_id){
     	
     	//si considerano gli intervalli che non sono stati valutati durante il
 		//periodo di tempo in cui il device era spento (utile per tracciarli
 		//nel file di output e, se si vuole, per cambiare la loro valutazione) 
 
-		//si calcola il numero di giorni passati dallo spegnimento
-		//se 0 si è nello stesso giorno, se 1 nel giorno successivo, e così via
 		    	
     	Calendar time_now = Calendar.getInstance();
 		time_now.set(Calendar.HOUR_OF_DAY, 0);
@@ -99,17 +98,22 @@ public class LogUtils {
 		int dd=0; int mm=0; int yyyy=0;
 		String not_evaluated_cause="";
 		
+		
+		int lastDayIndex=0;
+	
     	//se ancora non è stato impostato alcun alarm, significa che questo metodo è
 		//chiamato al primo avvio per tracciare gli intervalli che hanno orario di inizio
 		//già passato
-    	if(alarm_id==-1){    		
-    		alarm_id=2;    		
+    	if(alarm_id==-1){   
+    		lastDayIndex=pref.getInt("artificialDayIndex", 0);//normalmente, indice dato dalla data corrente
+    		alarm_id=1;    		
     		dd=time_before.get(Calendar.DATE);
     		mm=time_before.get(Calendar.MONTH);
     		yyyy=time_before.get(Calendar.YEAR);  
     		not_evaluated_cause="Non considerato perché algoritmo non ancora configurato";
     	}
-    	else{
+    	else{    	
+    		lastDayIndex=pref.getInt("alarm_artificial_day_index", 0); //normalmente, indice ottenuto dalla data dell'alarm
     		dd=pref.getInt("alarm_date", -1);
     		mm=pref.getInt("alarm_month", -1);
     		yyyy=pref.getInt("alarm_year", -1);		
@@ -123,14 +127,15 @@ public class LogUtils {
     	Alarm current_next_alarm = AlarmUtils.getAlarm(context, alarm_id);
     	
     	
-		//si calcola il numero di giorni passati dallo spegnimento
-		//se 0 si è nello stesso giorno, se 1 nel giorno successivo, e così via
+		//si calcola il numero di giorni passati dalla data dell'ultimo alarm settato
+		//se 0 l'ultimo alarm settato è impostato in questo stesso giorno, se 1 nel giorno
+    	//successivo, e così via
 		double time_diff = time_now.getTimeInMillis() - time_before.getTimeInMillis();					
 		time_diff = time_diff / (24 * 60 * 60 * 1000); //hours in a day, minutes in a hour,
         												//seconds in a minute, millis in a second
 		int days_diff = (int) Math.round(time_diff);
 		
-		Log.d(MainActivity.AppName, "Intervals tracking - device spento, day diff: " + days_diff);
+		Log.d(MainActivity.AppName, "Intervals tracking - device spento, day diff since next alarm: " + days_diff);
 		
 		List<Alarm> alarms_lst = AlarmUtils.getAllAlarms(context);
 		
@@ -153,11 +158,10 @@ public class LogUtils {
 		time_before.set(Calendar.HOUR_OF_DAY, current_next_alarm.get_hour());
 		time_before.set(Calendar.MINUTE, current_next_alarm.get_minute());
 		time_before.set(Calendar.SECOND, current_next_alarm.get_minute());
-				
+		
 		//se si tratta del primo intervallo (id_start=1 e id_stop=2) si è in
     	//presenza di un nuovo giorno; si scrive il suo indice nel file di output
-    	if(alarm_id==2 && time_before.before(time_now)){
-    		//time_before.get(Calendar.DAY_OF_WEEK)-1;
+    	if(alarm_id==1 && time_before.before(time_now)){       		
     		Log.d(MainActivity.AppName, "Intervals tracking - day index: " + lastDayIndex);    		
     		mm=mm+1;
     		writeLogFile(context,"Indice giorno: "+lastDayIndex+" - "+dd+"/"+mm+"/"+yyyy);
@@ -177,7 +181,8 @@ public class LogUtils {
     	}    	
     	
 		boolean stop=false; 
-		//prima si considerano gli intervalli saltati nel giorno corrente
+		//prima si considerano gli intervalli saltati nel giorno in cui era stato
+		//impostato l'alarm (days_diff=0)
 		for(int i=alarm_id; i<=alarms_lst.size() && !stop; i++){
 			
 			Alarm e = alarms_lst.get(i-1);						
@@ -236,7 +241,7 @@ public class LogUtils {
 			
 			/////////
 			//PER TEST ALGORITMO: si inizializza l'indice artificiale 
-			int ii = lastDayIndex; //time_before.get(Calendar.DAY_OF_WEEK)-1
+			int ii = lastDayIndex; 
 			
 			//indice per scorrere il numero di giorni di differenza
 			int day_i = 0;
