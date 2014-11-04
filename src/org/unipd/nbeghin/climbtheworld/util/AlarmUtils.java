@@ -8,6 +8,7 @@ import java.util.Random;
 
 import org.unipd.nbeghin.climbtheworld.ClimbTheWorldApp;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
+import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionIntentService;
 import org.unipd.nbeghin.climbtheworld.comparator.AlarmComparator;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.models.Alarm;
@@ -258,7 +259,7 @@ public class AlarmUtils {
      * @param context context of the application.
      * @param alarms list of all alarms saved in the database.
      */
-	public static void setNextAlarm(Context context, List<Alarm> alarms, boolean takeAllAlarms, boolean onBoot, int current_alarm_id){
+	public static void setNextAlarm(Context context, List<Alarm> alarms, boolean takeAllAlarms, boolean prevAlarmNotAvailable, int current_alarm_id){
 				
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		
@@ -734,11 +735,16 @@ public class AlarmUtils {
 		editor.commit();    	    	
 		
 		
-		//se questo metodo è stato chiamato dopo il completamento del boot e se l'alarm
-		//trovato è di stop allora significa che si è all'interno di un intervallo attivo:
-		//si fa ripartire il classificatore Google/scalini
-		if(onBoot && !nextAlarm.get_actionType()){
+		//prevAlarmNotAvailable==true: questo metodo è stato chiamato dopo il completamento
+		//del boot perché l'alarm precedentemente impostato non è più valido; dopo aver
+		//trovato un nuovo alarm, se quest'ultimo è di stop significa che si è all'interno di
+		//un nuovo intervallo attivo: si fa ripartire il classificatore Google/scalini
+		if(prevAlarmNotAvailable && !nextAlarm.get_actionType()){
 						 
+			//si resettano i valori relativi alle attività/scalini rilevati in precedenza			
+			ActivityRecognitionIntentService.clearValuesCount(prefs);
+			StairsClassifierReceiver.clearStepsNumber(prefs);			
+			
 			//è un "intervallo di esplorazione"
 			if(!nextAlarm.isStepsInterval(artificialIndex)){ //normalmente alarmTime.get(Calendar.DAY_OF_WEEK))-1
 					
