@@ -1,6 +1,5 @@
 package org.unipd.nbeghin.climbtheworld;
 
-import java.security.InvalidAlgorithmParameterException;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -8,11 +7,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.IllegalFormatException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.SimpleTimeZone;
 
@@ -65,8 +62,9 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.KeyEvent;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -410,7 +408,12 @@ public class ClimbActivity extends ActionBarActivity {
 		me.setXP(me.getXP() + reward);
 		ClimbApplication.userDao.update(me);
 		Toast.makeText(this, getString(R.string.microgoal_terminated, reward), Toast.LENGTH_SHORT).show();
-		deleteMicrogoalInParse();
+		if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty"))
+			deleteMicrogoalInParse();
+		else{
+			ClimbApplication.microgoalDao.delete(microgoal);
+			createMicrogoal();
+		}
 	}
 
 	/**
@@ -667,52 +670,52 @@ public class ClimbActivity extends ActionBarActivity {
 		final View contentView = findViewById(R.id.lblReadyToClimb);
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
-		mSystemUiHider = SystemUiHider.getInstance(this, contentView, HIDER_FLAGS);
-		mSystemUiHider.setup();
-		mSystemUiHider.setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
-			// Cached values.
-			int mControlsHeight;
-			int mShortAnimTime;
-
-			@Override
-			@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-			public void onVisibilityChange(boolean visible) {
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-					// If the ViewPropertyAnimator API is available
-					// (Honeycomb MR2 and later), use it to animate the
-					// in-layout UI controls at the bottom of the
-					// screen.
-					if (mControlsHeight == 0) {
-						mControlsHeight = controlsView.getHeight();
-					}
-					if (mShortAnimTime == 0) {
-						mShortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-					}
-					controlsView.animate().translationY(visible ? 0 : mControlsHeight).setDuration(mShortAnimTime);
-				} else {
-					// If the ViewPropertyAnimator APIs aren't
-					// available, simply show or hide the in-layout UI
-					// controls.
-					controlsView.setVisibility(visible ? View.VISIBLE : View.GONE);
-				}
-				if (visible && AUTO_HIDE) {
-					// Schedule a hide().
-					delayedHide(AUTO_HIDE_DELAY_MILLIS);
-				}
-			}
-		});
-		// Set up the user interaction to manually show or hide the system UI.
-//		contentView.setOnClickListener(new View.OnClickListener() {
+//		mSystemUiHider = SystemUiHider.getInstance(this, contentView, HIDER_FLAGS);
+//		mSystemUiHider.setup();
+//		mSystemUiHider.setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
+//			// Cached values.
+//			int mControlsHeight;
+//			int mShortAnimTime;
+//
 //			@Override
-//			public void onClick(View view) {
-//				if (TOGGLE_ON_CLICK) {
-//					mSystemUiHider.toggle();
+//			@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+//			public void onVisibilityChange(boolean visible) {
+//				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+//					// If the ViewPropertyAnimator API is available
+//					// (Honeycomb MR2 and later), use it to animate the
+//					// in-layout UI controls at the bottom of the
+//					// screen.
+//					if (mControlsHeight == 0) {
+//						mControlsHeight = controlsView.getHeight();
+//					}
+//					if (mShortAnimTime == 0) {
+//						mShortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+//					}
+//					controlsView.animate().translationY(visible ? 0 : mControlsHeight).setDuration(mShortAnimTime);
 //				} else {
-//					mSystemUiHider.show();
+//					// If the ViewPropertyAnimator APIs aren't
+//					// available, simply show or hide the in-layout UI
+//					// controls.
+//					controlsView.setVisibility(visible ? View.VISIBLE : View.GONE);
+//				}
+//				if (visible && AUTO_HIDE) {
+//					// Schedule a hide().
+//					delayedHide(AUTO_HIDE_DELAY_MILLIS);
 //				}
 //			}
 //		});
-		mSystemUiHider.show();
+//		// Set up the user interaction to manually show or hide the system UI.
+////		contentView.setOnClickListener(new View.OnClickListener() {
+////			@Override
+////			public void onClick(View view) {
+////				if (TOGGLE_ON_CLICK) {
+////					mSystemUiHider.toggle();
+////				} else {
+////					mSystemUiHider.show();
+////				}
+////			}
+////		});
+//		mSystemUiHider.show();
 		// Upon interacting with UI controls, delay any scheduled hide()
 		// operations to prevent the jarring behavior of controls going away
 		// while interacting with the UI.
@@ -1404,7 +1407,13 @@ public class ClimbActivity extends ActionBarActivity {
 
 			ClimbApplication.climbingDao.create(climbing);
 
-			saveClimbingToParse(climbing);
+			if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty"))
+				saveClimbingToParse(climbing);
+			else{
+				climbing.setSaved(true);
+				ClimbApplication.climbingDao.update(climbing);
+			}
+				
 			Log.i(MainActivity.AppName, "Created new climbing #" + climbing.get_id());
 
 			createMicrogoal();
@@ -1502,7 +1511,20 @@ public class ClimbActivity extends ActionBarActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.itemHelp:
-			new HelpDialogActivity(this, R.style.Transparent, mode, climbing.getPercentage()).show();
+			// Get width in dp
+		    DisplayMetrics metrics = new DisplayMetrics();
+		    Display display = getWindowManager().getDefaultDisplay();
+		    display.getMetrics(metrics);
+		    float logicalDensity = metrics.density;
+		    int dp = (int) (display.getWidth() / logicalDensity + 0.5);
+		    int n_icons = 2;
+		    if (dp < 360) { // only two icons
+		    		n_icons = 2;
+		    } else {
+		    		n_icons = 3;
+		    }
+			boolean new_steps_done = new_steps != 0 ? true : false;
+			new HelpDialogActivity(this, R.style.Transparent, mode, percentage, new_steps_done, n_icons, samplingEnabled).show();
 			return true;
 		case R.id.itemMicroGoal:
 			onMicroGoalClicked();
@@ -1665,7 +1687,8 @@ public class ClimbActivity extends ActionBarActivity {
 
 		if (!isCounterMode) {
 			// update db
-			updateMicrogoalInParse();
+			if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty"))
+				updateMicrogoalInParse();
 			climbing.setModified(new Date().getTime()); // update climbing last
 														// edit
 														// date
@@ -1683,7 +1706,7 @@ public class ClimbActivity extends ActionBarActivity {
 					climbing.setGame_mode(0);
 					climbing.setId_mode("");
 					ClimbApplication.climbingDao.update(climbing); // save to db
-					if (!pref.getString("FBid", "none").equalsIgnoreCase("none"))
+					if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty"))
 						updateClimbingInParse(climbing, false);
 					break;
 				case SOCIAL_CHALLENGE:
@@ -1694,17 +1717,25 @@ public class ClimbActivity extends ActionBarActivity {
 					break;
 				case SOLO_CLIMB:
 					ClimbApplication.climbingDao.update(climbing); // save to db
-					if (!pref.getString("FBid", "none").equalsIgnoreCase("none"))
+					if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty") )
 						updateClimbingInParse(climbing, false);
+					else{
+						climbing.setSaved(true);
+						ClimbApplication.climbingDao.update(climbing);
+					}
 					break;
 				}
 				/*
 				 * climbing.setGame_mode(0); climbing.setId_mode("");
 				 */
 			} else {
-				ClimbApplication.climbingDao.update(climbing); // save to db
-				if (!pref.getString("FBid", "none").equalsIgnoreCase("none"))
+				if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty")){
+					ClimbApplication.climbingDao.update(climbing); // save to db
 					updateClimbingInParse(climbing, false);
+				}else{
+					climbing.setSaved(true);
+					ClimbApplication.climbingDao.update(climbing);
+				}
 			}
 
 			Log.i(MainActivity.AppName, "Updated climbing #" + climbing.get_id());
@@ -1722,7 +1753,8 @@ public class ClimbActivity extends ActionBarActivity {
 				saveTeamDuelData();
 
 			updatePoints(false);
-			saveBadges();
+			if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty"))
+				saveBadges();
 		}
 		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.av_play); // set
 		findViewById(R.id.progressBarClimbing).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_fade_out)); // hide
@@ -1961,7 +1993,7 @@ public class ClimbActivity extends ActionBarActivity {
 					climbing.setGame_mode(0);
 					climbing.setId_mode("");
 					ClimbApplication.climbingDao.update(climbing); // save to db
-					if (!pref.getString("FBid", "none").equalsIgnoreCase("none"))
+					if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty"))
 						updateClimbingInParse(climbing, false);
 					break;
 				case SOCIAL_CHALLENGE:
@@ -1971,19 +2003,27 @@ public class ClimbActivity extends ActionBarActivity {
 					updateTeams(false);
 					break;
 				case SOLO_CLIMB:
-					ClimbApplication.climbingDao.update(climbing); // save to db
-					if (!pref.getString("FBid", "none").equalsIgnoreCase("none"))
+					if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty")){
+						ClimbApplication.climbingDao.update(climbing); // save to db
 						updateClimbingInParse(climbing, false);
+					}else{
+						climbing.setSaved(true);
+						ClimbApplication.climbingDao.update(climbing); // save to db
+					}
 					break;
 				}
 				/*
 				 * climbing.setGame_mode(0); climbing.setId_mode("");
 				 */
 			} else {
-				ClimbApplication.climbingDao.update(climbing); // save to db
 				System.out.println(pref.getString("FBid", "none"));
-				if (!pref.getString("FBid", "none").equalsIgnoreCase("none"))
+				if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty")){
+					ClimbApplication.climbingDao.update(climbing); // save to db
 					updateClimbingInParse(climbing, false);
+				}else{
+					climbing.setSaved(true);
+					ClimbApplication.climbingDao.update(climbing); // save to db
+				}
 			}
 
 			Log.i(MainActivity.AppName, "Updated climbing #" + climbing.get_id());

@@ -190,7 +190,7 @@
     <string name="FB_notification">FB notifications</string>
     <string name="update">Update</string>
     <string name="microGoal">Current goal</string>
-    
+    <string name="help">Help</string>
     <!-- dialog micro goal -->
     <string name="accept">Ok, let\'s do it!</string>
     <string name="title_dialog">Goal</string>
@@ -256,4 +256,14 @@
     <!-- invalid input dialog -->
     <string name="invalid_input_msg">You cannot set the profile name empty</string>
     <string name="invalid_input_title">Invalid input</string>
+    
+    <!-- help -->
+    <string name="gallery_help">Here is your award: the gallery</string>
+    <string name="share_victory_help">Share this victory with your Facebook friends</string>
+    <string name="share_progress_help">Share your progress with your Facebook friends</string>
+    <string name="play_help">Tap play to start your climb</string>
+    <string name="pause_help">Tap pause to suspend your climb</string>
+    <string name="microgoal_help">Tap to see your current goal</string>
+    <string name="update_help">Tap to update your friends\' data</string>
+    <string name="tap_to_dismiss">Tap to dismiss</string>
 </resources>

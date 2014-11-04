@@ -193,6 +193,7 @@
     <string name="FB_notification">Notifiche FB</string>
     <string name="update">Aggiorna</string>
     <string name="microGoal">Goal corrente</string>
+    <string name="help">Aiuto</string>
     
     <!-- dialog micro goal -->
     <string name="accept">Ok, ci sto!</string>
@@ -261,5 +262,15 @@
     <!-- invalid input dialog -->
     <string name="invalid_input_msg">Non puoi lasciare il nome del profilo vuoto</string>
     <string name="invalid_input_title">Nome profilo non valido</string>
+    
+    <!-- help -->
+    <string name="gallery_help">Qui c\'è il tuo premio: la galleria</string>
+    <string name="share_victory_help">Condividi questa vittoria con i tuoi amici su Facebook</string>
+    <string name="share_progress_help">Condividi il tuo progresso con i tuoi amici su Facebook</string>
+    <string name="play_help">Premi play per iniziare la tua scalata</string>
+    <string name="pause_help">Premi pausa per mettere il pausa la tua scalata</string>
+    <string name="microgoal_help">Premi per vedere il tuo obiettivo attuale</string>
+    <string name="update_help">Premi per aggiornare i dati suoi tuoi amici</string>
+    <string name="tap_to_dismiss">Tocca per chiudere</string>
     
 </resources>
