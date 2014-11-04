@@ -166,15 +166,15 @@ public class GeneralUtils {
     	//si fa il setup del db per gli alarm
     	AlarmUtils.setupAlarmsDB(context); 
     	//si creano gli alarm
-		//AlarmUtils.createAlarms(context);  
-    	readIntervalsFromFile(context);
+		AlarmUtils.createAlarms(context);  
+    	//readIntervalsFromFile(context);
 				
     	Thread thread = new Thread(){
     		@Override
     		public void run() {
     			LogUtils.offIntervalsTracking(context, prefs, -1);    			
     	    	//si imposta e si lancia il prossimo alarm
-    	    	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context),true,-1); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,1))    
+    	    	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context),true,false,-1); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,1))    
     		}
     	};
     	thread.start();

@@ -11,13 +11,18 @@ import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.comparator.AlarmComparator;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.models.Alarm;
+import org.unipd.nbeghin.climbtheworld.receivers.StairsClassifierReceiver;
+import org.unipd.nbeghin.climbtheworld.services.ActivityRecognitionRecordService;
+import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -80,11 +85,11 @@ public class AlarmUtils {
 		Alarm alm4 = new Alarm(1,00,50,false,new boolean[]{true,false},pf);
 		Alarm alm5 = new Alarm(11,13,51,true,new boolean[]{true,false},pf); 
 		Alarm alm6 = new Alarm(11,14,50,false,new boolean[]{true,false},pf);
-		Alarm alm7 = new Alarm(15,51,15,true,bb,pf); //boolean[]{false,true}
-		Alarm alm8 = new Alarm(15,52,50,false,bb,pf);
-		Alarm alm9 = new Alarm(20,11,00,true,bb,pf);
-		Alarm alm10 = new Alarm(20,12,50,false,bb,pf);
-		Alarm alm11 = new Alarm(22,29,50,true,bb,pf);
+		Alarm alm7 = new Alarm(21,41,15,true,bb,pf); //boolean[]{false,true}
+		Alarm alm8 = new Alarm(21,42,00,false,bb,pf);
+		Alarm alm9 = new Alarm(22,15,01,true,bb,pf);
+		Alarm alm10 = new Alarm(22,17,50,false,bb,pf);
+		Alarm alm11 = new Alarm(22,30,50,true,bb,pf);
 		Alarm alm12 = new Alarm(22,32,50,false,bb,pf);
 		
 		alm7.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
@@ -253,7 +258,7 @@ public class AlarmUtils {
      * @param context context of the application.
      * @param alarms list of all alarms saved in the database.
      */
-	public static void setNextAlarm(Context context, List<Alarm> alarms, boolean onBoot, int current_alarm_id){
+	public static void setNextAlarm(Context context, List<Alarm> alarms, boolean takeAllAlarms, boolean onBoot, int current_alarm_id){
 				
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		
@@ -308,7 +313,7 @@ public class AlarmUtils {
 		//per cercare il prossimo alarm si considera tutta la lista di alarm e si sceglie
 		//il primo che risulta valido per essere lanciato nel giorno corrente (o in uno
 		//successivo); in tal caso si esegue una ricerca binaria
-		if(onBoot){ 
+		if(takeAllAlarms){ 
 			
 			int begin = 0;
 			int end = alarms.size()-1;
@@ -727,6 +732,29 @@ public class AlarmUtils {
 		
 		//si salvano le credenziali
 		editor.commit();    	    	
+		
+		
+		//se questo metodo è stato chiamato dopo il completamento del boot e se l'alarm
+		//trovato è di stop allora significa che si è all'interno di un intervallo attivo:
+		//si fa ripartire il classificatore Google/scalini
+		if(onBoot && !nextAlarm.get_actionType()){
+						 
+			//è un "intervallo di esplorazione"
+			if(!nextAlarm.isStepsInterval(artificialIndex)){ //normalmente alarmTime.get(Calendar.DAY_OF_WEEK))-1
+					
+				context.startService(new Intent(context, ActivityRecognitionRecordService.class));
+				//si registra anche il receiver per la registrazione dell'attività utente
+				//context.getApplicationContext().registerReceiver(userMotionReceiver, userMotionFilter);
+				//context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+			}				
+			else{ //è un "intervallo con scalini"
+				
+				context.getApplicationContext().startService(new Intent(context, SamplingClassifyService.class));
+				//si registra anche il receiver
+				context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);					
+			}
+		}
+		
 		
 		//si crea il pending intent creando dapprima un intent con tutti i dati dell'alarm
 		//per identificarlo in modo univoco
