@@ -153,7 +153,7 @@ public class BuildingCard extends Card {
 		((TextView) view.findViewById(R.id.location)).setText(buildingText.getLocation());
 
 		if (building.getBase_level() > ClimbApplication.getUserById(pref.getInt("local_id", -1)).getLevel()) {
-			//locked building
+			// locked building
 			((TextView) view.findViewById(R.id.description)).setText(ClimbApplication.getContext().getString(R.string.unlock_at_level, building.getBase_level()));
 			isUnlocked = false;
 			ImageView photoLock = ((ImageView) view.findViewById(R.id.photoLock));
@@ -164,12 +164,12 @@ public class BuildingCard extends Card {
 			teamVsTeamButton.setVisibility(View.INVISIBLE);
 			microGoalBtn.setVisibility(View.INVISIBLE);
 		} else {
-			//unlocked building
+			// unlocked building
 			((TextView) view.findViewById(R.id.description)).setText(buildingText.getDescription());
 			((ImageView) view.findViewById(R.id.photoLock)).setVisibility(View.INVISIBLE);
 			isUnlocked = true;
 			climbingStatus = (TextView) view.findViewById(R.id.climbingStatus);
-			
+
 			List<Climbing> climbs = ClimbApplication.getClimbingListForBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
 			if (climbs.size() == 0)
 				climbing = null;
@@ -211,18 +211,27 @@ public class BuildingCard extends Card {
 			}
 
 			updateStatus();
-			
-			if(FacebookUtils.isLoggedIn()){
-			
-			if (climbing != null && climbing.getGame_mode() == 0) {
-				if (climbing.getPercentage() >= 1.00) {
-					//socialClimbButton.setEnabled(false);
-					socialClimbButton.setVisibility(View.INVISIBLE);
-					socialChallengeButton.setVisibility(View.VISIBLE);
-					socialChallengeButton.setEnabled(true);
-					teamVsTeamButton.setVisibility(View.VISIBLE);
-					teamVsTeamButton.setEnabled(true);
-				} else {
+
+			if (FacebookUtils.isLoggedIn()) {
+
+				if (climbing != null && climbing.getGame_mode() == 0) {
+					if (climbing.getPercentage() >= 1.00) {
+						// socialClimbButton.setEnabled(false);
+						socialClimbButton.setVisibility(View.INVISIBLE);
+						socialChallengeButton.setVisibility(View.VISIBLE);
+						socialChallengeButton.setEnabled(true);
+						teamVsTeamButton.setVisibility(View.VISIBLE);
+						teamVsTeamButton.setEnabled(true);
+					} else {
+						socialChallengeButton.setVisibility(View.VISIBLE);
+						socialClimbButton.setVisibility(View.VISIBLE);
+						teamVsTeamButton.setVisibility(View.VISIBLE);
+						socialClimbButton.setEnabled(true);
+						socialChallengeButton.setEnabled(true);
+						teamVsTeamButton.setEnabled(true);
+					}
+				} else if (climbing == null) {
+					climbingStatus.setText(ClimbApplication.getContext().getString(R.string.notClimbedYet));
 					socialChallengeButton.setVisibility(View.VISIBLE);
 					socialClimbButton.setVisibility(View.VISIBLE);
 					teamVsTeamButton.setVisibility(View.VISIBLE);
@@ -230,20 +239,18 @@ public class BuildingCard extends Card {
 					socialChallengeButton.setEnabled(true);
 					teamVsTeamButton.setEnabled(true);
 				}
-			} else if (climbing == null) {
-				climbingStatus.setText(ClimbApplication.getContext().getString(R.string.notClimbedYet));
-				socialChallengeButton.setVisibility(View.VISIBLE);
-				socialClimbButton.setVisibility(View.VISIBLE);
-				teamVsTeamButton.setVisibility(View.VISIBLE);
-				socialClimbButton.setEnabled(true);
-				socialChallengeButton.setEnabled(true);
-				teamVsTeamButton.setEnabled(true);
-			}
-			}else{
+			} else {
 				socialChallengeButton.setVisibility(View.INVISIBLE);
 				socialClimbButton.setVisibility(View.INVISIBLE);
 				teamVsTeamButton.setVisibility(View.INVISIBLE);
 			}
+			
+			if(building.get_id() == 6){ //useless for tutorial
+				socialChallengeButton.setVisibility(View.INVISIBLE);
+				socialClimbButton.setVisibility(View.INVISIBLE);
+				teamVsTeamButton.setVisibility(View.INVISIBLE);
+			}
+			
 			microGoalBtn.setOnClickListener(new OnClickListener() {
 
 				@Override
@@ -251,10 +258,10 @@ public class BuildingCard extends Card {
 												// microgoal
 
 					try {
-	
+
 						Microgoal microgoal = ClimbApplication.getMicrogoalByUserAndBuilding(pref.getInt("local_id", -1), building.get_id());
 						if (microgoal != null) {
-							MicrogoalText texts = ModelsUtil.getMicrogoalTextByStory(microgoal.getStory_id());//ClimbApplication.getMicrogoalTextByStory(microgoal.getStory_id());
+							MicrogoalText texts = ModelsUtil.getMicrogoalTextByStory(microgoal.getStory_id());// ClimbApplication.getMicrogoalTextByStory(microgoal.getStory_id());
 
 							final Dialog dialog = new Dialog(activity, R.style.FullHeightDialog);
 							dialog.setContentView(R.layout.dialog_micro_goal);
@@ -289,15 +296,16 @@ public class BuildingCard extends Card {
 							TableLayout layout = (TableLayout) dialog.findViewById(R.id.checkBoxesLayout);
 
 							String intro = "";
-//							Random rand = new Random();
-//							int randomNum1 = rand.nextInt((10 - 1) + 1) + 1;
-//							int randomNum2 = rand.nextInt((20 - randomNum1) + 1) + randomNum1;
-							
+							// Random rand = new Random();
+							// int randomNum1 = rand.nextInt((10 - 1) + 1) + 1;
+							// int randomNum2 = rand.nextInt((20 - randomNum1) +
+							// 1) + randomNum1;
+
 							int randomNum1 = Integer.valueOf(climbs[0]) / 5;
 
 							if (checked_size == 1)
 								intro = String.format(texts.getIntro(), randomNum1);
-							else if (checked_size == 2){
+							else if (checked_size == 2) {
 								int randomNum2 = Integer.valueOf(climbs[0] + climbs[1]) / 5;
 								intro = String.format(texts.getIntro(), randomNum1, randomNum2);
 							}
@@ -350,14 +358,14 @@ public class BuildingCard extends Card {
 							// int height = metrics.heightPixels;
 							// dialog.getWindow().setLayout((6 * width)/7, (4 *
 							// height)/5);
-							
+
 							ProgressBar pb = (ProgressBar) dialog.findViewById(R.id.progressBarDialog);
 							TextView perc = (TextView) dialog.findViewById(R.id.textPercentageDialog);
 							double percentage = Math.round(((double) microgoal.getDone_steps() / (double) microgoal.getTot_steps()) * 100);
 							pb.setIndeterminate(false);
-							pb.setProgress((int)percentage);
+							pb.setProgress((int) percentage);
 							perc.setText(String.valueOf(percentage) + "%");
-							
+
 							dialog.show();
 						} else {
 							Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.not_yet_microgoal), Toast.LENGTH_SHORT).show();
@@ -520,7 +528,7 @@ public class BuildingCard extends Card {
 							Toast.makeText(activity.getApplicationContext(), ClimbApplication.getContext().getString(R.string.no_fb_connection), Toast.LENGTH_SHORT).show();
 						}
 					} else {
-						Toast.makeText(activity.getApplicationContext(), ClimbApplication.getContext().getString(R.string.lock_message, building.getBase_level() ), Toast.LENGTH_SHORT).show();
+						Toast.makeText(activity.getApplicationContext(), ClimbApplication.getContext().getString(R.string.lock_message, building.getBase_level()), Toast.LENGTH_SHORT).show();
 					}
 				}
 			});
@@ -801,8 +809,8 @@ public class BuildingCard extends Card {
 		socialClimbButton.setText(ClimbApplication.getContext().getString(R.string.back_solo_climb));
 		socialChallengeButton.setVisibility(View.INVISIBLE);
 		teamVsTeamButton.setVisibility(View.INVISIBLE);
-		//socialChallengeButton.setEnabled(false);
-		//teamVsTeamButton.setEnabled(false);
+		// socialChallengeButton.setEnabled(false);
+		// teamVsTeamButton.setEnabled(false);
 	}
 
 	void setSocialChallenge() {
@@ -810,8 +818,8 @@ public class BuildingCard extends Card {
 		socialChallengeButton.setText(ClimbApplication.getContext().getString(R.string.back_solo_climb));
 		teamVsTeamButton.setVisibility(View.INVISIBLE);
 		socialClimbButton.setVisibility(View.INVISIBLE);
-		//socialClimbButton.setEnabled(false);
-		//teamVsTeamButton.setEnabled(false);
+		// socialClimbButton.setEnabled(false);
+		// teamVsTeamButton.setEnabled(false);
 	}
 
 	void setTeamChallenge() {
@@ -819,9 +827,9 @@ public class BuildingCard extends Card {
 		teamVsTeamButton.setVisibility(View.INVISIBLE);
 		socialClimbButton.setVisibility(View.INVISIBLE);
 		socialChallengeButton.setVisibility(View.INVISIBLE);
-		//teamVsTeamButton.setEnabled(false);
-		//socialClimbButton.setEnabled(false);
-		//socialChallengeButton.setEnabled(false);
+		// teamVsTeamButton.setEnabled(false);
+		// socialClimbButton.setEnabled(false);
+		// socialChallengeButton.setEnabled(false);
 	}
 
 	/**
@@ -858,7 +866,7 @@ public class BuildingCard extends Card {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+
 		collabParse = new ParseObject("Collaboration");
 		collabParse.put("building", building.get_id());
 		collabParse.put("stairs", stairs);
@@ -912,7 +920,7 @@ public class BuildingCard extends Card {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
 		JSONObject creator = new JSONObject();
 		try {

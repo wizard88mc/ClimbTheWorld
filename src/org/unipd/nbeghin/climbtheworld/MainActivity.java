@@ -913,4 +913,10 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 		});
 		request.executeAndWait();
 	}
+	
+	
+	public void showDemo(MenuItem v){
+		Intent i = new Intent(this, WalkthroughActivity.class);
+		startActivity(i);
+	}
 }

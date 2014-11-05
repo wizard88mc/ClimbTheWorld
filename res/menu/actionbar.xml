@@ -39,6 +39,8 @@
         android:title="Share db"
         climbtheworld:showAsAction="never">
     </item>
+    
+    
     <!-- <item
         android:id="@+id/itemGroups"
         android:onClick="onShowGroups"
@@ -50,6 +52,13 @@
         android:id="@+id/itemNotifications"
         android:onClick="downloadFBNotification"
         android:title="@string/FB_notification"
+        climbtheworld:showAsAction="never">
+    </item>
+    
+    <item
+        android:id="@+id/itemDemo"
+        android:onClick="showDemo"
+        android:title="Demo"
         climbtheworld:showAsAction="never">
     </item>
     <!-- onUpdateNotifications -->

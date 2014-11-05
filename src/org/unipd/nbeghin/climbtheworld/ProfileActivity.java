@@ -60,10 +60,17 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 	SharedPreferences pref;
 	public ProfilePictureView profilePictureView;
 
-	public void setProfileData(GraphUser user) {
+	public void setProfileData(GraphUser user, boolean login) {
+		me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
 		profilePictureView.setCropped(true);
 		profilePictureView.setProfileId(user.getId());
 		lblFacebookUser.setText(user.getName());
+		if(login){
+			String own = me.isOwner() ? "\n" + getString(R.string.owner) : "";
+			Toast.makeText(this, getString(R.string.logged_as, me.getName()) + own, Toast.LENGTH_SHORT).show();
+			//		Toast.makeText(activity, activity.getString(R.string.welcome, me.getName()), Toast.LENGTH_SHORT).show();
+
+		}
 		updateUserData();
 	}
 

@@ -30,6 +30,7 @@ public class StatAdapter extends ArrayAdapter<Stat> {
 			((ImageView) convertView.findViewById(R.id.statIcon)).setImageResource(stat.getIconId());
 			((TextView) convertView.findViewById(R.id.statName)).setText(stat.getName());
 			((TextView) convertView.findViewById(R.id.statValue)).setText(stat.toString());
+			convertView.setOnClickListener(null);
 		}
 		return convertView;
 	}

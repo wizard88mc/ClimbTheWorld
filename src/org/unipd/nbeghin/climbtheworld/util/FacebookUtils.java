@@ -1,7 +1,6 @@
 package org.unipd.nbeghin.climbtheworld.util;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.exceptions.NoFBSession;
@@ -9,6 +8,13 @@ import org.unipd.nbeghin.climbtheworld.models.Climbing;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -144,4 +150,25 @@ public class FacebookUtils {
 		}).build();
 		feedDialog.show();
 	}
+	
+	 public static Bitmap getRoundedBitmap(Bitmap bitmap) {
+	        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap
+	                .getHeight(), Bitmap.Config.ARGB_8888);
+	        Canvas canvas = new Canvas(output);
+
+	        final int color = 0xff424242;
+	        final Paint paint = new Paint();
+	        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+	        final RectF rectF = new RectF(rect);
+
+	        paint.setAntiAlias(true);
+	        canvas.drawARGB(0, 0, 0, 0);
+	        paint.setColor(color);
+	        canvas.drawOval(rectF, paint);
+
+	        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+	        canvas.drawBitmap(bitmap, rect, rect, paint);
+
+	        return output;
+	    }
 }

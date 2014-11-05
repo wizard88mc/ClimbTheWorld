@@ -71,12 +71,8 @@ public class NetworkRequestAsyncTask extends AsyncTask<Void, Void, Void>{
 		if(activity instanceof MainActivity)
 			((MainActivity)activity).onUpdateNotifications(null);
 		else if(activity instanceof ProfileActivity){
-			((ProfileActivity)activity).setProfileData(ClimbApplication.user);
-			String own = me.isOwner() ? "\n" + activity.getString(R.string.owner) : "";
-			Toast.makeText(activity, activity.getString(R.string.logged_as, me.getName()) + own, Toast.LENGTH_SHORT).show();
-			
+			((ProfileActivity)activity).setProfileData(ClimbApplication.user, true);	
 		}
-		Toast.makeText(activity, activity.getString(R.string.welcome, me.getName()), Toast.LENGTH_SHORT).show();
 
 	}
 	

@@ -270,7 +270,6 @@ public class ClimbActivity extends ActionBarActivity {
 											// only if game mode is on
 						microgoal.setDone_steps(microgoal.getDone_steps() + vstep_for_rstep);
 						ClimbApplication.microgoalDao.update(microgoal);
-						Toast.makeText(getApplicationContext(), String.valueOf(microgoal.getDone_steps()), Toast.LENGTH_SHORT).show();
 
 						// increase the seekbar progress
 						if (mode == GameModeType.SOCIAL_CLIMB) {
