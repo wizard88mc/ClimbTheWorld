@@ -1,5 +1,7 @@
 package org.unipd.nbeghin.climbtheworld.activity.recognition;
 
+import java.util.List;
+
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
@@ -33,14 +35,11 @@ public class ActivityRecognitionIntentService extends IntentService {
 		
 	@Override
 	public void onCreate() {
-		// TODO Auto-generated method stub
 		super.onCreate();
 		
 		prefs=PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		
-		Log.d(MainActivity.AppName,"OnCreate activityRec service - n. values " + getValuesNumber(prefs));		
-	
-	
+		Log.d(MainActivity.AppName,"OnCreate activityRec service - n. values " + getValuesNumber(prefs));	
 	}
 	
 	
@@ -96,6 +95,56 @@ public class ActivityRecognitionIntentService extends IntentService {
 
 	}
 	
+	
+	/*
+	@Override
+	protected void onHandleIntent(Intent intent) {
+				
+		// If the incoming intent contains an update
+        if (ActivityRecognitionResult.hasResult(intent)) {
+        	
+            // Get the update
+            ActivityRecognitionResult result =
+                    ActivityRecognitionResult.extractResult(intent);
+            //Returns the list of activities that where detected with the confidence value 
+            //associated with each activity. The activities are sorted by most probable 
+            //activity first
+            List<DetectedActivity> probableActivities =
+                    result.getProbableActivities();         
+            
+            
+            DetectedActivity mostProbablePhysicalActivity = getMostProbablePhysicalActivity(probableActivities);
+            
+            
+            //if the list contains a physical activity, it can be properly handled 
+            if(mostProbablePhysicalActivity!=null){  
+            	
+            	int activityType = mostProbablePhysicalActivity.getType();
+            	
+            	int confidence = mostProbablePhysicalActivity.getConfidence();
+            	
+            	if(MainActivity.logEnabled){
+                	Log.d(MainActivity.AppName,"ActivityRecognitionIntentService - activity: "+ getNameFromType(activityType)+" confidence: " + (float)confidence/100);
+    	    	}            	
+            	
+            	handleActivity(prefs, activityType, confidence);            	
+            }
+            else{            	
+            	if(MainActivity.logEnabled){
+                	Log.d(MainActivity.AppName,"ActivityRecognitionIntentService - NO activity");
+    	    	}            	
+            }               
+            
+            prefs.edit().putInt("ar_values_number", prefs.getInt("ar_values_number", 0)+1).commit();
+            //values_number++;
+           
+        } else {
+           //This implementation ignores intents that don't contain
+            //an activity update. If you wish, you can report them as
+             //errors.            
+        }
+	}
+	*/
 	
 	
 	
@@ -180,6 +229,32 @@ public class ActivityRecognitionIntentService extends IntentService {
     }
 	
 	
+	
+	/*
+	private DetectedActivity getMostProbablePhysicalActivity(List<DetectedActivity> activities){
+		
+		for (DetectedActivity activity : activities) {			
+			if(isPhysicalActivity(activity.getType())){
+				return activity;
+			}
+		}
+		
+		return null;		
+	}
+
+    private boolean isPhysicalActivity(int type) {
+        switch (type) {
+            // These types mean that the user is probably not moving
+            case DetectedActivity.STILL:
+            case DetectedActivity.TILTING:
+            case DetectedActivity.UNKNOWN:
+            case DetectedActivity.IN_VEHICLE:
+                return false;
+            default:
+                return true;
+        }
+    }
+	*/
 	
 	
 	public static void clearValuesCount(SharedPreferences prefs){
