@@ -166,8 +166,8 @@ public class GeneralUtils {
     	//si fa il setup del db per gli alarm
     	AlarmUtils.setupAlarmsDB(context); 
     	//si creano gli alarm
-		AlarmUtils.createAlarms(context);  
-    	//readIntervalsFromFile(context);
+		//AlarmUtils.createAlarms(context);  
+    	readIntervalsFromFile(context);
 				
     	Thread thread = new Thread(){
     		@Override

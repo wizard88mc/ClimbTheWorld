@@ -85,12 +85,12 @@ public class AlarmUtils {
 		Alarm alm4 = new Alarm(1,00,50,false,new boolean[]{true,false},pf);
 		Alarm alm5 = new Alarm(11,13,51,true,new boolean[]{true,false},pf); 
 		Alarm alm6 = new Alarm(11,14,50,false,new boolean[]{true,false},pf);
-		Alarm alm7 = new Alarm(13,27,15,true,bb,pf); //boolean[]{false,true}
-		Alarm alm8 = new Alarm(13,28,00,false,bb,pf);
-		Alarm alm9 = new Alarm(13,28,01,true,new boolean[]{false,true},pf);
-		Alarm alm10 = new Alarm(13,29,50,false,new boolean[]{false,true},pf);
-		Alarm alm11 = new Alarm(13,29,51,true,new boolean[]{false,true},pf);
-		Alarm alm12 = new Alarm(13,35,50,false,new boolean[]{false,true},pf);
+		Alarm alm7 = new Alarm(15,49,15,true,bb,pf); //boolean[]{false,true}
+		Alarm alm8 = new Alarm(15,50,00,false,bb,pf);
+		Alarm alm9 = new Alarm(15,50,01,true,new boolean[]{false,true},pf);
+		Alarm alm10 = new Alarm(15,50,50,false,new boolean[]{false,true},pf);
+		Alarm alm11 = new Alarm(15,50,51,true,new boolean[]{false,true},pf);
+		Alarm alm12 = new Alarm(15,55,50,false,new boolean[]{false,true},pf);
 		
 		alm7.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
 		alm8.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
@@ -362,35 +362,39 @@ public class AlarmUtils {
 				//che il relativo intervallo non è stato attivato per questo giorno					
 				if(!nextAlarm.getRepeatingDay(artificialIndex)){
 					
+					////////////////////////////
+					//utile per scrivere il LOG					
+					String status="";							
+					if(nextAlarm.isStepsInterval(artificialIndex)){
+						status="Intervallo con scalini non attivo";
+					}
+					else{
+						status="Intervallo di esplorazione non attivo";
+					}			
+					
+					int id_this_alarm=nextAlarm.get_id();
+					////////////////////////////
+										
 					//se è un alarm di start
 					if(nextAlarm.get_actionType()){
 						
 						System.out.println("next alarm non attivo e di start");
-						
+												
 						//si prova ad effettuare la mutazione, attivando l'intervallo
 						if(!intervalMutated(nextAlarm, alarms, artificialIndex, alarmDao,context)){
 							
+							//si scrive nel file di log che questo intervallo non è stato
+							//mutato e, quindi, non viene valutato
+							
 							////////////////////////////
-							//LOG
-							//si scrive nel file di log che questo intervallo non è mutato
-							//e, quindi, non viene valutato
-							String status="";							
-							if(nextAlarm.isStepsInterval(artificialIndex)){
-								status="Intervallo con scalini non attivo";
-							}
-							else{
-								status="Intervallo di esplorazione non attivo";
-							}			
-							
-							int id_start = nextAlarm.get_id();
-							
-							if(id_start==1){
+							//utile per scrivere il LOG	
+							if(id_this_alarm==1){
 								int month = alarmTime.get(Calendar.MONTH)+1;
 								LogUtils.writeLogFile(context,"Indice giorno: "+artificialIndex+" - "+alarmTime.get(Calendar.DATE)+"/"+month+"/"+alarmTime.get(Calendar.YEAR));
 							}
 							
 							//si ottiene il relativo alarm di stop (esiste sicuramente)
-							Alarm next_stop= getAlarm(context, id_start+1); 							
+							Alarm next_stop= getAlarm(context, id_this_alarm+1); 							
 							
 							LogUtils.writeLogFile(context,status+": " + nextAlarm.get_hour()+":"+nextAlarm.get_minute()+
 									":"+nextAlarm.get_second()+" - "+next_stop.get_hour()+":"+next_stop.get_minute()+
@@ -403,6 +407,33 @@ public class AlarmUtils {
 					}
 					else{ //se l'alarm non è attivo ed è di stop, si deve cercare un
 						  //altro intervallo
+						
+						//si scrive nel file di log che questo intervallo non è stato mutato
+						//(in quanto l'inizio dell'intervallo è avvenuto a device spento o
+						//prima della configurazione dell'algoritmo) e, quindi, non viene
+						//valutato
+						
+						////////////////////////////
+						//utile per scrivere il LOG	
+						if(id_this_alarm==2){
+							int month = alarmTime.get(Calendar.MONTH)+1;
+							LogUtils.writeLogFile(context,"Indice giorno: "+artificialIndex+" - "+alarmTime.get(Calendar.DATE)+"/"+month+"/"+alarmTime.get(Calendar.YEAR));
+						}
+						
+						//si ottiene il relativo alarm di start (esiste sicuramente)
+						Alarm prev_start= getAlarm(context, id_this_alarm-1); 
+						
+						String extra_str="a device spento)";
+						if(!prevAlarmNotAvailable){
+							extra_str="ad algoritmo non ancora configurato)";
+						}
+						
+						LogUtils.writeLogFile(context,status+": " + prev_start.get_hour()+":"+prev_start.get_minute()+
+								":"+prev_start.get_second()+" - "+nextAlarm.get_hour()+":"+nextAlarm.get_minute()+
+								":"+nextAlarm.get_second()+ " | Non valutato (mutazione non tentata a causa di inizio intervallo "+
+								extra_str+ " | "+ status+" la prossima settimana");
+						////////////////////////////
+						
 						nextAlarm=null;
 					}
 				}
