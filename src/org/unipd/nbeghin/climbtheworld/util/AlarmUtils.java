@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import org.unipd.nbeghin.climbtheworld.ClimbTheWorldApp;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionIntentService;
 import org.unipd.nbeghin.climbtheworld.comparator.AlarmComparator;
@@ -86,19 +85,19 @@ public class AlarmUtils {
 		Alarm alm4 = new Alarm(1,00,50,false,new boolean[]{true,false},pf);
 		Alarm alm5 = new Alarm(11,13,51,true,new boolean[]{true,false},pf); 
 		Alarm alm6 = new Alarm(11,14,50,false,new boolean[]{true,false},pf);
-		Alarm alm7 = new Alarm(21,41,15,true,bb,pf); //boolean[]{false,true}
-		Alarm alm8 = new Alarm(21,42,00,false,bb,pf);
-		Alarm alm9 = new Alarm(22,15,01,true,bb,pf);
-		Alarm alm10 = new Alarm(22,17,50,false,bb,pf);
-		Alarm alm11 = new Alarm(22,30,50,true,bb,pf);
-		Alarm alm12 = new Alarm(22,32,50,false,bb,pf);
+		Alarm alm7 = new Alarm(13,27,15,true,bb,pf); //boolean[]{false,true}
+		Alarm alm8 = new Alarm(13,28,00,false,bb,pf);
+		Alarm alm9 = new Alarm(13,28,01,true,new boolean[]{false,true},pf);
+		Alarm alm10 = new Alarm(13,29,50,false,new boolean[]{false,true},pf);
+		Alarm alm11 = new Alarm(13,29,51,true,new boolean[]{false,true},pf);
+		Alarm alm12 = new Alarm(13,35,50,false,new boolean[]{false,true},pf);
 		
 		alm7.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
 		alm8.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
 		
 		
-		alm11.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
-		alm12.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
+		//alm11.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
+		//alm12.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
 		
 		/*
 		//creo template
@@ -401,6 +400,10 @@ public class AlarmUtils {
 							
 							nextAlarm=null;							
 						}
+					}
+					else{ //se l'alarm non è attivo ed è di stop, si deve cercare un
+						  //altro intervallo
+						nextAlarm=null;
 					}
 				}
 			}
