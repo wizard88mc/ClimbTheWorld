@@ -123,8 +123,8 @@ public class LogUtils {
 		time_before.set(Calendar.MONTH,mm);
 		time_before.set(Calendar.YEAR,yyyy);  
     	
-		//si recupera l'alarm successivo a quello impostato
-    	Alarm next_next_alarm = AlarmUtils.getAlarm(context, alarm_id+1);
+		//si recupera il secondo alarm (alarm di stop del primo intervallo)
+    	Alarm first_stop_alarm = AlarmUtils.getAlarm(context, 2);
     	
     	
 		//si calcola il numero di giorni passati dalla data dell'ultimo alarm settato
@@ -155,17 +155,17 @@ public class LogUtils {
 			"  "+time_before.get(Calendar.DATE)+"/"+month+"/"+time_before.get(Calendar.YEAR));		
 		}		
 				
-		//si imposta l'orario del successivo alarm (utile per capire se si tratta del
-		//primo intervallo e se questo è già finito: in tal caso si scrive l'indice del
-		//giorno nel file di log)
-		time_before.set(Calendar.HOUR_OF_DAY, next_next_alarm.get_hour());
-		time_before.set(Calendar.MINUTE, next_next_alarm.get_minute());
-		time_before.set(Calendar.SECOND, next_next_alarm.get_minute());
+		//si imposta l'orario dell'alarm di stop delprimo intervallo (utile per capire se si
+		//tratta del primo intervallo e se questo è già finito: in tal caso si scrive l'indice
+		//del giorno nel file di log)
+		time_before.set(Calendar.HOUR_OF_DAY, first_stop_alarm.get_hour());
+		time_before.set(Calendar.MINUTE, first_stop_alarm.get_minute());
+		time_before.set(Calendar.SECOND, first_stop_alarm.get_minute());
 		
 		//se si tratta del primo intervallo (id_start=1 e id_stop=2) si è in
     	//presenza di un nuovo giorno; se tale intervallo è finito allora si scrive 
 		//l'indice del giorno nel file di output
-    	if(alarm_id==1 && time_before.before(time_now)){       		
+    	if( (alarm_id==1 || alarm_id==2) && time_before.before(time_now)){       		
     		Log.d(MainActivity.AppName, "Intervals tracking - day index: " + lastDayIndex);    		
     		mm=mm+1;
     		writeLogFile(context,"Indice giorno: "+lastDayIndex+" - "+dd+"/"+mm+"/"+yyyy);
