@@ -622,8 +622,8 @@ public class ClimbActivity extends Activity {
 		} else {
 			
 			//si recupera il prossimo alarm impostato
-			int next_alarm_id = settings.getInt("alarm_id", -1);	
-			Alarm next_alarm = AlarmUtils.getAlarm(appContext, next_alarm_id);
+			//int next_alarm_id = settings.getInt("alarm_id", -1);	
+			Alarm next_alarm = AlarmUtils.getAlarm(appContext, settings.getInt("alarm_id", -1));
 			
 			//si recupera l'indice del giorno corrente all'interno della settimana
 			/////////		
@@ -650,9 +650,9 @@ public class ClimbActivity extends Activity {
 						//si associa il fatto che nell'intervallo di esplorazione corrente
 						//l'utente ha fatto almeno uno scalino (salvataggio nelle preferences:
 						//utile per memorizzare questo fatto in caso di vari periodi di gioco 
-						//all'interno dell'intervallo, mantenendo l'informazione anche se 
-						//se l'utente spegne il device)
-						settings.edit().putInt("last_interval_with_steps", next_alarm_id).commit();
+						//all'interno dell'intervallo, mantenendo l'informazione anche se  
+						//l'utente spegne il device)
+						settings.edit().putBoolean("last_interval_with_steps", true).commit();
 					
 						//si resetta a 'false' il booleano che indica se l'utente ha fatto
 						//almeno 1 scalino nel periodo di gioco corrente
@@ -672,7 +672,7 @@ public class ClimbActivity extends Activity {
 						//System.out.println("next alarm id: " + next_alarm_id);
 						
 						if(!next_alarm.isStepsInterval(current_day_index) && 
-							settings.getInt("last_interval_with_steps", -1)!=next_alarm_id){
+							!settings.getBoolean("last_interval_with_steps", false)){
 														
 							Log.d(MainActivity.AppName,"STOP GAME IN ACTIVE INTERVAL - START ACTIVITY REC");
 							appContext.startService(new Intent(appContext, ActivityRecognitionRecordService.class));

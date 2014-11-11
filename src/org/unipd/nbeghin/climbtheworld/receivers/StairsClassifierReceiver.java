@@ -30,9 +30,7 @@ public class StairsClassifierReceiver extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		
-		//arrivano gli stessi dati ricevuti anche dal receiver in ClimbActivity 
- 				
+		 				
  		Double result = intent.getExtras().getDouble(ClassifierCircularBuffer.CLASSIFIER_NOTIFICATION_STATUS);
  		
  		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -70,20 +68,19 @@ public class StairsClassifierReceiver extends BroadcastReceiver {
 		
 		if(finalClassification>0){ //scalino
 			
+			prefs.edit().putInt("steps_number", prefs.getInt("steps_number", 0)+1).commit();
+			
+			steps_number++;
+			Log.d(MainActivity.AppName,"STAIRS RECEIVER - steps number: " + getStepsNumber(prefs));
+						
 			//se il gioco è attivo si aggiorna la grafica			
 			if(climb!=null){ // && ClimbActivity.samplingEnabled){
 				Log.d(MainActivity.AppName,"STAIRS RECEIVER - refresh GUI:");
 				climb.refreshOnStep();
 			}
-			
-			
-			prefs.edit().putInt("steps_number", prefs.getInt("steps_number", 0)+1).commit();
-					
-			steps_number++;
-			Log.d(MainActivity.AppName,"STAIRS RECEIVER - steps number: " + getStepsNumber(prefs));
 		}
 		
-		if(climb!=null) {// && ClimbActivity.samplingEnabled){
+		if(climb!=null){ // && ClimbActivity.samplingEnabled){
 			climb.printClassification(finalClassification);
 		}
 		

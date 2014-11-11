@@ -56,7 +56,7 @@ public class IntervalEvaluationUtils {
 		if(PreferenceManager.getDefaultSharedPreferences(context).getBoolean("next_alarm_mutated", false)){
 			//questo intervallo è stato mutato, da non attivo ad attivo
 			
-			status=" dopo mutazione";
+			status=status+" dopo mutazione";
 		}
 		
 		status = status +": "+ previous_start_alarm.get_hour()+":"+previous_start_alarm.get_minute()+":"

@@ -79,11 +79,11 @@ public class AlarmUtils {
     	boolean bb[] = new boolean[] {true,true};
     	//float pf[] = new float[] {0.25f,0.25f,0.25f,0.25f,0.25f,0.25f,0.25f};
     	float pf[] = new float[] {0.25f,0.25f};
-    	Alarm alm1 = new Alarm(9,45,00,true,new boolean[]{true,true},pf);
-		Alarm alm2 = new Alarm(9,46,00,false,new boolean[]{true,true},pf);
-		Alarm alm3 = new Alarm(9,46,01,true,new boolean[]{true,true},pf);
-		Alarm alm4 = new Alarm(9,47,50,false,new boolean[]{true,true},pf);
-		/*Alarm alm5 = new Alarm(11,13,51,true,new boolean[]{true,false},pf); 
+    	Alarm alm1 = new Alarm(9,45,00,true,new boolean[]{false,true},pf);
+		Alarm alm2 = new Alarm(9,45,50,false,new boolean[]{false,true},pf);
+		Alarm alm3 = new Alarm(9,45,51,true,new boolean[]{true,true},pf);
+		Alarm alm4 = new Alarm(9,49,50,false,new boolean[]{true,true},pf);
+		Alarm alm5 = new Alarm(11,13,51,true,new boolean[]{true,false},pf); 
 		Alarm alm6 = new Alarm(11,14,50,false,new boolean[]{true,false},pf);
 		Alarm alm7 = new Alarm(15,49,15,true,bb,pf); //boolean[]{false,true}
 		Alarm alm8 = new Alarm(15,50,00,false,bb,pf);
@@ -94,7 +94,7 @@ public class AlarmUtils {
 		
 		alm7.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
 		alm8.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
-		*/
+		
 		
 		//alm11.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
 		//alm12.setStepsInterval(PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0), true);
@@ -126,14 +126,14 @@ public class AlarmUtils {
 		alarmDao.createIfNotExists(alm2);
 		alarmDao.createIfNotExists(alm3);
 		alarmDao.createIfNotExists(alm4);
-		/*alarmDao.createIfNotExists(alm5);
+		alarmDao.createIfNotExists(alm5);
 		alarmDao.createIfNotExists(alm6);
 		alarmDao.createIfNotExists(alm7);
 		alarmDao.createIfNotExists(alm8);
 		alarmDao.createIfNotExists(alm9);
 		alarmDao.createIfNotExists(alm10);
 		alarmDao.createIfNotExists(alm11);
-		alarmDao.createIfNotExists(alm12);*/
+		alarmDao.createIfNotExists(alm12);
 		
 		/*
 		helper.getTimeTemplateDao().createIfNotExists(tt1);
@@ -778,9 +778,9 @@ public class AlarmUtils {
 			//si resettano i valori relativi alle attività/scalini rilevati in precedenza			
 			ActivityRecognitionIntentService.clearValuesCount(prefs);
 			StairsClassifierReceiver.clearStepsNumber(prefs);	
-			//si resetta il valore salvato nelle preferences che memorizza l'id dell'ultimo
-		   	//intervallo che ha almeno un periodo di gioco con scalini
-			prefs.edit().putInt("last_interval_with_steps", -1).commit();
+			//si resetta il valore salvato nelle preferences che indica se l'ultimo
+		   	//intervallo considerato ha avuto almeno un periodo di gioco con scalini
+			prefs.edit().putBoolean("last_interval_with_steps", false).commit();
 			
 			//è un "intervallo di esplorazione"
 			if(!nextAlarm.isStepsInterval(artificialIndex)){ //normalmente alarmTime.get(Calendar.DAY_OF_WEEK))-1

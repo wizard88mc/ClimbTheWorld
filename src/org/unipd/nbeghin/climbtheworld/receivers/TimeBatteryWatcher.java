@@ -397,10 +397,10 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			   	StairsClassifierReceiver.clearStepsNumber(pref);
 			   	Log.d(MainActivity.AppName,"START ACTION - Reset number of steps: " + StairsClassifierReceiver.getStepsNumber(pref));
 			   			   	
-			   	//si resetta il valore salvato nelle preferences che memorizza l'id 
-			   	//dell'ultimo intervallo che ha almeno un periodo di gioco con scalini
-				pref.edit().putInt("last_interval_with_steps", -1).commit();
-				Log.d(MainActivity.AppName,"START ACTION - Reset id last interval with steps: " + pref.getInt("last_interval_with_steps", -1));
+			   	//si resetta il valore salvato nelle preferences che indica se l'ultimo
+			   	//intervallo considerato ha avuto almeno un periodo di gioco con scalini
+				pref.edit().putBoolean("last_interval_with_steps", false).commit();
+				Log.d(MainActivity.AppName,"START ACTION - Reset 'last_interval_with_steps' value: " + pref.getBoolean("last_interval_with_steps", false));
 			   	
 				//se è attivo il gioco non si fa partire il servizio di activity recognition/
 			   	//il cl. scalini/non_scalini
@@ -472,10 +472,10 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					//il periodo di gioco può essere iniziato in un precedente intervallo e finire in
 					//questo)					
 										
-					System.out.println("LAST INTERVAL WITH STEPS: " +pref.getInt("last_interval_with_steps", -1));
+					System.out.println("LAST INTERVAL WITH STEPS: " +pref.getBoolean("last_interval_with_steps", false));
 					System.out.println("STEPS IN CURRENT GAME: " +ClimbActivity.stepsInCurrentGamePeriod());
 					
-					if(pref.getInt("last_interval_with_steps", -1)==this_alarm_id || ClimbActivity.stepsInCurrentGamePeriod()
+					if(pref.getBoolean("last_interval_with_steps", false) || ClimbActivity.stepsInCurrentGamePeriod()
 							|| StairsClassifierReceiver.getStepsNumber(pref)>=1){ 
 						
 						//l'intervallo appena concluso ha presentato un periodo di gioco in cui 
