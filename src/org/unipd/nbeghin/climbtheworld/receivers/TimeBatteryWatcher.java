@@ -396,7 +396,11 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			   	//possono essere stati fatti degli scalini)
 			   	StairsClassifierReceiver.clearStepsNumber(pref);
 			   	Log.d(MainActivity.AppName,"START ACTION - Reset number of steps: " + StairsClassifierReceiver.getStepsNumber(pref));
-			   
+			   			   	
+			   	//si resetta il valore salvato nelle preferences che memorizza l'id 
+			   	//dell'ultimo intervallo che ha almeno un periodo di gioco con scalini
+				pref.edit().putInt("last_interval_with_steps", -1).commit();
+				Log.d(MainActivity.AppName,"START ACTION - Reset id last interval with steps: " + pref.getInt("last_interval_with_steps", -1));
 			   	
 				//se è attivo il gioco non si fa partire il servizio di activity recognition/
 			   	//il cl. scalini/non_scalini
