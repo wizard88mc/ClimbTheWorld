@@ -258,7 +258,7 @@ public class BuildingCard extends Card {
 												// microgoal
 
 					try {
-
+						System.out.println("on click micro");
 						Microgoal microgoal = ClimbApplication.getMicrogoalByUserAndBuilding(pref.getInt("local_id", -1), building.get_id());
 						if (microgoal != null) {
 							MicrogoalText texts = ModelsUtil.getMicrogoalTextByStory(microgoal.getStory_id());// ClimbApplication.getMicrogoalTextByStory(microgoal.getStory_id());
@@ -1317,7 +1317,7 @@ public class BuildingCard extends Card {
 			 * 
 			 * deleteClimbingInParse(climbing); graphicsRollBack(type);
 			 * 
-			 * mode = GameModeType.SOLO_CLIMB; gameMode.setText("Modalitˆ: " +
+			 * mode = GameModeType.SOLO_CLIMB; gameMode.setText("Modalitï¿½: " +
 			 * setModeText());
 			 */
 			break;

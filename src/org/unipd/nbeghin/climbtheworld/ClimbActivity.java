@@ -1658,7 +1658,7 @@ public class ClimbActivity extends ActionBarActivity {
 	 * modifies the game mode in 'Solo Climb' and deletes locally the
 	 * Collaboration object
 	 */
-	// la collaborazione si è conclusa e non ho superato la soglia minima
+	// la collaborazione si ÔøΩ conclusa e non ho superato la soglia minima
 	// quindi torno in social climb e elimino la collab localmente
 	private void socialPenalty() {
 		updatePoints(true);
@@ -2112,7 +2112,7 @@ public class ClimbActivity extends ActionBarActivity {
 			for (int i = 0; i < menu.size() - 1; i++)
 				menu.getItem(i).setVisible(false);
 		}
-		if(mode.equals(GameModeType.SOLO_CLIMB))
+		if(!isCounterMode && mode.equals(GameModeType.SOLO_CLIMB))
 			menu.getItem(0).setVisible(false); //hide update
 
 		return true;
@@ -2159,7 +2159,7 @@ public class ClimbActivity extends ActionBarActivity {
 			System.out.println("soloclimb: " + soloClimb.getId_mode());
 			deleteClimbingInParse(climbing);
 			/*
-			 * if(climbing.getCompleted() != 0){ //ho già scalato l'edificio una
+			 * if(climbing.getCompleted() != 0){ //ho giÔøΩ scalato l'edificio una
 			 * volta, quindi lo lascio scalato per intero
 			 * climbing.setCompleted_steps(building.getSteps());
 			 * climbing.setRemaining_steps(0); climbing.setPercentage(100);
