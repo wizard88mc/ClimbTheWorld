@@ -98,7 +98,7 @@
             android:layout_centerVertical="true"
             android:gravity="center_horizontal"
             android:minLines="2"
-            android:text="tap to dismiss"
+            android:text="@string/tap_to_dismiss"
             android:textColor="@color/white" />
 
         <LinearLayout

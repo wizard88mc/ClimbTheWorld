@@ -123,7 +123,7 @@ class MyGestureDetector extends SimpleOnGestureListener {
 	@Override
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 
-		System.out.println("Help im being touched!");
+		//System.out.println("Help im being touched!");
 		return false;
 	}
 }
