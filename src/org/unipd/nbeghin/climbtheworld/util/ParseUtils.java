@@ -157,13 +157,33 @@ public class ParseUtils {
 		});
 	}
 	
+	public static void deleteClimbing(ParseObject p_climbing, final Climbing l_climbing){
+		p_climbing.deleteInBackground(new DeleteCallback() {
+			
+			@Override
+			public void done(ParseException e) {
+				if(e == null){
+					Log.i(getClass().getName(), "Climbing correctly deleted in Parse");
+					ClimbApplication.climbingDao.delete(l_climbing);
+				}else{
+					l_climbing.setDeleted(true);
+					l_climbing.setSaved(false);
+					ClimbApplication.climbingDao.update(l_climbing);
+					Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					Log.e(getClass().getName(), e.getMessage());
+				}
+				
+			}
+		});
+	}
+	
 	public static void deleteCollaboration(ParseObject p_collaboration, final Collaboration l_collaboration){
 		p_collaboration.deleteInBackground(new DeleteCallback() {
 			
 			@Override
 			public void done(ParseException ex) {
 				if(ex == null){
-					Log.i(getClass().getName(), "Competition correctly saved in Parse");
+					Log.i(getClass().getName(), "Competition correctly deleted in Parse");
 					ClimbApplication.collaborationDao.delete(l_collaboration);
 				}else{
 					l_collaboration.setLeaved(true);
@@ -183,7 +203,7 @@ public class ParseUtils {
 			@Override
 			public void done(ParseException ex) {
 				if(ex == null){
-					Log.i(getClass().getName(), "Competition correctly saved in Parse");
+					Log.i(getClass().getName(), "Competition correctly deleted in Parse");
 					ClimbApplication.competitionDao.delete(l_competition);
 				}else{
 					l_competition.setLeaved(true);
@@ -191,6 +211,27 @@ public class ParseUtils {
 					ClimbApplication.competitionDao.update(l_competition);
 					Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
 					Log.e(getClass().getName(), ex.getMessage());
+				}
+				
+			}
+		});
+	}
+	
+	public static void deleteTeamDuel(ParseObject p_team, final TeamDuel l_teamDuel){
+		p_team.deleteInBackground(new DeleteCallback() {
+			
+			@Override
+			public void done(ParseException e) {
+				if(e == null){
+					Log.i(getClass().getName(), "Team duel correctly deleted in Parse");
+					ClimbApplication.teamDuelDao.delete(l_teamDuel);
+				}else{
+					l_teamDuel.setDeleted(true);
+					l_teamDuel.setSaved(false);
+					ClimbApplication.teamDuelDao.update(l_teamDuel);
+					Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					Log.e(getClass().getName(), e.getMessage());
+
 				}
 				
 			}

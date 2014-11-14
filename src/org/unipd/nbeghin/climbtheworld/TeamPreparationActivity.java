@@ -8,6 +8,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
+import org.unipd.nbeghin.climbtheworld.models.Climbing;
+import org.unipd.nbeghin.climbtheworld.models.User;
+import org.unipd.nbeghin.climbtheworld.util.ParseUtils;
 
 import android.content.Context;
 import android.content.Intent;
@@ -33,6 +36,7 @@ import com.facebook.FacebookOperationCanceledException;
 import com.facebook.Session;
 import com.facebook.widget.WebDialog;
 import com.facebook.widget.WebDialog.OnCompleteListener;
+import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -47,6 +51,7 @@ public class TeamPreparationActivity extends ActionBarActivity {
 	ImageButton addChallengerBtn;
 	ImageButton startPlay;
 	ImageButton addChallengerTeamBtn;
+	ImageButton exitTeam;
 	List<TextView> myMembers = new ArrayList<TextView>();
 	List<TextView> theirMembers = new ArrayList<TextView>();
 	TextView challengerName;
@@ -68,6 +73,7 @@ public class TeamPreparationActivity extends ActionBarActivity {
 		addMyMembersBtn = (ImageButton) findViewById(R.id.addMyTeamBtn);
 		addChallengerBtn = (ImageButton) findViewById(R.id.addChallengerBtn);
 		startPlay = (ImageButton) findViewById(R.id.btnStartClimbing);
+		exitTeam = (ImageButton) findViewById(R.id.btnExitClimbing);
 		addChallengerTeamBtn = (ImageButton) findViewById(R.id.addChallengerTeam);
 		challengerName = (TextView) findViewById(R.id.textChallenger);
 		creatorName = (TextView) findViewById(R.id.textCreator);
@@ -118,7 +124,7 @@ public class TeamPreparationActivity extends ActionBarActivity {
 		}
 
 		//int team_online_id = getIntent().getIntExtra(ClimbApplication.duel_intent_object, 0);
-System.out.println(building_id + " " + pref.getInt("local_id", -1));
+//System.out.println(building_id + " " + pref.getInt("local_id", -1));
 		duel = ClimbApplication.getTeamDuelByBuildingAndUser(building_id, pref.getInt("local_id", -1));
 		// quando arrivo qui, id online di duel deve essere settato
 		
@@ -232,7 +238,7 @@ System.out.println(building_id + " " + pref.getInt("local_id", -1));
 	 * @param isUpdate
 	 * @throws JSONException
 	 */
-	private void showTeams(ParseObject duelParse, boolean isUpdate) throws JSONException{
+	private void showTeams(final ParseObject duelParse, boolean isUpdate) throws JSONException{
 		if(duel.getCreator_name() != null && !duel.getCreator_name().equals(""))
 			creatorName.setText(getString(R.string.creator) + " " +  duel.getCreator_name());
 		else
@@ -259,6 +265,15 @@ System.out.println(building_id + " " + pref.getInt("local_id", -1));
 		
 		showTeam(myTeam, myMembers);
 		showTeam(challengerTeam, theirMembers);
+		
+		exitTeam.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				backToSoloClimb(duelParse);			
+			}
+		});
+		
 		if(duel.isCreator()){
 			if(myTeam.length() < 5)
 				addMyMembersBtn.setEnabled(true);
@@ -276,12 +291,14 @@ System.out.println(building_id + " " + pref.getInt("local_id", -1));
 		}
 		if(myTeam.length() == 5 && challengerTeam.length() == 5){
 			startPlay.setEnabled(true);
+			exitTeam.setEnabled(false);
 			duel.setReadyToPlay(true);
 			ClimbApplication.teamDuelDao.update(duel);
 		}	
 		else{
 			startPlay.setEnabled(false);
 			duel.setReadyToPlay(false);
+			exitTeam.setEnabled(true);
 			ClimbApplication.teamDuelDao.update(duel);
 		}
 		
@@ -404,5 +421,105 @@ System.out.println(building_id + " " + pref.getInt("local_id", -1));
 		}else{
 			Toast.makeText(getApplicationContext(), getString(R.string.not_logged), Toast.LENGTH_SHORT).show();
 		}
+	}
+	
+	private void backToSoloClimb(ParseObject team){
+		final SharedPreferences pref = getSharedPreferences("UserSession", 0);
+		//final String  id_to_delete = duel.getId_online();
+		User me = ClimbApplication.getUserByFBId(pref.getString("FBid", ""));
+		final List<Climbing> climbings = ClimbApplication.getClimbingListForBuildingAndUser(duel.getBuilding().get_id(), me.get_id());
+
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing"); 
+		query.whereEqualTo("id_mode", duel.getId_online());
+		query.getFirstInBackground(new GetCallback<ParseObject>() {
+
+			@Override
+			public void done(ParseObject climbing, ParseException ex) {
+				if(ex == null){
+					if(climbing != null){
+					
+						Climbing l_climbing;
+						if(climbings.size() == 2){
+							if(climbings.get(0).getGame_mode() == 3)
+								ParseUtils.deleteClimbing(climbing, climbings.get(0));
+							else
+								ParseUtils.deleteClimbing(climbing, climbings.get(1));
+						}else if(climbings.size() == 1){
+							climbing.put("id_mode", "");
+							climbing.put("game_mode", 0);
+							l_climbing = climbings.get(0);
+							l_climbing.setId_mode("");
+							l_climbing.setGame_mode(0);
+							ParseUtils.saveClimbing(climbing, l_climbing);
+						}
+					}
+				}else{
+					Climbing l_climbing;
+					if(climbings.size() == 1){
+						l_climbing = climbings.get(0);
+						l_climbing.setId_mode("");
+						l_climbing.setGame_mode(0);
+						l_climbing.setSaved(false);
+						ClimbApplication.climbingDao.update(l_climbing);
+					}else if(climbings.size() == 2){
+						l_climbing = climbings.get(0).getGame_mode() == 3 ? climbings.get(0) : climbings.get(1);
+						l_climbing.setDeleted(true);
+						l_climbing.setSaved(false);
+						ClimbApplication.climbingDao.update(l_climbing);
+						
+					}
+					
+				Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+				Log.e(getClass().getName(), ex.getMessage());
+				}
+				
+			}
+			
+		});
+		
+		if(!duel.isReadyToPlay()){
+			JSONObject team_challenger = team.getJSONObject("challenger_stairs");
+			JSONObject creator_team = team.getJSONObject("creator_stairs");
+
+			if(duel.isChallenger()){
+				JSONObject challenger = team.getJSONObject("challenger");
+				challenger.remove(pref.getString("FBid", ""));
+				team_challenger.remove(pref.getString("FBid", ""));
+				team.put("challenger", challenger);
+				team.put("challenger_stairs", team_challenger);
+			}else if(duel.isCreator()){
+				JSONObject creator = team.getJSONObject("creator");
+				creator.remove(pref.getString("FBid", ""));
+				creator_team.remove(pref.getString("FBid", ""));
+				team.put("creator", creator);
+				team.put("creator_stairs", creator_team);
+			}
+			else{
+				JSONObject creators = team.getJSONObject("creator_team");
+				JSONObject challengers = team.getJSONObject("challenger_team");
+				if(creators.has(pref.getString("FBid", ""))){
+					creators.remove(pref.getString("FBid", ""));
+					creator_team.remove(pref.getString("FBid", ""));
+					team.put("creator_stairs", creator_team);
+					team.put("creator_team", creators);
+
+				}else{
+					team_challenger.remove(pref.getString("FBid", ""));
+					challengers.remove(pref.getString("FBid", ""));
+					team.put("challenger_stairs", team_challenger);
+					team.put("challenger_team", challengers);
+				}
+				
+			}
+			
+			if(creator_team.length() == 0 && team_challenger.length() == 0)
+				ParseUtils.deleteTeamDuel(team, duel);
+			else
+				ParseUtils.saveTeamDuel(team, duel);
+			
+			
+		}
+		
+		finish();
 	}
 }

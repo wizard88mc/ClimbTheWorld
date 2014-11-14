@@ -611,7 +611,7 @@ public class ClimbApplication extends Application{
 
 		}
 
-		public static Climbing getClimbingForParseId(int id) {
+		public static Climbing getClimbingForParseId(String id) {
 			QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
 			Where<Climbing, Integer> where = query.where();
 			// the name field must be equal to "foo"
