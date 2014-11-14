@@ -82,4 +82,16 @@ public class TourDetailActivity extends FragmentActivity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
+	
+	 @Override
+	    protected void onResume() {
+	      super.onResume();
+	      ClimbApplication.activityResumed();
+	    }
+
+	    @Override
+	    protected void onPause() {
+	      super.onPause();
+	      ClimbApplication.activityPaused();
+	    }
 }

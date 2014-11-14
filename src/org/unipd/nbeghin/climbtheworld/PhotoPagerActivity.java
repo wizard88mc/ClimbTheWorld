@@ -61,6 +61,18 @@ public class PhotoPagerActivity extends BaseImageLoaderActivity {
 		pager.setAdapter(new ImagePagerAdapter(GalleryActivity.photos));
 		pager.setCurrentItem(pagerPosition);
 	}
+	
+	 @Override
+	    protected void onResume() {
+	      super.onResume();
+	      ClimbApplication.activityResumed();
+	    }
+
+	    @Override
+	    protected void onPause() {
+	      super.onPause();
+	      ClimbApplication.activityPaused();
+	    }
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {

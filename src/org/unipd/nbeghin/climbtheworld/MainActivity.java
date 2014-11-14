@@ -66,6 +66,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -185,6 +186,8 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 	protected void onStart(){
 		super.onStart();
 		//if not logged in, login default owner user
+		
+		
 				if (pref.getInt("local_id", -1) == -1) {
 					setUserOwner();
 				}else{
@@ -195,6 +198,12 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 					ClimbApplication.refreshTeamDuels();
 					ClimbApplication.refreshUserBadge();
 					System.out.println("END REFRESH");
+				}
+				
+				if(!FacebookUtils.isOnline(sContext)){
+					Toast t = Toast.makeText(getContext(), "Sei offline ora, ma i tuoi progressi saranno salvati non appena la connessione torna", Toast.LENGTH_LONG);
+					t.setGravity(Gravity.TOP, 0, 0);
+					t.show();
 				}
 	}
 
@@ -293,8 +302,8 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 			} else if (state.isClosed()) {
 				Log.i(MainActivity.AppName, "Logged out...");
 			}
-		} else
-			Toast.makeText(getApplicationContext(), getString(R.string.check_connection), Toast.LENGTH_LONG).show();
+		}// else
+			//Toast.makeText(getApplicationContext(), getString(R.string.check_connection), Toast.LENGTH_LONG).show();
 	}
 
 	private class NotificationAsyncTask extends AsyncTask<Void, Void, Void> {
@@ -687,6 +696,7 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 		}
 
 		uiHelper.onResume();
+		ClimbApplication.activityResumed();
 	}
 
 	@Override
@@ -694,7 +704,7 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 		Log.i(MainActivity.AppName, "MainActivity onPause");
 		super.onPause();
 		uiHelper.onPause();
-
+		ClimbApplication.activityPaused();
 	}
 
 	private void copyFile(InputStream in, OutputStream out) throws IOException {
@@ -919,4 +929,5 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 		Intent i = new Intent(this, WalkthroughActivity.class);
 		startActivity(i);
 	}
+	
 }

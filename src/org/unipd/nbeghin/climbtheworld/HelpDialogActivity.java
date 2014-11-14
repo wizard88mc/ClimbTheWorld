@@ -114,6 +114,8 @@ public class HelpDialogActivity extends Dialog {
 	        v.requestLayout();
 	    }
 	}
+	
+	
 
 }
 

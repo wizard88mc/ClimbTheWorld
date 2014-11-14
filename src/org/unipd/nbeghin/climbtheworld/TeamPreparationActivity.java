@@ -469,7 +469,7 @@ public class TeamPreparationActivity extends ActionBarActivity {
 						
 					}
 					
-				Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+				//Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
 				Log.e(getClass().getName(), ex.getMessage());
 				}
 				
@@ -522,4 +522,16 @@ public class TeamPreparationActivity extends ActionBarActivity {
 		
 		finish();
 	}
+	
+	 @Override
+	    protected void onResume() {
+	      super.onResume();
+	      ClimbApplication.activityResumed();
+	    }
+
+	    @Override
+	    protected void onPause() {
+	      super.onPause();
+	      ClimbApplication.activityPaused();
+	    }
 }

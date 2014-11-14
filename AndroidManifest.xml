@@ -27,21 +27,39 @@
             android:name=".services.SamplingRateDetectorService"
             android:exported="false" />
 	 <service android:name=".services.UpdateService"/>
+	 <activity 
+	    	android:name=".SplashScreen"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light"
+	     >
+	     
+	     <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+	     
+	 </activity>
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            
         </activity>
+        
        <receiver android:name=".services.NetworkBroadcasterReceiver" >
         <intent-filter>
             <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
         </intent-filter>
-   		</receiver> 
+   		</receiver>
+   		
+  <!--      <receiver android:name=".services.ConnectionAdvisor" >
+        <intent-filter>
+            <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+        </intent-filter>
+   		</receiver> -->
+   		
         <activity
             android:name=".ClimbActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"

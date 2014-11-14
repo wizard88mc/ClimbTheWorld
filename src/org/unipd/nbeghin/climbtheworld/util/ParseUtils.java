@@ -42,7 +42,8 @@ public class ParseUtils {
 				}else{
 					l_climbing.setSaved(false);
 					ClimbApplication.climbingDao.update(l_climbing);
-					Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					//Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					//ClimbApplication.showConnectionProblemsToast();
 					Log.e(getClass().getName(), ex.getMessage());
 				}
 				
@@ -63,7 +64,8 @@ public class ParseUtils {
 				}else{
 					l_microgoal.setSaved(false);
 					ClimbApplication.microgoalDao.update(l_microgoal);
-					Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					//Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					//ClimbApplication.showConnectionProblemsToast();
 					Log.e(getClass().getName(), ex.getMessage());
 				}
 				
@@ -79,7 +81,8 @@ public class ParseUtils {
 				if(e == null){
 					Log.i(getClass().getName(), "User correctly saved in Parse");
 				}else{
-					Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					//Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					//ClimbApplication.showConnectionProblemsToast();
 					Log.e(getClass().getName(), e.getMessage());
 				}
 			}
@@ -103,7 +106,8 @@ public class ParseUtils {
 				}else{
 					l_collaboration.setSaved(false);
 					ClimbApplication.collaborationDao.update(l_collaboration);
-					Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					//Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					//ClimbApplication.showConnectionProblemsToast();
 					Log.e(getClass().getName(), ex.getMessage());
 				}
 				
@@ -128,7 +132,8 @@ public class ParseUtils {
 				}else{
 					l_competition.setSaved(false);
 					ClimbApplication.competitionDao.update(l_competition);
-					Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					//Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					//ClimbApplication.showConnectionProblemsToast();
 					Log.e(getClass().getName(), ex.getMessage());
 				}
 				
@@ -149,7 +154,8 @@ public class ParseUtils {
 				}else{
 					l_teamduel.setSaved(false);
 					ClimbApplication.teamDuelDao.update(l_teamduel);
-					Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					//Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					//ClimbApplication.showConnectionProblemsToast();
 					Log.e(getClass().getName(), ex.getMessage());
 				}
 				
@@ -169,7 +175,8 @@ public class ParseUtils {
 					l_climbing.setDeleted(true);
 					l_climbing.setSaved(false);
 					ClimbApplication.climbingDao.update(l_climbing);
-					Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					//Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					//ClimbApplication.showConnectionProblemsToast();
 					Log.e(getClass().getName(), e.getMessage());
 				}
 				
@@ -189,7 +196,8 @@ public class ParseUtils {
 					l_collaboration.setLeaved(true);
 					l_collaboration.setSaved(false);
 					ClimbApplication.collaborationDao.update(l_collaboration);
-					Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					//Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					//ClimbApplication.showConnectionProblemsToast();
 					Log.e(getClass().getName(), ex.getMessage());
 				}
 				
@@ -209,7 +217,8 @@ public class ParseUtils {
 					l_competition.setLeaved(true);
 					l_competition.setSaved(false);
 					ClimbApplication.competitionDao.update(l_competition);
-					Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					//Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					//ClimbApplication.showConnectionProblemsToast();
 					Log.e(getClass().getName(), ex.getMessage());
 				}
 				
@@ -229,7 +238,8 @@ public class ParseUtils {
 					l_teamDuel.setDeleted(true);
 					l_teamDuel.setSaved(false);
 					ClimbApplication.teamDuelDao.update(l_teamDuel);
-					Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					//Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					//ClimbApplication.showConnectionProblemsToast();
 					Log.e(getClass().getName(), e.getMessage());
 
 				}
@@ -262,8 +272,9 @@ public class ParseUtils {
 						}
 						ClimbApplication.userDao.update(me);
 				    } else {
-				    		Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
-						Log.e(getClass().getName(), e.getMessage());
+				    		//Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+						//ClimbApplication.showConnectionProblemsToast();
+				    	Log.e(getClass().getName(), e.getMessage());
 				    }
 				  }
 				});

@@ -32,6 +32,18 @@ public class WalkthroughActivity extends Activity {
         nav.setText("Page 1 of " + MAX_VIEWS);
         mViewPager.setOnPageChangeListener(new WalkthroughPageChangeListener());
     }
+    
+    @Override
+    protected void onResume() {
+      super.onResume();
+      ClimbApplication.activityResumed();
+    }
+
+    @Override
+    protected void onPause() {
+      super.onPause();
+      ClimbApplication.activityPaused();
+    }
 
 
     class WalkthroughPagerAdapter extends PagerAdapter {

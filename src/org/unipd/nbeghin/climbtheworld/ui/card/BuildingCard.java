@@ -793,7 +793,7 @@ public class BuildingCard extends Card {
 					}
 					climbing.setSaved(false);
 					ClimbApplication.climbingDao.update(climbing);
-					Toast.makeText(activity, ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+					//Toast.makeText(activity, ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
 				}
 
 			}

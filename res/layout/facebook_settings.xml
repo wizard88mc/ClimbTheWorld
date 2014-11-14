@@ -28,13 +28,18 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal" >
 
-            <com.facebook.widget.ProfilePictureView
+            <android.widget.ProfilePictureView
                 android:id="@+id/fb_profile_picture"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
-                facebook:preset_size="small" >
-            </com.facebook.widget.ProfilePictureView>
+                android:layout_marginLeft="5dp"
+                 >
+            </android.widget.ProfilePictureView>
+            
+            <!-- com.facebook.widget.ProfilePictureView
+            	facebook:preset_size="small"
+             -->
 
             <TextView
                 android:id="@+id/lblFacebookUser"

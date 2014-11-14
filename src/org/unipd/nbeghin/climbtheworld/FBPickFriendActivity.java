@@ -177,4 +177,16 @@ public class FBPickFriendActivity extends ActionBarActivity {
 
 		        return super.onCreateOptionsMenu(menu);
 		}
+		
+		 @Override
+		    protected void onResume() {
+		      super.onResume();
+		      ClimbApplication.activityResumed();
+		    }
+
+		    @Override
+		    protected void onPause() {
+		      super.onPause();
+		      ClimbApplication.activityPaused();
+		    }
 }

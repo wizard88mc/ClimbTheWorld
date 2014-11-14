@@ -272,5 +272,6 @@
     <string name="microgoal_help">Premi per vedere il tuo obiettivo attuale</string>
     <string name="update_help">Premi per aggiornare i dati suoi tuoi amici</string>
     <string name="tap_to_dismiss">Tocca per chiudere</string>
-    
+    <!-- splash -->
+    <string name="loading">Caricamento...</string>
 </resources>

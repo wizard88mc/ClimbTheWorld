@@ -18,4 +18,16 @@ public abstract class BaseImageLoaderActivity extends ActionBarActivity {
 		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext()).threadPoolSize(3).defaultDisplayImageOptions(defaultOptions).build();
 		ImageLoader.getInstance().init(config);
 	}
+	
+	 @Override
+	    protected void onResume() {
+	      super.onResume();
+	      ClimbApplication.activityResumed();
+	    }
+
+	    @Override
+	    protected void onPause() {
+	      super.onPause();
+	      ClimbApplication.activityPaused();
+	    }
 }

@@ -24,7 +24,8 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
-import com.facebook.widget.ProfilePictureView;
+//import com.facebook.widget.ProfilePictureView;
+import android.widget.ProfilePictureView;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -99,6 +100,7 @@ public class SettingsActivity extends PreferenceActivity {
 						if (user != null && profilePictureView != null) {
 							profilePictureView.setCropped(true);
 							profilePictureView.setProfileId(user.getId());
+							profilePictureView.setPresetSize(-2); //SMALL
 							lblFacebookUser.setText(user.getName());
 							profile_name.setSummary(user.getName());
 						} else
@@ -286,6 +288,7 @@ public class SettingsActivity extends PreferenceActivity {
 		}
 
 		uiHelper.onResume();
+		ClimbApplication.activityResumed();
 	}
 
 	@Override
@@ -298,6 +301,7 @@ public class SettingsActivity extends PreferenceActivity {
 	public void onPause() {
 		super.onPause();
 		uiHelper.onPause();
+		ClimbApplication.activityPaused();
 	}
 
 	@Override

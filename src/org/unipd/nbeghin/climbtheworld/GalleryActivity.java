@@ -106,12 +106,14 @@ public class GalleryActivity extends BaseImageLoaderActivity {
 	protected void onResume() {
 		Log.i(MainActivity.AppName, "GalleryActivity onResume");
 		super.onResume();
+		ClimbApplication.activityResumed();
 	}
 
 	@Override
 	protected void onPause() {
 		Log.i(MainActivity.AppName, "GalleryActivity onPause");
 		super.onPause();
+		ClimbApplication.activityPaused();
 	}
 
 	@Override

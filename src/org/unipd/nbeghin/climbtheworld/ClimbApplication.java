@@ -35,6 +35,7 @@ import org.unipd.nbeghin.climbtheworld.models.Tour;
 import org.unipd.nbeghin.climbtheworld.models.TourText;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.models.UserBadge;
+import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 import org.unipd.nbeghin.climbtheworld.util.ParseUtils;
 import org.unipd.nbeghin.climbtheworld.weka.WekaClassifier;
 
@@ -50,6 +51,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Toast;
 
@@ -86,6 +88,8 @@ public class ClimbApplication extends Application{
 	public static final int N_MEMBERS_PER_GROUP = 6; // 5 friends + me
 	public static boolean BUSY = false;
 	public static Object lock = new Object();
+	
+	private static boolean activityVisible;
 	
 	//current application language
 	public static String language;
@@ -127,6 +131,8 @@ public class ClimbApplication extends Application{
 
 	public static User currentUser;
 	
+	public static Toast connection_toast;
+	
 	public static final String settings_file = "ClimbTheWorldPreferences";
 	public static final String settings_detected_sampling_rate = "samplingRate";
 	
@@ -157,6 +163,18 @@ public class ClimbApplication extends Application{
 		currentUser = user;
 	}
 	
+	public static boolean isActivityVisible() {
+	    return activityVisible;
+	  }  
+
+	  public static void activityResumed() {
+	    activityVisible = true;
+	  }
+
+	  public static void activityPaused() {
+	    activityVisible = false;
+	  }
+	
 	public static List<JSONObject> getInvitableFriends(){
 		return invitableFriends;
 	}
@@ -182,12 +200,7 @@ public class ClimbApplication extends Application{
 				"QVII1Qhy8pXrjAZiL07qaTKbaWpkB87zc88UMWv2");
 		ParseFacebookUtils.initialize(getString(R.string.app_id));
 		loadDb();
-		try { 
-			Log.i("ClimbApplication", "Loading game model");
-			WekaClassifier.initializeParameters(getResources().openRawResource(R.raw.newmodelvsw30osl0));
-		} catch (IOException exc) {
-			//finish();
-		}
+		
 		
 	  }
 	 
@@ -1208,12 +1221,17 @@ public class ClimbApplication extends Application{
 			invitableFriendsRequest.setParameters(invitableParams);
 			requestBatch.add(invitableFriendsRequest);
 						
-			
-
 			return requestBatch;
 		}
 		
 		public static double fromStepsToMeters(int steps){
 			return (double) steps * Building.average_step_height / (double) 100;
+		}
+		
+		public static void showConnectionProblemsToast(){
+			if(connection_toast == null){
+//				connection_toast = 	Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT);
+//				connection_toast.show();
+			}
 		}
 }

@@ -19,7 +19,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -29,8 +28,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProfilePictureView;
 import android.widget.ProgressBar;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,7 +39,7 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
-import com.facebook.widget.ProfilePictureView;
+//import com.facebook.widget.ProfilePictureView;
 import com.parse.ParseUser;
 
 public class ProfileActivity extends ActionBarActivity implements NetworkRequests {
@@ -87,6 +86,7 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 
 		lblFacebookUser = ((TextView) findViewById(R.id.textUserName));
 		profilePictureView = (ProfilePictureView) findViewById(R.id.fb_profile_picture2);
+		profilePictureView.setPresetSize(-2); //SMALL
 		pref = getApplicationContext().getSharedPreferences("UserSession", 0);
 		me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
 		
@@ -303,13 +303,14 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 
 
 		uiHelper.onResume();
-
+		ClimbApplication.activityResumed();
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
 		uiHelper.onPause();
+		ClimbApplication.activityPaused();
 	}
 
 	@Override

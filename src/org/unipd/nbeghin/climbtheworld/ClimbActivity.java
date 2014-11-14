@@ -1337,9 +1337,9 @@ public class ClimbActivity extends ActionBarActivity {
 					} else {
 						climbing.setSaved(false);
 						ClimbApplication.climbingDao.update(climbing);
-						Toast.makeText(getApplicationContext(),
-								getString(R.string.connection_problem2),
-								Toast.LENGTH_SHORT).show();
+//						Toast.makeText(getApplicationContext(),
+//								getString(R.string.connection_problem2),
+//								Toast.LENGTH_SHORT).show();
 					}
 
 				}
@@ -1388,9 +1388,7 @@ public class ClimbActivity extends ActionBarActivity {
 	 * 
 	 */
 	private void updateClimbingInParse(final Climbing myclimbing, boolean paused) {
-		System.out
-				.println("updateClimbingInParse " + myclimbing.getId_online());
-		System.out.println(pref.getString("FBid", "none"));
+
 		final SharedPreferences pref = getApplicationContext()
 				.getSharedPreferences("UserSession", 0);
 		if (FacebookUtils.isOnline(this)) {
@@ -1461,9 +1459,9 @@ public class ClimbActivity extends ActionBarActivity {
 		} else {
 			myclimbing.setSaved(false);
 			ClimbApplication.climbingDao.update(myclimbing);
-			Toast.makeText(getApplicationContext(),
-					getString(R.string.connection_problem2), Toast.LENGTH_SHORT)
-					.show();
+//			Toast.makeText(getApplicationContext(),
+//					getString(R.string.connection_problem2), Toast.LENGTH_SHORT)
+//					.show();
 
 		}
 	}
@@ -1499,9 +1497,9 @@ public class ClimbActivity extends ActionBarActivity {
 					microgoal.setDeleted(true);
 					microgoal.setSaved(false);
 					ClimbApplication.microgoalDao.update(microgoal);
-					Toast.makeText(getApplicationContext(),
-							getString(R.string.connection_problem2),
-							Toast.LENGTH_SHORT).show();
+//					Toast.makeText(getApplicationContext(),
+//							getString(R.string.connection_problem2),
+//							Toast.LENGTH_SHORT).show();
 					Log.e("delete microgoal", e.getMessage());
 				}
 
@@ -1527,9 +1525,9 @@ public class ClimbActivity extends ActionBarActivity {
 				} else {
 					microgoal.setSaved(false);
 					ClimbApplication.microgoalDao.update(microgoal);
-					Toast.makeText(getApplicationContext(),
-							getString(R.string.connection_problem2),
-							Toast.LENGTH_SHORT).show();
+//					Toast.makeText(getApplicationContext(),
+//							getString(R.string.connection_problem2),
+//							Toast.LENGTH_SHORT).show();
 					Log.e("update microgoal", e.getMessage());
 				}
 
@@ -2077,9 +2075,9 @@ public class ClimbActivity extends ActionBarActivity {
 		collaboration.setMy_stairs(climbing.getCompleted_steps());
 		if (collab_parse == null) {
 			collaboration.setSaved(false);
-			Toast.makeText(getApplicationContext(),
-					getString(R.string.connection_problem2), Toast.LENGTH_SHORT)
-					.show();
+//			Toast.makeText(getApplicationContext(),
+//					getString(R.string.connection_problem2), Toast.LENGTH_SHORT)
+//					.show();
 		} else {
 			SharedPreferences pref = getSharedPreferences("UserSession", 0);
 			JSONObject stairs = collab_parse.getJSONObject("stairs");
@@ -2111,9 +2109,9 @@ public class ClimbActivity extends ActionBarActivity {
 		competition.setMy_stairs(climbing.getCompleted_steps());
 		if (compet_parse == null) {
 			competition.setSaved(false);
-			Toast.makeText(getApplicationContext(),
-					getString(R.string.connection_problem2), Toast.LENGTH_SHORT)
-					.show();
+//			Toast.makeText(getApplicationContext(),
+//					getString(R.string.connection_problem2), Toast.LENGTH_SHORT)
+//					.show();
 		} else {
 			SharedPreferences pref = getSharedPreferences("UserSession", 0);
 			JSONObject stairs = compet_parse.getJSONObject("stairs");
@@ -2145,9 +2143,9 @@ public class ClimbActivity extends ActionBarActivity {
 		teamDuel.setMy_steps(climbing.getCompleted_steps());
 		if (teamDuel_parse == null) {
 			teamDuel.setSaved(false);
-			Toast.makeText(getApplicationContext(),
-					getString(R.string.connection_problem2), Toast.LENGTH_SHORT)
-					.show();
+//			Toast.makeText(getApplicationContext(),
+//					getString(R.string.connection_problem2), Toast.LENGTH_SHORT)
+//					.show();
 		} else {
 			SharedPreferences pref = getSharedPreferences("UserSession", 0);
 			JSONObject myteam;
@@ -2248,12 +2246,14 @@ public class ClimbActivity extends ActionBarActivity {
 		// intent
 		Log.i(MainActivity.AppName, "Building id: " + building_id);
 		super.onResume();
+		ClimbApplication.activityResumed();
 	}
 
 	@Override
 	protected void onPause() {
 		Log.i(MainActivity.AppName, "ClimbActivity onPause");
 		super.onPause();
+		ClimbApplication.activityPaused();
 		SharedPreferences paused = getSharedPreferences("state", 0);
 		Editor editor = paused.edit();
 		editor.putBoolean("paused", true);
@@ -3146,9 +3146,9 @@ public class ClimbActivity extends ActionBarActivity {
 						}
 					}
 				} else {
-					Toast.makeText(getApplicationContext(),
-							getString(R.string.connection_problem2),
-							Toast.LENGTH_SHORT).show();
+//					Toast.makeText(getApplicationContext(),
+//							getString(R.string.connection_problem2),
+//							Toast.LENGTH_SHORT).show();
 					Log.e("saveBadges", e.getMessage());
 				}
 			}
