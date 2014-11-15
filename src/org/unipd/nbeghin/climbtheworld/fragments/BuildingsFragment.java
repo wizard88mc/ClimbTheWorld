@@ -68,6 +68,7 @@ public class BuildingsFragment extends Fragment {
 									intent.putExtra(ClimbApplication.building_text_intent_object, building.getBuilding().get_id());
 									intent.setAction("back");
 									getActivity().startActivity(intent);
+									//getActivity().finish();
 								}
 							} else {
 								Log.i("Building Fragment", "Building id clicked: " + building.getBuilding().get_id());
@@ -76,6 +77,7 @@ public class BuildingsFragment extends Fragment {
 								intent.putExtra(ClimbApplication.counter_mode, false);
 								intent.putExtra(ClimbApplication.building_text_intent_object, building.get_id());
 								startActivity(intent);
+								//getActivity().finish();
 							}
 
 						} else {
@@ -85,6 +87,7 @@ public class BuildingsFragment extends Fragment {
 							intent.putExtra(ClimbApplication.building_text_intent_object, building.get_id());
 							intent.setAction("back");
 							startActivity(intent);
+							//getActivity().finish();
 						}
 
 					}

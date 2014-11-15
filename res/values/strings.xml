@@ -269,5 +269,8 @@
 	
     <!-- splash -->
     <string name="loading">Loading...</string>
-
+    
+    <!-- dialog climb activity -->
+	<string name="title_climb_dialog">Wait</string>
+	<string name="message_climb_dialog">Downloading group members\' progress...</string>
 </resources>

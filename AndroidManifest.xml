@@ -60,11 +60,11 @@
         </intent-filter>
    		</receiver> -->
    		
-        <activity
+        <activity 
             android:name=".ClimbActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_climb"
-            android:launchMode="singleInstance"
+           android:launchMode="singleTask"
             android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullscreenTheme" >
@@ -72,6 +72,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.unipd.nbeghin.climbtheworld.MainActivity" />
         </activity>
+        <!--  android:launchMode="singleInstance" -->
         <activity
             android:name=".ProfileActivity"
             android:label="@string/title_activity_profile"

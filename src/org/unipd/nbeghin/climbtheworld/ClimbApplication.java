@@ -200,8 +200,7 @@ public class ClimbApplication extends Application{
 				"QVII1Qhy8pXrjAZiL07qaTKbaWpkB87zc88UMWv2");
 		ParseFacebookUtils.initialize(getString(R.string.app_id));
 		loadDb();
-		
-		
+
 	  }
 	 
 	 /**

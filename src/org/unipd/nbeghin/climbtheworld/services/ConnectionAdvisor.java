@@ -18,7 +18,7 @@ public class ConnectionAdvisor extends BroadcastReceiver{
 		
 		if(!FacebookUtils.isOnline(context) && ClimbApplication.isActivityVisible()){
 			Toast t = Toast.makeText(context, "Sei offline ora, ma i tuoi progressi saranno salvati non appena la connessione torna", Toast.LENGTH_SHORT);
-			t.setGravity(Gravity.TOP, 0, 0);
+			t.setGravity(Gravity.TOP, 0, 300);
 			t.show();
 		}
 	}

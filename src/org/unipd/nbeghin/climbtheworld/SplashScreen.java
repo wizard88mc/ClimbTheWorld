@@ -81,6 +81,7 @@ public class SplashScreen extends ActionBarActivity{
 	            // dismiss your dialog
 	            // launch your News activity
 	            Intent intent = new Intent(SplashScreen.this, MainActivity.class);
+	            intent.putExtra("FirstOpen", true);
 	            startActivity(intent);
 
 	            // close this activity

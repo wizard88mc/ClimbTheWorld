@@ -254,7 +254,6 @@ public class MyAsync {
 							long parseTime = climb.getDate("modified").getTime();
 							if (localTime < parseTime) { // parseTime � piu
 															// recente
-								System.out.println("c'� un aggiornamento");
 								localClimb.setCompleted(climb.getDate("completedAt").getTime());
 								localClimb.setCompleted_steps(climb.getInt("completed_steps"));
 								localClimb.setCreated(climb.getDate("created").getTime());

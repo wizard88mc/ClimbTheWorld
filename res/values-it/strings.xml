@@ -272,6 +272,11 @@
     <string name="microgoal_help">Premi per vedere il tuo obiettivo attuale</string>
     <string name="update_help">Premi per aggiornare i dati suoi tuoi amici</string>
     <string name="tap_to_dismiss">Tocca per chiudere</string>
+    
     <!-- splash -->
     <string name="loading">Caricamento...</string>
+    
+    <!-- dialog climb activity -->
+	<string name="title_climb_dialog">Attendere...</string>
+	<string name="message_climb_dialog">Sto scaricando i progressi dei tuoi compagni di gruppo...</string>
 </resources>
