@@ -279,4 +279,6 @@
     <!-- dialog climb activity -->
 	<string name="title_climb_dialog">Attendere...</string>
 	<string name="message_climb_dialog">Sto scaricando i progressi dei tuoi compagni di gruppo...</string>
+	
+	<string name="offline">Sei offline: gioca tranquillamente, i tuoi progressi saranno automaticamente salvati alla prossima riconnessione</string>
 </resources>

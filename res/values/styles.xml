@@ -19,7 +19,7 @@
     </style>
 
     <style name="FullscreenTheme" parent="@style/Theme.AppCompat.Light"> <!--parent="android:Theme.NoTitleBar"  -->
-        <item name="android:windowContentOverlay">@null</item>
+        
         <item name="android:windowBackground">@null</item>
         <item name="buttonBarStyle">@style/ButtonBar</item>
         <item name="buttonBarButtonStyle">@style/ButtonBarButton</item>  
@@ -28,7 +28,7 @@
     <item name="actionBarTabStyle">@style/MyActionBarTabView</item> 
     <item name="actionMenuTextColor">@color/white</item>
                  <item name="homeAsUpIndicator">@drawable/ic_action_previous_item</item>
-    
+    <!-- <item name="android:windowContentOverlay">@null</item> -->
     
     </style> <!-- 
     <item name="android:windowNoTitle">true</item>

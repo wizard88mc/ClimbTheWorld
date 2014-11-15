@@ -865,7 +865,7 @@ public class ClimbActivity extends ActionBarActivity {
 		}
 
 		protected void onPreExecute() {
-			dialog.setTitle(getString(R.string.title_activity_climb));
+			dialog.setTitle(getString(R.string.title_climb_dialog));
 			dialog.setMessage(getString(R.string.message_climb_dialog));
 			dialog.setCancelable(false);
 			dialog.show();
@@ -914,6 +914,10 @@ public class ClimbActivity extends ActionBarActivity {
 			loadTeamDuel();
 			break;
 		case SOLO_CLIMB:
+			synchronized (ClimbApplication.lock) {
+				in_progress = false;
+				ClimbApplication.lock.notifyAll();
+			}
 			break;
 		}
 	}
@@ -1636,8 +1640,7 @@ public class ClimbActivity extends ActionBarActivity {
 //					// fillUpIntentWithExtras(upIntent);
 //					NavUtils.navigateUpTo(this, upIntent);
 //				}
-				//NavUtils.navigateUpFromSameTask(this);
-				moveTaskToBack(true);
+				NavUtils.navigateUpFromSameTask(this);
 				finish();
 			} else { // disable back button if sampling is enabled
 				Toast.makeText(getApplicationContext(), getString(R.string.sampling_enabled), Toast.LENGTH_SHORT).show();

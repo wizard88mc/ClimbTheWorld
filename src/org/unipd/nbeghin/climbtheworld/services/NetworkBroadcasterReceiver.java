@@ -1,6 +1,7 @@
 package org.unipd.nbeghin.climbtheworld.services;
 
 import org.unipd.nbeghin.climbtheworld.ClimbApplication;
+import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 
 import android.content.BroadcastReceiver;
@@ -23,7 +24,7 @@ public class NetworkBroadcasterReceiver extends BroadcastReceiver{
 		}
         
         if(!FacebookUtils.isOnline(context) && ClimbApplication.isActivityVisible()){
-			Toast t = Toast.makeText(context, "Sei offline ora, ma i tuoi progressi saranno salvati non appena la connessione torna", Toast.LENGTH_SHORT);
+			Toast t = Toast.makeText(context, context.getString(R.string.offline), Toast.LENGTH_SHORT);
 			t.setGravity(Gravity.TOP, 0, 0);
 			t.show();
 		}

@@ -204,7 +204,7 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 				boolean isFromSplashScreen = i.getBooleanExtra("FirstOpen", false);
 				
 				if(!FacebookUtils.isOnline(sContext) && isFromSplashScreen){
-					Toast t = Toast.makeText(getContext(), "Sei offline ora, ma i tuoi progressi saranno salvati non appena la connessione torna", Toast.LENGTH_LONG);
+					Toast t = Toast.makeText(getContext(), getString(R.string.offline), Toast.LENGTH_LONG);
 					t.setGravity(Gravity.TOP, 0, 300);
 					t.show();
 				}

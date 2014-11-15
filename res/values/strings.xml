@@ -273,4 +273,7 @@
     <!-- dialog climb activity -->
 	<string name="title_climb_dialog">Wait</string>
 	<string name="message_climb_dialog">Downloading group members\' progress...</string>
+	
+	<string name="offline">You are offline: keep playing, your progresses will be automatically saved during next reconnection</string>
+	
 </resources>

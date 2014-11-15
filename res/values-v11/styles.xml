@@ -11,13 +11,13 @@
 
     <style name="FullscreenTheme" parent="@style/Theme.AppCompat.Light"> <!--parent="android:Theme.NoTitleBar"  -->
         <item name="android:actionBarStyle">@style/FullscreenActionBarStyle</item>
-        <item name="android:windowActionBarOverlay">true</item>
         <item name="android:windowBackground">@null</item>
         <item name="buttonBarStyle">?android:attr/buttonBarStyle</item>
         <item name="buttonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
              <item name="android:homeAsUpIndicator">@drawable/ic_action_previous_item</item>
         
-        
+        <!--          <item name="android:windowActionBarOverlay">true</item>
+         -->
 
     </style> <!-- 
      <item name="android:windowNoTitle">true</item>
