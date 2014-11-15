@@ -33,19 +33,6 @@
         android:visibility="invisible"
         android:src="@drawable/arrow" />
 
-    <TextView
-        android:id="@+id/lblReadyToClimb"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="60dp"
-        android:gravity="center"
-        android:keepScreenOn="true"
-        android:visibility="invisible"
-        android:text="@string/ready_to_go"
-        android:textColor="#33b5e5"
-        android:textSize="50sp"
-        android:textStyle="bold" />
-
     <!--
          This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows.
@@ -59,7 +46,7 @@
         android:keepScreenOn="true"
         android:text="@string/win"
         android:textColor="#ff2600"
-        android:textSize="50sp"
+        android:textSize="30sp"
         android:textStyle="bold"
         android:visibility="invisible" />
 
@@ -447,9 +434,24 @@
                         android:gravity="center_horizontal"
                         android:textColor="#000000" />
                 </TableRow>
+
             </TableLayout>
+            
+           
 
         </LinearLayout>
+        
+            <TextView
+        android:id="@+id/lblReadyToClimb"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:keepScreenOn="true"
+        android:text="@string/ready_to_go"
+        android:textColor="#33b5e5"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:visibility="invisible" />
 
         <!-- @drawable/device_access_video -->
 
@@ -463,13 +465,16 @@
         android:id="@+id/encouragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="60dp"
+        
         android:gravity="center"
         android:keepScreenOn="true"
         android:text="@string/encouragement"
         android:textColor="#33b5e5"
-        android:textSize="50sp"
+        android:textSize="30sp"
         android:textStyle="bold"
-        android:visibility="invisible" />
+        android:visibility="invisible" /> <!--         android:layout_marginBottom="60dp"
+         -->
+
+ 
 
 </FrameLayout>

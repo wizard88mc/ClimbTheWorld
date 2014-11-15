@@ -87,7 +87,8 @@
             android:maxHeight="70dp"
             android:maxWidth="70dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/curve" />
+            android:src="@drawable/curve"
+             />
 
         <TextView
             android:id="@+id/TextDismiss"
@@ -139,8 +140,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_marginRight="38dp"
-            android:layout_toLeftOf="@+id/linearLayout2"
+            android:layout_marginRight="100dp"
+            android:layout_toLeftOf="@+id/imageGallery"
             android:adjustViewBounds="true"
             android:maxHeight="70dp"
             android:maxWidth="70dp"
