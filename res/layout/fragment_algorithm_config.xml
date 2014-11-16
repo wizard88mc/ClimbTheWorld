@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:staggered="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="#FFFFFF" >
+    
+     <com.etsy.android.grid.StaggeredGridView
+         android:id="@+id/alg_conf_gridview"
+         android:layout_width="wrap_content"
+         android:layout_height="match_parent"
+         android:gravity="center"
+         android:layout_marginTop="15dp"
+         android:layout_alignParentBottom="true"
+         android:layout_below="@+id/green_picker"
+         android:stretchMode="columnWidth" 
+         android:background="#FFFFFF" 
+         staggered:column_count="4"  
+         staggered:item_margin="1dp"/>
+    
+    <!--  <android.widget.GridView
+        android:id="@+id/alg_conf_gridview"
+        android:layout_width="wrap_content"
+   		android:layout_height="wrap_content"
+    	android:gravity="center"
+        android:layout_above="@+id/button1"
+        android:layout_alignParentLeft="true" 
+        android:numColumns="4"
+   		android:stretchMode="columnWidth"
+   		android:background="#FFFFFF"
+        android:verticalSpacing="1dp"
+        android:horizontalSpacing="1dp"
+        android:visibility="visible"/>   -->
+
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/green_picker"
+        android:text="Button" 
+        android:visibility="gone"/>
+
+    <Button
+        android:id="@+id/Button02"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="Button" 
+        android:visibility="gone"/>
+
+    <Button
+        android:id="@+id/Button01"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/green_picker"
+        android:text="Button" 
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/color_click_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="@string/choose_color"
+        android:gravity="center"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/yellow_picker"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_alignBaseline="@+id/green_picker"
+        android:layout_alignBottom="@+id/green_picker"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/rectangle_shape"
+        android:gravity="center"
+        android:text="@string/yellow_time_slot"
+        android:visibility="visible" />
+
+    <TextView
+        android:id="@+id/red_picker"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_alignBaseline="@+id/green_picker"
+        android:layout_alignBottom="@+id/green_picker"
+        android:layout_alignParentLeft="true"
+        android:background="@drawable/rectangle_shape"
+        android:gravity="center"
+        android:text="@string/red_time_slot"
+        android:visibility="visible" />
+
+    <TextView
+        android:id="@+id/green_picker"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_below="@+id/color_click_text"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/rectangle_shape"
+        android:gravity="center"
+        android:text="@string/green_time_slot"
+        android:visibility="visible" />
+    
+</RelativeLayout>

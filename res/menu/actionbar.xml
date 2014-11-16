@@ -8,8 +8,13 @@
         android:title="Search"
         climbtheworld:actionViewClass="android.support.v7.widget.SearchView"
         climbtheworld:showAsAction="ifRoom|collapseActionView">
-    </item>
-   
+    </item>     
+     <item
+        android:id="@+id/config_algorithm"
+        android:title="Algorithm configuration"
+   	    android:onClick="onConfigAlgorithm"
+        climbtheworld:showAsAction="ifRoom">
+    </item> 
     <item
         android:id="@+id/show_algorithm_log"
         android:title="Log"

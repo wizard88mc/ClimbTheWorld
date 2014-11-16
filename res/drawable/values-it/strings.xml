@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Climb The World</string>
+    <string name="action_settings">Impostazioni</string>
+    <string name="title_activity_climb">Scala l\'edificio!</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="title_activity_profile">Il tuo profilo</string>
+    <string name="title_activity_tour_detail">Tour - dettagli</string>
+    <string name="title_activity_gallery">Galleria</string>
+    <string name="title_activity_photo_pager_activity">Galleria</string>
+    <string name="title_activity_log">Log</string>
+    <string name="refresh_log_data">Ricarica</string>
+    <string name="app_id">1444608782432270</string>
+    <!--  <string name="app_name">ClimbTheWorld</string> -->
+    <!-- <string name="app_id">370546396320150</string> -->
+    <string name="title_activity_fbshare_progress">Condividi miglioramento</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_fbpick_friend">Invita i tuoi amici</string>
+
+    <!-- Data connection dialog -->
+    <string name="netalert_title">Connessione dati non disponibile!</string>
+    <string name="netalert_msg">Vuoi abilitarla?</string>
+    <string name="netalert_yes">Sì</string>
+    <string name="netalert_no">No</string>
+    
+    
+    <!-- Algorithm Configuration -->
+    <string name="choose_color">Scegli un colore e poi imposta le fasce orarie</string>
+    <string name="red_time_slot">Assolutamente no</string>
+    <string name="green_time_slot">Probabilmente sì</string>
+    <string name="yellow_time_slot">Probabilmente no</string>
+    
+    
+</resources>

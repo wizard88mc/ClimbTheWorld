@@ -19,11 +19,18 @@
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_fbpick_friend">FBPickFriendActivity</string>
 
-    
+    <!-- Data connection dialog -->
     <string name="netalert_title">Data connection unavailable!</string>
     <string name="netalert_msg">Do you want to enable it?</string>
     <string name="netalert_yes">Yes</string>
     <string name="netalert_no">No</string>
+    
+    <!-- Algorithm Configuration -->    
+    <string name="choose_color">Choose a color and then set the time slots</string>
+    <string name="red_time_slot">Absolutely not</string>
+    <string name="green_time_slot">Probably yes</string>
+    <string name="yellow_time_slot">Probably not</string>
+    
     
     
 </resources>
