@@ -158,9 +158,11 @@ public class AlgorithmConfigFragment extends Fragment {
     	
     	ListView lstV = new ListView(getActivity());
     	
-    	Button a = new Button(getActivity());
-    	
-    	lstV.addFooterView(a);
+    	Button config_btt = new Button(getActivity());
+    	config_btt.setText(R.string.config_button_text);
+    	config_btt.setId(R.string.config_button_id);
+    	config_btt.setBackgroundResource(R.drawable.blue_button_style);
+    	lstV.addFooterView(config_btt);
     	
     	
     	lstV.setAdapter(new RectangleShapeAdapter(this.getActivity()));

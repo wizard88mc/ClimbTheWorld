@@ -30,7 +30,7 @@
     <string name="red_time_slot">Absolutely not</string>
     <string name="green_time_slot">Probably yes</string>
     <string name="yellow_time_slot">Probably not</string>
-    
-    
+    <string name="config_button_text">Set time slots</string>
+    <string name="config_button_id">config_button_id</string>
     
 </resources>

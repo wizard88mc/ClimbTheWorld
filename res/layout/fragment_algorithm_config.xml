@@ -69,7 +69,8 @@
         android:layout_centerHorizontal="true"
         android:text="@string/choose_color"
         android:gravity="center"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceMedium" 
+        android:onClick="pick_color"/>
 
     <TextView
         android:id="@+id/yellow_picker"

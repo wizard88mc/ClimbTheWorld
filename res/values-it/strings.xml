@@ -31,6 +31,6 @@
     <string name="red_time_slot">Assolutamente no</string>
     <string name="green_time_slot">Probabilmente sì</string>
     <string name="yellow_time_slot">Probabilmente no</string>
-    
+    <string name="config_button_text">Imposta fasce orarie</string>
     
 </resources>
