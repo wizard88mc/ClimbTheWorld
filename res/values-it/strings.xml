@@ -66,7 +66,7 @@
     <string name="team_duel_completed">Questo team è già completo</string>
     <string name="team_duel_already_part">Fai già parte di questo team</string>
     <string name="delete_req">Richiesta eliminata</string>
-    <string name="no_notifications">Nessuna notifica</string>
+    <string name="no_notifications">Nessuna notifica \n Premi b1 o b2 -> "Notifiche FB" per vedere le nuove notifiche</string>
     
      <!-- UserBadge -->
     <string name="steps_badge">Fai %d passi</string>
@@ -272,6 +272,10 @@
     <string name="microgoal_help">Premi per vedere il tuo obiettivo attuale</string>
     <string name="update_help">Premi per aggiornare i dati suoi tuoi amici</string>
     <string name="tap_to_dismiss">Tocca per chiudere</string>
+    <string name="add_group_help">Invita 5 tuoi amici su Facebook ad entrare nel tuo team</string>
+    <string name="add_challenger">Scegli lo sfidante tra i tuoi amici di facebook</string>
+    <string name="add_other_help">Invita altri tuoi amici su Facebook ad entrare nel tuo team</string>
+    <string name="delete_player">Caccia un tuo amico da questa scalata</string>
     
     <!-- splash -->
     <string name="loading">Caricamento...</string>

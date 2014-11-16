@@ -1,10 +1,11 @@
 package org.unipd.nbeghin.climbtheworld;
 
 import java.io.IOException;
+
 import org.unipd.nbeghin.climbtheworld.weka.WekaClassifier;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,8 +13,8 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
-import android.widget.TextView;
 
 
 /**
@@ -33,9 +34,13 @@ public class SplashScreen extends ActionBarActivity{
 	      super.onCreate(savedInstanceState);
 	      // set the content view for your splash screen you defined in an xml file
 	      if (Build.VERSION.SDK_INT < 16) {
-	            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-	                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+	    	  System.out.println("over 16");
+//	            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+//	                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+	            setTheme(R.style.splash_style);
+	            getSupportActionBar().hide();
 	       }else{
+	    	   System.out.println("under 16");
 	    	   View decorView = getWindow().getDecorView();
 	    	// Hide the status bar.
 	    	int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
@@ -46,10 +51,14 @@ public class SplashScreen extends ActionBarActivity{
 	    	actionBar.hide();
 	       }
 	      
-	      setContentView(R.layout.activity_splashscreen);
-	      TextView title = (TextView) findViewById(R.id.textTitle);
-	      Typeface tf = Typeface.createFromAsset(getAssets(),"fonts/travel_diary.ttf");  
-	      title.setTypeface(tf);
+	      setContentView(R.layout.activity_splashscreen_ex);
+//	      TextView title = (TextView) findViewById(R.id.textTitle);
+//	      Typeface tf = Typeface.createFromAsset(getAssets(),"fonts/travel_diary.ttf");  
+//	      title.setTypeface(tf);
+	      
+//	      ImageView myImageView = (ImageView) findViewById(R.id.imageSplash);
+//	      myImageView.setAlpha(180);
+	      
 	      // perform other stuff you need to do
 
 	      // execute your xml news feed loader

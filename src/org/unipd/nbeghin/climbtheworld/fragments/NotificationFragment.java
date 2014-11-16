@@ -1,21 +1,22 @@
 package org.unipd.nbeghin.climbtheworld.fragments;
 
 import org.unipd.nbeghin.climbtheworld.ClimbApplication;
-import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.models.Notification;
 import org.unipd.nbeghin.climbtheworld.ui.card.NotificationCard;
 
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.fima.cardsui.objects.Card;
-import com.fima.cardsui.objects.Card.OnCardSwiped;
 import com.fima.cardsui.views.CardUI;
 
 public class NotificationFragment extends Fragment{
@@ -48,13 +49,13 @@ public class NotificationFragment extends Fragment{
 					notificationCard = new NotificationCard(notification, false);
 
 					
-			notificationCard.setOnCardSwipedListener(new OnCardSwiped() {
-				
-				@Override
-				public void onCardSwiped(Card card, View layout) {
-					System.out.println("swiiiiipe");					
-				}
-			});
+//			notificationCard.setOnCardSwipedListener(new OnCardSwiped() {
+//				
+//				@Override
+//				public void onCardSwiped(Card card, View layout) {
+//					System.out.println("swiiiiipe");					
+//				}
+//			});
 			
 			notificationCards.addCard(notificationCard);
 			}else{
@@ -69,12 +70,38 @@ public class NotificationFragment extends Fragment{
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View result = inflater.inflate(R.layout.fragment_notification, container, false);
 		empty = (TextView) result.findViewById(R.id.empty);
+		int i = (String.valueOf(empty.getText())).indexOf("b1");
+		SpannableString ss = new SpannableString(empty.getText()); 
+        Drawable d = getResources().getDrawable(R.drawable.overflow); 
+        d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight()); 
+        ImageSpan span = new ImageSpan(d, ImageSpan.ALIGN_BASELINE); 
+        ss.setSpan(span, i, i+"b1".length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE); 
+        empty.setText(ss); 
+        
+        i = (String.valueOf(empty.getText())).indexOf("b2");
+		ss = new SpannableString(empty.getText()); 
+        d = getResources().getDrawable(R.drawable.menu); 
+        d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight()); 
+        span = new ImageSpan(d, ImageSpan.ALIGN_BASELINE); 
+        ss.setSpan(span, i, i+"b2".length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE); 
+        empty.setText(ss);
+        
+		
+//		SpannableStringBuilder ssb = new SpannableStringBuilder(empty.getText());
+//	    int i = (String.valueOf(empty.getText())).indexOf("b1");
+//	    ssb.setSpan(new ImageSpan(getActivity().getResources().getDrawable(R.drawable.overflow)), i, i+"b1".length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+//	    i = (String.valueOf(empty.getText())).indexOf("b2");
+//	    //ssb.setSpan(new ImageSpan(getActivity().getResources().getDrawable(R.drawable.menu)), i, i+"b2".length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//		empty.setText( ssb, BufferType.SPANNABLE );
+		
 		notificationCards = (CardUI) result.findViewById(R.id.cardsNotification);
 		notificationCards.setSwipeable(true);
 		
 		refresh();
 		return (result);
 	}
+	
+	
 
 	@Override
 	public void onResume() {

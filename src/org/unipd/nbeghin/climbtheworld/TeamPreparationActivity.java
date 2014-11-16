@@ -169,6 +169,9 @@ public class TeamPreparationActivity extends ActionBarActivity {
 			MenuItemCompat.setActionView(item, iv);
 			onUpdate();
 			return true;
+		case R.id.itemHelp:
+			new HelpDialogActivity(this, R.style.Transparent, duel).show();
+			return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -291,14 +294,18 @@ public class TeamPreparationActivity extends ActionBarActivity {
 		}
 		if(myTeam.length() == 5 && challengerTeam.length() == 5){
 			startPlay.setEnabled(true);
+			startPlay.setVisibility(View.VISIBLE);
 			exitTeam.setEnabled(false);
+			exitTeam.setVisibility(View.GONE);
 			duel.setReadyToPlay(true);
 			ClimbApplication.teamDuelDao.update(duel);
 		}	
 		else{
 			startPlay.setEnabled(false);
+			startPlay.setVisibility(View.GONE);
 			duel.setReadyToPlay(false);
 			exitTeam.setEnabled(true);
+			exitTeam.setVisibility(View.VISIBLE);
 			ClimbApplication.teamDuelDao.update(duel);
 		}
 		
