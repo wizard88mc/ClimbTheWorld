@@ -285,4 +285,26 @@
 	<string name="message_climb_dialog">Sto scaricando i progressi dei tuoi compagni di gruppo...</string>
 	
 	<string name="offline">Sei offline: gioca tranquillamente, i tuoi progressi saranno automaticamente salvati alla prossima riconnessione</string>
+
+	<!-- demo -->
+	<string name="title_1">Come giocare (anche offline)</string>
+	<string name="text_1_1">1. Scegli un edificio da scalare</string>
+	<string name="text_1_2">2. Premi p1 \nTieni il telefono con te \nSali le scale</string>
+	<string name="text_1_3">3. Completa i goal \nGuadagna punti \nVinci trofei e \nScala il mondo!!!!</string>
+	
+	<string name="title_2">Connettiti con Facebook</string>
+	<string name="intro_2">Porta i tuoi progressi sempre con te \nGioca con i tuoi amici</string>
+	<string name="text_2_1">Social Climb: \nchiedi aiuto fino a 5 amici per scalare un edificio più velocemente</string>
+	<string name="text_2_2">Social Challenge: \nsfida fino a 5 tuoi amici \nchi arriverà primo????</string>
+	<string name="text_2_3">Team vs team: \nscegli uno sfidante, crea un team per raggiungere la cima per primo!!!!</string>
+	
+	<string name="title_3">Esplora l\'app</string>
+	<string name="text_3_1">Edifici: decidi tu l\'edificio da scalare \nTour: puoi anche scegliere di scalare facendo un tour</string>
+	<string name="text_3_2">Notifiche: scopri se ti tuoi amici ti hanno chiesto aiuto o se ti hanno sfidato</string>
+	<string name="text_3_3">Trofei: colleziona le coppe completando le scalate</string>
+	
+	<string name="title_4">Esplora l\'app</string>
+	<string name="text_4_1">Guarda il tuo profilo e le tue statistiche in p2 per osservare la tua evoluzione</string>
+	<string name="text_4_2">In p2 c\'è anche uno step counter per mantenerti in forma</string>
+	<string name="text_4_3">In Impostazioni puoi scegliere la giusta difficoltà per le tue scalate</string>
 </resources>

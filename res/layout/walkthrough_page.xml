@@ -2,17 +2,32 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-     > <!-- android:background="#FFFFCC" -->
+    android:background="@color/teal"
+    android:orientation="vertical" >
+ <!-- android:background="#FFFFCC" -->
 
     <TextView
         android:id="@+id/textView1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Large Text"
-        android:textAppearance="@style/CardTitle" 
+        android:layout_marginBottom="10dp"
         android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:text="Title"
+        android:textAppearance="@style/CardTitle"
+        android:textColor="@color/white"
+        android:textSize="35sp" />
+
+    <TextView
+        android:id="@+id/textIntro"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:text="TextView"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:gravity="center" 
         android:layout_marginBottom="10dp"/>
 
     <RelativeLayout
@@ -20,7 +35,6 @@
         android:layout_height="wrap_content"
         android:layout_weight="0.33"
         android:orientation="horizontal"
-        android:background="@color/white"
        >
 
         <TextView
@@ -30,12 +44,13 @@
             android:layout_alignBottom="@+id/imageView1"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
+            android:layout_marginLeft="10dp"
             android:layout_toLeftOf="@+id/imageView1"
             android:gravity="center_vertical"
             android:text="TextView"
-            android:textAppearance="@style/CardText" 
-            android:layout_marginLeft="10dp"
-            />
+            android:textAppearance="@style/CardText"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
 
         <ImageView
             android:id="@+id/imageView1"
@@ -44,8 +59,9 @@
             android:layout_alignParentRight="true"
             android:adjustViewBounds="true"
             android:maxHeight="110dp"
-            android:scaleType="fitXY"
-            android:src="@drawable/phone" />
+            
+            android:src="@drawable/cards"
+             /> <!-- android:layout_marginRight="10dp" -->
 
     </RelativeLayout>
 
@@ -54,7 +70,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="0.33"
         android:orientation="horizontal"
-        android:background="@color/white" >
+         >
 
         <TextView
             android:id="@+id/textView3"
@@ -63,11 +79,13 @@
             android:layout_alignBottom="@+id/imageView2"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
+            android:layout_marginLeft="10dp"
             android:layout_toLeftOf="@+id/imageView2"
             android:gravity="center_vertical"
             android:text="TextView"
             android:textAppearance="@style/CardText"
-            android:layout_marginLeft="10dp" />
+            android:textColor="@color/white"
+            android:textSize="20sp" />
 
         <ImageView
             android:id="@+id/imageView2"
@@ -75,9 +93,10 @@
             android:layout_height="wrap_content"
              android:layout_alignParentRight="true"
             android:adjustViewBounds="true"
-            android:maxHeight="100dp"
+            android:maxHeight="110dp"
             android:scaleType="fitXY"
-            android:src="@drawable/man_stairs" />
+            android:src="@drawable/heart"
+             />
     </RelativeLayout>
 
     <RelativeLayout
@@ -85,7 +104,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="0.33"
         android:orientation="horizontal" 
-        android:background="@color/white">
+        >
 
         <TextView
             android:id="@+id/textView4"
@@ -94,11 +113,13 @@
             android:layout_alignBottom="@+id/imageView3"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
+            android:layout_marginLeft="10dp"
             android:layout_toLeftOf="@+id/imageView3"
             android:gravity="center_vertical"
             android:text="TextView"
             android:textAppearance="@style/CardText"
-            android:layout_marginLeft="10dp" />
+            android:textColor="@color/white"
+            android:textSize="20sp" />
 
         <ImageView
             android:id="@+id/imageView3"
@@ -106,9 +127,9 @@
             android:layout_height="wrap_content"
  android:layout_alignParentRight="true"
             android:adjustViewBounds="true"
-            android:maxHeight="80dp"
+            android:maxHeight="110dp"
             android:scaleType="fitXY"           
-             android:src="@drawable/lock_win" />
+             android:src="@drawable/climb" />
     </RelativeLayout>
 
 </LinearLayout>

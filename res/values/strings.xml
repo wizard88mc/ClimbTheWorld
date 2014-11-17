@@ -280,4 +280,26 @@
 	
 	<string name="offline">You are offline: keep playing, your progresses will be automatically saved during next reconnection</string>
 	
+	<!-- demo -->
+	<string name="title_1">How it works (also offline)</string>
+	<string name="text_1_1">1. Choose a building to climb</string>
+	<string name="text_1_2">2. Press p1 \nPick your phone with you \nMake stairs</string>
+	<string name="text_1_3">3. Complete goals \nEarn points \nWin trophies and \nClimb the Word!!!!</string>
+	
+	<string name="title_2">Connect to facebook</string>
+	<string name="intro_2">Bring your progress always with you \nPlay with your friends</string>
+	<string name="text_2_1">Social Climb: \get up to 5 friends to help you climbing the building faster</string>
+	<string name="text_2_2">Social Challenge: \nchallenge up to 5 friends \nwho will arrive first????</string>
+	<string name="text_2_3">Team vs team: \nchoose a challenger, create a team to reach the top first!!!!</string>
+	
+	<string name="title_3">Explore the app</string>
+	<string name="text_3_1">Buildings: you decide the buildings to climb \nTours: you can also choose to make a climb tour</string>
+	<string name="text_3_2">Notifications: find if your friends have asked your help or have challenged you</string>
+	<string name="text_3_3">Trophies: collect cups for your completed achievements</string>
+	
+	<string name="title_4">Explore the app</string>
+	<string name="text_4_1">See your profile in p2 and statistic to monitor yourself</string>
+	<string name="text_4_2">In p2 there is also a step counter if you want to get fit</string>
+	<string name="text_4_3">In settings you can choose the right climb difficulty for your climbings</string>
+	
 </resources>
