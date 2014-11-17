@@ -28,6 +28,7 @@
     
     <!-- Algorithm Configuration -->
     <string name="choose_color">Scegli un colore e poi imposta le fasce orarie</string>
+    <string name="select_color_toast">Seleziona prima un colore</string>
     <string name="red_time_slot">Assolutamente no</string>
     <string name="green_time_slot">Probabilmente sì</string>
     <string name="yellow_time_slot">Probabilmente no</string>

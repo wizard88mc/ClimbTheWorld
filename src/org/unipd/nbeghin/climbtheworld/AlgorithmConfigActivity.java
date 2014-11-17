@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.view.View;
 
 public class AlgorithmConfigActivity extends FragmentActivity implements AlgorithmConfigFragment.Callbacks {
 
@@ -30,7 +31,9 @@ public class AlgorithmConfigActivity extends FragmentActivity implements Algorit
 	}
 	
 	
-	
+	public void pickColor(View v){
+		configFrg.pickColor(v);
+	}
 	
 	
 	

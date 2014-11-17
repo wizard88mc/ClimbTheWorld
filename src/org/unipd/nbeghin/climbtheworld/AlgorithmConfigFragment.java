@@ -12,14 +12,18 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.util.DisplayMetrics;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.ExpandableHeightGridView;
-import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class AlgorithmConfigFragment extends Fragment {
 
@@ -27,8 +31,14 @@ public class AlgorithmConfigFragment extends Fragment {
 	//callbacks dell'Activity
 	private Callbacks mCallbacks = sDummyCallbacks;
 
-	    
-	private static int current_color;
+	
+	private static int screen_width;
+	private static int screen_height;
+	
+	private int current_color=-1;
+	private static SparseIntArray positions_colors;
+	
+	
 	
 	
 	/**
@@ -137,6 +147,19 @@ public class AlgorithmConfigFragment extends Fragment {
     	//gview.setExpanded(true);
     	//gview.setAdapter(new RectangleShapeAdapter(this.getActivity()));
     	
+    	if(positions_colors==null){
+    		positions_colors=new SparseIntArray(24);
+    		initializeMap(positions_colors);
+    	}
+    	
+    	
+    	DisplayMetrics metrics = new DisplayMetrics();
+    	getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+    	screen_height = metrics.widthPixels;
+    	screen_width = metrics.heightPixels;
+    	
+    	
     	GradientDrawable rectangle_shape = (GradientDrawable) getResources().getDrawable(R.drawable.rectangle_shape);
     	((GradientDrawable)rectangle_shape.mutate()).setColor(Color.GREEN);    	
     	TextView green_picker = (TextView) getActivity().findViewById(R.id.green_picker);    	
@@ -162,17 +185,38 @@ public class AlgorithmConfigFragment extends Fragment {
     	config_btt.setText(R.string.config_button_text);
     	config_btt.setId(R.string.config_button_id);
     	config_btt.setBackgroundResource(R.drawable.blue_button_style);
+    	config_btt.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				System.out.println("BUTTON CLICKED!");
+				
+			}
+		});
     	lstV.addFooterView(config_btt);
     	
     	
     	lstV.setAdapter(new RectangleShapeAdapter(this.getActivity()));
-    	
-    	
-    	
+    	    	
     	gridView.setAdapter(lstV.getAdapter());
-    	
-    	
-    	
+    	gridView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+								
+				System.out.println("item " + position + " pressed");
+				
+				if(current_color!=-1){ //è stato selezionato uno dei tre colori
+					positions_colors.put(position, current_color);
+					GradientDrawable rect_shape_view = (GradientDrawable) view.getBackground();
+					rect_shape_view.setColor(current_color);
+				}
+				else{ //non è stato ancora selezionato alcun colore
+					Toast.makeText(getActivity(), getActivity().getResources().getText(R.string.select_color_toast), Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
     }
     
     
@@ -219,6 +263,42 @@ public class AlgorithmConfigFragment extends Fragment {
     
     
     
+   
+    public void pickColor(View v){
+    	
+    	switch(v.getId()) {
+    		case R.id.red_picker:
+    			current_color=Color.RED;
+    			break;
+    		case R.id.green_picker:
+    			current_color=Color.GREEN;
+    			break;
+    		case R.id.yellow_picker: 
+    			current_color=Color.YELLOW;
+    			break;
+    	}
+    }
     
     
+    private void initializeMap(SparseIntArray positions_colors){
+    	
+    	for(int i = 0; i < positions_colors.size(); i++) {    	
+    		positions_colors.put(i,-1);
+    	}
+    }
+    
+    
+    public static int getPositionColor(int position){
+    	return positions_colors.get(position, -1);
+    }
+    
+    
+    
+    public static int getScreenWidth(){
+    	return screen_width;
+    }
+    
+    public static int getScreenHeight(){
+    	return screen_height;
+    }
 }
