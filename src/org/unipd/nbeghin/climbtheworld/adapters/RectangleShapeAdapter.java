@@ -4,6 +4,7 @@ import org.unipd.nbeghin.climbtheworld.AlgorithmConfigFragment;
 import org.unipd.nbeghin.climbtheworld.R;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -58,6 +59,7 @@ public class RectangleShapeAdapter extends BaseAdapter {
 		int position_color = AlgorithmConfigFragment.getPositionColor(position);		
 		if(position_color!=-1){
 			rect_shape_view.setColor(position_color);
+			item_view.setTypeface(null, Typeface.BOLD_ITALIC);
 		}
 		
 		item_view.setBackground(rect_shape_view);

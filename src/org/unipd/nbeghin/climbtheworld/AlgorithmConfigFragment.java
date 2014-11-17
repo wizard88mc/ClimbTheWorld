@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -35,7 +36,9 @@ public class AlgorithmConfigFragment extends Fragment {
 	private static int screen_width;
 	private static int screen_height;
 	
+	//intero che indica il colore selezionato (-1 se non è ancora stato selezionato alcun colore)
 	private int current_color=-1;
+	//map che contiene le coppie di valori <posizione_item, colore>
 	private static SparseIntArray positions_colors;
 	
 	
@@ -130,9 +133,6 @@ public class AlgorithmConfigFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
     	super.onViewCreated(view, savedInstanceState);
     	
-    	
-
-    	
     }
     
     
@@ -149,7 +149,7 @@ public class AlgorithmConfigFragment extends Fragment {
     	
     	if(positions_colors==null){
     		positions_colors=new SparseIntArray(24);
-    		initializeMap(positions_colors);
+    		initializeMap();
     	}
     	
     	
@@ -189,7 +189,13 @@ public class AlgorithmConfigFragment extends Fragment {
 			
 			@Override
 			public void onClick(View v) {
-				System.out.println("BUTTON CLICKED!");
+				
+				if(!allTimeSlotsSetted()){
+					Toast.makeText(getActivity(), getActivity().getResources().getText(R.string.set_timeslots_btt), Toast.LENGTH_SHORT).show();
+				}
+				else{
+					
+				}
 				
 			}
 		});
@@ -204,13 +210,12 @@ public class AlgorithmConfigFragment extends Fragment {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
-								
-				System.out.println("item " + position + " pressed");
 				
 				if(current_color!=-1){ //è stato selezionato uno dei tre colori
 					positions_colors.put(position, current_color);
 					GradientDrawable rect_shape_view = (GradientDrawable) view.getBackground();
-					rect_shape_view.setColor(current_color);
+					rect_shape_view.setColor(current_color);	
+					((TextView)view).setTypeface(null, Typeface.BOLD_ITALIC);
 				}
 				else{ //non è stato ancora selezionato alcun colore
 					Toast.makeText(getActivity(), getActivity().getResources().getText(R.string.select_color_toast), Toast.LENGTH_SHORT).show();
@@ -241,10 +246,9 @@ public class AlgorithmConfigFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
     	super.onSaveInstanceState(outState);
-    	
-		if(outState!=null){
-			
-		}
+		
+		//si salva l'intero che indica il colore selezionato (-1 se ancora nessun colore selezionato)
+		outState.putInt("current_color", current_color);
     }
     
     //il seguente metodo è chiamato quando tutti gli stati salvati sono stati ripristinati nel
@@ -255,9 +259,9 @@ public class AlgorithmConfigFragment extends Fragment {
     public void onViewStateRestored(Bundle savedInstanceState) {
     	super.onViewStateRestored(savedInstanceState);
     	
-    	
-    	if(savedInstanceState!=null){
-    		
+    	if(savedInstanceState!=null){    		
+    		//si recupera lo stato salvato che indica il colore selezionato
+    		current_color=savedInstanceState.getInt("current_color");
     	}
     }
     
@@ -280,12 +284,24 @@ public class AlgorithmConfigFragment extends Fragment {
     }
     
     
-    private void initializeMap(SparseIntArray positions_colors){
+    private void initializeMap(){ 
     	
-    	for(int i = 0; i < positions_colors.size(); i++) {    	
+    	for(int i = 0; i < 24; i++) {       		
     		positions_colors.put(i,-1);
     	}
     }
+    
+    
+    private boolean allTimeSlotsSetted(){ 
+    	
+    	for(int i = 0; i < positions_colors.size(); i++) { 
+    		
+    		if(positions_colors.get(i)==-1)
+    			return false;
+    	}    	
+    	return true;
+    }
+    
     
     
     public static int getPositionColor(int position){
