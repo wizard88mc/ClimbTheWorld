@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.unipd.nbeghin.climbtheworld.MainActivity;
+import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionIntentService;
 import org.unipd.nbeghin.climbtheworld.comparator.AlarmComparator;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
@@ -23,8 +24,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.util.SparseIntArray;
+import android.widget.Toast;
 
 import com.j256.ormlite.android.AndroidConnectionSource;
 import com.j256.ormlite.dao.DaoManager;
@@ -79,8 +83,8 @@ public class AlarmUtils {
     	boolean bb[] = new boolean[] {true,true};
     	//float pf[] = new float[] {0.25f,0.25f,0.25f,0.25f,0.25f,0.25f,0.25f};
     	float pf[] = new float[] {0.25f,0.25f};
-    	Alarm alm1 = new Alarm(9,45,00,true,new boolean[]{false,true},pf);
-		Alarm alm2 = new Alarm(9,45,50,false,new boolean[]{false,true},pf);
+    	Alarm alm1 = new Alarm(0,0,00,true,new boolean[]{false,true},pf);
+		Alarm alm2 = new Alarm(0,01,50,false,new boolean[]{false,true},pf);
 		Alarm alm3 = new Alarm(9,45,51,true,new boolean[]{true,true},pf);
 		Alarm alm4 = new Alarm(9,49,50,false,new boolean[]{true,true},pf);
 		Alarm alm5 = new Alarm(11,13,51,true,new boolean[]{true,false},pf); 
@@ -148,6 +152,94 @@ public class AlarmUtils {
 		helper.getAlarmTimeTemplateDao().createIfNotExists(att6);
 		*/
     }
+    
+    
+    /**
+     * Creates the 5-minute intervals from the time slots specified by the user.
+     * @param context context of the application.
+     * @param time_slots array that holds the time slots.
+     */
+    public static void createIntervals(Context context, SparseIntArray time_slots){
+    	
+    	DbHelper helper = DbHelper.getInstance(context);
+    	
+    	RuntimeExceptionDao<Alarm, Integer> alarmDao = helper.getAlarmDao();
+    	
+    	int count=0;    	
+    	
+    	for(int i=0; i<time_slots.size(); i++){
+    		
+    		//se la fascia oraria deve essere considerata
+    		if(time_slots.get(i, -1)!=Color.RED){
+    			
+    			//la valutazione iniziale di un intervallo viene posta a 0,25
+    			//(utile perché indica la probabilità di ripescare un intervallo non attivo)
+    			float evaluation[] = new float[GeneralUtils.daysOfWeek];
+    			
+    			for(int j=0; j<GeneralUtils.daysOfWeek; j++){
+    				evaluation[j]=0.25f;
+    			}
+    			
+    			//stato di attivazione di un intervallo: se si è in una fascia oraria verde,
+    			//tutti gli intervalli in essa sono attivi; se, invece, si è in una fascia
+    			//gialla, tutti gli intervalli in essa non sono attivi con la possibilità
+    			//di essere mutati (all'inizio la probabilità di mutazione è pari a 0,25)
+    			boolean activationState[] = new boolean[GeneralUtils.daysOfWeek];
+    			
+    			if(time_slots.get(i,-1)==Color.GREEN){    				
+    				for(int j=0; j<GeneralUtils.daysOfWeek; j++){
+    					activationState[j]=true;
+    				}
+    			}
+    			else{ //Color.YELLOW
+    				for(int j=0; j<GeneralUtils.daysOfWeek; j++){
+    					activationState[j]=false;
+    				}
+    			}
+    			
+    			//si creano gli intervalli da 5 minuti all'interno della fascia oraria
+    			for(int j=0; j<=50; j=j+5){
+    				
+    				Alarm start = new Alarm(i, j, 1, true, activationState, evaluation);
+        			Alarm stop = new Alarm(i, j+5, 0, false, activationState, evaluation);
+        			
+        			alarmDao.createIfNotExists(start);
+        			alarmDao.createIfNotExists(stop);
+    			
+        			System.out.println("Create intervals: HH:mm:ss START:" + start.get_hour()+ ":"
+        					+ start.get_minute()+":"+start.get_second() + " STOP: " + stop.get_hour()+ ":"
+        					+ stop.get_minute()+":"+stop.get_second());
+        			
+        			count++;
+    			}
+    			
+    			alarmDao.createIfNotExists(new Alarm(i, 55, 1, true, activationState, evaluation));
+    			
+    			Alarm last_stop_time;
+    			
+    			//se si è in corripondenza dell'ultima fascia oraria della giornata, l'ultimo
+    			//intervallo lo si fa durare un po' meno per non farlo coincidere con l'inizio
+    			//del giorno successivo
+    			if(i==23){
+    				last_stop_time=new Alarm(i, 59, 50, false, activationState, evaluation);
+    			}
+    			else{
+    				last_stop_time=new Alarm(i+1, 0, 0, false, activationState, evaluation);
+    			}
+    			
+    			alarmDao.createIfNotExists(last_stop_time);
+    		
+    			System.out.println("Create intervals: HH:mm:ss START:" + i+ ":"
+    					+ 55+":"+1 + " STOP: " + last_stop_time.get_hour()+ ":"
+    					+ last_stop_time.get_minute()+":"+last_stop_time.get_second());
+    			count++;
+    		}
+    	}
+    	
+    	System.out.println("Number of intervals: "+count);
+    	Toast.makeText(context, "INTERVALLI CREATI", Toast.LENGTH_SHORT).show();
+    }
+    
     
    /* 
     //forse non serve

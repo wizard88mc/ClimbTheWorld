@@ -29,9 +29,9 @@
     <string name="choose_color">Choose a color and then set the time slots</string>
     <string name="select_color_toast">First, select a color</string>
     <string name="set_timeslots_btt">You need to set all the time slots</string>
-    <string name="red_time_slot">Absolutely not</string>
-    <string name="green_time_slot">Probably yes</string>
-    <string name="yellow_time_slot">Probably not</string>
+    <string name="red_time_slot">I certainly do NOT exercise</string>
+    <string name="green_time_slot">I probably do exercise</string>
+    <string name="yellow_time_slot">I probably do NOT exercise</string>
     <string name="config_button_text">Set time slots</string>
     <string name="config_button_id">config_button_id</string>
     

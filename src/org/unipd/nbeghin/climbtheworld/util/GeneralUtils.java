@@ -25,9 +25,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.AssetManager;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
+import android.util.SparseIntArray;
 
 /**
  * 
@@ -166,8 +168,8 @@ public class GeneralUtils {
     	//si fa il setup del db per gli alarm
     	AlarmUtils.setupAlarmsDB(context); 
     	//si creano gli alarm
-		//AlarmUtils.createAlarms(context);  
-    	readIntervalsFromFile(context);
+		AlarmUtils.createAlarms(context);  
+    	//readIntervalsFromFile(context);
 				
     	Thread thread = new Thread(){
     		@Override
@@ -312,5 +314,10 @@ public class GeneralUtils {
 	        Log.e(MainActivity.AppName, " - Can not read file: " + e.toString());
 	    }
 	}
+    
+    
+    
+    
+    
     
 }

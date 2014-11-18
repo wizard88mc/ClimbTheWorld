@@ -1,6 +1,7 @@
 package org.unipd.nbeghin.climbtheworld;
 
 import org.unipd.nbeghin.climbtheworld.adapters.RectangleShapeAdapter;
+import org.unipd.nbeghin.climbtheworld.util.AlarmUtils;
 
 import com.etsy.android.grid.StaggeredGridView;
 
@@ -194,7 +195,7 @@ public class AlgorithmConfigFragment extends Fragment {
 					Toast.makeText(getActivity(), getActivity().getResources().getText(R.string.set_timeslots_btt), Toast.LENGTH_SHORT).show();
 				}
 				else{
-					
+					AlarmUtils.createIntervals(getActivity(), positions_colors);
 				}
 				
 			}

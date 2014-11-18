@@ -30,9 +30,9 @@
     <string name="choose_color">Scegli un colore e poi imposta le fasce orarie</string>
     <string name="select_color_toast">Seleziona prima un colore</string>
     <string name="set_timeslots_btt">Devi impostare tutte le fasce orarie</string>
-    <string name="red_time_slot">Assolutamente no</string>
-    <string name="green_time_slot">Probabilmente sì</string>
-    <string name="yellow_time_slot">Probabilmente no</string>
+    <string name="red_time_slot">Sicuramente NON faccio attività fisica</string>
+    <string name="green_time_slot">Probabilmente faccio attività fisica</string>
+    <string name="yellow_time_slot">Probabilmente NON faccio attività fisica</string>
     <string name="config_button_text">Imposta fasce orarie</string>
     
 </resources>
