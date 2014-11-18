@@ -81,6 +81,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -314,6 +315,8 @@ public class ClimbActivity extends ActionBarActivity {
 							// (when multiple steps-at-once are detected)
 							num_steps = building.getSteps();
 							percentage = 1.00;
+							Toast.makeText(getApplicationContext(), getString(R.string.new_badge, buildingText.getName()), Toast.LENGTH_SHORT).show();
+
 						}
 					}
 					updateStats(); // update the view of current stats
@@ -373,6 +376,14 @@ public class ClimbActivity extends ActionBarActivity {
 		default:
 			break;
 		}
+		
+		
+		if(pref.getBoolean("first_open_3", true))	{
+			Intent intent = new Intent(this, OnBoardingActivity.class);
+			intent.putExtra("source", "ClimbActivityVictory");
+			startActivity(intent);
+			pref.edit().putBoolean("first_open_3", false).commit();
+		}
 	}
 
 	private void apply_update() {
@@ -413,7 +424,7 @@ public class ClimbActivity extends ActionBarActivity {
 			deleteMicrogoalInParse();
 		else {
 			ClimbApplication.microgoalDao.delete(microgoal);
-			createMicrogoal();
+			if(percentage < 1.00) createMicrogoal();
 		}
 	}
 
@@ -792,7 +803,9 @@ public class ClimbActivity extends ActionBarActivity {
 			TextView n_steps = ((TextView) findViewById(R.id.lblNumSteps));
 			TextView height = ((TextView) findViewById(R.id.lblHeight));
 			seekbarIndicator.setVisibility(View.INVISIBLE);
-			photo.setVisibility(View.INVISIBLE);
+			//photo.setVisibility(View.INVISIBLE);
+			photo.setImageResource(R.drawable.heart);
+			photo.setScaleType(ScaleType.CENTER);
 			name.setVisibility(View.INVISIBLE);
 			n_steps.setVisibility(View.VISIBLE);
 			height.setVisibility(View.INVISIBLE);
@@ -814,7 +827,20 @@ public class ClimbActivity extends ActionBarActivity {
 			difficulty = 1; // 1rstep = 1 vstep
 
 		}
+		
+	
 
+	}
+	
+	@Override
+	public void onStart(){
+		super.onStart();	
+		if(pref.getBoolean("first_open_2", true))	{
+			Intent intent = new Intent(this, OnBoardingActivity.class);
+			intent.putExtra("source", "ClimbActivity");
+			startActivity(intent);
+			pref.edit().putBoolean("first_open_2", false).commit();
+		}
 	}
 
 	protected void onNewIntent(Intent intent) {
@@ -1598,7 +1624,7 @@ public class ClimbActivity extends ActionBarActivity {
 				n_icons = 3;
 			}
 			boolean new_steps_done = new_steps != 0 ? true : false;
-			new HelpDialogActivity(this, R.style.Transparent, mode, percentage, new_steps_done, n_icons, samplingEnabled).show();
+			new HelpDialogActivity(this, R.style.Transparent, mode, percentage, new_steps_done, n_icons, samplingEnabled, isCounterMode).show();
 			return true;
 		case R.id.itemMicroGoal:
 			onMicroGoalClicked();
@@ -1828,7 +1854,6 @@ public class ClimbActivity extends ActionBarActivity {
 				saveTeamDuelData();
 
 			updatePoints(false);
-			if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty"))
 				saveBadges();
 		}
 		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.av_play); // set
@@ -2674,10 +2699,11 @@ public class ClimbActivity extends ActionBarActivity {
 		}
 		final User me = currentUser;
 		int newLevel = ClimbApplication.levelUp(me.getXP() + newXP, me.getLevel());
-		System.out.println("NEW LEVEL: " + newLevel);
 		me.setXP(me.getXP() + newXP);
-		if (newLevel != me.getLevel())
+		if (newLevel != me.getLevel()){
 			me.setLevel(newLevel);
+			Toast.makeText(getApplicationContext(), getString(R.string.new_level), Toast.LENGTH_SHORT).show();
+		}
 		ClimbApplication.userDao.update(me);
 		if (ParseUser.getCurrentUser() != null) {
 			ParseUser currentUser = ParseUser.getCurrentUser();
@@ -2744,6 +2770,7 @@ public class ClimbActivity extends ActionBarActivity {
 				ub.setUser(me);
 				ub.setSaved(false);
 				ClimbApplication.userBadgeDao.create(ub);
+
 			} else {
 				if (percentage >= 1.00)
 					num_steps = building.getSteps();
@@ -2756,11 +2783,20 @@ public class ClimbActivity extends ActionBarActivity {
 
 			}
 			ris.add(ub);
+			if(percentage >= 1.00) Toast.makeText(getApplicationContext(), getString(R.string.new_badge, tour.getTitle()), Toast.LENGTH_SHORT).show();
+
 		}
 		return ris;
 	}
 
 	private void saveBadges() {
+		User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
+		final List<UserBadge> updateUb = new ArrayList<UserBadge>();
+		updateUb.add(checkBuildingBadge(me));
+		updateUb.addAll(checkTourBadge(me));
+		
+		if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty")){
+		
 		ParseQuery<ParseUser> query = ParseUser.getQuery();
 		query.whereEqualTo("FBid", pref.getString("FBid", ""));
 		query.getFirstInBackground(new GetCallback<ParseUser>() {
@@ -2768,10 +2804,7 @@ public class ClimbActivity extends ActionBarActivity {
 			@Override
 			public void done(ParseUser user, ParseException e) {
 				if (e == null) {
-					User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
-					List<UserBadge> updateUb = new ArrayList<UserBadge>();
-					updateUb.add(checkBuildingBadge(me));
-					updateUb.addAll(checkTourBadge(me));
+					
 					for (final UserBadge ub : updateUb) {
 						JSONObject newBadge = new JSONObject();
 						try {
@@ -2803,6 +2836,8 @@ public class ClimbActivity extends ActionBarActivity {
 				}
 			}
 		});
+		
+	}
 
 		ClimbApplication.refreshUserBadge();
 	}
@@ -2811,6 +2846,8 @@ public class ClimbActivity extends ActionBarActivity {
 		try {
 
 			Microgoal microgoal = ClimbApplication.getMicrogoalByUserAndBuilding(pref.getInt("local_id", -1), building.get_id());
+			
+			if(microgoal != null){
 			MicrogoalText texts = ModelsUtil.getMicrogoalTextByStory(microgoal.getStory_id());// ClimbApplication.getMicrogoalTextByStory(microgoal.getStory_id());
 
 			final Dialog dialog = new Dialog(this, R.style.FullHeightDialog); // this
@@ -2919,7 +2956,9 @@ public class ClimbActivity extends ActionBarActivity {
 			perc.setText(String.valueOf(percentage) + "%");
 
 			dialog.show();
-
+		}else{
+			Toast.makeText(getApplicationContext(), getString(R.string.no_microgoal), Toast.LENGTH_SHORT).show();
+		}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

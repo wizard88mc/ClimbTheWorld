@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -35,6 +36,7 @@ import com.fima.cardsui.views.CardUI;
 public class BuildingsFragment extends Fragment {
 	public CardUI buildingCards;
 	final SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
+	View result;
 
 	private class LoadBuildingsTask extends AsyncTask<Void, Void, Void> {
 		@Override
@@ -49,12 +51,15 @@ public class BuildingsFragment extends Fragment {
 		Collections.sort(ClimbApplication.buildingTexts, new BuildingTextComparator());
 		for (final BuildingText building : ClimbApplication.buildingTexts) {
 			BuildingCard buildingCard = new BuildingCard(building, getActivity());
+			System.out.println(building.get_id());
+			
 			if (building.getBuilding().getBase_level() <= ClimbApplication.getUserById(pref.getInt("local_id", -1)).getLevel()) {
-
+				
 				buildingCard.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
 						final SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
+						
 						if (pref.getInt("local_id", -1) != -1) {
 							List<Climbing> climbs = ClimbApplication.getClimbingListForBuildingAndUser(building.getBuilding().get_id(), pref.getInt("local_id", -1));
 							if ((climbs.size() == 2 && (climbs.get(0).getGame_mode() == 3 || climbs.get(1).getGame_mode() == 3)) || (climbs.size() == 1 && climbs.get(0).getGame_mode() == 3)) {
@@ -123,12 +128,14 @@ public class BuildingsFragment extends Fragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View result = inflater.inflate(R.layout.fragment_buildings, container, false);
+		result = inflater.inflate(R.layout.fragment_buildings, container, false);
 		buildingCards = (CardUI) result.findViewById(R.id.cardsBuildings);
 		buildingCards.setSwipeable(false);
 		refresh();
 		return (result);
 	}
+	
+	
 
 	@Override
 	public void onResume() {

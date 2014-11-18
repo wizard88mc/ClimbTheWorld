@@ -86,18 +86,7 @@ import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphObject;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.WebDialog;
-import com.j256.ormlite.dao.RuntimeExceptionDao;
-import com.j256.ormlite.stmt.PreparedQuery;
-import com.j256.ormlite.stmt.QueryBuilder;
-import com.j256.ormlite.stmt.Where;
-import com.parse.FindCallback;
-import com.parse.GetCallback;
-import com.parse.LogInCallback;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
-import com.parse.SignUpCallback;
+
 
 /**
  * Main activity
@@ -208,12 +197,22 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 					t.setGravity(Gravity.TOP, 0, 300);
 					t.show();
 				}
+			
+				if(pref.getBoolean("first_open_1", true))	{
+					
+					Intent intent = new Intent(getContext(), OnBoardingActivity.class);
+					intent.putExtra("source", "MainActivity");
+					startActivity(intent); 
+					pref.edit().putBoolean("first_open_1", false).commit();
+				}
+				
 	}
 
 	private void onSessionStateChange(final Session session, SessionState state, Exception exception) {
 		updateFacebookSession(session, state);
 	}
-
+	
+	
 	private void setUserOwner() {
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("owner", new Integer(1));

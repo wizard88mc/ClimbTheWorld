@@ -97,8 +97,9 @@ public class HelpDialogActivity extends Dialog {
 	boolean new_steps;
 	int n_icons;
 	boolean samplingEnabled;
+	boolean isCounterMode;
 	
-	public HelpDialogActivity(Context context, int theme, GameModeType mode, double percentage, boolean new_steps, int n_icons, boolean samplingEnabled) {
+	public HelpDialogActivity(Context context, int theme, GameModeType mode, double percentage, boolean new_steps, int n_icons, boolean samplingEnabled, boolean isCounterMode) {
 		super(context, theme);
 		i = 0;
 		this.mode = mode;
@@ -106,6 +107,7 @@ public class HelpDialogActivity extends Dialog {
 		this.new_steps = new_steps;
 		this.n_icons = n_icons;
 		this.samplingEnabled = samplingEnabled;
+		this.isCounterMode = isCounterMode;
 	}
 	
 	private void setClimbActivityHelp(){
@@ -114,7 +116,29 @@ public class HelpDialogActivity extends Dialog {
 		}else{
 			setMargins(imageMicrogoal, 150);
 		}
-				
+				if(isCounterMode){
+					imageRow1.setVisibility(View.GONE);
+					imageRow2.setVisibility(View.GONE);
+					textRow1.setVisibility(View.GONE);
+					textRow2.setVisibility(View.GONE);
+					
+					imageUpdate.setVisibility(View.INVISIBLE);
+					imageMicrogoal.setVisibility(View.INVISIBLE);
+					textUpdate.setVisibility(View.INVISIBLE);
+					textMicrogoal.setVisibility(View.INVISIBLE);
+					
+					imageGallery.setVisibility(View.INVISIBLE);
+					textGallery.setVisibility(View.INVISIBLE);
+					
+					imageShare.setVisibility(View.VISIBLE);
+					textShare.setVisibility(View.VISIBLE);
+					if(!samplingEnabled)
+						textShare.setText(ClimbApplication.getContext().getString(R.string.play_help));
+					else
+						textShare.setText(ClimbApplication.getContext().getString(R.string.pause_help));
+					
+					
+				}else{
 
 				if(percentage >= 1.00){
 					//end climb
@@ -182,6 +206,7 @@ public class HelpDialogActivity extends Dialog {
 						textRow1.setVisibility(View.GONE);
 						textRow2.setVisibility(View.GONE);
 					}
+				}
 				}
 	}
 	

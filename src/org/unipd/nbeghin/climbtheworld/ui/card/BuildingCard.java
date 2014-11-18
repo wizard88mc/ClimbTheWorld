@@ -1,12 +1,13 @@
 package org.unipd.nbeghin.climbtheworld.ui.card;
 
+
+
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 import java.util.SimpleTimeZone;
 
 import org.json.JSONException;
@@ -14,6 +15,7 @@ import org.json.JSONObject;
 import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.TeamPreparationActivity;
+import org.unipd.nbeghin.climbtheworld.fragments.BuildingsFragment;
 import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.BuildingText;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
@@ -36,7 +38,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,7 +49,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -165,6 +165,7 @@ public class BuildingCard extends Card {
 			microGoalBtn.setVisibility(View.INVISIBLE);
 		} else {
 			// unlocked building
+			
 			((TextView) view.findViewById(R.id.description)).setText(buildingText.getDescription());
 			((ImageView) view.findViewById(R.id.photoLock)).setVisibility(View.INVISIBLE);
 			isUnlocked = true;
@@ -602,6 +603,11 @@ public class BuildingCard extends Card {
 			});
 
 		}
+		
+		
+
+		
+		
 		return view;
 	}
 

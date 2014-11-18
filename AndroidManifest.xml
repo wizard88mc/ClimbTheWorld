@@ -170,6 +170,17 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.unipd.nbeghin.climbtheworld.MainActivity" />
         </activity>
+        <activity
+            android:name=".OnBoardingActivity"
+            android:label="OnBoarding" 
+            android:theme="@style/Theme_Transparent"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait"
+            >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.unipd.nbeghin.climbtheworld.MainActivity" />
+        </activity>
        
     </application>
 

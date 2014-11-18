@@ -91,6 +91,8 @@ public class ClimbApplication extends Application{
 	
 	private static boolean activityVisible;
 	
+	public static boolean seen = false;
+	
 	//current application language
 	public static String language;
 	
@@ -1046,6 +1048,7 @@ public class ClimbApplication extends Application{
 			user.put("FBid", fbUser.getId()); 
 			user.put("level", currentUser.getLevel());
 			user.put("XP", currentUser.getXP());
+			user.put("height", 0);
 			JSONArray badges = new JSONArray();
 			List<UserBadge> ubs = ClimbApplication.getUserBadgeByUser(currentUser.get_id());
 			for (UserBadge ub : ubs) {
@@ -1062,6 +1065,7 @@ public class ClimbApplication extends Application{
 
 			}
 			user.put("badges", badges);
+			user.put("mean_daily_steps", new JSONObject());
 			user.signUpInBackground(new SignUpCallback() {
 				public void done(ParseException e) {
 					if (e == null) {
@@ -1081,7 +1085,6 @@ public class ClimbApplication extends Application{
 		 */
 		static void saveProgressToParse() {
 			ClimbApplication.refreshClimbings();
-			System.out.println(ClimbApplication.climbings.size());
 			for (Climbing climbing : ClimbApplication.climbings) {
 				DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 				df.setTimeZone(new SimpleTimeZone(0, "GMT"));
@@ -1233,4 +1236,6 @@ public class ClimbApplication extends Application{
 //				connection_toast.show();
 			}
 		}
+		
+		
 }

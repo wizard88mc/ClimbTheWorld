@@ -75,7 +75,7 @@ public class Tour {
 		for(BuildingTour bt : buildingsTour){
 			if(bt.get_id() != currentBuilding_id){
 				Climbing climb = ClimbApplication.getClimbingForBuildingAndUser(bt.getBuilding().get_id(), pref.getInt("local_id", -1));
-				total += climb.getCompleted_steps();
+				if(climb != null) total += climb.getCompleted_steps();
 			}else
 				total += new_steps;
 		}

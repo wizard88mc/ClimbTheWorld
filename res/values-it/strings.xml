@@ -153,6 +153,9 @@
     <string name="microgoal_terminated">Goal completato!!!! Hai vinto %d XP</string>
     <string name="successfull_climb">Hai fatto i %1$d scalini (%2$d m) dell\'edificio %3$s !</string>
     <string name="kicked_out">Sei stato cacciato!</string>
+    <string name="new_level">Grande! Hai raggiunto un nuovo livello!</string>
+    <string name="new_badge">Hai vinto un nuovo trofeo: %s</string>
+    <string name="no_microgoal">Nessun altro goal disponibile per questo edificio</string>
     
     <!-- TeamPreparationActivity -->
     <string name="team_one">Team n1</string>
@@ -307,4 +310,12 @@
 	<string name="text_4_1">Guarda il tuo profilo e le tue statistiche in p2 per osservare la tua evoluzione</string>
 	<string name="text_4_2">In p2 c\'è anche uno step counter per mantenerti in forma</string>
 	<string name="text_4_3">In Impostazioni puoi scegliere la giusta difficoltà per le tue scalate</string>
+	
+	<!-- onboarding -->
+	<string name="onboarding_1">Benvenuto! \n Sei pronto per iniziare una nuova avventura? \nPremi Funghi</string>
+	<string name="onboarding_2">Ben fatto! \n Ora fai 11 scalini \nPremi play per iniziare la tua prima scalata</string>
+	<string name="onboarding_3">Fantastico! Hai completato i tuoi primi obiettivi, superato livelli e vinto un trofeo, ti è piaciuto? \nOra puoi contuare le scalate e a vincere sempre di più!</string>
+	<string name="onboarding_btn_1">Si, cominciamo!</string>
+	<string name="onboarding_btn_2">Ok, posso farlo!</string>
+	<string name="onboarding_btn_3">Yeah, iniziamo il gioco!</string>
 </resources>

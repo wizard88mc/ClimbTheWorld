@@ -163,6 +163,9 @@
     <string name="microgoal_terminated">Goal completed!!!! You earn %d XP</string>
     <string name="successfull_climb">You successfully climbed %1$d steps (%2$d m) of %3$s !</string>
     <string name="kicked_out">You have been kicked out!</string>
+    <string name="new_level">Great! You have reached a new level!</string>
+    <string name="new_badge">You have won a new trophy: %s</string>
+    <string name="no_microgoal">No more goal for this building</string>
     
     <!-- TeamPreparationActivity -->
     <string name="team_one">Team One</string>
@@ -302,4 +305,11 @@
 	<string name="text_4_2">In p2 there is also a step counter if you want to get fit</string>
 	<string name="text_4_3">In settings you can choose the right climb difficulty for your climbings</string>
 	
+	<!-- onboarding -->
+	<string name="onboarding_1">Welcome! \n Are you ready to start this new adventure? \nPress on Mushrooms</string>
+	<string name="onboarding_2">Well done! \n Now you have to make 11 steps \nPress play to start your first climb</string>
+	<string name="onboarding_3">Fantastic! First goals completed, level passed and got a trophy, did you like it? \nNow you can continue to climb and win more and more!</string>
+	<string name="onboarding_btn_1">Yes, let\'s start!</string>
+	<string name="onboarding_btn_2">Ok, I can do it!</string>
+	<string name="onboarding_btn_3">Yeah, let\'s start the game!</string>
 </resources>

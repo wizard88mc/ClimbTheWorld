@@ -38,5 +38,14 @@
     <item name="android:windowFullscreen">true</item>
 </style>
 
+<!--  <style name="Theme_Transparent" parent="@android:style/Theme.Translucent.NoTitleBar.Fullscreen">
+    <item name="android:windowIsTranslucent">true</item>
+    <item name="android:windowBackground">@color/trasparents</item>
+    <item name="android:windowContentOverlay">@null</item>
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:windowIsFloating">true</item>
+    <item name="android:backgroundDimEnabled">false</item>
+  </style> -->
+
 
 </resources>

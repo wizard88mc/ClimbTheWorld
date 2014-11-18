@@ -61,6 +61,8 @@
         android:title="Demo"
         climbtheworld:showAsAction="never">
     </item>
+    
+  
     <!-- onUpdateNotifications -->
 
 </menu>

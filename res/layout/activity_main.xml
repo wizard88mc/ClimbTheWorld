@@ -5,6 +5,8 @@
     android:gravity="center_horizontal"
     android:orientation="vertical"
     android:padding="4dip" >
+    
+
 
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"
