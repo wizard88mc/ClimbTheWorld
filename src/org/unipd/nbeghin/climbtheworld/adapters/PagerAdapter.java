@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.R;
+import org.unipd.nbeghin.climbtheworld.ui.card.Updater;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -25,6 +26,15 @@ public class PagerAdapter extends FragmentPagerAdapter {
 	@Override
 	public int getCount() {
 		return this.fragments.size();
+	}
+	
+	@Override
+	public void notifyDataSetChanged() {
+	    for(int i = 0; i < fragments.size(); i++) {
+	    	Updater fragment = (Updater) fragments.get(i);
+	    	fragment.refresh();
+	    }
+	    super.notifyDataSetChanged();
 	}
 
 	@Override

@@ -11,6 +11,7 @@ import org.unipd.nbeghin.climbtheworld.comparator.BuildingTextComparator;
 import org.unipd.nbeghin.climbtheworld.models.BuildingText;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.ui.card.BuildingCard;
+import org.unipd.nbeghin.climbtheworld.ui.card.Updater;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -33,7 +34,7 @@ import com.fima.cardsui.views.CardUI;
  * Show a list of buildings
  * 
  */
-public class BuildingsFragment extends Fragment {
+public class BuildingsFragment extends Fragment implements Updater {
 	public CardUI buildingCards;
 	final SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
 	View result;
@@ -46,6 +47,7 @@ public class BuildingsFragment extends Fragment {
 		}
 	}
 
+	@Override
 	public void refresh() {
 		buildingCards.clearCards();
 		Collections.sort(ClimbApplication.buildingTexts, new BuildingTextComparator());

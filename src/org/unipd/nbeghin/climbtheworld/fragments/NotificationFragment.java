@@ -4,6 +4,7 @@ import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.models.Notification;
 import org.unipd.nbeghin.climbtheworld.ui.card.NotificationCard;
+import org.unipd.nbeghin.climbtheworld.ui.card.Updater;
 
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -19,7 +20,7 @@ import android.widget.TextView;
 
 import com.fima.cardsui.views.CardUI;
 
-public class NotificationFragment extends Fragment{
+public class NotificationFragment extends Fragment implements Updater{
 	static public CardUI	notificationCards;
 	static TextView empty;
 	
@@ -31,7 +32,8 @@ public class NotificationFragment extends Fragment{
 		}
 	}
 	
-	static public void refresh() {
+	@Override
+	public void refresh() {
 		if(ClimbApplication.notifications.isEmpty()){
 			empty.setVisibility(View.VISIBLE);
 			notificationCards.setVisibility(View.GONE);

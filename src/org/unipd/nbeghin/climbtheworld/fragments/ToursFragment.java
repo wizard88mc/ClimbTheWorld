@@ -7,6 +7,7 @@ import org.unipd.nbeghin.climbtheworld.TourDetailActivity;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
 import org.unipd.nbeghin.climbtheworld.models.TourText;
 import org.unipd.nbeghin.climbtheworld.ui.card.TourCard;
+import org.unipd.nbeghin.climbtheworld.ui.card.Updater;
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -23,7 +24,7 @@ import com.fima.cardsui.views.CardUI;
  * Show a list of tours
  *
  */
-public class ToursFragment extends Fragment {
+public class ToursFragment extends Fragment implements Updater{
 	public static final String	tour_intent_object	= "org.unipd.nbeghin.climbtheworld.intents.object.tour";
 	public CardUI				toursCards;
 
@@ -35,6 +36,7 @@ public class ToursFragment extends Fragment {
 		}
 	}
 
+	@Override
 	public void refresh() {
 		toursCards.clearCards();
 		for (final TourText tour : ClimbApplication.tourTexts) {

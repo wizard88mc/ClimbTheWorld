@@ -152,7 +152,6 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 
 		sContext = getApplicationContext();
 
-		System.out.println("START");
 
 		// loading fragments
 		fragments.add(Fragment.instantiate(this, BuildingsFragment.class.getName())); // instance
@@ -363,9 +362,10 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 			PD.dismiss();
 			if(ClimbApplication.notifications.isEmpty())
 				Toast.makeText(MainActivity.this, MainActivity.this.getString(R.string.no_notification), Toast.LENGTH_SHORT).show();
-			else
+			else{
 				Toast.makeText(MainActivity.this, MainActivity.this.getResources().getQuantityString(R.plurals.n_notification, ClimbApplication.notifications.size()), Toast.LENGTH_SHORT).show();
-
+				mPager.getAdapter().notifyDataSetChanged();
+			}
 		}
 	}
 

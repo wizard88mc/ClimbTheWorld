@@ -7,9 +7,9 @@ import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.TeamPreparationActivity;
 import org.unipd.nbeghin.climbtheworld.models.Building;
-import org.unipd.nbeghin.climbtheworld.models.BuildingText;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.ui.card.BuildingForTourCard;
+import org.unipd.nbeghin.climbtheworld.ui.card.Updater;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -28,7 +28,7 @@ import com.fima.cardsui.views.CardUI;
  * Show a list of buildings for a given tour
  *
  */
-public class BuildingsForTourFragment extends Fragment {
+public class BuildingsForTourFragment extends Fragment{
 	public static final String	building_text_intent_object	= "org.unipd.nbeghin.climbtheworld.intents.object.buildingText";
 	public CardUI				buildingCards;
 
