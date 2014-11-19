@@ -35,4 +35,7 @@
     <string name="config_button_text">Set time slots</string>
     <string name="config_button_id">config_button_id</string>
     
+    <string name="lab_configdialog_title">Configuration</string>
+    <string name="lab_configdialog_status">&#8230;in progress&#8230;</string>   
+    
 </resources>

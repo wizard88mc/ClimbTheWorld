@@ -35,4 +35,7 @@
     <string name="yellow_time_slot">Probabilmente NON faccio attività fisica</string>
     <string name="config_button_text">Imposta fasce orarie</string>
     
+    <string name="lab_configdialog_title">Configurazione</string>
+    <string name="lab_configdialog_status">&#8230;in corso&#8230;</string>   
+    
 </resources>

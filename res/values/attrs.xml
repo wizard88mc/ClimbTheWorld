@@ -26,6 +26,7 @@
         <attr name="pointer_color" format="string"></attr>
         <attr name="pointer_halo_color" format="string"></attr>
         <attr name="text_color" format="string"></attr>
+        <attr name="show_percent_symbol" format="boolean" />        
     </declare-styleable>   
     
     

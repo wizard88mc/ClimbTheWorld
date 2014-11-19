@@ -7,11 +7,14 @@ import com.etsy.android.grid.StaggeredGridView;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.DisplayMetrics;
@@ -23,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
+import android.widget.HoloCircleSeekBar;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -105,7 +109,7 @@ public class AlgorithmConfigFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
     	   
-    	/*
+    	
     	//a tal punto il fragment può essere stato ricreato a causa di una rotazione,
         //e possiamo trovare il TaskFragment
         mFM = getFragmentManager();
@@ -116,7 +120,7 @@ public class AlgorithmConfigFragment extends Fragment {
          //si aggiorna il target fragment, per considerare il nuovo fragment invece del vecchio
          taskFragment.setTargetFragment(this, TASK_FRAGMENT);
         }
-        */
+        
     }
     
     
@@ -141,12 +145,6 @@ public class AlgorithmConfigFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
     	super.onActivityCreated(savedInstanceState);
-    	
-    	//ExpandableHeightGridView gview= (ExpandableHeightGridView) getActivity().findViewById(R.id.alg_conf_gridview);
-    	//GridView gridview = (GridView) getActivity().findViewById(R.id.alg_conf_gridview);
-    	//gridview.setAdapter(new RectangleShapeAdapter(this.getActivity()));
-    	//gview.setExpanded(true);
-    	//gview.setAdapter(new RectangleShapeAdapter(this.getActivity()));
     	
     	if(positions_colors==null){
     		positions_colors=new SparseIntArray(24);
@@ -186,22 +184,34 @@ public class AlgorithmConfigFragment extends Fragment {
     	config_btt.setText(R.string.config_button_text);
     	config_btt.setId(R.string.config_button_id);
     	config_btt.setBackgroundResource(R.drawable.blue_button_style);
-    	config_btt.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				
-				if(!allTimeSlotsSetted()){
-					Toast.makeText(getActivity(), getActivity().getResources().getText(R.string.set_timeslots_btt), Toast.LENGTH_SHORT).show();
-				}
-				else{
-					AlarmUtils.createIntervals(getActivity(), positions_colors);
-				}
-				
-			}
-		});
-    	lstV.addFooterView(config_btt);
     	
+    	
+    	
+    	config_btt.setOnClickListener(new OnClickListener() {
+    	@Override
+		public void onClick(View v) {
+				
+    		if(!allTimeSlotsSetted()){
+    			Toast.makeText(getActivity(), getActivity().getResources().getText(R.string.set_timeslots_btt), Toast.LENGTH_SHORT).show();
+    		}
+    		else{	    			
+    			TaskFragment taskFragment = new TaskFragment();
+    			
+    			//si crea un task per il processo di creazione intervalli
+    			CreateIntervalsTask intervalsCreationTask = new CreateIntervalsTask(getActivity());
+    			intervalsCreationTask.setFragment(taskFragment);
+    			    			
+ 		        //il taskFragment esegue il task per la creazione degli intervalli
+ 		        taskFragment.setTask(intervalsCreationTask);
+ 		        taskFragment.setTargetFragment(getParentFragment(), TASK_FRAGMENT);
+ 		        
+		        //si mostra il fragment
+		        taskFragment.show(mFM, TASK_FRAGMENT_TAG);
+    		}
+    	}
+    	});
+    	
+    	lstV.addFooterView(config_btt);
     	
     	lstV.setAdapter(new RectangleShapeAdapter(this.getActivity()));
     	    	
@@ -268,7 +278,220 @@ public class AlgorithmConfigFragment extends Fragment {
     
     
     
-   
+    
+    public static class CreateIntervalsTask extends AsyncTask<Void, Integer, Void> {
+    	
+    	//riferimento alla finestra di dialogo per il task
+    	TaskFragment mFragment;
+
+    	Context mContext;
+    	
+    	public CreateIntervalsTask(Context context) {
+			mContext=context;
+		}
+    	
+    	
+    	
+    	/**
+		 * Metodo che permette di settare il campo che definisce la finestra di dialogo per il task.
+		 * @param fragment riferimento alla finestra di dialogo
+		 */
+    	void setFragment(TaskFragment fragment)
+    	{    		
+    		mFragment = fragment;
+    	}
+    	
+    	
+    	
+		@Override
+		protected Void doInBackground(Void... params) {
+
+			AlarmUtils.createIntervals(mContext, positions_colors, this);
+			
+			return null;
+		}
+
+		
+		
+		
+		public void doProgress(int percentage_progress){
+			
+			publishProgress(percentage_progress);
+		}
+		
+		
+		
+		@Override
+		protected void onProgressUpdate(Integer... values) {
+			super.onProgressUpdate(values);
+					
+			
+			mFragment.updateProgressBar(values[0]);
+			
+		}
+		
+		
+		
+		@Override
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+			
+
+			if (mFragment == null)
+                return;
+       	 
+			mFragment.taskFinished();
+			
+		}
+    	
+    }
+
+    
+    
+    
+    
+    
+    
+    
+
+	/**
+	 * Classe per la finestra di dialogo che visualizza un messaggio mentre viene eseguito 
+	 * il task di creazione intervalli.
+	 */
+    public static class TaskFragment extends DialogFragment {
+    	
+    	
+    	//il processo che si sta eseguendo
+        CreateIntervalsTask mTask;
+
+        HoloCircleSeekBar progress_bar;
+        
+        /**
+		 * Metodo che permette di impostare il campo che definisce il task la cui finestra
+		 * di dialogo è implementata con tale classe.
+		 * @param task il task da eseguire
+		 */
+        public void setTask(CreateIntervalsTask task)
+        {
+        	mTask = task;
+        	mTask.setFragment(this);
+        }
+
+        
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+        	super.onCreate(savedInstanceState);
+
+            //si conserva l'istanza cosicchè non sia distrutta quando l'activity AlgorithmConfigActivity
+            //e il fragment AlgorithmConfigFragment cambiano configurazione
+            setRetainInstance(true);
+          
+            //si fa partire il task (ci si può muovere al di fuori dell'activity se si vuole)
+            if (mTask != null){
+            	mTask.execute();
+            }
+        	
+        }
+        
+        
+        
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+        		Bundle savedInstanceState) {
+        	
+        	  View view = inflater.inflate(R.layout.fragment_algorithm_config_task, container);
+        	          	  
+              getDialog().setTitle(R.string.lab_configdialog_title);
+
+              //per evitare che, durante il task, l'utente possa cancellare la 
+              //finestra di dialog toccando lo screen
+              getDialog().setCanceledOnTouchOutside(false);
+              
+              progress_bar=(HoloCircleSeekBar) view.findViewById(R.id.config_task_progressbar);
+
+              return view;
+        }
+        
+        
+        
+        
+        //bisogna fare l'override di questo metodo perché altrimenti la finestra di
+        //dialogo viene cancellata ruotando lo schermo
+        @Override
+        public void onDestroyView() {
+
+            if (getDialog() != null && getRetainInstance())
+                getDialog().setDismissMessage(null);
+            super.onDestroyView();
+        }
+        
+        
+        //quando la finestra di dialogo sparisce, bisogna far terminare il task e poi
+        //ritornare il risultato all'activity relativa a questo fragment
+        @Override
+        public void onDismiss(DialogInterface dialog) {
+        	super.onDismiss(dialog);
+        	
+        	 if (mTask != null)
+                 mTask.cancel(false);
+
+             //si ritorna il risultato
+             if (getTargetFragment() != null)
+             	getTargetFragment().onActivityResult(TASK_FRAGMENT, Activity.RESULT_CANCELED, null);
+        }
+    	
+        
+        
+        @Override
+        public void onResume() {
+        	
+        	super.onResume();
+            //se il task ha finito mentre l'utente non era in questa activity, allora
+            //si può dismettere la finestra di dialogo
+            if (mTask == null)
+                dismiss();
+        }
+        
+               
+        
+        /**
+		 * Metodo chiamato dall'AsyncTask quando finisce il task. 
+		 */
+        public void taskFinished(){
+        	
+        	//si controlla che il fragment sia visibile nell'activity 'running', perché altrimenti
+        	//l'app crasha se si cerca di dismettere la finestra di dialog dopo che l'utente ha
+            //switchato in un'altra activity
+            if (isResumed())
+                dismiss();
+
+            //se 'isResumed()' ritorna 'false', si setta il task a 'null' permettendo, così, di
+            //cancellare il dialog nel metodo 'onResume()'
+            mTask = null;
+            
+            
+            //si informa il fragment che il task è finito
+            if (getTargetFragment() != null){
+            	
+            	//getTargetFragment().onActivityResult(TASK_FRAGMENT, Activity.RESULT_OK, toResultIntent);
+            }
+        }
+        
+        
+        
+        public void updateProgressBar(int value){
+        	
+        	progress_bar.setValue(value, 100);
+        }
+        
+    }
+     
+    
+    
+    
+    
+    
+    
     public void pickColor(View v){
     	
     	switch(v.getId()) {

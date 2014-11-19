@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import org.unipd.nbeghin.climbtheworld.AlgorithmConfigFragment;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionIntentService;
@@ -25,6 +26,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.SparseIntArray;
@@ -159,13 +161,17 @@ public class AlarmUtils {
      * @param context context of the application.
      * @param time_slots array that holds the time slots.
      */
-    public static void createIntervals(Context context, SparseIntArray time_slots){
+    public static void createIntervals(Context context, SparseIntArray time_slots, AlgorithmConfigFragment.CreateIntervalsTask task){
     	
     	DbHelper helper = DbHelper.getInstance(context);
     	
     	RuntimeExceptionDao<Alarm, Integer> alarmDao = helper.getAlarmDao();
     	
-    	int count=0;    	
+    	int count=0;    	    	
+    	
+    	int progress=100/24;    	
+    	
+    	task.doProgress(progress);
     	
     	for(int i=0; i<time_slots.size(); i++){
     		
@@ -234,10 +240,13 @@ public class AlarmUtils {
     					+ last_stop_time.get_minute()+":"+last_stop_time.get_second());
     			count++;
     		}
+    		
+    		progress=progress+4;
+    		task.doProgress(progress);
     	}
     	
     	System.out.println("Number of intervals: "+count);
-    	Toast.makeText(context, "INTERVALLI CREATI", Toast.LENGTH_SHORT).show();
+    	//Toast.makeText(context, "INTERVALLI CREATI", Toast.LENGTH_SHORT).show();
     }
     
     

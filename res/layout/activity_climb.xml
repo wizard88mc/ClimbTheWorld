@@ -3,7 +3,8 @@
     android:layout_height="match_parent"
     android:background="#0099cc"
     android:keepScreenOn="true"
-    tools:context=".ClimbActivity" xmlns:android="http://schemas.android.com/apk/res/android">
+    tools:context=".ClimbActivity" xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto">
 	
     <ImageView
         android:id="@+id/buildingPhoto"
