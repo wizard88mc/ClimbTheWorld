@@ -46,7 +46,16 @@ public class AlgorithmConfigFragment extends Fragment {
 	//map che contiene le coppie di valori <posizione_item, colore>
 	private static SparseIntArray positions_colors;
 	
+	private boolean first_page=true;
 	
+	//campi per i vari componenti grafici utilizzati
+	private TextView config_text;
+	private TextView yellow_picker;
+	private TextView red_picker;
+	private TextView green_picker;
+	private Button btt_next_config;
+	private Button btt_cancel_config;
+	private StaggeredGridView gridView;
 	
 	
 	/**
@@ -144,7 +153,7 @@ public class AlgorithmConfigFragment extends Fragment {
     
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-    	super.onActivityCreated(savedInstanceState);
+    	super.onActivityCreated(savedInstanceState);    	
     	
     	if(positions_colors==null){
     		positions_colors=new SparseIntArray(24);
@@ -159,33 +168,35 @@ public class AlgorithmConfigFragment extends Fragment {
     	screen_width = metrics.heightPixels;
     	
     	
+    	config_text = (TextView) getActivity().findViewById(R.id.config_text);  
+    	btt_next_config = (Button) getActivity().findViewById(R.id.btt_next_config);  
+    	btt_cancel_config = (Button) getActivity().findViewById(R.id.btt_cancel_config);  
+    	
     	GradientDrawable rectangle_shape = (GradientDrawable) getResources().getDrawable(R.drawable.rectangle_shape);
     	((GradientDrawable)rectangle_shape.mutate()).setColor(Color.GREEN);    	
-    	TextView green_picker = (TextView) getActivity().findViewById(R.id.green_picker);    	
+    	green_picker = (TextView) getActivity().findViewById(R.id.green_picker);    	
     	green_picker.setBackground(rectangle_shape);
     	
     	rectangle_shape=((GradientDrawable)rectangle_shape.getConstantState().newDrawable());
     	rectangle_shape.setColor(Color.RED);  
-    	TextView red_picker = (TextView) getActivity().findViewById(R.id.red_picker);    	
+    	red_picker = (TextView) getActivity().findViewById(R.id.red_picker);    	
     	red_picker.setBackground(rectangle_shape);
     	
     	rectangle_shape=((GradientDrawable)rectangle_shape.getConstantState().newDrawable());
     	rectangle_shape.setColor(Color.YELLOW);  
-    	TextView yellow_picker = (TextView) getActivity().findViewById(R.id.yellow_picker);    	
+    	yellow_picker = (TextView) getActivity().findViewById(R.id.yellow_picker);    	
     	yellow_picker.setBackground(rectangle_shape);
     	
     	
-    	StaggeredGridView gridView = (StaggeredGridView) getActivity().findViewById(R.id.alg_conf_gridview);
-
-    	
+    	gridView = (StaggeredGridView) getActivity().findViewById(R.id.alg_conf_gridview);
     	ListView lstV = new ListView(getActivity());
     	
     	Button config_btt = new Button(getActivity());
     	config_btt.setText(R.string.config_button_text);
     	config_btt.setId(R.string.config_button_id);
     	config_btt.setBackgroundResource(R.drawable.blue_button_style);
-    	
-    	
+    	config_btt.setTextColor(Color.WHITE);	
+    	config_btt.setTypeface(Typeface.SERIF);	
     	
     	config_btt.setOnClickListener(new OnClickListener() {
     	@Override
@@ -225,8 +236,7 @@ public class AlgorithmConfigFragment extends Fragment {
 				if(current_color!=-1){ //è stato selezionato uno dei tre colori
 					positions_colors.put(position, current_color);
 					GradientDrawable rect_shape_view = (GradientDrawable) view.getBackground();
-					rect_shape_view.setColor(current_color);	
-					((TextView)view).setTypeface(null, Typeface.BOLD_ITALIC);
+					rect_shape_view.setColor(current_color);
 				}
 				else{ //non è stato ancora selezionato alcun colore
 					Toast.makeText(getActivity(), getActivity().getResources().getText(R.string.select_color_toast), Toast.LENGTH_SHORT).show();
@@ -258,6 +268,12 @@ public class AlgorithmConfigFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
     	super.onSaveInstanceState(outState);
 		
+    	//si salva il booleano che indica se si è nella prima o nella seconda pagina per
+    	//impostare correttamente lo stato di visibilità dei vari componenti grafici
+    	//(dal momento che il fragment si compone di due "pagine" create dalla
+    	//visualizzazione o meno dei widget) 
+    	outState.putBoolean("first_page", first_page);
+    	
 		//si salva l'intero che indica il colore selezionato (-1 se ancora nessun colore selezionato)
 		outState.putInt("current_color", current_color);
     }
@@ -271,6 +287,12 @@ public class AlgorithmConfigFragment extends Fragment {
     	super.onViewStateRestored(savedInstanceState);
     	
     	if(savedInstanceState!=null){    		
+    		
+    		//si recupera il booleano che indica se si è nella prima o nella seconda pagina
+    		if(!savedInstanceState.getBoolean("first_page")){
+    			showNextPage();
+    		}
+    		
     		//si recupera lo stato salvato che indica il colore selezionato
     		current_color=savedInstanceState.getInt("current_color");
     	}
@@ -482,9 +504,15 @@ public class AlgorithmConfigFragment extends Fragment {
     
     
     
-    public void pickColor(View v){
+    public void selectAction(View v){
     	
     	switch(v.getId()) {
+    		case R.id.btt_next_config:
+    			showNextPage();
+    			break;
+    		case R.id.btt_cancel_config:
+    			getActivity().finish();
+    			break;
     		case R.id.red_picker:
     			current_color=Color.RED;
     			break;
@@ -495,6 +523,38 @@ public class AlgorithmConfigFragment extends Fragment {
     			current_color=Color.YELLOW;
     			break;
     	}
+    }
+    
+    
+    private void showNextPage(){
+    	    	
+    	btt_next_config.setVisibility(View.GONE);
+    	btt_cancel_config.setVisibility(View.GONE);
+    	
+    	config_text.setText(R.string.choose_color);
+    	
+    	red_picker.setVisibility(View.VISIBLE);
+    	green_picker.setVisibility(View.VISIBLE);
+    	yellow_picker.setVisibility(View.VISIBLE);
+    	gridView.setVisibility(View.VISIBLE);
+    	
+    	first_page=false;
+    }
+    
+    
+    private void showPrevPage(){
+    	
+    	red_picker.setVisibility(View.GONE);
+    	green_picker.setVisibility(View.GONE);
+    	yellow_picker.setVisibility(View.GONE);
+    	gridView.setVisibility(View.GONE);
+    	
+    	config_text.setText(R.string.lab_first_config);
+    	
+    	btt_next_config.setVisibility(View.VISIBLE);
+    	btt_cancel_config.setVisibility(View.VISIBLE);
+    	
+    	first_page=true;
     }
     
     

@@ -31,8 +31,8 @@ public class AlgorithmConfigActivity extends FragmentActivity implements Algorit
 	}
 	
 	
-	public void pickColor(View v){
-		configFrg.pickColor(v);
+	public void selectAction(View v){
+		configFrg.selectAction(v);
 	}
 	
 	

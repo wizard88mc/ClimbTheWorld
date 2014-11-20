@@ -59,13 +59,13 @@ public class RectangleShapeAdapter extends BaseAdapter {
 		int position_color = AlgorithmConfigFragment.getPositionColor(position);		
 		if(position_color!=-1){
 			rect_shape_view.setColor(position_color);
-			item_view.setTypeface(null, Typeface.BOLD_ITALIC);
 		}
 		
 		item_view.setBackground(rect_shape_view);
 		item_view.setLayoutParams(new GridView.LayoutParams(GridView.LayoutParams.MATCH_PARENT, AlgorithmConfigFragment.getScreenHeight()/6)); //dpToPx(75)
 		item_view.setText(Integer.toString(position)+":00-"+Integer.toString(position+1)+":00");
 		item_view.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+		item_view.setTypeface(Typeface.SERIF);
 		item_view.setGravity(Gravity.CENTER);
 		
         return item_view;

@@ -6,18 +6,19 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF">
     
-        <com.etsy.android.grid.StaggeredGridView
-            android:id="@+id/alg_conf_gridview"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/green_picker"
-            android:background="#FFFFFF"
-            android:gravity="center"
-            android:stretchMode="columnWidth"
-            staggered:column_count="4"
-            staggered:item_margin="1dp" />
+    <com.etsy.android.grid.StaggeredGridView
+        android:id="@+id/alg_conf_gridview"
+   	    android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/green_picker"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:stretchMode="columnWidth"        
+        staggered:column_count="4"
+        staggered:item_margin="1dp" 
+        android:visibility="gone"/>
     
-    <!--  <android.widget.GridView
+    <!--  <android.widget.GridView 
         android:id="@+id/alg_conf_gridview"
         android:layout_width="wrap_content"
    		android:layout_height="wrap_content"
@@ -30,42 +31,18 @@
         android:verticalSpacing="1dp"
         android:horizontalSpacing="1dp"
         android:visibility="visible"/>   -->
- <!--  
-      <Button
-        android:id="@+id/button1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"    
-        android:layout_toRightOf="@+id/green_picker"
-        android:text="Button" 
-        android:visibility="visible"/>
-
-    <Button
-        android:id="@+id/Button02"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"    
-        android:layout_centerHorizontal="true"
-        android:text="Button" 
-        android:visibility="visible"/>
-
-    <Button
-        android:id="@+id/Button01"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"    
-        android:layout_toLeftOf="@+id/green_picker"
-        android:text="Button" 
-        android:visibility="visible"/> -->
+ 
 
     <TextView
-        android:id="@+id/color_click_text"
+        android:id="@+id/config_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:text="@string/choose_color"
+        android:text="@string/lab_first_config"
+        android:layout_marginBottom="10dp"
         android:gravity="center"
-        android:textAppearance="?android:attr/textAppearanceMedium"/>
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:typeface="serif"/>
 
     
     <TextView
@@ -78,9 +55,9 @@
         android:background="@drawable/rectangle_shape"
         android:gravity="center"
         android:text="@string/yellow_time_slot"
-        android:visibility="visible"
-        android:onClick="pickColor"
-		android:clickable="true" />
+        android:onClick="selectAction"
+		android:clickable="true" 
+		android:visibility="gone"/>
 
     <TextView
         android:id="@+id/red_picker"
@@ -92,21 +69,48 @@
         android:background="@drawable/rectangle_shape"
         android:gravity="center"
         android:text="@string/red_time_slot"
-        android:visibility="visible"
-        android:onClick="pickColor"
-		android:clickable="true" />
+        android:onClick="selectAction"
+		android:clickable="true" 
+		android:visibility="gone"/>
 
     <TextView
         android:id="@+id/green_picker"
         android:layout_width="100dp"
         android:layout_height="60dp"
-        android:layout_below="@+id/color_click_text"
+        android:layout_below="@+id/config_text"
         android:layout_centerHorizontal="true"
         android:background="@drawable/rectangle_shape"
         android:clickable="true"
         android:gravity="center"
-        android:onClick="pickColor"
+        android:onClick="selectAction"
         android:text="@string/green_time_slot"
-        android:visibility="visible" />
+        android:visibility="gone"/>
+        
+
+    <Button
+        android:id="@+id/btt_next_config"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/btt_cancel_config"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:onClick="selectAction"
+        android:text="@string/btt_next" 
+        style="@style/customBttStyle"/>
+    
+    <Button
+    	android:id="@+id/btt_cancel_config"
+    	android:layout_width="wrap_content"
+     	android:layout_height="wrap_content"
+    	android:layout_alignParentBottom="true"
+     	android:layout_alignParentLeft="true"
+     	android:layout_alignParentRight="true"
+     	android:layout_marginBottom="20dp"
+     	android:gravity="center" 
+     	android:text="@string/btt_cancel"
+     	android:onClick="selectAction"
+     	style="@style/customBttStyle"/>
     
 </RelativeLayout>

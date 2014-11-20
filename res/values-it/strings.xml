@@ -26,7 +26,10 @@
     <string name="netalert_no">No</string>
     
     
-    <!-- Algorithm Configuration -->
+    <!-- Algorithm Configuration -->    
+    <string name="lab_first_config">Considera una giornata tipo.\n\nQuali sono le fasce orarie in cui fai attività fisica/scalini?\n\n\nIl passo successivo ti aiuterà ad impostarle.</string>
+    <string name="btt_next">Avanti</string>
+    <string name="btt_cancel">Annulla</string>
     <string name="choose_color">Scegli un colore e poi imposta le fasce orarie</string>
     <string name="select_color_toast">Seleziona prima un colore</string>
     <string name="set_timeslots_btt">Devi impostare tutte le fasce orarie</string>

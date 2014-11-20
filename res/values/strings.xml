@@ -25,7 +25,10 @@
     <string name="netalert_yes">Yes</string>
     <string name="netalert_no">No</string>
     
-    <!-- Algorithm Configuration -->    
+    <!-- Algorithm Configuration -->        
+    <string name="lab_first_config">Consider a typical day.\n\nWhat are the time slots in which you do exercise/steps?\n\n\nThe next step will help you to setting these time slots.</string>
+    <string name="btt_next">Next</string>
+    <string name="btt_cancel">Cancel</string>
     <string name="choose_color">Choose a color and then set the time slots</string>
     <string name="select_color_toast">First, select a color</string>
     <string name="set_timeslots_btt">You need to set all the time slots</string>
