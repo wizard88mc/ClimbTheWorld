@@ -29,12 +29,9 @@
      android:layout_alignParentLeft="true"
      android:layout_alignParentRight="true"
      android:layout_marginBottom="37dp"
-     android:gravity="center"     
+     android:gravity="center" 
      android:text="@string/btt_endconfig"
      android:background="@drawable/blue_button_style"/>
-
-
-
  
 </RelativeLayout>
 </ScrollView>

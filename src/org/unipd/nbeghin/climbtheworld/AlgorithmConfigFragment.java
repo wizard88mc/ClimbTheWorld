@@ -203,7 +203,7 @@ public class AlgorithmConfigFragment extends Fragment {
     			    			
  		        //il taskFragment esegue il task per la creazione degli intervalli
  		        taskFragment.setTask(intervalsCreationTask);
- 		        taskFragment.setTargetFragment(getParentFragment(), TASK_FRAGMENT);
+ 		        taskFragment.setTargetFragment(AlgorithmConfigFragment.this, TASK_FRAGMENT);
  		        
 		        //si mostra il fragment
 		        taskFragment.show(mFM, TASK_FRAGMENT_TAG);
@@ -324,10 +324,8 @@ public class AlgorithmConfigFragment extends Fragment {
 		@Override
 		protected void onProgressUpdate(Integer... values) {
 			super.onProgressUpdate(values);
-					
 			
 			mFragment.updateProgressBar(values[0]);
-			
 		}
 		
 		
@@ -335,23 +333,13 @@ public class AlgorithmConfigFragment extends Fragment {
 		@Override
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
-			
-
 			if (mFragment == null)
                 return;
        	 
 			mFragment.taskFinished();
-			
 		}
     	
-    }
-
-    
-    
-    
-    
-    
-    
+    }    
     
 
 	/**
@@ -386,6 +374,10 @@ public class AlgorithmConfigFragment extends Fragment {
             //e il fragment AlgorithmConfigFragment cambiano configurazione
             setRetainInstance(true);
           
+            //per evitare che, durante il task, l'utente possa cancellare la 
+            //finestra di dialog toccando lo screen o premendo qualche pulsante
+            setCancelable(false);
+            
             //si fa partire il task (ci si può muovere al di fuori dell'activity se si vuole)
             if (mTask != null){
             	mTask.execute();
@@ -402,10 +394,6 @@ public class AlgorithmConfigFragment extends Fragment {
         	  View view = inflater.inflate(R.layout.fragment_algorithm_config_task, container);
         	          	  
               getDialog().setTitle(R.string.lab_configdialog_title);
-
-              //per evitare che, durante il task, l'utente possa cancellare la 
-              //finestra di dialog toccando lo screen
-              getDialog().setCanceledOnTouchOutside(false);
               
               progress_bar=(HoloCircleSeekBar) view.findViewById(R.id.config_task_progressbar);
 
@@ -433,16 +421,11 @@ public class AlgorithmConfigFragment extends Fragment {
         	super.onDismiss(dialog);
         	
         	 if (mTask != null){
-        		 System.out.println("ON DISMISS dentro");
         		 mTask.cancel(false);
         	 }
-                 
-
-        	 System.out.println("ON DISMISS fuori");
-        	 
         	 
              //si ritorna il risultato
-             if (getTargetFragment() != null)
+        	 if (getTargetFragment() != null)
              	getTargetFragment().onActivityResult(TASK_FRAGMENT, Activity.RESULT_CANCELED, null);
         }
     	
@@ -468,8 +451,10 @@ public class AlgorithmConfigFragment extends Fragment {
         	//si controlla che il fragment sia visibile nell'activity 'running', perché altrimenti
         	//l'app crasha se si cerca di dismettere la finestra di dialog dopo che l'utente ha
             //switchato in un'altra activity
-            if (isResumed())
-                dismiss();
+            if (isResumed()){
+            	dismiss();
+            }
+               
 
             //se 'isResumed()' ritorna 'false', si setta il task a 'null' permettendo, così, di
             //cancellare il dialog nel metodo 'onResume()'
@@ -477,8 +462,7 @@ public class AlgorithmConfigFragment extends Fragment {
             
             
             //si informa il fragment che il task è finito
-            if (getTargetFragment() != null){
-            	
+            if (getTargetFragment() != null){            	
             	getTargetFragment().onActivityResult(TASK_FRAGMENT, Activity.RESULT_OK, new Intent(getActivity(),EndConfigActivity.class));
             }
         }

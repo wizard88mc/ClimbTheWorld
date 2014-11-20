@@ -10,18 +10,14 @@ import android.widget.Button;
 
 public class EndConfigActivity extends Activity {
 
-	//vari campi per le stringhe e per i componenti grafici utilizzati 
 	private Button backToMainBtt;
-	
-	
+		
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		setContentView(R.layout.activity_end_config);
-		
-	    backToMainBtt = (Button) findViewById(R.id.btt_endConfig);
-	    
+		setContentView(R.layout.activity_end_config);		
+	    backToMainBtt = (Button) findViewById(R.id.btt_endConfig);	    
 	    
 	    backToMainBtt.setOnClickListener(new OnClickListener() {
 			
@@ -30,13 +26,12 @@ public class EndConfigActivity extends Activity {
 				
 				//nell'intent per chiamare l'activity principale si setta il flag 
 				//'FLAG_ACTIVITY_CLEAR_TOP' per fare in modo che essa sia al top dello stack,
-				//facendo il pop delle precedenti activity
-				
+				//facendo il pop delle precedenti activity				
 				startActivity(new Intent(getApplicationContext(), MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-				
 			}
 		});
 	}
+	
 	
 	//si fa l'override del metodo che gestisce il back button per fare in modo di
 	//ritornare all'activity principale
@@ -44,14 +39,12 @@ public class EndConfigActivity extends Activity {
 	//per versioni 2.0 e superiori
 	@Override
 	public void onBackPressed() {
-		super.onBackPressed();
-		
-		
-		
+		startActivity(new Intent(getApplicationContext(), MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));		
 	}
 	//per versioni inferiori alla 2.0
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		startActivity(new Intent(getApplicationContext(), MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
 		return super.onKeyDown(keyCode, event);
 	}
 	
