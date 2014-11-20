@@ -35,13 +35,12 @@ public class EndConfigActivity extends Activity {
 	
 	//si fa l'override del metodo che gestisce il back button per fare in modo di
 	//ritornare all'activity principale
-			
-	//per versioni 2.0 e superiori
+
 	@Override
 	public void onBackPressed() {
 		startActivity(new Intent(getApplicationContext(), MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));		
 	}
-	//per versioni inferiori alla 2.0
+
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		startActivity(new Intent(getApplicationContext(), MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));

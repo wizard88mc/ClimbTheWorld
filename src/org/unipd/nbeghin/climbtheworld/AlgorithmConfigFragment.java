@@ -558,6 +558,20 @@ public class AlgorithmConfigFragment extends Fragment {
     }
     
     
+    public void handleBackButton(){
+    	
+    	if(first_page){
+    		getActivity().finish();
+    	}
+    	else{
+    		showPrevPage();
+    	}
+    }
+    
+    
+    
+    
+    
     private void initializeMap(){ 
     	
     	for(int i = 0; i < 24; i++) {       		
