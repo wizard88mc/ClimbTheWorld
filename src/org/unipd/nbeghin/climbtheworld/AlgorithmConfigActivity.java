@@ -26,8 +26,8 @@ public class AlgorithmConfigActivity extends FragmentActivity implements Algorit
 
 	@Override
 	public void onTaskFinished(Context context, Intent intent) {
-		// TODO Auto-generated method stub
 		
+		startActivity(intent);
 	}
 	
 	

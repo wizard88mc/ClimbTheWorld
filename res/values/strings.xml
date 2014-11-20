@@ -36,6 +36,10 @@
     <string name="config_button_id">config_button_id</string>
     
     <string name="lab_configdialog_title">Configuration</string>
-    <string name="lab_configdialog_status">&#8230;in progress&#8230;</string>   
+    <string name="lab_configdialog_status">&#8230;in progress&#8230;</string>  
+     
+   <string name="lab_endconfig">Thank you!\n\nThe app has been configured according to your specifications.\nIf you think you\'ve done something wrong, don\'t worry: it is smart!\n\nStart playing now!</string>  
+   <string name="btt_endconfig">OK!</string> 
+    
     
 </resources>

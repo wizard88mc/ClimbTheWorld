@@ -15,6 +15,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.SweepGradient;
 import android.graphics.Typeface;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
@@ -545,7 +546,8 @@ public class HoloCircleSeekBar extends View implements Parcelable{
 
 	
 	@Override
-	public void writeToParcel(Parcel dest, int flags) {		
+	public void writeToParcel(Parcel dest, int flags) {	
+
 		dest.writeValue(context);
 		dest.writeValue(attset);
 		dest.writeInt(defStyle);
@@ -601,6 +603,7 @@ public class HoloCircleSeekBar extends View implements Parcelable{
 	
 	public HoloCircleSeekBar(Parcel in){
 		super((Context) in.readValue(Context.class.getClassLoader()), (AttributeSet) in.readValue(AttributeSet.class.getClassLoader()), in.readInt());
+		
 		arc_finish_radians = in.readInt();
 		beginDone = in.readInt();
 		block_end = Boolean.getBoolean(in.readString());
@@ -661,317 +664,108 @@ public class HoloCircleSeekBar extends View implements Parcelable{
     };
     
     
-    
+
     protected Parcelable onSaveInstanceState() {
     	
-    	//begin boilerplate code that allows parent classes to save state
-        Parcelable superState = super.onSaveInstanceState();
-    	
+    	Bundle bundle = new Bundle();
+    	bundle.putParcelable("instanceState", super.onSaveInstanceState());    	
 
-        SavedState ss = new SavedState(superState);
-        //end
-        
-        ss.mColorWheelPaint=mColorWheelPaint;
-        ss.mPointerHaloPaint=mPointerHaloPaint;
-        ss.mPointerColor=mPointerColor;
-        ss.mColorWheelStrokeWidth=mColorWheelStrokeWidth;
-        ss.mPointerRadius=mPointerRadius;
-        ss.mColorWheelRectangle=mColorWheelRectangle;
-        ss.mUserIsMovingPointer=mUserIsMovingPointer;
-        ss.mColor=mColor;
-        ss.mTranslationOffset=mTranslationOffset;
-        ss.mColorWheelRadius=mColorWheelRadius;
-        ss.mAngle=mAngle;
-        ss.textPaint=textPaint;
-        ss.text=text;
-        ss.conversion=conversion;
-        ss.max=max;
-        ss.color_attr=color_attr;
-        ss.color=color;
-        ss.s=s;
-        ss.mArcColor=mArcColor;
-        ss.wheel_color_attr=wheel_color_attr;
-        ss.wheel_unactive_color_attr=wheel_unactive_color_attr;
-        ss.pointer_color_attr=pointer_color_attr;
-        ss.pointer_halo_color_attr=pointer_halo_color_attr;
-        ss.text_color_attr=text_color_attr;
-        ss.wheel_color=wheel_color;
-        ss.unactive_wheel_color=unactive_wheel_color;
-        ss.pointer_color=pointer_color;
-        ss.pointer_halo_color=pointer_halo_color;
-        ss.text_size=text_size;
-        ss.text_color=text_color;
-        ss.init_position=init_position;
-        ss.block_end=block_end;
-        ss.lastX=lastX;
-        ss.last_radians=last_radians;
-        ss.block_start=block_start;
-        ss.arc_finish_radians=arc_finish_radians;
-        ss.start_arc=start_arc;
-        ss.pointerPosition=pointerPosition;
-        ss.mColorCenterHalo=mColorCenterHalo;
-        ss.mColorCenterHaloRectangle=mColorCenterHaloRectangle;
-        ss.mCircleTextColor=mCircleTextColor;
-        ss.end_wheel=end_wheel;
-        ss.show_text=show_text;
-        ss.beginDone=beginDone;
-        ss.sweepDone=sweepDone;
-        ss.context=context;
-        ss.attset=attset;
-        ss.defStyle=defStyle;
-        ss.play=play;
-        ss.show_percentage_symbol=show_percentage_symbol;
-        
-        return ss;
+    	bundle.putParcelable("mColorCenterHaloRectangle", mColorCenterHaloRectangle);
+    	bundle.putParcelable("mColorWheelRectangle", mColorWheelRectangle);    	
+    	bundle.putInt("defStyle", defStyle);
+    	bundle.putInt("arc_finish_radians", arc_finish_radians);
+    	bundle.putInt("beginDone", beginDone);
+    	bundle.putInt("color", color);
+    	bundle.putInt("conversion", conversion);
+    	bundle.putInt("end_wheel", end_wheel);
+    	bundle.putInt("init_position", init_position);
+    	bundle.putInt("last_radians", last_radians);
+    	bundle.putInt("max", max);
+    	bundle.putInt("mColor", mColor);
+    	bundle.putInt("mColorWheelStrokeWidth", mColorWheelStrokeWidth);
+    	bundle.putInt("mPointerRadius", mPointerRadius);
+    	bundle.putInt("pointer_color", pointer_color);
+    	bundle.putInt("pointer_halo_color", pointer_halo_color);
+    	bundle.putInt("start_arc", start_arc);
+    	bundle.putInt("sweepDone", sweepDone);
+    	bundle.putInt("text_color", text_color);
+    	bundle.putInt("text_size", text_size);
+    	bundle.putInt("unactive_wheel_color", unactive_wheel_color);
+    	bundle.putInt("wheel_color", wheel_color);    	
+    	bundle.putBoolean("block_end", block_end);
+    	bundle.putBoolean("block_start",block_start);
+    	bundle.putString("color_attr", color_attr);    	
+    	bundle.putBoolean("mUserIsMovingPointer",mUserIsMovingPointer);
+    	bundle.putString("pointer_color_attr",pointer_color_attr);
+    	bundle.putString("pointer_halo_color_attr",pointer_halo_color_attr);
+    	bundle.putBoolean("show_text",show_text);
+    	bundle.putBoolean("show_percentage_symbol",show_percentage_symbol);
+    	bundle.putString("text",text);
+    	bundle.putString("text_color_attr",text_color_attr);
+    	bundle.putString("wheel_color_attr",wheel_color_attr);
+    	bundle.putString("wheel_unactive_color_attr",wheel_unactive_color_attr);
+    	bundle.putFloat("lastX",lastX);
+    	bundle.putFloat("mAngle",mAngle);
+    	bundle.putFloat("mColorWheelRadius",mColorWheelRadius);
+    	bundle.putFloat("mTranslationOffset",mTranslationOffset);
+    	bundle.putFloatArray("pointerPosition",pointerPosition);
+    	
+    	return bundle;
     };
-    
     
     
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
-    	
-    	//begin boilerplate code so parent classes can restore state
-        if(!(state instanceof SavedState)) {
-          super.onRestoreInstanceState(state);
-          return;
-        }
 
-        SavedState ss = (SavedState)state;
-        super.onRestoreInstanceState(ss.getSuperState());
-        //end
-    	
-        
-        this.mColorWheelPaint=ss.mColorWheelPaint;
-        this.mPointerHaloPaint=ss.mPointerHaloPaint;
-        this.mPointerColor=ss.mPointerColor;
-        this.mColorWheelStrokeWidth=ss.mColorWheelStrokeWidth;
-        this.mPointerRadius=ss.mPointerRadius;
-        this.mColorWheelRectangle=ss.mColorWheelRectangle;
-        this.mUserIsMovingPointer=ss.mUserIsMovingPointer;
-        this.mColor=ss.mColor;
-        this.mTranslationOffset=ss.mTranslationOffset;
-        this.mColorWheelRadius=ss.mColorWheelRadius;
-        this.mAngle=ss.mAngle;
-        this.textPaint=ss.textPaint;
-        this.text=ss.text;
-        this.conversion=ss.conversion;
-        this.max=ss.max;
-        this.color_attr=ss.color_attr;
-        this.color=ss.color;
-        this.s=ss.s;
-        this.mArcColor=ss.mArcColor;
-        this.wheel_color_attr=ss.wheel_color_attr;
-        this.wheel_unactive_color_attr=ss.wheel_unactive_color_attr;
-        this.pointer_color_attr=ss.pointer_color_attr;
-        this.pointer_halo_color_attr=ss.pointer_halo_color_attr;
-        this.text_color_attr=ss.text_color_attr;
-        this.wheel_color=ss.wheel_color;
-        this.unactive_wheel_color=ss.unactive_wheel_color;
-        this.pointer_color=ss.pointer_color;
-        this.pointer_halo_color=ss.pointer_halo_color;
-        this.text_size=ss.text_size;
-        this.text_color=ss.text_color;
-        this.init_position=ss.init_position;
-        this.block_end=ss.block_end;
-        this.lastX=ss.lastX;
-        this.last_radians=ss.last_radians;
-        this.block_start=ss.block_start;
-        this.arc_finish_radians=ss.arc_finish_radians;
-        this.start_arc=ss.start_arc;
-        this.pointerPosition=ss.pointerPosition;
-        this.mColorCenterHalo=ss.mColorCenterHalo;
-        this.mColorCenterHaloRectangle=ss.mColorCenterHaloRectangle;
-        this.mCircleTextColor=ss.mCircleTextColor;
-        this.end_wheel=ss.end_wheel;
-        this.show_text=ss.show_text;
-        this.beginDone=ss.beginDone;
-        this.sweepDone=ss.sweepDone;
-        this.context=ss.context;
-        this.attset=ss.attset;
-        this.defStyle=ss.defStyle;
-        this.play=ss.play;
-        this.show_percentage_symbol=ss.show_percentage_symbol;
-        
+    	if (state instanceof Bundle) {
+    		Bundle bundle = (Bundle) state;
+            
+            mColorCenterHaloRectangle=bundle.getParcelable("mColorCenterHaloRectangle");  
+            mColorWheelRectangle=bundle.getParcelable("mColorWheelRectangle");
+            
+            mColorWheelStrokeWidth=bundle.getInt("mColorWheelStrokeWidth");
+            mPointerRadius=bundle.getInt("mPointerRadius");
+            mColorWheelRectangle=bundle.getParcelable("mColorWheelRectangle");
+            mUserIsMovingPointer=bundle.getBoolean("mUserIsMovingPointer");
+            mColor=bundle.getInt("mColor");
+            mTranslationOffset=bundle.getFloat("mTranslationOffset");
+            mColorWheelRadius=bundle.getFloat("mColorWheelRadius");
+            mAngle=bundle.getFloat("mAngle");            
+            text=bundle.getString("text");
+            conversion=bundle.getInt("conversion");
+            max=bundle.getInt("max");
+            color_attr=bundle.getString("color_attr");
+            color=bundle.getInt("color");
+            wheel_color_attr=bundle.getString("wheel_color_attr");
+            wheel_unactive_color_attr=bundle.getString("wheel_unactive_color_attr");
+            pointer_color_attr=bundle.getString("pointer_color_attr");
+            pointer_halo_color_attr=bundle.getString("pointer_halo_color_attr");
+            text_color_attr=bundle.getString("text_color_attr");
+            wheel_color=bundle.getInt("wheel_color");
+            unactive_wheel_color=bundle.getInt("unactive_wheel_color");
+            pointer_color=bundle.getInt("pointer_color");
+            pointer_halo_color=bundle.getInt("pointer_halo_color");
+            text_size=bundle.getInt("text_size");
+            text_color=bundle.getInt("text_color");
+            init_position=bundle.getInt("init_position");
+            block_end=bundle.getBoolean("block_end");
+            lastX=bundle.getFloat("lastX");
+            last_radians=bundle.getInt("last_radians");
+            block_start=bundle.getBoolean("block_start");
+            arc_finish_radians=bundle.getInt("arc_finish_radians");
+            start_arc=bundle.getInt("start_arc");
+            pointerPosition=bundle.getFloatArray("pointerPosition");
+            end_wheel=bundle.getInt("end_wheel");
+            show_text=bundle.getBoolean("show_text");
+            beginDone=bundle.getInt("beginDone");
+            sweepDone=bundle.getInt("sweepDone");            
+            defStyle=bundle.getInt("defStyle");
+            show_percentage_symbol=bundle.getBoolean("show_percentage_symbol");
+    		
+            state = bundle.getParcelable("instanceState");
+    	}
+    	super.onRestoreInstanceState(state);
     }
     
     
-    
-
-    static class SavedState extends BaseSavedState {
-    	
-    	//vari campi utili a costruire la barra di progresso
-    	private Paint mColorWheelPaint;
-    	private Paint mPointerHaloPaint;
-    	private Paint mPointerColor;
-    	private int mColorWheelStrokeWidth;
-    	private int mPointerRadius;
-    	private RectF mColorWheelRectangle;
-    	private boolean mUserIsMovingPointer;
-    	private int mColor;
-    	private float mTranslationOffset;
-    	private float mColorWheelRadius;
-
-    	private float mAngle;
-    	private Paint textPaint;
-    	private String text;
-    	private int conversion;
-    	private int max;
-    	private String color_attr;
-    	private int color;
-    	private SweepGradient s;
-    	private Paint mArcColor;
-    	private String wheel_color_attr, wheel_unactive_color_attr,
-    			pointer_color_attr, pointer_halo_color_attr, text_color_attr;
-    	private int wheel_color, unactive_wheel_color, pointer_color,
-    			pointer_halo_color, text_size, text_color, init_position;
-    	private boolean block_end;
-    	private float lastX;
-    	private int last_radians;
-    	private boolean block_start;
-
-    	private int arc_finish_radians;
-    	private int start_arc;
-
-    	private float[] pointerPosition;
-    	private Paint mColorCenterHalo;
-    	private RectF mColorCenterHaloRectangle;
-    	private Paint mCircleTextColor;
-    	private int end_wheel;
-
-    	private boolean show_text;
-    	
-    	private int beginDone;
-    	private int sweepDone;
-    	
-    	private Context context;
-    	private AttributeSet attset;
-    	private int defStyle;
-    	boolean play;
-
-    	private boolean show_percentage_symbol;
-
-        SavedState(Parcelable superState) {
-          super(superState);
-        }
-
-        private SavedState(Parcel in) {
-        	super(in);
-        	arc_finish_radians = in.readInt();
-        	beginDone = in.readInt();
-        	block_end = Boolean.getBoolean(in.readString());
-        	block_start = Boolean.getBoolean(in.readString());
-        	color = in.readInt();
-        	color_attr = in.readString();
-        	conversion = in.readInt();
-        	end_wheel = in.readInt();
-        	init_position = in.readInt();
-        	last_radians = in.readInt();
-        	lastX = in.readFloat();
-        	mAngle = in.readFloat();
-        	mArcColor = (Paint) in.readValue(Paint.class.getClassLoader());
-        	max = in.readInt();
-        	mCircleTextColor = (Paint) in.readValue(Paint.class.getClassLoader());
-        	mColor = in.readInt();
-        	mColorCenterHalo = (Paint) in.readValue(Paint.class.getClassLoader());
-        	mColorCenterHaloRectangle = (RectF) in.readValue(RectF.class.getClassLoader());
-        	mColorWheelPaint = (Paint) in.readValue(Paint.class.getClassLoader());
-        	mColorWheelRadius = in.readFloat();
-        	mColorCenterHaloRectangle = (RectF) in.readValue(RectF.class.getClassLoader());
-        	mColorWheelStrokeWidth = in.readInt();
-        	mPointerColor = (Paint) in.readValue(Paint.class.getClassLoader());
-        	mPointerHaloPaint = (Paint) in.readValue(Paint.class.getClassLoader());
-        	mPointerRadius = in.readInt();
-        	mTranslationOffset = in.readFloat();
-        	mUserIsMovingPointer = Boolean.getBoolean(in.readString());
-        	pointer_color = in.readInt();
-        	pointer_color_attr = in.readString();
-        	pointer_halo_color = in.readInt();
-        	pointer_halo_color_attr = in.readString();
-        	in.readFloatArray(pointerPosition);
-        	s = (SweepGradient) in.readValue(SweepGradient.class.getClassLoader());
-        	show_text = Boolean.getBoolean(in.readString());
-        	show_percentage_symbol = Boolean.getBoolean(in.readString());
-        	start_arc = in.readInt();
-        	sweepDone = in.readInt();
-        	text = in.readString();
-        	text_color = in.readInt();
-        	text_color_attr = in.readString();
-        	text_size = in.readInt();
-        	textPaint = (Paint) in.readValue(Paint.class.getClassLoader());
-        	unactive_wheel_color = in.readInt();
-        	wheel_color = in.readInt();
-        	wheel_color_attr = in.readString();
-        	wheel_unactive_color_attr = in.readString();
-        }
-        
-        
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-        	super.writeToParcel(dest, flags);
-        	
-        	dest.writeValue(context);
-    		dest.writeValue(attset);
-    		dest.writeInt(defStyle);
-    		dest.writeInt(arc_finish_radians);
-    		dest.writeInt(beginDone);
-    		dest.writeString(String.valueOf(block_end));
-    		dest.writeString(String.valueOf(block_start));
-    		dest.writeInt(color);
-    		dest.writeString(color_attr);
-    		dest.writeInt(conversion);
-    		dest.writeInt(end_wheel);
-    		dest.writeInt(init_position);
-    		dest.writeInt(last_radians);
-    		dest.writeFloat(lastX);
-    		dest.writeFloat(mAngle);
-    		dest.writeValue(mArcColor);
-    		dest.writeInt(max);
-    		dest.writeValue(mCircleTextColor);
-    		dest.writeInt(mColor);
-    		dest.writeValue(mColorCenterHalo);
-    		dest.writeValue(mColorCenterHaloRectangle);
-    		dest.writeValue(mColorWheelPaint);
-    		dest.writeFloat(mColorWheelRadius);
-    		dest.writeValue(mColorWheelRectangle);
-    		dest.writeInt(mColorWheelStrokeWidth);
-    		dest.writeValue(mPointerColor);
-    		dest.writeValue(mPointerHaloPaint);
-    		dest.writeInt(mPointerRadius);
-    		dest.writeFloat(mTranslationOffset);
-    		dest.writeString(String.valueOf(mUserIsMovingPointer));
-    		dest.writeInt(pointer_color);
-    		dest.writeString(pointer_color_attr);
-    		dest.writeInt(pointer_halo_color);
-    		dest.writeString(pointer_halo_color_attr);
-    		dest.writeFloatArray(pointerPosition);
-    		dest.writeValue(s);
-    		dest.writeString(String.valueOf(show_text));
-    		dest.writeString(String.valueOf(show_percentage_symbol));
-    		dest.writeInt(start_arc);
-    		dest.writeInt(sweepDone);
-    		dest.writeString(text);
-    		dest.writeInt(text_color);
-    		dest.writeString(text_color_attr);
-    		dest.writeInt(text_size);
-    		dest.writeValue(textPaint);
-    		dest.writeInt(unactive_wheel_color);
-    		dest.writeInt(wheel_color);
-    		dest.writeString(wheel_color_attr);
-    		dest.writeString(wheel_unactive_color_attr);	
-        }
-     
-        //required field that makes Parcelables from a Parcel
-        public static final Parcelable.Creator<SavedState> CREATOR =
-            new Parcelable.Creator<SavedState>() {
-              public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
-              }
-              public SavedState[] newArray(int size) {
-                return new SavedState[size];
-              }
-        };
-    }
-      
-    
-   
 }

@@ -432,9 +432,15 @@ public class AlgorithmConfigFragment extends Fragment {
         public void onDismiss(DialogInterface dialog) {
         	super.onDismiss(dialog);
         	
-        	 if (mTask != null)
-                 mTask.cancel(false);
+        	 if (mTask != null){
+        		 System.out.println("ON DISMISS dentro");
+        		 mTask.cancel(false);
+        	 }
+                 
 
+        	 System.out.println("ON DISMISS fuori");
+        	 
+        	 
              //si ritorna il risultato
              if (getTargetFragment() != null)
              	getTargetFragment().onActivityResult(TASK_FRAGMENT, Activity.RESULT_CANCELED, null);
@@ -473,7 +479,7 @@ public class AlgorithmConfigFragment extends Fragment {
             //si informa il fragment che il task è finito
             if (getTargetFragment() != null){
             	
-            	//getTargetFragment().onActivityResult(TASK_FRAGMENT, Activity.RESULT_OK, toResultIntent);
+            	getTargetFragment().onActivityResult(TASK_FRAGMENT, Activity.RESULT_OK, new Intent(getActivity(),EndConfigActivity.class));
             }
         }
         
