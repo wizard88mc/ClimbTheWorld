@@ -24,7 +24,7 @@
         android:layout_gravity="right"
         android:gravity="center"
         custom:show_percent_symbol="true"
-        custom:text_size="80"
+        custom:text_size="70"
         custom:text_color="#5749F9"
         custom:wheel_active_color="#5749F9"/>
 

@@ -42,7 +42,7 @@ public class HoloCircleSeekBar extends View implements Parcelable{
 
 	private float mAngle;
 	private Paint textPaint;
-	private String text;
+	private String text=new String();
 	private int conversion = 0;
 	private int max = 100;
 	private String color_attr;
@@ -67,7 +67,7 @@ public class HoloCircleSeekBar extends View implements Parcelable{
 	private Paint mCircleTextColor;
 	private int end_wheel;
 
-	private boolean show_text;
+	private boolean show_text=true;
 	
 	private int beginDone;
 	private int sweepDone;
@@ -200,7 +200,7 @@ public class HoloCircleSeekBar extends View implements Parcelable{
 
 		text_color_attr = a.getString(R.styleable.HoloCircleSeekBar_text_color);
 
-		text_size = a.getInteger(R.styleable.HoloCircleSeekBar_text_size, 90); //100
+		text_size = a.getInteger(R.styleable.HoloCircleSeekBar_text_size, 50); //90 100
 
 		init_position = a.getInteger(
 				R.styleable.HoloCircleSeekBar_init_position, 0);
@@ -301,7 +301,7 @@ public class HoloCircleSeekBar extends View implements Parcelable{
 		}else{
 			pointerPosition = calculatePointerPosition(calculateRadiansFromAngle(0+(sweepDone - (360 - beginDone))));
 		}
-
+		
 		Rect bounds = new Rect();
 		textPaint.getTextBounds(text, 0, text.length(), bounds);
 		
@@ -419,10 +419,8 @@ public class HoloCircleSeekBar extends View implements Parcelable{
 			text=text+"%";
 		}		
 		
-		//inizio di copertura
 		beginDone = 270;
 		sweepDone = (int) mAngle;
-		//fine di copertura
 		
 		invalidate();
 

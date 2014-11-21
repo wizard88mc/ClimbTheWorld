@@ -169,7 +169,7 @@ public class AlarmUtils {
     	
     	int count=0;    	    	
     	
-    	int progress=100/24;    	
+    	int progress=4; //100/n. fasce orarie -> 100/24   	
     	
     	task.doProgress(progress);
     	
@@ -239,14 +239,13 @@ public class AlarmUtils {
     					+ 55+":"+1 + " STOP: " + last_stop_time.get_hour()+ ":"
     					+ last_stop_time.get_minute()+":"+last_stop_time.get_second());
     			count++;
-    		}
+    		}    		
     		
     		progress=progress+4;
-    		task.doProgress(progress);
+    		task.doProgress(progress);    		
     	}
     	
     	System.out.println("Number of intervals: "+count);
-    	//Toast.makeText(context, "INTERVALLI CREATI", Toast.LENGTH_SHORT).show();
     }
     
     

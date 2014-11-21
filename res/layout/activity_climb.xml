@@ -198,6 +198,7 @@
         android:layout_height="215dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="100dp"/> <!-- 195 , 215--> 
+        android:layout_marginTop="100dp"
+        custom:text_size="90" /> <!-- 195 , 215--> 
 
 </RelativeLayout>
