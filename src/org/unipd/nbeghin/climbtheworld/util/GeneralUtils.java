@@ -25,11 +25,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.AssetManager;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
-import android.util.SparseIntArray;
 
 /**
  * 
@@ -111,17 +109,17 @@ public class GeneralUtils {
     
        
     /**
-     * Performs the alarms setup and initializes the related shared preferences.
+     * Initializes the algorithm by setting up the first alarm.
      * @param context context of the application.
      * @param prefs reference to android shared preferences. 
      */
-    public static void initializeAlarmsAndPrefs(final Context context, final SharedPreferences prefs) {
+    public static void initializeAlgorithm(final Context context, final SharedPreferences prefs) {
     	
     	Editor editor = prefs.edit();    	
-    	editor.putBoolean("firstRun", false); // si memorizza che non è il primo run dell'app
+    	//editor.putBoolean("firstRun", false); // si memorizza che non è il primo run dell'app
     	//editor.putInt("current_template", 1); // il template orario che si usa è il primo    	
     	//si salvano le credenziali
-    	editor.commit();  
+    	//editor.commit();  
     	
     	/////////		
     	//PER TEST ALGORITMO
@@ -166,9 +164,9 @@ public class GeneralUtils {
     	LogUtils.writeLogFile(context, "ALGORITMO\n");
     	    	
     	//si fa il setup del db per gli alarm
-    	AlarmUtils.setupAlarmsDB(context); 
+    	//AlarmUtils.setupAlarmsDB(context); 
     	//si creano gli alarm
-		AlarmUtils.createAlarms(context);  
+		//AlarmUtils.createAlarms(context);  
     	//readIntervalsFromFile(context);
 				
     	Thread thread = new Thread(){
@@ -314,10 +312,5 @@ public class GeneralUtils {
 	        Log.e(MainActivity.AppName, " - Can not read file: " + e.toString());
 	    }
 	}
-    
-    
-    
-    
-    
     
 }

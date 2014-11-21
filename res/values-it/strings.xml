@@ -27,6 +27,8 @@
     
     
     <!-- Algorithm Configuration -->    
+    <string name="lab_dialog_config">Ciao!\n\nTi preghiamo di dedicare qualche minuto per configurare l\'app.</string>
+    <string name="btt_cancel_dialog_config">Non ora</string>  
     <string name="lab_first_config">Considera una giornata tipo.\n\nQuali sono le fasce orarie in cui fai attività fisica/scalini?\n\n\nIl passo successivo ti aiuterà ad impostarle.</string>
     <string name="btt_next">Avanti</string>
     <string name="btt_cancel">Annulla</string>

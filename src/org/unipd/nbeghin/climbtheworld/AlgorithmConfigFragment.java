@@ -2,6 +2,7 @@ package org.unipd.nbeghin.climbtheworld;
 
 import org.unipd.nbeghin.climbtheworld.adapters.RectangleShapeAdapter;
 import org.unipd.nbeghin.climbtheworld.util.AlarmUtils;
+import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
 
 import com.etsy.android.grid.StaggeredGridView;
 
@@ -14,6 +15,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -36,7 +38,6 @@ public class AlgorithmConfigFragment extends Fragment {
 	//questo codice fino a 'onDetach()' è cio' che serve per lavorare con i
 	//callbacks dell'Activity
 	private Callbacks mCallbacks = sDummyCallbacks;
-
 	
 	private static int screen_width;
 	private static int screen_height;
@@ -139,14 +140,6 @@ public class AlgorithmConfigFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
     		Bundle savedInstanceState) {
     	return inflater.inflate(R.layout.fragment_algorithm_config, container, false);
-    }
-    
-    
-    
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-    	super.onViewCreated(view, savedInstanceState);
-    	
     }
     
     
@@ -329,6 +322,7 @@ public class AlgorithmConfigFragment extends Fragment {
 		protected Void doInBackground(Void... params) {
 
 			AlarmUtils.createIntervals(mContext, positions_colors, this);
+			PreferenceManager.getDefaultSharedPreferences(ClimbTheWorldApp.getContext()).edit().putBoolean("algorithm_configured", true).commit();
 			
 			return null;
 		}
@@ -357,7 +351,9 @@ public class AlgorithmConfigFragment extends Fragment {
 			super.onPostExecute(result);
 			if (mFragment == null)
                 return;
-       	 
+			
+			GeneralUtils.initializeAlgorithm(ClimbTheWorldApp.getContext(), PreferenceManager.getDefaultSharedPreferences(ClimbTheWorldApp.getContext()));
+			
 			mFragment.taskFinished();
 		}
     	

@@ -82,13 +82,16 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			//si setta il prossimo alarm prendendo quello salvato nelle shared preferences
 			//se non c'è non si fa nulla			
 			
+			/*
 			//se si vede che si tratta del primo run dell'applicazione
 			if(pref.getBoolean("firstRun", true)){	
 				System.out.println("init");
 				//si inizializzano gli alarm e le relative shared preferences
 				GeneralUtils.initializeAlarmsAndPrefs(context,pref);	
 			}
-			else{	
+			else{
+			*/
+			if(pref.getBoolean("algorithm_configured", false)){	
 				/////////				
 				//PER TEST ALGORITMO 
 				//si aggiorna l'indice artificiale che rappresenta il giorno corrente della 

@@ -25,7 +25,9 @@
     <string name="netalert_yes">Yes</string>
     <string name="netalert_no">No</string>
     
-    <!-- Algorithm Configuration -->        
+    <!-- Algorithm Configuration -->      
+    <string name="lab_dialog_config">Hi!\n\nWe kindly ask you to take a few minutes to configure this app.</string>  
+    <string name="btt_cancel_dialog_config">Not right now</string>  
     <string name="lab_first_config">Consider a typical day.\n\nWhat are the time slots in which you do exercise/steps?\n\n\nThe next step will help you to setting these time slots.</string>
     <string name="btt_next">Next</string>
     <string name="btt_cancel">Cancel</string>
@@ -42,7 +44,7 @@
     <string name="lab_configdialog_status">&#8230;in progress&#8230;</string>  
      
    <string name="lab_endconfig">Thank you!\n\nThe app has been configured according to your specifications.\nIf you think you\'ve done something wrong, don\'t worry: it is smart!\n\nStart playing now!</string>  
-   <string name="btt_endconfig">OK!</string> 
+   <string name="btt_ok">OK!</string> 
     
     
 </resources>

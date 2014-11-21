@@ -163,8 +163,10 @@ public class AlarmUtils {
      */
     public static void createIntervals(Context context, SparseIntArray time_slots, AlgorithmConfigFragment.CreateIntervalsTask task){
     	
-    	DbHelper helper = DbHelper.getInstance(context);
+    	//per prima cosa viene creata la tabella per gli alarm
+    	setupAlarmsDB(context);
     	
+    	DbHelper helper = DbHelper.getInstance(context);    	
     	RuntimeExceptionDao<Alarm, Integer> alarmDao = helper.getAlarmDao();
     	
     	int count=0;    	    	

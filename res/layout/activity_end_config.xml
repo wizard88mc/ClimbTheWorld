@@ -30,7 +30,7 @@
      android:layout_alignParentRight="true"
      android:layout_marginBottom="37dp"
      android:gravity="center" 
-     android:text="@string/btt_endconfig"
+     android:text="@string/btt_ok"
      style="@style/customBttStyle"/>
  
 </RelativeLayout>

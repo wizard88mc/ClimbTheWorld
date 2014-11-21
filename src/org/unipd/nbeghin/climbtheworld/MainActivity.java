@@ -27,10 +27,13 @@ import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
 import org.unipd.nbeghin.climbtheworld.weka.WekaClassifier;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -38,10 +41,16 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.text.AlteredCharSequence;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.j256.ormlite.dao.RuntimeExceptionDao;
@@ -76,6 +85,10 @@ public class MainActivity extends ActionBarActivity {
 
 	public static boolean logEnabled=true; 
 	
+	//finestra di dialogo che propone all'utente di configurare l'algoritmo
+	private static Dialog alertDialog;
+	
+	@SuppressLint("InflateParams")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -95,8 +108,38 @@ public class MainActivity extends ActionBarActivity {
 		catch(IOException exc) {
 			this.finish();
 		}
+		
+		
+		if(!PreferenceManager.getDefaultSharedPreferences(sContext).getBoolean("algorithm_configured", false)){
+			
+			//si crea una finestra di dialogo che propone all'utente di configurare l'algoritmo
+			alertDialog = new Dialog(this);			
+	        LayoutInflater inflater = getLayoutInflater();
+	        View dialoglayout = inflater.inflate(R.layout.dialog_algorithm_config, null);
+	        alertDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+	        alertDialog.setContentView(dialoglayout);
+	        alertDialog.setCancelable(false);
+	        alertDialog.show();
+		}
+		
 	}
 
+	
+	
+	public void selectAction(View v){
+		
+		switch(v.getId()) {
+		case R.id.dialog_config_btt_ok:
+			alertDialog.dismiss();
+			startActivity(new Intent(this,AlgorithmConfigActivity.class));
+			break;
+		case R.id.dialog_config_btt_cancel:
+			alertDialog.dismiss();
+			break;
+		}
+	}
+	
+	
 	/**
 	 * Helper method to access application context
 	 */
@@ -140,7 +183,7 @@ public class MainActivity extends ActionBarActivity {
 		photoDao = dbHelper.getPhotoDao();
 				
 		refresh(); // loads all buildings and tours		
-		
+		/*
 		//si recupera l'oggetto delle shared preferences
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(sContext);//sContext.getSharedPreferences("appPrefs", 0);
 		//se si vede che si tratta del primo run dell'applicazione
@@ -151,6 +194,7 @@ public class MainActivity extends ActionBarActivity {
 			//si inizializzano gli alarm e le relative shared preferences
 			GeneralUtils.initializeAlarmsAndPrefs(sContext,pref);	 
 		}
+		*/
 	}
 
 	
