@@ -188,6 +188,7 @@ public class AlgorithmConfigFragment extends Fragment {
     	config_btt.setText(R.string.config_button_text);
     	config_btt.setId(R.string.config_button_id);
     	config_btt.setBackgroundResource(R.drawable.blue_button_style);
+    	config_btt.setCompoundDrawablesWithIntrinsicBounds( R.drawable.ic_action_settings, 0, 0, 0);
     	config_btt.setTextColor(Color.WHITE);	
     	config_btt.setTypeface(Typeface.SERIF);	
     	

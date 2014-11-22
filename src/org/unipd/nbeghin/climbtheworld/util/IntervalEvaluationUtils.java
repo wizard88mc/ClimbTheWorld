@@ -103,7 +103,7 @@ public class IntervalEvaluationUtils {
 					log_string=log_string+"Valutazione: 1 (" + steps_number +" scalini) ";
 				}
 				
-				log_string=log_string+" | Rimane un intervallo con scalini, ATTIVO la prossima settimana";
+				log_string=log_string+"| Rimane un intervallo con scalini, ATTIVO la prossima settimana";
 				////////////////////////////
 			}
 			else{ 
@@ -195,7 +195,7 @@ public class IntervalEvaluationUtils {
 		 
 		////////////////////////////
 		//LOG
-		String str_eval=" Rimane un intervallo di esplorazione, ";
+		String str_eval="Rimane un intervallo di esplorazione, ";
 		////////////////////////////
 		
 		if(evaluation>=eval_threshold){	

@@ -214,11 +214,12 @@ public class MainActivity extends ActionBarActivity {
 		startActivity(intent);
 	}
 	
+	/*
 	public void onConfigAlgorithm(MenuItem v) {
 		Intent intent = new Intent(sContext, AlgorithmConfigActivity.class);
 		startActivity(intent);
 	}
-	
+	*/
 	
 	/**
 	 * Reload all buildings

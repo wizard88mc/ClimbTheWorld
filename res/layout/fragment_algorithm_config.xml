@@ -95,7 +95,8 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_marginBottom="20dp"
-        android:gravity="center"
+        android:gravity="center"        
+        android:drawableLeft="@drawable/ic_navigation_forward"
         android:onClick="selectAction"
         android:text="@string/btt_next" 
         style="@style/customBttStyle"/>
@@ -109,6 +110,7 @@
      	android:layout_alignParentRight="true"
      	android:layout_marginBottom="20dp"
      	android:gravity="center" 
+     	android:drawableLeft="@drawable/ic_navigation_cancel"
      	android:text="@string/btt_cancel"
      	android:onClick="selectAction"
      	style="@style/customBttStyle"/>

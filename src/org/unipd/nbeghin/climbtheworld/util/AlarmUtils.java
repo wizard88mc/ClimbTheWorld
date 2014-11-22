@@ -227,9 +227,10 @@ public class AlarmUtils {
     			
     			//se si è in corripondenza dell'ultima fascia oraria della giornata, l'ultimo
     			//intervallo lo si fa durare un po' meno per non farlo coincidere con l'inizio
-    			//del giorno successivo
+    			//del giorno successivo (perché per aggiornare la valutazione dell'intervallo
+    			//c'è bisogno dell'indice del giorno corrente)
     			if(i==23){
-    				last_stop_time=new Alarm(i, 59, 50, false, activationState, evaluation);
+    				last_stop_time=new Alarm(i, 59, 55, false, activationState, evaluation);
     			}
     			else{
     				last_stop_time=new Alarm(i+1, 0, 0, false, activationState, evaluation);
