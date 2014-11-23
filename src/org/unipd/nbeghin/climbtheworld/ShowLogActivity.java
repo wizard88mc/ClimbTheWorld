@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
 import org.unipd.nbeghin.climbtheworld.util.LogUtils;
 
 import android.app.Activity;
@@ -46,6 +47,28 @@ public class ShowLogActivity extends Activity {
 
         // Bind the adapter to the status list
         logListView.setAdapter(logAdapter);
+       
+        /*
+        Thread myUploadTask = new Thread(new Runnable(){
+            public void run(){
+            	 try {
+					String response=GeneralUtils.uploadLogFile(context);
+					
+					System.out.println(response);
+					
+					
+					
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+            }
+      });
+        myUploadTask.start();
+        */
+        
+       
+        
 	}
 	
 	

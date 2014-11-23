@@ -24,6 +24,7 @@ import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Photo;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
 import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
+import org.unipd.nbeghin.climbtheworld.util.LogUtils;
 import org.unipd.nbeghin.climbtheworld.weka.WekaClassifier;
 
 import android.annotation.SuppressLint;
@@ -109,6 +110,7 @@ public class MainActivity extends ActionBarActivity {
 			this.finish();
 		}
 		
+		//LogUtils.writeLogFile(sContext, "ALGORITMO\n");
 		
 		if(!PreferenceManager.getDefaultSharedPreferences(sContext).getBoolean("algorithm_configured", false)){
 			

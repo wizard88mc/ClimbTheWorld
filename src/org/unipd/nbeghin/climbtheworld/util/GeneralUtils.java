@@ -1,14 +1,34 @@
 package org.unipd.nbeghin.climbtheworld.util;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.models.Alarm;
@@ -27,7 +47,36 @@ import android.content.SharedPreferences.Editor;
 import android.content.res.AssetManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.preference.PreferenceManager;
 import android.util.Log;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import java.io.DataOutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 
 /**
  * 
@@ -313,4 +362,246 @@ public class GeneralUtils {
 	    }
 	}
     
+    
+    
+    public static String uploadLogFile(Context context) throws IOException{
+    	
+    	String log_file_name="";
+    	int log_file_id = PreferenceManager.getDefaultSharedPreferences(context).getInt("log_file_id", -1);
+    	    	
+    	if(log_file_id==-1){
+    		log_file_name="algorithm_log";
+    	}
+    	else{
+    		log_file_name="algorithm_log_"+log_file_id;
+    	}    	
+    	
+    	final File logFile = new File(context.getDir("climbTheWorld_dir", Context.MODE_PRIVATE), log_file_name);
+    	
+    	//Php script path
+    	String uploadServerUri = "http://www.learningquiz.altervista.org/quiz_game_api/uploadLogFile.php";
+    	
+    	
+    	HttpClient client = new DefaultHttpClient();
+    	HttpPost post = new HttpPost(uploadServerUri);
+    	MultipartEntityBuilder builder = MultipartEntityBuilder.create();        
+    	builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+    	
+
+        FileBody fb = new FileBody(logFile);
+
+        builder.addPart("file", fb);  
+        builder.addTextBody("log_file_id", String.valueOf(log_file_id));
+    	
+        final HttpEntity entity = builder.build();
+    	 
+        post.setEntity(entity);
+        
+        HttpResponse response = null;
+        
+        try {
+			response = client.execute(post);
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}        
+
+        return getContent(response);
+
+        
+        
+    	/*
+    	String fileName = logFile.getAbsolutePath();
+    	
+    	HttpURLConnection conn = null;
+    	DataOutputStream dos = null;  
+    	String lineEnd = "\r\n";
+    	String twoHyphens = "--";
+    	String boundary = "*****";
+    	int bytesRead, bytesAvailable, bufferSize;
+    	byte[] buffer;
+    	int maxBufferSize = 1 * 1024 * 1024; 
+         
+    	int serverResponseCode = 0;
+         
+         
+         if (!logFile.isFile()) {
+       	 
+	           dialog.dismiss(); 
+	           
+	           Log.e("uploadFile", "Source File not exist :"
+	        		               +uploadFilePath + "" + uploadFileName);
+	           
+	           runOnUiThread(new Runnable() {
+	               public void run() {
+	            	   messageText.setText("Source File not exist :"
+	            			   +uploadFilePath + "" + uploadFileName);
+	               }
+	           }); 
+	           
+	           return 0;
+          
+         }
+         else
+         {
+	           try { 
+	        	   
+	            	 // open a URL connection to the Servlet
+	               FileInputStream fileInputStream = new FileInputStream(logFile);
+	               URL url = new URL(uploadServerUri);
+	               
+	               // Open a HTTP  connection to  the URL
+	               conn = (HttpURLConnection) url.openConnection(); 
+	               conn.setDoInput(true); // Allow Inputs
+	               conn.setDoOutput(true); // Allow Outputs
+	               conn.setUseCaches(false); // Don't use a Cached Copy
+	               conn.setRequestMethod("POST");
+	               conn.setRequestProperty("Connection", "Keep-Alive");
+	               conn.setRequestProperty("ENCTYPE", "multipart/form-data");
+	               conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+	               conn.setRequestProperty("charset", "utf-8");
+	               conn.setRequestProperty("uploaded_file", fileName); 
+	               
+	               
+
+	               List<NameValuePair> params = new ArrayList<NameValuePair>();
+	               params.add(new BasicNameValuePair("log_file_id", String.valueOf(log_file_id)));
+	               
+	               String encoded_params = getQuery(params);
+	               System.out.println("params " + encoded_params);
+	               
+	               
+	               BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream(), "UTF-8"));
+	            	writer.write(encoded_params);
+	            	writer.flush();
+	               
+	               dos = new DataOutputStream(conn.getOutputStream());
+	     
+	               dos.writeBytes(getQuery(params));
+	               
+	               dos.writeBytes(twoHyphens + boundary + lineEnd); 
+	               dos.writeBytes("Content-Disposition: form-data; name=\"uploaded_file\";filename=\""
+	            		                     + fileName + "\"" + lineEnd);
+	               
+	               dos.writeBytes(lineEnd);
+	     
+	               // create a buffer of  maximum size
+	               bytesAvailable = fileInputStream.available(); 
+	     
+	               bufferSize = Math.min(bytesAvailable, maxBufferSize);
+	               buffer = new byte[bufferSize];
+	     
+	               // read file and write it into form...
+	               bytesRead = fileInputStream.read(buffer, 0, bufferSize);  
+	                 
+	               while (bytesRead > 0) {
+	            	   
+	                 dos.write(buffer, 0, bufferSize);
+	                 bytesAvailable = fileInputStream.available();
+	                 bufferSize = Math.min(bytesAvailable, maxBufferSize);
+	                 bytesRead = fileInputStream.read(buffer, 0, bufferSize);   
+	                 
+	                }
+	     
+	               // send multipart form data necesssary after file data...
+	               dos.writeBytes(lineEnd);
+	               dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+	     
+	               // Responses from the server (code and message)
+	               serverResponseCode = conn.getResponseCode();
+	               String serverResponseMessage = conn.getResponseMessage();
+	                
+	               Log.i("uploadFile", "HTTP Response is : " 
+	            		   + serverResponseMessage + ": " + serverResponseCode);
+	               
+	               if(serverResponseCode == 200){
+	            	   	            	   
+	            	   BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+	                   StringBuilder sb = new StringBuilder();
+	                   String line;
+	                   while ((line = br.readLine()) != null) {
+	                       sb.append(line+"\n");
+	                   }
+	                   br.close();
+	                  
+	                   String data=sb.toString();
+	            	   
+	                   System.out.println("DATA " + data);
+	            	   
+	            	   
+	            	   
+	                   runOnUiThread(new Runnable() {
+	                        public void run() {
+	                        	
+	                        	String msg = "File Upload Completed.\n\n See uploaded file here : \n\n"
+	                        		          +" http://www.androidexample.com/media/uploads/"
+	                        		          +uploadFileName;
+	                        	
+	                        	messageText.setText(msg);
+	                            Toast.makeText(UploadToServer.this, "File Upload Complete.", 
+	                            		     Toast.LENGTH_SHORT).show();
+	                        }
+	                    });              
+	               }    
+	               
+	               //close the streams //
+	               fileInputStream.close();
+	               dos.flush();
+	               dos.close();
+	                
+	          } catch (MalformedURLException ex) {
+	        	  
+	              dialog.dismiss();  
+	              ex.printStackTrace();
+	              
+	              runOnUiThread(new Runnable() {
+	                  public void run() {
+	                	  messageText.setText("MalformedURLException Exception : check script url.");
+	                      Toast.makeText(UploadToServer.this, "MalformedURLException", 
+                                                             Toast.LENGTH_SHORT).show();
+	                  }
+	              });
+	              
+	              Log.e("Upload file to server", "error: " + ex.getMessage(), ex);  
+	          } catch (Exception e) {
+	        	  
+	              dialog.dismiss();  
+	              e.printStackTrace();
+	              
+	              runOnUiThread(new Runnable() {
+	                  public void run() {
+	                	  messageText.setText("Got Exception : see logcat ");
+	                      Toast.makeText(UploadToServer.this, "Got Exception : see logcat ", 
+	                    		  Toast.LENGTH_SHORT).show();
+	                  }
+	              });
+	              Log.e("Upload file to server Exception", "Exception : " 
+	            		                           + e.getMessage(), e);  
+	          }
+	         // dialog.dismiss();       
+	          
+	          
+          } // End else block 
+         */
+
+        
+        } 
+    	
+    
+    
+    private static String getContent(HttpResponse response) throws IOException {
+        BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+        String body = "";
+        String content = "";
+
+        while ((body = rd.readLine()) != null) 
+        {
+            content += body + "\n";
+        }
+        return content.trim();
+    }
+   
 }
