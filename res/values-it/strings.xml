@@ -22,7 +22,8 @@
     <string name="refresh_log_data">Ricarica</string>
     <string name="upload_log_data">Invia dati</string>
     <string name="lab_uploadialog_title">Invio file di log</string>
-     <string name="lab_upload_error">Si è verificato un errore. Per favore riprova.</string>
+    <string name="lab_upload_filenotexists">Prima di inviare il file di log, devi configurare l\'algoritmo.</string>
+    <string name="lab_upload_error">Si è verificato un errore. Per favore riprova.</string>
     <string name="lab_upload_success">Il file di log è stato caricato con successo! Grazie!</string>
     
     <!-- Data connection dialog -->

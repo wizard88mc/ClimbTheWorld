@@ -22,6 +22,7 @@
     <string name="refresh_log_data">Refresh</string>
     <string name="upload_log_data">Upload</string>
     <string name="lab_uploadialog_title">Log file upload</string>
+    <string name="lab_upload_filenotexists">Before uploading the logfile, you have to configure the algorithm.</string>
     <string name="lab_upload_error">An error has occurred. Please try again.</string>
     <string name="lab_upload_success">The logfile was uploaded successfully! Thank you!</string>
     

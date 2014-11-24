@@ -275,7 +275,10 @@ public class ShowLogFragment extends Fragment {
 			System.out.println("on post execute");
 			
 			
-			if(result.equals("server_error") || result.equals("query_fail")){
+			if(result.equals("logfile_not_exists")){
+				result=mContext.getResources().getString(R.string.lab_upload_filenotexists);
+			}			
+			else if(result.equals("server_error") || result.equals("query_fail")){
 				result=mContext.getResources().getString(R.string.lab_upload_error);
 			}
 			else{
