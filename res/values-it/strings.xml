@@ -10,8 +10,7 @@
     <string name="title_activity_tour_detail">Tour - dettagli</string>
     <string name="title_activity_gallery">Galleria</string>
     <string name="title_activity_photo_pager_activity">Galleria</string>
-    <string name="title_activity_log">Log</string>
-    <string name="refresh_log_data">Ricarica</string>
+    <string name="title_activity_log">Log</string>    
     <string name="app_id">1444608782432270</string>
     <!--  <string name="app_name">ClimbTheWorld</string> -->
     <!-- <string name="app_id">370546396320150</string> -->
@@ -19,13 +18,19 @@
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_fbpick_friend">Invita i tuoi amici</string>
 
+    <!-- Show Log  -->
+    <string name="refresh_log_data">Ricarica</string>
+    <string name="upload_log_data">Invia dati</string>
+    <string name="lab_uploadialog_title">Invio file di log</string>
+     <string name="lab_upload_error">Si è verificato un errore. Per favore riprova.</string>
+    <string name="lab_upload_success">Il file di log è stato caricato con successo! Grazie!</string>
+    
     <!-- Data connection dialog -->
     <string name="netalert_title">Connessione dati non disponibile!</string>
     <string name="netalert_msg">Vuoi abilitarla?</string>
     <string name="netalert_yes">Sì</string>
     <string name="netalert_no">No</string>
-    
-    
+        
     <!-- Algorithm Configuration -->    
     <string name="lab_dialog_config">Ciao!\n\nTi preghiamo di dedicare qualche minuto per configurare l\'app.</string>
     <string name="btt_cancel_dialog_config">Non ora</string>  

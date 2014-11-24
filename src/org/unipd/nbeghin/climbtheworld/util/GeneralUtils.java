@@ -27,8 +27,9 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.models.Alarm;
@@ -49,6 +50,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+
+
+
+
 
 
 
@@ -364,7 +370,8 @@ public class GeneralUtils {
     
     
     
-    public static String uploadLogFile(Context context) throws IOException{
+    @SuppressWarnings("deprecation")
+	public static String uploadLogFile(Context context) throws IOException{
     	
     	String log_file_name="";
     	int log_file_id = PreferenceManager.getDefaultSharedPreferences(context).getInt("log_file_id", -1);
@@ -380,9 +387,12 @@ public class GeneralUtils {
     	
     	//Php script path
     	String uploadServerUri = "http://www.learningquiz.altervista.org/quiz_game_api/uploadLogFile.php";
+    	    	
     	
-    	
+    	//HttpClientBuilder client_builder = HttpClientBuilder.create();    	
+    	//CloseableHttpClient client=client_builder.build();    	
     	HttpClient client = new DefaultHttpClient();
+    	
     	HttpPost post = new HttpPost(uploadServerUri);
     	MultipartEntityBuilder builder = MultipartEntityBuilder.create();        
     	builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
@@ -402,16 +412,21 @@ public class GeneralUtils {
         try {
 			response = client.execute(post);
 		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}        
-
-        return getContent(response);
-
         
+        
+        //response code from the server
+        int server_response_code = response.getStatusLine().getStatusCode();
+                
+        if(server_response_code==200){ //ok        	
+        	return getContent(response);
+        }
+        else{        	
+        	return "error";
+        }
         
     	/*
     	String fileName = logFile.getAbsolutePath();
@@ -603,5 +618,22 @@ public class GeneralUtils {
         }
         return content.trim();
     }
+    
+    
+    
+    public static void renameLogFile(Context context, int log_file_id){
+    	    	
+    	//si rinomina il file di log aggiungendo l'id ritornato dal server
+    	File from = new File(context.getDir("climbTheWorld_dir", Context.MODE_PRIVATE), "algorithm_log");
+    	File to = new File(context.getDir("climbTheWorld_dir", Context.MODE_PRIVATE), "algorithm_log_"+log_file_id);
+       	from.renameTo(to);
+       	
+       	
+       	System.out.println("from exists: "+from.exists()+"   to exists: "+ to.exists());
+       	
+    	//si salva l'id nelle shared preferences
+    	PreferenceManager.getDefaultSharedPreferences(context).edit().putInt("log_file_id", log_file_id).commit();
+    }
+    
    
 }

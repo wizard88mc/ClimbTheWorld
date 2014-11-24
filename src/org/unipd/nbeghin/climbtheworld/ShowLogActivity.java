@@ -1,115 +1,38 @@
 package org.unipd.nbeghin.climbtheworld;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
-import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
-import org.unipd.nbeghin.climbtheworld.util.LogUtils;
-
-import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.text.Spanned;
-import android.util.Log;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.widget.Toast;
 
-public class ShowLogActivity extends Activity {
+public class ShowLogActivity  extends FragmentActivity implements ShowLogFragment.Callbacks {
 
-    //holds the ListView object in the UI
-    private ListView logListView;
-    
-    //Holds activity recognition data, in the form of strings that can contain markup
-    private ArrayAdapter<Spanned> logAdapter;
 
-    private Context context;
+	//riferimento al fragment per visualizzazione del logfile 
+	private ShowLogFragment logFrg;
+
 	
-    
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {		
+	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		setContentView(R.layout.activity_show_log);
-		context = getApplicationContext();
-		
-
-        //get a handle to the activity update list
-		logListView = (ListView) findViewById(R.id.log_listview);
-
-        //instantiate an adapter to store update data from the log
-        logAdapter = new ArrayAdapter<Spanned>(
-                this,
-                R.layout.log_item,
-                R.id.log_text
-        );
-
-        // Bind the adapter to the status list
-        logListView.setAdapter(logAdapter);
-       
-        /*
-        Thread myUploadTask = new Thread(new Runnable(){
-            public void run(){
-            	 try {
-					String response=GeneralUtils.uploadLogFile(context);
-					
-					System.out.println(response);
-					
-					
-					
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-            }
-      });
-        myUploadTask.start();
-        */
-        
-       
-        
+		 setContentView(R.layout.activity_show_log);
+	        
+		 logFrg = (ShowLogFragment) getSupportFragmentManager().findFragmentById(R.id.showLogFragment);	
 	}
 	
 	
 	@Override
-	protected void onResume() {
-		super.onResume();
-		refreshLogData();
+	public void onTaskFinished(Context context, Intent intent) {
+		
+		//si mostra un Toast che indica se l'operazione di upload è andata a buon fine o meno	
+		Toast.makeText(this, intent.getStringExtra("result_message"), Toast.LENGTH_SHORT).show();
+	}		
+	
+	public void selectAction(View v){
+		logFrg.selectAction(v);
 	}
 	
-	/**
-     * Display the algorithm history stored in the
-     * log file
-     */
-    private void refreshLogData() {
-    	    	
-    	 //try to load data from the log file
-        try {              	
-        	File logFile = new File(context.getDir("climbTheWorld_dir", Context.MODE_PRIVATE), "algorithm_log");
-        	
-            //load log file records into the list
-            List<Spanned> lines = LogUtils.loadLogFile(logFile);
-
-            //clear the adapter of existing data
-            logAdapter.clear();
-
-            //add each element of the log to the adapter
-            for (Spanned line : lines) {
-                logAdapter.add(line);
-            }
-
-            //trigger the adapter to update the display
-            logAdapter.notifyDataSetChanged();
-
-        // If an error occurs while reading the history file
-        } catch (IOException e) {
-            Log.e(MainActivity.AppName, e.getMessage(), e);
-        }
-    }
-    
-    
-    public void onRefreshLogData(View view){    	
-    	refreshLogData();
-    }
 }

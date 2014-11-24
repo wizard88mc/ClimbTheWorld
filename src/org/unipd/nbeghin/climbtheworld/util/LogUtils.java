@@ -15,6 +15,7 @@ import org.unipd.nbeghin.climbtheworld.models.Alarm;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.text.Spanned;
 import android.text.SpannedString;
 import android.util.Log;
@@ -25,8 +26,19 @@ public class LogUtils {
     //start-stop, 0/1 attuale, se attivo valutazione, 0/1 la prossima settimana
     public static void writeLogFile(Context context, String text){
     	   	    	
-    	File appdir = context.getDir("climbTheWorld_dir", Context.MODE_PRIVATE); 
-    	File logFile = new File(appdir, "algorithm_log");
+    	
+    	String log_file_name="";
+    	int log_file_id = PreferenceManager.getDefaultSharedPreferences(context).getInt("log_file_id", -1);
+    	    	
+    	if(log_file_id==-1){
+    		log_file_name="algorithm_log";
+    	}
+    	else{
+    		log_file_name="algorithm_log_"+log_file_id;
+    	}    	
+    	
+    	final File logFile = new File(context.getDir("climbTheWorld_dir", Context.MODE_PRIVATE), log_file_name);
+    	
     	
     	try {    	
     		if(!logFile.exists()){    	    			

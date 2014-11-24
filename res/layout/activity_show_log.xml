@@ -1,35 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/main_layout"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center_horizontal"
-    android:orientation="vertical">
+    tools:context=".ShowLogActivity" >
     
-   
-    <Button
-        android:id="@+id/refresh_log_data_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:onClick="onRefreshLogData"
-        android:text="@string/refresh_log_data" />
+	<fragment
+		android:id="@+id/showLogFragment"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		class="org.unipd.nbeghin.climbtheworld.ShowLogFragment"
+		tools:layout="@layout/fragment_show_log" />
 
-    
-     <RelativeLayout android:id="@+id/list_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_below="@+id/refresh_log_data_button">
-
-        <ListView
-            android:id="@+id/log_listview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentLeft="true" 
-            android:stackFromBottom="true"
-			android:transcriptMode="alwaysScroll"/>
-
-    </RelativeLayout>
-</RelativeLayout>
+</FrameLayout>

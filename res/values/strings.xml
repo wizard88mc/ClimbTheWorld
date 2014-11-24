@@ -10,8 +10,7 @@
     <string name="title_activity_tour_detail">Tour detail</string>
     <string name="title_activity_gallery">Gallery</string>
     <string name="title_activity_photo_pager_activity">Gallery</string>
-    <string name="title_activity_log">Log</string>
-    <string name="refresh_log_data">Refresh</string>
+    <string name="title_activity_log">Log</string>    
     <string name="app_id">1444608782432270</string>
     <!--  <string name="app_name">ClimbTheWorld</string> -->
     <!-- <string name="app_id">370546396320150</string> -->
@@ -19,6 +18,13 @@
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_fbpick_friend">FBPickFriendActivity</string>
 
+    <!-- Show Log  -->
+    <string name="refresh_log_data">Refresh</string>
+    <string name="upload_log_data">Upload</string>
+    <string name="lab_uploadialog_title">Log file upload</string>
+    <string name="lab_upload_error">An error has occurred. Please try again.</string>
+    <string name="lab_upload_success">The logfile was uploaded successfully! Thank you!</string>
+    
     <!-- Data connection dialog -->
     <string name="netalert_title">Data connection unavailable!</string>
     <string name="netalert_msg">Do you want to enable it?</string>
