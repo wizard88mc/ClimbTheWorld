@@ -5,6 +5,8 @@ import org.unipd.nbeghin.climbtheworld.util.AlarmUtils;
 import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
 
 import com.etsy.android.grid.StaggeredGridView;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import android.app.Activity;
 import android.content.Context;
@@ -13,9 +15,11 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -56,6 +60,7 @@ public class AlgorithmConfigFragment extends Fragment {
 	private TextView green_picker;
 	private Button btt_next_config;
 	private Button btt_cancel_config;
+	private Button btt_google_play_services;
 	private StaggeredGridView gridView;
 	
 	
@@ -164,6 +169,7 @@ public class AlgorithmConfigFragment extends Fragment {
     	config_text = (TextView) getActivity().findViewById(R.id.config_text);  
     	btt_next_config = (Button) getActivity().findViewById(R.id.btt_next_config);  
     	btt_cancel_config = (Button) getActivity().findViewById(R.id.btt_cancel_config);  
+    	btt_google_play_services = (Button) getActivity().findViewById(R.id.btt_google_play_action);  
     	
     	GradientDrawable rectangle_shape = (GradientDrawable) getResources().getDrawable(R.drawable.rectangle_shape);
     	((GradientDrawable)rectangle_shape.mutate()).setColor(Color.GREEN);    	
@@ -237,6 +243,34 @@ public class AlgorithmConfigFragment extends Fragment {
 				}
 			}
 		});
+    	
+    	
+
+    	//check status of Google Play Services
+    	final int gms_status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity());
+    	    
+    	
+    	btt_google_play_services.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+				if(gms_status==ConnectionResult.SERVICE_DISABLED){
+					//si apre la finestra delle impostazioni del device
+					startActivity(new Intent(Settings.ACTION_SETTINGS));					
+				}
+				else{ //nota: se Google Play Services è attivo e aggiornato, questo bottone non viene visualizzato
+					try {
+					    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + GooglePlayServicesUtil.GOOGLE_PLAY_SERVICES_PACKAGE)));
+					} catch (android.content.ActivityNotFoundException anfe) {
+					    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + GooglePlayServicesUtil.GOOGLE_PLAY_SERVICES_PACKAGE)));
+					}
+				}
+			}
+		});
+    	    	
+    	//si visualizzano o meno la label e il bottone relativi al componente Google Play Services
+    	checkGooglePlayServicesStatus(gms_status);    	
     }
     
     
@@ -409,7 +443,7 @@ public class AlgorithmConfigFragment extends Fragment {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
         		Bundle savedInstanceState) {
-        	
+        	  
         	  View view = inflater.inflate(R.layout.fragment_algorithm_config_task, container);
         	          	  
               getDialog().setTitle(R.string.lab_configdialog_title);
@@ -498,9 +532,6 @@ public class AlgorithmConfigFragment extends Fragment {
     
     
     
-    
-    
-    
     public void selectAction(View v){
     	
     	switch(v.getId()) {
@@ -521,6 +552,36 @@ public class AlgorithmConfigFragment extends Fragment {
     			break;
     	}
     }
+    
+    
+    
+    private void checkGooglePlayServicesStatus(int status){
+    	
+    	if(status!=ConnectionResult.SUCCESS){
+    		
+    		if(status==ConnectionResult.SERVICE_MISSING || status==ConnectionResult.SERVICE_INVALID){
+        		config_text.setText(R.string.lab_google_play_services_missing_invalid);        	
+        		btt_google_play_services.setText(R.string.btt_google_play_services_install); 
+    		}
+        	else if(status==ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED){
+        		config_text.setText(R.string.lab_google_play_services_update_required);
+        		btt_google_play_services.setText(R.string.btt_google_play_services_update);
+        	}
+        	else if(status==ConnectionResult.SERVICE_DISABLED){
+        		config_text.setText(R.string.lab_google_play_services_disabled);
+        		btt_google_play_services.setText(R.string.btt_google_play_services_enable);
+        	}
+    		
+        	btt_next_config.setVisibility(View.GONE);
+        	btt_google_play_services.setVisibility(View.VISIBLE);
+    	}
+    	else{
+    		btt_google_play_services.setVisibility(View.GONE);
+    		btt_next_config.setVisibility(View.VISIBLE);
+    	}
+    }
+    
+    
     
     
     private void showNextPage(){
@@ -551,6 +612,9 @@ public class AlgorithmConfigFragment extends Fragment {
     	btt_next_config.setVisibility(View.VISIBLE);
     	btt_cancel_config.setVisibility(View.VISIBLE);
     	
+    	//si visualizzano o meno la label e il bottone relativi al componente Google Play Services
+    	checkGooglePlayServicesStatus(GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity()));
+    	    	
     	first_page=true;
     }
     

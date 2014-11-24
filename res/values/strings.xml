@@ -35,6 +35,12 @@
     <!-- Algorithm Configuration -->      
     <string name="lab_dialog_config">Hi!\n\nWe kindly ask you to take a few minutes to configure this app.</string>  
     <string name="btt_cancel_dialog_config">Not right now</string>  
+    <string name="lab_google_play_services_missing_invalid">To run the app, you need to install the Google Play Services component from Google Play Store.\n\nPlease, click the button below to install it.\n\nOnce you have installed this component, you can continue with the configuration.\n\nThank you!</string>
+    <string name="lab_google_play_services_update_required">To correctly run the app, you need to update the Google Play Services component from Google Play Store.\n\nPlease, click the button below to update it.\n\nOnce you have updated this component, you can continue with the configuration.\n\nThank you!</string>
+    <string name="lab_google_play_services_disabled">To run the app, you need to enable the Google Play Services component.\n\nPlease, click the button below to go to device\'s settings and enable it.\n\nOnce you have enabled this component, you can continue with the configuration.\n\nThank you!</string>
+    <string name="btt_google_play_services_install">Install</string>
+    <string name="btt_google_play_services_update">Update</string>
+    <string name="btt_google_play_services_enable">Enable</string>
     <string name="lab_first_config">Consider a typical day.\n\nWhat are the time slots in which you do exercise/steps?\n\n\nThe next step will help you to setting these time slots.</string>
     <string name="btt_next">Next</string>
     <string name="btt_cancel">Cancel</string>
