@@ -90,35 +90,6 @@
         android:onClick="selectAction"
         android:text="@string/green_time_slot"
         android:visibility="gone"/>
-        
-
-    <Button
-        android:id="@+id/btt_next_config"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/btt_cancel_config"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="20dp"
-        android:gravity="center"        
-        android:drawableLeft="@drawable/ic_navigation_forward"
-        android:onClick="selectAction"
-        android:text="@string/btt_next" 
-        style="@style/customBttStyle"/>
-    
-    <Button
-    	android:id="@+id/btt_cancel_config"
-    	android:layout_width="wrap_content"
-     	android:layout_height="wrap_content"
-    	android:layout_alignParentBottom="true"
-     	android:layout_alignParentLeft="true"
-     	android:layout_alignParentRight="true"
-     	android:layout_marginBottom="20dp"
-     	android:gravity="center" 
-     	android:drawableLeft="@drawable/ic_navigation_cancel"
-     	android:text="@string/btt_cancel"
-     	android:onClick="selectAction"
-     	style="@style/customBttStyle"/>
     
     <Button
         android:id="@+id/btt_google_play_action"
@@ -127,12 +98,41 @@
         android:layout_above="@+id/btt_cancel_config"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="40dp"
         android:gravity="center"        
         android:drawableLeft="@drawable/ic_content_import_export"
         android:onClick="selectAction"
         style="@style/customBttStyle"
         android:visibility="gone"/>
+
+    <Button
+        android:id="@+id/btt_cancel_config"
+        style="@style/customBttStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/btt_next_config"
+        android:layout_marginBottom="20dp"
+        android:drawableLeft="@drawable/ic_navigation_cancel"
+        android:gravity="center"
+        android:onClick="selectAction"
+        android:text="@string/btt_cancel" />
+
+    <Button
+        android:id="@+id/btt_next_config"
+        style="@style/customBttStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/config_text"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="40dp"
+        android:drawableLeft="@drawable/ic_navigation_forward"
+        android:gravity="center"
+        android:onClick="selectAction"
+        android:text="@string/btt_next" />
     
 </RelativeLayout>
 </ScrollView>

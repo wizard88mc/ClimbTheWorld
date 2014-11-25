@@ -411,9 +411,6 @@ public class GeneralUtils {
     	File to = new File(context.getDir("climbTheWorld_dir", Context.MODE_PRIVATE), "algorithm_log_"+log_file_id);
        	from.renameTo(to);
        	
-       	
-       	System.out.println("from exists: "+from.exists()+"   to exists: "+ to.exists());
-       	
     	//si salva l'id nelle shared preferences
     	PreferenceManager.getDefaultSharedPreferences(context).edit().putInt("log_file_id", log_file_id).commit();
     }

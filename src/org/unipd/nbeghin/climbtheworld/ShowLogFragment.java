@@ -272,9 +272,6 @@ public class ShowLogFragment extends Fragment {
 			if (mFragment == null)
                 return;
 						
-			System.out.println("on post execute");
-			
-			
 			if(result.equals("logfile_not_exists")){
 				result=mContext.getResources().getString(R.string.lab_upload_filenotexists);
 			}			
@@ -287,7 +284,6 @@ public class ShowLogFragment extends Fragment {
 				
 				if(returned_id!=-1){					
 					GeneralUtils.renameLogFile(mContext, returned_id);
-					System.out.println("logfile renamed");
 				}
 				
 				result=mContext.getResources().getString(R.string.lab_upload_success);
