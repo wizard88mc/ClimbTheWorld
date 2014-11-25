@@ -1,10 +1,8 @@
 package org.unipd.nbeghin.climbtheworld.services;
 
-import org.unipd.nbeghin.climbtheworld.ClimbActivity;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.listeners.AccelerometerClassifyListener;
-import org.unipd.nbeghin.climbtheworld.listeners.AccelerometerSamplingRateDetect;
 
 import android.app.IntentService;
 import android.app.Notification;
@@ -37,7 +35,7 @@ public class SamplingClassifyService extends IntentService {
 	public void onCreate() {
 		try {
 			notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-			showNotification(); // show notification about background classifier
+			//showNotification(); // show notification about background classifier
 			mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 			Log.i(MainActivity.AppName, "Sensor manager instanced");
 			mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
