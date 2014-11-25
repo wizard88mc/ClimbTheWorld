@@ -91,7 +91,13 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			}
 			else{
 			*/
-			if(pref.getBoolean("algorithm_configured", false)){	
+			
+			//dalle preferences salvate si ottiene l'id e gli altri dati relativi
+			//al prossimo alarm che era stato settato in precedenza	(-1 se non è ancora
+			//stato impostato un alarm)
+			final int alarm_id = pref.getInt("alarm_id", -1);
+			
+			if(pref.getBoolean("algorithm_configured", false) && alarm_id!=-1){	
 				/////////				
 				//PER TEST ALGORITMO 
 				//si aggiorna l'indice artificiale che rappresenta il giorno corrente della 
@@ -181,138 +187,132 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    	}
 		    	/////////
 		    	
+		    	//if(alarm_id!=-1){ //si mette il controllo nel caso il valore salvato non esista
+					
+		    	System.out.println("C'è un alarm nelle preferences id=" + alarm_id);
+										
+		    	Alarm current_next_alarm = AlarmUtils.getAlarm(context,alarm_id);
 		    	
-		    	//dalle preferences salvate si ottiene l'id e gli altri dati relativi
-				//al prossimo alarm che era stato settato in precedenza				
-				final int alarm_id = pref.getInt("alarm_id", -1);
-				
-				if(alarm_id!=-1){ //si mette il controllo nel caso il valore salvato non esista
+		    	
+		    	//quando il device completa il boot si deve controllare se l'alarm 
+		    	//impostato è ancora valido o meno; se è ancora valido, non viene 
+		    	//settato automaticamente nell'alarm manager, quindi bisogna impostarlo
+		    	//manualmente; se non è valido (orario alarm già passato) allora si
+		    	//si cerca un nuovo alarm
+		    	
+		    	
+		    	Calendar alarmTime = Calendar.getInstance();
 					
-					System.out.println("C'è un alarm nelle preferences id=" + alarm_id);
+		    	if(MainActivity.logEnabled){
+		    		int month=alarmTime.get(Calendar.MONTH)+1;	
+		    		Log.d(MainActivity.AppName, "On Boot - NOW: h:m:s=" 
+		    				+ alarmTime.get(Calendar.HOUR_OF_DAY)+":"+ alarmTime.get(Calendar.MINUTE)+":"+ alarmTime.get(Calendar.SECOND) +
+		    				"  "+alarmTime.get(Calendar.DATE)+"/"+month+"/"+alarmTime.get(Calendar.YEAR));		
+		    		Log.d(MainActivity.AppName, "On Boot - NOW MILLISECONDS: " + alarmTime.getTimeInMillis());		
+		    	}							
 										
-					Alarm current_next_alarm = AlarmUtils.getAlarm(context,alarm_id);
-
-					
-					//quando il device completa il boot si deve controllare se l'alarm 
-					//impostato è ancora valido o meno; se è ancora valido, non viene 
-					//settato automaticamente nell'alarm manager, quindi bisogna impostarlo
-					//manualmente; se non è valido (orario alarm già passato) allora si
-					//si cerca un nuovo alarm
-
-
-					Calendar alarmTime = Calendar.getInstance();
-					
-					if(MainActivity.logEnabled){
-						int month=alarmTime.get(Calendar.MONTH)+1;	
-						Log.d(MainActivity.AppName, "On Boot - NOW: h:m:s=" 
-						+ alarmTime.get(Calendar.HOUR_OF_DAY)+":"+ alarmTime.get(Calendar.MINUTE)+":"+ alarmTime.get(Calendar.SECOND) +
-						"  "+alarmTime.get(Calendar.DATE)+"/"+month+"/"+alarmTime.get(Calendar.YEAR));		
-						Log.d(MainActivity.AppName, "On Boot - NOW MILLISECONDS: " + alarmTime.getTimeInMillis());		
-					}							
+		    	alarmTime.set(pref.getInt("alarm_year", -1), 
+		    			pref.getInt("alarm_month", -1), pref.getInt("alarm_date", -1), 
+		    			current_next_alarm.get_hour(), current_next_alarm.get_minute(),
+		    			current_next_alarm.get_second());
 										
-					alarmTime.set(pref.getInt("alarm_year", -1), 
-							pref.getInt("alarm_month", -1), pref.getInt("alarm_date", -1), 
-							current_next_alarm.get_hour(), current_next_alarm.get_minute(),
-							current_next_alarm.get_second());
-										
-					if(MainActivity.logEnabled){
-						int month=alarmTime.get(Calendar.MONTH)+1;	
-						Log.d(MainActivity.AppName, "On Boot - PREVIOUS ALARM: h:m:s=" 
-						+ alarmTime.get(Calendar.HOUR_OF_DAY)+":"+ alarmTime.get(Calendar.MINUTE)+":"+ alarmTime.get(Calendar.SECOND) +
-						"  "+alarmTime.get(Calendar.DATE)+"/"+month+"/"+alarmTime.get(Calendar.YEAR));		
-						Log.d(MainActivity.AppName, "On Boot - PREVIOUS ALARM MILLISECONDS: " + alarmTime.getTimeInMillis());		
-					}					
-			    					
-					
-					//se il prossimo alarm che era stato impostato ha un istante di inizio
-					//già passato, allora si cerca e si setta un altro alarm
-					
-					//in ogni caso si cancella dall'alarm manager l'alarm precedentemente impostato 
-					AlarmUtils.cancelAlarm(context, current_next_alarm);	
+		    	if(MainActivity.logEnabled){
+		    		int month=alarmTime.get(Calendar.MONTH)+1;	
+		    		Log.d(MainActivity.AppName, "On Boot - PREVIOUS ALARM: h:m:s=" 
+		    				+ alarmTime.get(Calendar.HOUR_OF_DAY)+":"+ alarmTime.get(Calendar.MINUTE)+":"+ alarmTime.get(Calendar.SECOND) +
+		    				"  "+alarmTime.get(Calendar.DATE)+"/"+month+"/"+alarmTime.get(Calendar.YEAR));		
+		    		Log.d(MainActivity.AppName, "On Boot - PREVIOUS ALARM MILLISECONDS: " + alarmTime.getTimeInMillis());		
+		    	}					
+		    	
+		    	
+		    	//se il prossimo alarm che era stato impostato ha un istante di inizio
+		    	//già passato, allora si cerca e si setta un altro alarm
+		    	
+		    	//in ogni caso si cancella dall'alarm manager l'alarm precedentemente impostato 
+		    	AlarmUtils.cancelAlarm(context, current_next_alarm);	
 					
 					
-					//////////////////////////////////////////////
-					//SI TRACCIANO GLI INTERVALLI NON VALUTATI A CAUSA DEL DEVICE SPENTO
-					LogUtils.offIntervalsTracking(context, pref, alarm_id);					
-					//////////////////////////////////////////////
+		    	//////////////////////////////////////////////
+		    	//SI TRACCIANO GLI INTERVALLI NON VALUTATI A CAUSA DEL DEVICE SPENTO
+		    	LogUtils.offIntervalsTracking(context, pref, alarm_id);					
+		    	//////////////////////////////////////////////
 					
 					
-					//l'alarm ha un istante di inizio già passato
-					if(alarmTime.before(Calendar.getInstance())){
-						
-					    if(MainActivity.logEnabled){
-				 	    	Log.d(MainActivity.AppName,"On boot - the previous alarm is not valid; we set another alarm");		
-				 	    }
+		    	//l'alarm ha un istante di inizio già passato
+		    	if(alarmTime.before(Calendar.getInstance())){
+		    		
+		    		if(MainActivity.logEnabled){
+		    			Log.d(MainActivity.AppName,"On boot - the previous alarm is not valid; we set another alarm");		
+		    		}
 												
-					    ////////////////////////////
-					    //utile per scrivere il LOG
-					    pref.edit().putBoolean("next_alarm_mutated", false).commit();
-					    ////////////////////////////
-					    
-					    
-					    Thread thread = new Thread(){					    	
-					    	@Override
-					    	public void run() {
-						    	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context),true,true,alarm_id); 
-					    	}					    	
-					    };		
-					    //si fa partire il thread che imposta e lancia un nuovo alarm
-					    //(se il nuovo alarm è di stop, si fa ripartire subito il 
-					    //classificatore opportuno)
-					    thread.start();						
-					}			
-					else{	
-						//se il next alarm settato è un evento di stop significa che si è
-						//all'interno di un intervallo attivo iniziato in precedenza (infatti
-						//gli alarm sono preordinati per fare in modo che dopo un evento di
-						//start ci sia un evento di stop): se tale intervallo è un "intervallo
-						//di esplorazione", allora significa che il service di activity
-						//recognition dovrebbe essere già in esecuzione e, quindi, lo si
-						//attiva; invece, se è un "intervallo con scalini", si attiva il
-						//classificatore scalini/non_scalini (il cl. Google/scalini viene
-						//fatto ripartire solo nel caso in cui i valori già ottenuti in questo
-						//intervallo (se ce ne sono) non bastano per definire/confermare un
-						//'intervallo con scalini')						
-						if(!current_next_alarm.get_actionType()){
-							
-							//è un "intervallo di esplorazione"
-							if(!current_next_alarm.isStepsInterval(curr_day_index)){ 
-								
-								//si fa ripartire il service di activity recognition solo se
-								//l'intervallo non è stato interessato da un periodo di gioco
-								//con scalini
-								if(StairsClassifierReceiver.getStepsNumber(pref)<1){
-									context.startService(new Intent(context, ActivityRecognitionRecordService.class));
-								   	//si registra anche il receiver per la registrazione dell'attività utente
-									//context.getApplicationContext().registerReceiver(userMotionReceiver, userMotionFilter);
-								   	//context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-								}
-							}				
-							else{ //è un "intervallo con scalini"
-								
-								//si fa ripartire il classificatore scalini solo se il numero
-								//di scalini contati fino ad ora nell'intervallo è inferiore
-								//alla soglia (soglia=1 per ora)
-								if(StairsClassifierReceiver.getStepsNumber(pref)<1){
-									context.getApplicationContext().startService(new Intent(context, SamplingClassifyService.class));
-									//si registra anche il receiver
-									context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);					
-								}
-							}
-						}						
-						
-						//si re-imposta l'alarm precedente
-						//si crea il pending intent creando dapprima un intent con tutti i
-						//dati dell'alarm per identificarlo in modo univoco
-				    	PendingIntent pi = AlarmUtils.createPendingIntent(context, current_next_alarm, new int[]{alarmTime.get(Calendar.DATE), alarmTime.get(Calendar.MONTH), alarmTime.get(Calendar.YEAR)});
-				 	    alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime.getTimeInMillis(), pi);
-				 	    
-				 	    if(MainActivity.logEnabled){
-				 	    	Log.d(MainActivity.AppName,"On boot - the previous alarm is valid; we set the same alarm");		
-				 	    }
-					}
-					
-				}			    	
+		    		////////////////////////////
+		    		//utile per scrivere il LOG
+		    		pref.edit().putBoolean("next_alarm_mutated", false).commit();
+		    		////////////////////////////
+		    		
+		    		
+		    		Thread thread = new Thread(){					    	
+		    			@Override
+		    			public void run() {
+		    				AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context),true,true,alarm_id); 
+		    			}					    	
+		    		};		
+		    		//si fa partire il thread che imposta e lancia un nuovo alarm
+		    		//(se il nuovo alarm è di stop, si fa ripartire subito il 
+		    		//classificatore opportuno)
+		    		thread.start();						
+		    	}			
+		    	else{	
+		    		//se il next alarm settato è un evento di stop significa che si è
+		    		//all'interno di un intervallo attivo iniziato in precedenza (infatti
+		    		//gli alarm sono preordinati per fare in modo che dopo un evento di
+		    		//start ci sia un evento di stop): se tale intervallo è un "intervallo
+		    		//di esplorazione", allora significa che il service di activity
+		    		//recognition dovrebbe essere già in esecuzione e, quindi, lo si
+		    		//attiva; invece, se è un "intervallo con scalini", si attiva il
+		    		//classificatore scalini/non_scalini (il cl. Google/scalini viene
+		    		//fatto ripartire solo nel caso in cui i valori già ottenuti in questo
+		    		//intervallo (se ce ne sono) non bastano per definire/confermare un
+		    		//'intervallo con scalini')						
+		    		if(!current_next_alarm.get_actionType()){
+		    			
+		    			//è un "intervallo di esplorazione"
+		    			if(!current_next_alarm.isStepsInterval(curr_day_index)){ 
+		    				
+		    				//si fa ripartire il service di activity recognition solo se
+		    				//l'intervallo non è stato interessato da un periodo di gioco
+		    				//con scalini
+		    				if(StairsClassifierReceiver.getStepsNumber(pref)<1){
+		    					context.startService(new Intent(context, ActivityRecognitionRecordService.class));
+		    					//si registra anche il receiver per la registrazione dell'attività utente
+		    					//context.getApplicationContext().registerReceiver(userMotionReceiver, userMotionFilter);
+		    					//context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+		    				}
+		    			}				
+		    			else{ //è un "intervallo con scalini"
+		    				
+		    				//si fa ripartire il classificatore scalini solo se il numero
+		    				//di scalini contati fino ad ora nell'intervallo è inferiore
+		    				//alla soglia (soglia=1 per ora)
+		    				if(StairsClassifierReceiver.getStepsNumber(pref)<1){
+		    					context.getApplicationContext().startService(new Intent(context, SamplingClassifyService.class));
+		    					//si registra anche il receiver
+		    					context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);					
+		    				}
+		    			}
+		    		}						
+		    		
+		    		//si re-imposta l'alarm precedente
+		    		//si crea il pending intent creando dapprima un intent con tutti i
+		    		//dati dell'alarm per identificarlo in modo univoco
+		    		PendingIntent pi = AlarmUtils.createPendingIntent(context, current_next_alarm, new int[]{alarmTime.get(Calendar.DATE), alarmTime.get(Calendar.MONTH), alarmTime.get(Calendar.YEAR)});
+		    		alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime.getTimeInMillis(), pi);
+		    		
+		    		if(MainActivity.logEnabled){
+		    			Log.d(MainActivity.AppName,"On boot - the previous alarm is valid; we set the same alarm");		
+		    		}
+		    	}		    	
+		    	//}			    	
 			}
 		}
 		/////////

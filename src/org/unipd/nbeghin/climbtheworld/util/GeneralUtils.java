@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -125,67 +126,77 @@ public class GeneralUtils {
      * @param prefs reference to android shared preferences. 
      */
     public static void initializeAlgorithm(final Context context, final SharedPreferences prefs) {
-    	
-    	Editor editor = prefs.edit();    	
-    	//editor.putBoolean("firstRun", false); // si memorizza che non è il primo run dell'app
-    	//editor.putInt("current_template", 1); // il template orario che si usa è il primo    	
-    	//si salvano le credenziali
-    	//editor.commit();  
-    	
-    	/////////		
-    	//PER TEST ALGORITMO
-    	editor.putInt("artificialDayIndex", 0);    	
-    	Calendar cal = Calendar.getInstance();
-    	SimpleDateFormat calFormat = new SimpleDateFormat("yyyy-MM-dd");
-    	String dateFormatted = calFormat.format(cal.getTime());
-    	editor.putString("dateOfIndex", dateFormatted);
-    	editor.commit();    	
-    	
-    	//si imposta l'alarm per aggiornare l'indice artificiale che rappresenta il giorno
-    	//all'interno della settimana corta
-    	alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-    	Intent intent = new Intent(context, TimeBatteryWatcher.class);
-    	intent.setAction("org.unipd.nbeghin.climbtheworld.UPDATE_DAY_INDEX_TESTING");    	
-    	Calendar calendar = Calendar.getInstance();
-    	//si imposta a partire dalla mezzanotte del giorno successivo
-    	calendar.add(Calendar.DATE, 1); 
-    	calendar.set(Calendar.HOUR_OF_DAY, 0);
-    	calendar.set(Calendar.MINUTE, 0);
-    	calendar.set(Calendar.SECOND, 0); 
-    	//si ripete l'alarm ogni giorno a mezzanotte
-    	alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-    			AlarmManager.INTERVAL_DAY, PendingIntent.getBroadcast(context, 0, intent, 0));
-    	    	
-    	if(MainActivity.logEnabled){
-    		Log.d(MainActivity.AppName + " - TEST","GeneralUtils - init index: 0, init date: " + dateFormatted);	
-    		Log.d(MainActivity.AppName + " - TEST","GeneralUtils - set update day index alarm");
-    		int month =calendar.get(Calendar.MONTH)+1;    	
-        	Log.d(MainActivity.AppName + " - TEST", "GeneralUtils - UPDATE DAY INDEX ALARM: h:m:s=" 
-    				+ calendar.get(Calendar.HOUR_OF_DAY)+":"+ calendar.get(Calendar.MINUTE)+":"+ calendar.get(Calendar.SECOND) +
-    				"  "+calendar.get(Calendar.DATE)+"/"+month+"/"+calendar.get(Calendar.YEAR));        	
-        	Log.d(MainActivity.AppName + " - TEST", "GeneralUtils - milliseconds of the update day index alarm: " + calendar.getTimeInMillis());
-    	}
-    	/////////
-    	
-    	////////////////////////////
-    	//utile per scrivere il LOG
-    	editor.putBoolean("next_alarm_mutated", false).commit();
-    	////////////////////////////
-    	    	
-    	LogUtils.writeLogFile(context, "ALGORITMO\n");
-    	    	
+    	    	    	
     	//si fa il setup del db per gli alarm
     	//AlarmUtils.setupAlarmsDB(context); 
     	//si creano gli alarm
 		//AlarmUtils.createAlarms(context);  
     	//readIntervalsFromFile(context);
-				
+		
     	Thread thread = new Thread(){
     		@Override
     		public void run() {
-    			LogUtils.offIntervalsTracking(context, prefs, -1);    			
-    	    	//si imposta e si lancia il prossimo alarm
-    	    	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context),true,false,-1); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,1))    
+    			
+    			List<Alarm> alarms_created = AlarmUtils.getAllAlarms(context);
+    			
+    			//se sono stati creati intervalli
+    			if(alarms_created.size()>0){
+    				Editor editor = prefs.edit();    	
+        	    	//editor.putBoolean("firstRun", false); // si memorizza che non è il primo run dell'app
+        	    	//editor.putInt("current_template", 1); // il template orario che si usa è il primo    	
+        	    	//si salvano le credenziali
+        	    	//editor.commit();  
+        	    	
+        	    	/////////		
+        	    	//PER TEST ALGORITMO
+        	    	editor.putInt("artificialDayIndex", 0);    	
+        	    	Calendar cal = Calendar.getInstance();
+        	    	SimpleDateFormat calFormat = new SimpleDateFormat("yyyy-MM-dd");
+        	    	String dateFormatted = calFormat.format(cal.getTime());
+        	    	editor.putString("dateOfIndex", dateFormatted);
+        	    	editor.commit();    	
+        	    	
+        	    	//si imposta l'alarm per aggiornare l'indice artificiale che rappresenta il giorno
+        	    	//all'interno della settimana corta
+        	    	alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        	    	Intent intent = new Intent(context, TimeBatteryWatcher.class);
+        	    	intent.setAction("org.unipd.nbeghin.climbtheworld.UPDATE_DAY_INDEX_TESTING");    	
+        	    	Calendar calendar = Calendar.getInstance();
+        	    	//si imposta a partire dalla mezzanotte del giorno successivo
+        	    	calendar.add(Calendar.DATE, 1); 
+        	    	calendar.set(Calendar.HOUR_OF_DAY, 0);
+        	    	calendar.set(Calendar.MINUTE, 0);
+        	    	calendar.set(Calendar.SECOND, 0); 
+        	    	//si ripete l'alarm ogni giorno a mezzanotte
+        	    	alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+        	    			AlarmManager.INTERVAL_DAY, PendingIntent.getBroadcast(context, 0, intent, 0));
+        	    	    	
+        	    	if(MainActivity.logEnabled){
+        	    		Log.d(MainActivity.AppName + " - TEST","GeneralUtils - init index: 0, init date: " + dateFormatted);	
+        	    		Log.d(MainActivity.AppName + " - TEST","GeneralUtils - set update day index alarm");
+        	    		int month =calendar.get(Calendar.MONTH)+1;    	
+        	        	Log.d(MainActivity.AppName + " - TEST", "GeneralUtils - UPDATE DAY INDEX ALARM: h:m:s=" 
+        	    				+ calendar.get(Calendar.HOUR_OF_DAY)+":"+ calendar.get(Calendar.MINUTE)+":"+ calendar.get(Calendar.SECOND) +
+        	    				"  "+calendar.get(Calendar.DATE)+"/"+month+"/"+calendar.get(Calendar.YEAR));        	
+        	        	Log.d(MainActivity.AppName + " - TEST", "GeneralUtils - milliseconds of the update day index alarm: " + calendar.getTimeInMillis());
+        	    	}
+        	    	/////////
+        	    	
+        	    	////////////////////////////
+        	    	//utile per scrivere il LOG
+        	    	editor.putBoolean("next_alarm_mutated", false).commit();
+        	    	////////////////////////////
+        	    	    	
+        	    	LogUtils.writeLogFile(context, "ALGORITMO\n");
+        	    
+        	    	
+        	    	LogUtils.offIntervalsTracking(context, prefs, -1);    			
+        	    	//si imposta e si lancia il prossimo alarm
+        	    	AlarmUtils.setNextAlarm(context,alarms_created,true,false,-1); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,1))  
+    			}
+    			else{
+    				LogUtils.writeLogFile(context, "NON FAI MAI ATTIVITA' FISICA/SCALINI: NON E' STATO CREATO ALCUN INTERVALLO");
+    			}
     		}
     	};
     	thread.start();
