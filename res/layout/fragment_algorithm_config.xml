@@ -8,7 +8,7 @@
     
 <RelativeLayout
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="wrap_content"    
     android:background="#FFFFFF">
     
     <com.etsy.android.grid.StaggeredGridView
@@ -40,15 +40,27 @@
 
     <TextView
         android:id="@+id/config_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"        
         android:layout_centerHorizontal="true"
         android:text="@string/lab_first_config"
         android:layout_marginBottom="10dp"
-        android:gravity="center"
+        android:gravity="center_horizontal"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:typeface="serif"/>
 
+    <!-- <TextView
+        android:id="@+id/choose_color_text"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"        
+        android:layout_centerHorizontal="true"
+        android:text="@string/choose_color"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:typeface="serif"
+        android:visibility="gone"/>  -->
+    
     
     <TextView
         android:id="@+id/yellow_picker"
@@ -98,6 +110,7 @@
         android:layout_above="@+id/btt_cancel_config"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
+        android:layout_marginTop="20dp"
         android:layout_marginBottom="40dp"
         android:gravity="center"        
         android:drawableLeft="@drawable/ic_content_import_export"
@@ -127,7 +140,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/config_text"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="20dp"
         android:layout_marginBottom="40dp"
         android:drawableLeft="@drawable/ic_navigation_forward"
         android:gravity="center"

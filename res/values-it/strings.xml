@@ -35,13 +35,13 @@
     <!-- Algorithm Configuration -->    
     <string name="lab_dialog_config">Ciao!\n\nTi preghiamo di dedicare qualche minuto per configurare l\'app.</string>
     <string name="btt_cancel_dialog_config">Non ora</string>  
-    <string name="lab_google_play_services_missing_invalid">Per far funzionare l\'app, è necessario installare il componente Google Play Services da Google Play Store.\n\nTi preghiamo di cliccare il pulsante sottostante per installarlo.\n\nUna volta installato, puoi continuare la configurazione.\n\nGrazie!</string>
-    <string name="lab_google_play_services_update_required">Per far funzionare correttamente l\'app, è necessario aggiornare il componente Google Play Services da Google Play Store.\n\nTi preghiamo di cliccare il pulsante sottostante per aggiornarlo.\n\nUna volta aggiornato, puoi continuare la configurazione.\n\nGrazie!</string>
-    <string name="lab_google_play_services_disabled">Per far funzionare l\'app, è necessario abilitare il componente Google Play Services.\n\nTi preghiamo di cliccare il pulsante sottostante per aprire le impostazioni del device ed abilitare il componente.\n\nUna volta abilitato, puoi continuare la configurazione.\n\nGrazie!</string>
+    <string name="lab_google_play_services_missing_invalid">Per far funzionare l\'app, è necessario installare il componente Google Play Services da Google Play Store.\n\nTi preghiamo di cliccare il pulsante sottostante per installarlo. Una volta installato, potrai continuare la configurazione. Grazie!</string>
+    <string name="lab_google_play_services_update_required">Per far funzionare correttamente l\'app, è necessario aggiornare il componente Google Play Services da Google Play Store.\n\nTi preghiamo di cliccare il pulsante sottostante per aggiornarlo. Una volta aggiornato, potrai continuare la configurazione. Grazie!</string>
+    <string name="lab_google_play_services_disabled">Per far funzionare l\'app, è necessario abilitare il componente Google Play Services.\n\nTi preghiamo di cliccare il pulsante sottostante per aprire le impostazioni del device ed abilitare il componente. Una volta abilitato, potrai continuare la configurazione. Grazie!</string>
     <string name="btt_google_play_services_install">Installa</string>
     <string name="btt_google_play_services_update">Aggiorna</string>
     <string name="btt_google_play_services_enable">Abilita</string>
-    <string name="lab_first_config">Considera una giornata tipo.\n\nQuali sono le fasce orarie in cui fai attività fisica/scalini?\n\n\nIl passo successivo ti aiuterà ad impostarle.</string>
+    <string name="lab_first_config">Considera una giornata tipo.\nQuali sono le fasce orarie in cui fai attività fisica/scalini?\n\nIl passo successivo ti aiuterà ad impostarle.</string>
     <string name="btt_next">Avanti</string>
     <string name="btt_cancel">Annulla</string>
     <string name="choose_color">Scegli un colore e poi imposta le fasce orarie</string>

@@ -1,6 +1,7 @@
 package org.unipd.nbeghin.climbtheworld.fragments;
 
 import org.unipd.nbeghin.climbtheworld.ClimbActivity;
+import org.unipd.nbeghin.climbtheworld.ClimbTheWorldApp;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.models.Building;
@@ -37,7 +38,7 @@ public class BuildingsFragment extends Fragment {
 */
 	public void refresh() {
 		buildingCards.clearCards();
-		for (final Building building : MainActivity.buildings) {
+		for (final Building building : ClimbTheWorldApp.buildings) {
 			BuildingCard buildingCard = new BuildingCard(building);
 			buildingCard.setOnClickListener(new OnClickListener() {
 				@Override

@@ -2,9 +2,7 @@ package org.unipd.nbeghin.climbtheworld;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionIntentService;
@@ -39,14 +37,11 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.SensorManager;
-import android.opengl.Visibility;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -461,7 +456,7 @@ public class ClimbActivity extends Activity {
 		try {
 			// get building ID from intent
 			if (building_id == 0) throw new Exception("ERROR: unable to get intent data"); // no building id found in received intent
-			building = MainActivity.buildingDao.queryForId(building_id); // query db to get asked building
+			building = ClimbTheWorldApp.buildingDao.queryForId(building_id); // query db to get asked building
 			setup_from_building(); // load building info
 			backgroundClassifySampler = new Intent(this, SamplingClassifyService.class); // instance (without starting) background classifier			
 		} catch (Exception e) {
@@ -493,7 +488,7 @@ public class ClimbActivity extends Activity {
 	 * @throws ClimbingNotFound
 	 */
 	private void loadPreviousClimbing() {
-		climbing = MainActivity.getClimbingForBuilding(building.get_id());
+		climbing = ClimbTheWorldApp.getClimbingForBuilding(building.get_id());
 		if (climbing == null) { // no climbing found
 			Log.i(MainActivity.AppName, "No previous climbing found");
 			num_steps = 0;
@@ -505,7 +500,7 @@ public class ClimbActivity extends Activity {
 			climbing.setCompleted_steps(num_steps);
 			climbing.setCreated(new Date().getTime());
 			climbing.setModified(new Date().getTime());
-			MainActivity.climbingDao.create(climbing);
+			ClimbTheWorldApp.climbingDao.create(climbing);
 			Log.i(MainActivity.AppName, "Created new climbing #" + climbing.get_id());
 		} else {
 			num_steps = climbing.getCompleted_steps();
@@ -622,8 +617,12 @@ public class ClimbActivity extends Activity {
 		} else {
 			
 			//si recupera il prossimo alarm impostato
-			//int next_alarm_id = settings.getInt("alarm_id", -1);	
-			Alarm next_alarm = AlarmUtils.getAlarm(appContext, settings.getInt("alarm_id", -1));
+			int next_alarm_id = settings.getInt("alarm_id", -1);	
+			Alarm next_alarm=null;
+			
+			if(next_alarm_id!=-1){
+				next_alarm = AlarmUtils.getAlarm(appContext, settings.getInt("alarm_id", -1));
+			}
 			
 			//si recupera l'indice del giorno corrente all'interno della settimana
 			/////////		
@@ -639,7 +638,7 @@ public class ClimbActivity extends Activity {
 				
 				//se il prossimo alarm è di stop significa che si è all'interno di un
 				//intervallo di esplorazione/intervallo con scalini attivo
-				if(!next_alarm.get_actionType()){
+				if(next_alarm!=null && !next_alarm.get_actionType()){
 				
 					//nel periodo di gioco corrente l'utente ha fatto scalini (utile per un
 					//intervallo di esplorazione)
@@ -702,7 +701,7 @@ public class ClimbActivity extends Activity {
 				//"intervallo di esplorazione" (non è un "intervallo con scalini"), vuol
 				//dire che il servizio di activity recognition è in esecuzione; in questo
 				//caso tale servizio viene fermato	
-				if(!next_alarm.get_actionType() && !next_alarm.isStepsInterval(current_day_index)){
+				if(next_alarm!=null && !next_alarm.get_actionType() && !next_alarm.isStepsInterval(current_day_index)){
 										
 					Log.d(MainActivity.AppName,"START GAME IN ACTIVE INTERVAL - STOP ACTIVITY REC");
 					
@@ -734,19 +733,29 @@ public class ClimbActivity extends Activity {
 		try {
 			//si recupera il prossimo alarm impostato
 			int next_alarm_id = settings.getInt("alarm_id", -1);	
-			Alarm next_alarm = AlarmUtils.getAlarm(appContext, next_alarm_id);			
-			//si recupera l'indice del giorno corrente all'interno della settimana
-			/////////		
-	    	//PER TEST ALGORITMO
-			int current_day_index = settings.getInt("artificialDayIndex", 0);
-			///////// altrimenti l'indice del giorno è (Calendar.getInstance().get(Calendar.DAY_OF_WEEK))-1;
 						
-			if(next_alarm.get_actionType() || !next_alarm.get_actionType() && !next_alarm.isStepsInterval(current_day_index)){
-				
+			//se questo alarm esiste
+			if(next_alarm_id!=-1){
+				Alarm next_alarm = AlarmUtils.getAlarm(appContext, next_alarm_id);			
+				//si recupera l'indice del giorno corrente all'interno della settimana
+				/////////		
+		    	//PER TEST ALGORITMO
+				int current_day_index = settings.getInt("artificialDayIndex", 0);
+				///////// altrimenti l'indice del giorno è (Calendar.getInstance().get(Calendar.DAY_OF_WEEK))-1;
+							
+				if(next_alarm.get_actionType() || !next_alarm.get_actionType() && !next_alarm.isStepsInterval(current_day_index)){
+					
+					appContext.getPackageManager().setComponentEnabledSetting(new ComponentName(appContext, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+					stopService(backgroundClassifySampler);
+				}
+			}
+			else{ //se non esiste un prossimo alarm, significa che l'algoritmo non è ancora
+				  //stato configurato (oppure l'utente l'ha configurato impostando tutte
+				  //fasce orarie rosse); in questo caso si ferma semplicemente il servizio
 				appContext.getPackageManager().setComponentEnabledSetting(new ComponentName(appContext, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
 				stopService(backgroundClassifySampler);
 			}
-			
+						
 			//unregisterReceiver(classifierReceiver);
 			//stopService(backgroundClassifySampler);
 		} catch (Exception e) {
@@ -759,17 +768,25 @@ public class ClimbActivity extends Activity {
 	 */
 	public void stopClassify(Alarm next_alarm, int day_index) {
 		
-		//se il prossimo alarm è di start oppure è di stop e definisce un semplice "intervallo
-		//di esplorazione" allora si ferma il classificatore scalini/non_scalini
-		if(next_alarm.get_actionType() || !next_alarm.get_actionType() && !next_alarm.isStepsInterval(day_index)){
+		//se esiste un prossimo alarm
+		if(next_alarm!=null){
+			//se il prossimo alarm è di start oppure è di stop e definisce un semplice "intervallo
+			//di esplorazione" allora si ferma il classificatore scalini/non_scalini
+			if(next_alarm.get_actionType() || !next_alarm.get_actionType() && !next_alarm.isStepsInterval(day_index)){
+				stopService(backgroundClassifySampler); // stop background service	
+				//unregisterReceiver(classifierReceiver); // unregister listener
+				appContext.getPackageManager().setComponentEnabledSetting(new ComponentName(appContext, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+				Log.d(MainActivity.AppName,"Climb - STOP CLASSIFY: is not a 'interval with steps'");
+			}
+			else{
+				Log.d(MainActivity.AppName,"Climb - NO STOP CLASSIFY: is a 'interval with steps'");
+			}
+		}
+		else{ //se non esiste un prossimo alarm si ferma semplicemente il classificatore 
 			stopService(backgroundClassifySampler); // stop background service	
-			//unregisterReceiver(classifierReceiver); // unregister listener
 			appContext.getPackageManager().setComponentEnabledSetting(new ComponentName(appContext, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
-			Log.d(MainActivity.AppName,"Climb - STOP CLASSIFY: is not a 'interval with steps'");
 		}
-		else{
-			Log.d(MainActivity.AppName,"Climb - NO STOP CLASSIFY: is a 'interval with steps'");
-		}
+		
 				
 		StairsClassifierReceiver.setClimb(null);
 		samplingEnabled = false;
@@ -780,7 +797,7 @@ public class ClimbActivity extends Activity {
 		climbing.setPercentage(percentage); // update progress percentage
 		climbing.setRemaining_steps(building.getSteps() - num_steps); // update remaining steps
 		if (percentage >= 1.00) climbing.setCompleted(new Date().getTime());
-		MainActivity.climbingDao.update(climbing); // save to db
+		ClimbTheWorldApp.climbingDao.update(climbing); // save to db
 		Log.i(MainActivity.AppName, "Updated climbing #" + climbing.get_id());
 		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.av_play); // set button icon to play again
 		findViewById(R.id.progressBarClimbing).startAnimation(AnimationUtils.loadAnimation(appContext, R.anim.abc_fade_out)); // hide progress bar
@@ -812,27 +829,27 @@ public class ClimbActivity extends Activity {
 		}
 		Log.i(MainActivity.AppName, "Using " + vstep_for_rstep + " steps for each real step");
 		
-		
-		//se il prossimo alarm è di stop e definisce la fine di un "intervallo con scalini",
-		//allora il classificatore scalini/non_scalini è già in esecuzione; quindi non lo si
-		//attiva nuovamente; se, invece, il prossimo alarm è di start (quindi non si è in
-		//un intervallo attivo) oppure è di stop ma l'intervallo in questione è un "intervallo
-		//di esplorazione", allora si deve attivare il classificatore scalini/non_scalini
-		if(next_alarm.get_actionType() || !next_alarm.get_actionType() && !next_alarm.isStepsInterval(day_index)){
-			
-			Log.d(MainActivity.AppName, "It is not a 'interval with steps', START STAIRS CLASSIFIER");
-			
-			startService(backgroundClassifySampler); // start background service
-			//registerReceiver(classifierReceiver, classifierFilter); // register listener	
+		//se esiste un prossimo alarm
+		if(next_alarm!=null){
+			//se il prossimo alarm è di stop e definisce la fine di un "intervallo con scalini",
+			//allora il classificatore scalini/non_scalini è già in esecuzione; quindi non lo si
+			//attiva nuovamente; se, invece, il prossimo alarm è di start (quindi non si è in
+			//un intervallo attivo) oppure è di stop ma l'intervallo in questione è un "intervallo
+			//di esplorazione", allora si deve attivare il classificatore scalini/non_scalini
+			if(next_alarm.get_actionType() || !next_alarm.get_actionType() && !next_alarm.isStepsInterval(day_index)){
+				
+				Log.d(MainActivity.AppName, "It is not a 'interval with steps', START STAIRS CLASSIFIER");
+				
+				startService(backgroundClassifySampler); // start background service
+				//registerReceiver(classifierReceiver, classifierFilter); // register listener	
+				appContext.getPackageManager().setComponentEnabledSetting(new ComponentName(appContext, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+			}
+		}
+		else{ //se non esiste un prossimo alarm si fa partire semplicemente il classificatore 
+			startService(backgroundClassifySampler); // start background service	
 			appContext.getPackageManager().setComponentEnabledSetting(new ComponentName(appContext, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-		}		
-		
-		/*
-		if(!GeneralUtils.isSamplingClassifyServiceRunning(appContext)){
-			startService(backgroundClassifySampler); // start background service
-			registerReceiver(classifierReceiver, classifierFilter); // register listener
-		}*/
-		
+		}
+			
 			
 		StairsClassifierReceiver.setClimb(this);
 		samplingEnabled = true;

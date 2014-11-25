@@ -35,7 +35,7 @@ public class TourDetailActivity extends FragmentActivity {
 
 		if (tour_id>0) {
 			Log.i(MainActivity.AppName, "Loading buildings for tour "+tour_id);
-			List<BuildingTour> buildingTours=MainActivity.getBuildingsForTour(tour_id); // get all buildings associated to a tour
+			List<BuildingTour> buildingTours=ClimbTheWorldApp.getBuildingsForTour(tour_id); // get all buildings associated to a tour
 			Log.i(MainActivity.AppName, "Detected "+buildingTours.size()+" building for tour #"+tour_id);
 			Collections.sort(buildingTours, new BuildingTourComparator()); // sort by building order
 			BuildingsForTourFragment fragment=(BuildingsForTourFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentBuildingsForTour); // load fragment

@@ -1,5 +1,6 @@
 package org.unipd.nbeghin.climbtheworld.fragments;
 
+import org.unipd.nbeghin.climbtheworld.ClimbTheWorldApp;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.TourDetailActivity;
@@ -35,7 +36,7 @@ public class ToursFragment extends Fragment {
 
 	public void refresh() {
 		toursCards.clearCards();
-		for (final Tour tour : MainActivity.tours) {
+		for (final Tour tour : ClimbTheWorldApp.tours) {
 			TourCard tourCard = new TourCard(tour);
 			tourCard.setOnClickListener(new OnClickListener() {
 				@Override

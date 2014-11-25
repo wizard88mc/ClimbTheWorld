@@ -55,6 +55,7 @@ public class AlgorithmConfigFragment extends Fragment {
 	
 	//campi per i vari componenti grafici utilizzati
 	private TextView config_text;
+	//private TextView choose_color_text;
 	private TextView yellow_picker;
 	private TextView red_picker;
 	private TextView green_picker;
@@ -167,6 +168,7 @@ public class AlgorithmConfigFragment extends Fragment {
     	
     	
     	config_text = (TextView) getActivity().findViewById(R.id.config_text);  
+    	//choose_color_text = (TextView) getActivity().findViewById(R.id.choose_color_text); 
     	btt_next_config = (Button) getActivity().findViewById(R.id.btt_next_config);  
     	btt_cancel_config = (Button) getActivity().findViewById(R.id.btt_cancel_config);  
     	btt_google_play_services = (Button) getActivity().findViewById(R.id.btt_google_play_action);  
@@ -570,12 +572,13 @@ public class AlgorithmConfigFragment extends Fragment {
         	else if(status==ConnectionResult.SERVICE_DISABLED){
         		config_text.setText(R.string.lab_google_play_services_disabled);
         		btt_google_play_services.setText(R.string.btt_google_play_services_enable);
-        	}
+        	}    		
     		
         	btt_next_config.setVisibility(View.GONE);
         	btt_google_play_services.setVisibility(View.VISIBLE);
     	}
     	else{
+    		config_text.setText(R.string.lab_first_config);
     		btt_google_play_services.setVisibility(View.GONE);
     		btt_next_config.setVisibility(View.VISIBLE);
     	}
@@ -587,10 +590,12 @@ public class AlgorithmConfigFragment extends Fragment {
     private void showNextPage(){
     	    	
     	btt_next_config.setVisibility(View.GONE);
-    	btt_cancel_config.setVisibility(View.GONE);
+    	btt_cancel_config.setVisibility(View.GONE);    	
+    	//config_text.setVisibility(View.GONE);
     	
     	config_text.setText(R.string.choose_color);
     	
+    	//choose_color_text.setVisibility(View.VISIBLE);
     	red_picker.setVisibility(View.VISIBLE);
     	green_picker.setVisibility(View.VISIBLE);
     	yellow_picker.setVisibility(View.VISIBLE);
@@ -602,6 +607,7 @@ public class AlgorithmConfigFragment extends Fragment {
     
     private void showPrevPage(){
     	
+    	//choose_color_text.setVisibility(View.GONE);
     	red_picker.setVisibility(View.GONE);
     	green_picker.setVisibility(View.GONE);
     	yellow_picker.setVisibility(View.GONE);
@@ -609,6 +615,7 @@ public class AlgorithmConfigFragment extends Fragment {
     	
     	config_text.setText(R.string.lab_first_config);
     	
+    	//config_text.setVisibility(View.VISIBLE);
     	btt_next_config.setVisibility(View.VISIBLE);
     	btt_cancel_config.setVisibility(View.VISIBLE);
     	

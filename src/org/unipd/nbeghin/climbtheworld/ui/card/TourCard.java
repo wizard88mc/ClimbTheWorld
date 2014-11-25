@@ -2,6 +2,7 @@ package org.unipd.nbeghin.climbtheworld.ui.card;
 
 import java.util.List;
 
+import org.unipd.nbeghin.climbtheworld.ClimbTheWorldApp;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
@@ -36,7 +37,7 @@ public class TourCard extends Card {
 		((TextView) view.findViewById(R.id.numBuildingForTour)).setText(Integer.toString(tour.getNum_buildings())+" buildings");
 		((TextView) view.findViewById(R.id.description)).setText(tour.getDescription());
 		LinearLayout layout=(LinearLayout) view.findViewById(R.id.buildingsForTourPhotoList);
-		List<Integer> images=MainActivity.getBuildingPhotosForTour(tour.get_id());
+		List<Integer> images=ClimbTheWorldApp.getBuildingPhotosForTour(tour.get_id());
 		for(int image: images) {
 			ImageView imageView=new ImageView(context);
 			imageView.setImageResource(image);
