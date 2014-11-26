@@ -120,6 +120,8 @@
                 android:value="org.unipd.nbeghin.climbtheworld.GalleryActivity" />
         </activity>
 
+	<activity android:name="org.unipd.nbeghin.climbtheworld.StartConfigActivity">
+        </activity>
 		<activity android:name="org.unipd.nbeghin.climbtheworld.AlgorithmConfigActivity">
         </activity>
       	<activity android:name="org.unipd.nbeghin.climbtheworld.EndConfigActivity">

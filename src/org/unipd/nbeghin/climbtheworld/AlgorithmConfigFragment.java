@@ -5,8 +5,6 @@ import org.unipd.nbeghin.climbtheworld.util.AlarmUtils;
 import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
 
 import com.etsy.android.grid.StaggeredGridView;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import android.app.Activity;
 import android.content.Context;
@@ -15,11 +13,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -51,17 +47,10 @@ public class AlgorithmConfigFragment extends Fragment {
 	//map che contiene le coppie di valori <posizione_item, colore>
 	private static SparseIntArray positions_colors;
 	
-	private boolean first_page=true;
-	
 	//campi per i vari componenti grafici utilizzati
-	private TextView config_text;
-	//private TextView choose_color_text;
 	private TextView yellow_picker;
 	private TextView red_picker;
 	private TextView green_picker;
-	private Button btt_next_config;
-	private Button btt_cancel_config;
-	private Button btt_google_play_services;
 	private StaggeredGridView gridView;
 	
 	
@@ -166,13 +155,6 @@ public class AlgorithmConfigFragment extends Fragment {
     	screen_height = metrics.widthPixels;
     	screen_width = metrics.heightPixels;
     	
-    	
-    	config_text = (TextView) getActivity().findViewById(R.id.config_text);  
-    	//choose_color_text = (TextView) getActivity().findViewById(R.id.choose_color_text); 
-    	btt_next_config = (Button) getActivity().findViewById(R.id.btt_next_config);  
-    	btt_cancel_config = (Button) getActivity().findViewById(R.id.btt_cancel_config);  
-    	btt_google_play_services = (Button) getActivity().findViewById(R.id.btt_google_play_action);  
-    	
     	GradientDrawable rectangle_shape = (GradientDrawable) getResources().getDrawable(R.drawable.rectangle_shape);
     	((GradientDrawable)rectangle_shape.mutate()).setColor(Color.GREEN);    	
     	green_picker = (TextView) getActivity().findViewById(R.id.green_picker);    	
@@ -245,34 +227,6 @@ public class AlgorithmConfigFragment extends Fragment {
 				}
 			}
 		});
-    	
-    	
-
-    	//check status of Google Play Services
-    	final int gms_status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity());
-    	    
-    	
-    	btt_google_play_services.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				
-				if(gms_status==ConnectionResult.SERVICE_DISABLED){
-					//si apre la finestra delle impostazioni del device
-					startActivity(new Intent(Settings.ACTION_SETTINGS));					
-				}
-				else{ //nota: se Google Play Services è attivo e aggiornato, questo bottone non viene visualizzato
-					try {
-					    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + GooglePlayServicesUtil.GOOGLE_PLAY_SERVICES_PACKAGE)));
-					} catch (android.content.ActivityNotFoundException anfe) {
-					    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + GooglePlayServicesUtil.GOOGLE_PLAY_SERVICES_PACKAGE)));
-					}
-				}
-			}
-		});
-    	    	
-    	//si visualizzano o meno la label e il bottone relativi al componente Google Play Services
-    	checkGooglePlayServicesStatus(gms_status);    	
     }
     
     
@@ -297,13 +251,7 @@ public class AlgorithmConfigFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
     	super.onSaveInstanceState(outState);
-		
-    	//si salva il booleano che indica se si è nella prima o nella seconda pagina per
-    	//impostare correttamente lo stato di visibilità dei vari componenti grafici
-    	//(dal momento che il fragment si compone di due "pagine" create dalla
-    	//visualizzazione o meno dei widget) 
-    	outState.putBoolean("first_page", first_page);
-    	
+		    	
 		//si salva l'intero che indica il colore selezionato (-1 se ancora nessun colore selezionato)
 		outState.putInt("current_color", current_color);
     }
@@ -316,12 +264,7 @@ public class AlgorithmConfigFragment extends Fragment {
     public void onViewStateRestored(Bundle savedInstanceState) {
     	super.onViewStateRestored(savedInstanceState);
     	
-    	if(savedInstanceState!=null){    		
-    		
-    		//si recupera il booleano che indica se si è nella prima o nella seconda pagina
-    		if(!savedInstanceState.getBoolean("first_page")){
-    			showNextPage();
-    		}
+    	if(savedInstanceState!=null){ 
     		
     		//si recupera lo stato salvato che indica il colore selezionato
     		current_color=savedInstanceState.getInt("current_color");
@@ -537,12 +480,6 @@ public class AlgorithmConfigFragment extends Fragment {
     public void selectAction(View v){
     	
     	switch(v.getId()) {
-    		case R.id.btt_next_config:
-    			showNextPage();
-    			break;
-    		case R.id.btt_cancel_config:
-    			getActivity().finish();
-    			break;
     		case R.id.red_picker:
     			current_color=Color.RED;
     			break;
@@ -554,89 +491,6 @@ public class AlgorithmConfigFragment extends Fragment {
     			break;
     	}
     }
-    
-    
-    
-    private void checkGooglePlayServicesStatus(int status){
-    	
-    	if(status!=ConnectionResult.SUCCESS){
-    		
-    		if(status==ConnectionResult.SERVICE_MISSING || status==ConnectionResult.SERVICE_INVALID){
-        		config_text.setText(R.string.lab_google_play_services_missing_invalid);        	
-        		btt_google_play_services.setText(R.string.btt_google_play_services_install); 
-    		}
-        	else if(status==ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED){
-        		config_text.setText(R.string.lab_google_play_services_update_required);
-        		btt_google_play_services.setText(R.string.btt_google_play_services_update);
-        	}
-        	else if(status==ConnectionResult.SERVICE_DISABLED){
-        		config_text.setText(R.string.lab_google_play_services_disabled);
-        		btt_google_play_services.setText(R.string.btt_google_play_services_enable);
-        	}    		
-    		
-        	btt_next_config.setVisibility(View.GONE);
-        	btt_google_play_services.setVisibility(View.VISIBLE);
-    	}
-    	else{
-    		config_text.setText(R.string.lab_first_config);
-    		btt_google_play_services.setVisibility(View.GONE);
-    		btt_next_config.setVisibility(View.VISIBLE);
-    	}
-    }
-    
-    
-    
-    
-    private void showNextPage(){
-    	    	
-    	btt_next_config.setVisibility(View.GONE);
-    	btt_cancel_config.setVisibility(View.GONE);    	
-    	//config_text.setVisibility(View.GONE);
-    	
-    	config_text.setText(R.string.choose_color);
-    	
-    	//choose_color_text.setVisibility(View.VISIBLE);
-    	red_picker.setVisibility(View.VISIBLE);
-    	green_picker.setVisibility(View.VISIBLE);
-    	yellow_picker.setVisibility(View.VISIBLE);
-    	gridView.setVisibility(View.VISIBLE);
-    	
-    	first_page=false;
-    }
-    
-    
-    private void showPrevPage(){
-    	
-    	//choose_color_text.setVisibility(View.GONE);
-    	red_picker.setVisibility(View.GONE);
-    	green_picker.setVisibility(View.GONE);
-    	yellow_picker.setVisibility(View.GONE);
-    	gridView.setVisibility(View.GONE);
-    	
-    	config_text.setText(R.string.lab_first_config);
-    	
-    	//config_text.setVisibility(View.VISIBLE);
-    	btt_next_config.setVisibility(View.VISIBLE);
-    	btt_cancel_config.setVisibility(View.VISIBLE);
-    	
-    	//si visualizzano o meno la label e il bottone relativi al componente Google Play Services
-    	checkGooglePlayServicesStatus(GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity()));
-    	    	
-    	first_page=true;
-    }
-    
-    
-    public void handleBackButton(){
-    	
-    	if(first_page){
-    		getActivity().finish();
-    	}
-    	else{
-    		showPrevPage();
-    	}
-    }
-    
-    
     
     
     

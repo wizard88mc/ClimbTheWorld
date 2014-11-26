@@ -97,7 +97,7 @@ public class MainActivity extends ActionBarActivity {
 		switch(v.getId()) {
 		case R.id.dialog_config_btt_ok:
 			alertDialog.dismiss();
-			startActivity(new Intent(this,AlgorithmConfigActivity.class));
+			startActivity(new Intent(this,StartConfigActivity.class));
 			break;
 		case R.id.dialog_config_btt_cancel:
 			alertDialog.dismiss();
