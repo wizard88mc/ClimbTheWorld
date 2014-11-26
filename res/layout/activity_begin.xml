@@ -2,7 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent" 
+    android:background="@color/black_overlay">
 
     <!-- #33BBFFFF -->
 
@@ -58,11 +59,13 @@
                 <Button
                     android:id="@+id/buttonOk"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:background="@android:color/transparent"
                     android:text="Ok!!!!"
+                    android:textColor="@color/white"
                     android:textSize="20sp"
-                    android:textColor="@color/white" />
+                    android:padding="5dp" />
+
             </LinearLayout>
         </RelativeLayout>
 

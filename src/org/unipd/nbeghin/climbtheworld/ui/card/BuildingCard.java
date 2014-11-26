@@ -70,6 +70,7 @@ import com.parse.SaveCallback;
  */
 public class BuildingCard extends Card {
 	final Building building;
+	final private int		order;
 	BuildingText buildingText;
 	Climbing climbing;
 	Climbing soloClimbing;
@@ -88,6 +89,7 @@ public class BuildingCard extends Card {
 
 	TextView gameMode;
 	TextView climbingStatus;
+	TextView tourOrderText;
 	Button socialClimbButton;
 	Button socialChallengeButton;
 	Button teamVsTeamButton;
@@ -95,11 +97,12 @@ public class BuildingCard extends Card {
 	ProgressBar progressBar;
 	ImageView photo;
 
-	public BuildingCard(BuildingText building, Activity activity) {
+	public BuildingCard(BuildingText building, Activity activity, int order) {
 		super(building.getBuilding().getName());
 		this.buildingText = building;
 		this.building = building.getBuilding();
 		this.activity = activity;
+		this.order = order;
 	}
 
 	/**
@@ -143,6 +146,7 @@ public class BuildingCard extends Card {
 		microGoalBtn = ((ImageButton) view.findViewById(R.id.microGoalBtn));
 		progressBar = ((ProgressBar) view.findViewById(R.id.progressBarClimb));
 		photo = ((ImageView) view.findViewById(R.id.photo));
+		tourOrderText = ((TextView) view.findViewById(R.id.tourOrder));
 		((TextView) view.findViewById(R.id.title)).setText(buildingText.getName());
 		int imageId = ClimbApplication.getBuildingImageResource(building);
 		if (imageId > 0)
@@ -151,6 +155,14 @@ public class BuildingCard extends Card {
 		((TextView) view.findViewById(R.id.buildingStat)).setMinLines(2);
 		((TextView) view.findViewById(R.id.buildingStat)).setText(building.getSteps() + " " + ClimbApplication.getContext().getString(R.string.steps) + building.getHeight() + "m)" + "\n" + ClimbApplication.getContext().getString(R.string.reward, ClimbApplication.XPforStep(building.getSteps())));
 		((TextView) view.findViewById(R.id.location)).setText(buildingText.getLocation());
+		
+		if(order <= 0)
+			tourOrderText.setVisibility(View.GONE);
+		else{
+			tourOrderText.setVisibility(View.VISIBLE);
+			tourOrderText.setText(Integer.toString(order));
+		}
+			
 
 		if (building.getBase_level() > ClimbApplication.getUserById(pref.getInt("local_id", -1)).getLevel()) {
 			// locked building

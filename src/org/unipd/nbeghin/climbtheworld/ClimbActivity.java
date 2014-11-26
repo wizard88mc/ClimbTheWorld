@@ -113,6 +113,9 @@ public class ClimbActivity extends ActionBarActivity {
 	public static final String SAMPLING_TYPE_NON_STAIR = "NON_STAIR"; // classifier's
 																		// output
 	public static final String SAMPLING_DELAY = "DELAY"; // intent's action
+	
+	public static boolean current_win = false;
+	
 	private boolean samplingEnabled = false; // sentinel if sampling is running
 	private static double detectedSamplingRate = 0; // detected sampling rate
 													// (after sampling rate
@@ -315,6 +318,7 @@ public class ClimbActivity extends ActionBarActivity {
 							// (when multiple steps-at-once are detected)
 							num_steps = building.getSteps();
 							percentage = 1.00;
+							current_win = true;
 							Toast.makeText(getApplicationContext(), getString(R.string.new_badge, buildingText.getName()), Toast.LENGTH_SHORT).show();
 
 						}
@@ -424,7 +428,8 @@ public class ClimbActivity extends ActionBarActivity {
 			deleteMicrogoalInParse();
 		else {
 			ClimbApplication.microgoalDao.delete(microgoal);
-			if(percentage < 1.00) createMicrogoal();
+			if(percentage >= 1.00) current_win = true;
+			if(percentage < 1.00 && !current_win) createMicrogoal();
 		}
 	}
 
@@ -1150,10 +1155,15 @@ public class ClimbActivity extends ActionBarActivity {
 									// this building, but I didn't pass the
 									// threshold
 									socialPenalty();
+									current_win = true;
+									if(microgoal != null) deleteMicrogoalInParse();
 								} else if ((num_steps + sumOthersStep() >= building.getSteps()) && (num_steps < threshold)) {
 									percentage = 1.0;
+									current_win = true;
 									updatePoints(false);
 									saveBadges();
+									if(microgoal != null) deleteMicrogoalInParse();
+
 								}
 
 							} else {
@@ -1381,7 +1391,7 @@ public class ClimbActivity extends ActionBarActivity {
 					if (m != null)
 						m.deleteEventually();
 					ClimbApplication.microgoalDao.delete(microgoal);
-					createMicrogoal();
+					if(percentage < 1.00 && !current_win) createMicrogoal();
 
 				} else {
 					microgoal.setDeleted(true);
@@ -1427,6 +1437,7 @@ public class ClimbActivity extends ActionBarActivity {
 	}
 
 	private void createMicrogoal() {
+		Log.i("ClimbActivity", "createMicrogoal");
 		if (difficulty == 0) {
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 			difficulty = Integer.parseInt(settings.getString("difficulty", "10"));
@@ -1516,11 +1527,11 @@ public class ClimbActivity extends ActionBarActivity {
 
 			Log.i(MainActivity.AppName, "Created new climbing #" + climbing.get_id());
 
-			createMicrogoal();
+			if(percentage < 1.00 && !current_win) createMicrogoal();
 
 		} else {
 			microgoal = ClimbApplication.getMicrogoalByUserAndBuilding(pref.getInt("local_id", -1), building.get_id());
-			if (microgoal == null)
+			if (microgoal == null && percentage < 1.00 && !current_win)
 				createMicrogoal();
 			num_steps = climbing.getCompleted_steps();
 			percentage = climbing.getPercentage();
@@ -2298,6 +2309,7 @@ public class ClimbActivity extends ActionBarActivity {
 			updateClimbingInParse(climbing, false);
 			((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.social_share);
 		}
+		if(microgoal != null) deleteMicrogoalInParse();
 	}
 
 	private void endTeamCompetition(boolean penalty) {
@@ -2316,6 +2328,7 @@ public class ClimbActivity extends ActionBarActivity {
 			updateClimbingInParse(climbing, false);
 			((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.social_share);
 		}
+		if(microgoal != null) deleteMicrogoalInParse();
 	}
 
 	// non ho superato la threshold
@@ -2404,18 +2417,23 @@ public class ClimbActivity extends ActionBarActivity {
 
 							if (myGroupScore >= building.getSteps()) {
 								showMessage(getString(R.string.your_team_won));
+								current_win = true;
 								//Toast.makeText(getApplicationContext(), getString(R.string.your_team_won), Toast.LENGTH_SHORT).show();
 								boolean penalty = false;
+								percentage = 1.00;
 								if (teamDuel.getMy_steps() < threshold) {
 									socialTeamPenality();
 									penalty = true;
+								}else{
+									apply_win();
 								}
-								percentage = 1.00;
+								
 								endTeamCompetition(penalty);
 
 								saveBadges();
 							} else if (otherGroupScore >= building.getSteps()) {
 								showMessage(getString(R.string.other_team_won));
+								current_win = true;
 								//Toast.makeText(getApplicationContext(), getString(R.string.other_team_won), Toast.LENGTH_SHORT).show();
 								boolean penalty = false;
 								if (teamDuel.getMy_steps() < threshold) {
@@ -2543,6 +2561,7 @@ public class ClimbActivity extends ActionBarActivity {
 										group_minus.get(i).setVisibility(View.INVISIBLE);
 										if (steps >= building.getSteps()) {
 											percentage = 1.0;
+											current_win = true;
 											endCompetition();
 											saveBadges();
 											showMessage( getString(R.string.competition_win));
@@ -2550,6 +2569,7 @@ public class ClimbActivity extends ActionBarActivity {
 										}
 									} else {
 										if (steps >= building.getSteps()) {
+											current_win = true;
 											endCompetition();
 											showMessage( getString(R.string.competition_lose, name));
 											//Toast.makeText(getApplicationContext(), getString(R.string.competition_lose, name), Toast.LENGTH_SHORT).show();

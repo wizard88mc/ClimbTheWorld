@@ -7,10 +7,13 @@ import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.TeamPreparationActivity;
 import org.unipd.nbeghin.climbtheworld.models.Building;
+import org.unipd.nbeghin.climbtheworld.models.BuildingText;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
+import org.unipd.nbeghin.climbtheworld.ui.card.BuildingCard;
 import org.unipd.nbeghin.climbtheworld.ui.card.BuildingForTourCard;
-import org.unipd.nbeghin.climbtheworld.ui.card.Updater;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -31,13 +34,17 @@ import com.fima.cardsui.views.CardUI;
 public class BuildingsForTourFragment extends Fragment{
 	public static final String	building_text_intent_object	= "org.unipd.nbeghin.climbtheworld.intents.object.buildingText";
 	public CardUI				buildingCards;
+	final SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
 
-	public void loadBuildings(List<Building> buildings) {
+	public void loadBuildings(List<BuildingText> buildings) {
 		buildingCards.clearCards();
 		int i=0;
-		for (final Building building : buildings) {
+		for (final BuildingText building : buildings) {
 			i++;
-			BuildingForTourCard buildingCard = new BuildingForTourCard(building, i);
+			BuildingCard buildingCard = new BuildingCard(building, getActivity(), i);
+			
+			if (building.getBuilding().getBase_level() <= ClimbApplication.getUserById(pref.getInt("local_id", -1)).getLevel()) {
+			
 			buildingCard.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) { // start climbing for a given building
@@ -72,6 +79,31 @@ public class BuildingsForTourFragment extends Fragment{
 					}
 				}
 			});
+			
+			} else {
+
+				buildingCard.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						// 1. Instantiate an AlertDialog.Builder with its
+						// constructor
+						AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+						// 2. Chain together various setter methods to set the
+						// dialog characteristics
+						builder.setMessage(getString(R.string.lock_level_msg, building.getBuilding().getBase_level()))
+							.setTitle(R.string.lock_level_title)
+							.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int id) {
+								}
+							});
+
+						// 3. Get the AlertDialog from create()
+						AlertDialog dialog = builder.create();
+						dialog.show();
+					}
+				});
+			}
 			buildingCards.addCard(buildingCard);
 		}
 		buildingCards.refresh();

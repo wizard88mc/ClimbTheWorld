@@ -70,7 +70,7 @@ public class HelpDialogActivity extends Dialog {
 		 textRow1 = ((TextView) findViewById(R.id.textRow1));
 		 textRow2 = ((TextView) findViewById(R.id.textRow2));
 		
-		Typeface tf = Typeface.createFromAsset(ClimbApplication.getContext().getAssets(),"fonts/sketch-me.ttf");  
+		Typeface tf = Typeface.createFromAsset(ClimbApplication.getContext().getAssets(),"fonts/cake.ttf");  //sketch-me
 		textShare.setTypeface(tf);
 		textGallery.setTypeface(tf);
 		textUpdate.setTypeface(tf);

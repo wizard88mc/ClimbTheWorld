@@ -21,7 +21,7 @@ public class OnBoardingActivity extends Activity{
 		setContentView(R.layout.activity_begin);
 		TextView text = (TextView) findViewById(R.id.textOnborading);
 		Button okBtn = (Button) findViewById(R.id.buttonOk);
-		Typeface tf = Typeface.createFromAsset(ClimbApplication.getContext().getAssets(),"fonts/sketch-me.ttf");  
+		Typeface tf = Typeface.createFromAsset(ClimbApplication.getContext().getAssets(),"fonts/cake.ttf");  //sketch-me
 		text.setTypeface(tf);
 		okBtn.setTypeface(tf);
 	

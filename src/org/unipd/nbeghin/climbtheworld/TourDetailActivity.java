@@ -10,6 +10,7 @@ import org.unipd.nbeghin.climbtheworld.comparator.BuildingTourComparator;
 import org.unipd.nbeghin.climbtheworld.fragments.BuildingsForTourFragment;
 import org.unipd.nbeghin.climbtheworld.fragments.ToursFragment;
 import org.unipd.nbeghin.climbtheworld.models.Building;
+import org.unipd.nbeghin.climbtheworld.models.BuildingText;
 import org.unipd.nbeghin.climbtheworld.models.BuildingTour;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
 
@@ -39,9 +40,10 @@ public class TourDetailActivity extends FragmentActivity {
 			Log.i(MainActivity.AppName, "Detected "+buildingTours.size()+" building for tour #"+tour_id);
 			Collections.sort(buildingTours, new BuildingTourComparator()); // sort by building order
 			BuildingsForTourFragment fragment=(BuildingsForTourFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentBuildingsForTour); // load fragment
-			List<Building> buildings=new ArrayList<Building>();
+			List<BuildingText> buildings=new ArrayList<BuildingText>();
 			for(BuildingTour buildingTour: buildingTours) {
-				buildings.add(buildingTour.getBuilding());
+				Building current_building = buildingTour.getBuilding();
+				buildings.add(ClimbApplication.getBuildingTextByBuilding(current_building.get_id()));
 			}
 			fragment.loadBuildings(buildings); // set buildings for fragment
 		} else {

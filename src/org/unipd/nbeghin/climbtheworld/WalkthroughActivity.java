@@ -74,7 +74,7 @@ public class WalkthroughActivity extends Activity {
             Log.e("walkthrough", "instantiateItem(" + position + ");");
             LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View imageViewContainer = inflater.inflate(R.layout.walkthrough_page, null);
-            Typeface tf = Typeface.createFromAsset(ClimbApplication.getContext().getAssets(),"fonts/sketch-me.ttf");  
+            Typeface tf = Typeface.createFromAsset(ClimbApplication.getContext().getAssets(),"fonts/cake.ttf"); //sketch-me 
             ImageView imageView1 = (ImageView) imageViewContainer.findViewById(R.id.imageView1);
             ImageView imageView2 = (ImageView) imageViewContainer.findViewById(R.id.imageView2);
             ImageView imageView3 = (ImageView) imageViewContainer.findViewById(R.id.imageView3);

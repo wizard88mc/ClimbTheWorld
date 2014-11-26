@@ -52,7 +52,7 @@ public class BuildingsFragment extends Fragment implements Updater {
 		buildingCards.clearCards();
 		Collections.sort(ClimbApplication.buildingTexts, new BuildingTextComparator());
 		for (final BuildingText building : ClimbApplication.buildingTexts) {
-			BuildingCard buildingCard = new BuildingCard(building, getActivity());
+			BuildingCard buildingCard = new BuildingCard(building, getActivity(), -1);
 			System.out.println(building.get_id());
 			
 			if (building.getBuilding().getBase_level() <= ClimbApplication.getUserById(pref.getInt("local_id", -1)).getLevel()) {
