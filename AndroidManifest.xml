@@ -60,6 +60,7 @@
         </intent-filter>
    		</receiver> -->
    		
+   		<!--  -->
         <activity 
             android:name=".ClimbActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"

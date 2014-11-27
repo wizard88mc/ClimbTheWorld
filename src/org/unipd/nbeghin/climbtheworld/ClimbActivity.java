@@ -424,11 +424,11 @@ public class ClimbActivity extends ActionBarActivity {
 		me.setXP(me.getXP() + reward);
 		ClimbApplication.userDao.update(me);
 		Toast.makeText(this, getString(R.string.microgoal_terminated, reward), Toast.LENGTH_SHORT).show();
+		if(percentage >= 1.00) current_win = true;
 		if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty"))
 			deleteMicrogoalInParse();
 		else {
 			ClimbApplication.microgoalDao.delete(microgoal);
-			if(percentage >= 1.00) current_win = true;
 			if(percentage < 1.00 && !current_win) createMicrogoal();
 		}
 	}
@@ -1391,6 +1391,9 @@ public class ClimbActivity extends ActionBarActivity {
 					if (m != null)
 						m.deleteEventually();
 					ClimbApplication.microgoalDao.delete(microgoal);
+//					System.out.println("parse");
+//					System.out.println("% " + percentage);
+//					System.out.println("fine???? " + current_win);
 					if(percentage < 1.00 && !current_win) createMicrogoal();
 
 				} else {
@@ -1620,6 +1623,7 @@ public class ClimbActivity extends ActionBarActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		
 		switch (item.getItemId()) {
 		case R.id.itemHelp:
 			// Get width in dp
@@ -1635,7 +1639,8 @@ public class ClimbActivity extends ActionBarActivity {
 				n_icons = 3;
 			}
 			boolean new_steps_done = new_steps != 0 ? true : false;
-			new HelpDialogActivity(this, R.style.Transparent, mode, percentage, new_steps_done, n_icons, samplingEnabled, isCounterMode).show();
+			HelpDialogActivity dialog = new HelpDialogActivity(this, R.style.Transparent, mode, percentage, new_steps_done, n_icons, samplingEnabled, isCounterMode);
+			dialog.show();
 			return true;
 		case R.id.itemMicroGoal:
 			onMicroGoalClicked();
@@ -2245,6 +2250,8 @@ public class ClimbActivity extends ActionBarActivity {
 		}
 		if (!isCounterMode && mode.equals(GameModeType.SOLO_CLIMB))
 			menu.getItem(0).setVisible(false); // hide update
+		
+		supportInvalidateOptionsMenu();
 
 		return true;
 	}
@@ -2277,9 +2284,14 @@ public class ClimbActivity extends ActionBarActivity {
 		MenuItem m = mymenu.findItem(R.id.itemUpdate);
 		if (MenuItemCompat.getActionView(m) != null) {
 			// Remove the animation.
+			System.out.println("remove animation");
+			
 			MenuItemCompat.getActionView(m).clearAnimation();
 			MenuItemCompat.setActionView(m, null);
+			
+			
 		}
+		supportInvalidateOptionsMenu();
 	}
 
 	private void endCompetition() {
@@ -3082,5 +3094,12 @@ public class ClimbActivity extends ActionBarActivity {
 		group_members.get(0).setText("Go online to see your friends' results");
 			  }
 		});
+	}
+	
+	
+	@Override 
+	public void onRestart(){
+		super.onRestart();
+		Log.i("ClimnActivity", "onRestart");
 	}
 }

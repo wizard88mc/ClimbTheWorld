@@ -866,8 +866,9 @@ public class UpdateService extends IntentService {
 				@Override
 				public void done(ParseObject mg, ParseException e) {
 					if(e == null){
-						if(microgoal.getDeleted() && mg != null){
-							mg.deleteEventually();
+						if(microgoal.getDeleted()){
+							System.out.println("QUIIIIII");
+							if(mg != null) mg.deleteEventually();
 							microgoalDao.delete(microgoal);
 						}else if(!microgoal.getDeleted()){
 							if(mg == null){

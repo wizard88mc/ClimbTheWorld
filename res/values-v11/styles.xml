@@ -9,8 +9,8 @@
         <!-- API 11 theme customizations can go here. -->
     </style>
 
-    <style name="FullscreenTheme" parent="@style/Theme.AppCompat.Light"> <!--parent="android:Theme.NoTitleBar"  -->
-        <item name="android:actionBarStyle">@style/FullscreenActionBarStyle</item>
+    <style name="FullscreenTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar"> <!--parent="android:Theme.NoTitleBar"  -->
+      <!--  <item name="android:actionBarStyle">@style/FullscreenActionBarStyle</item>  -->
         <item name="android:windowBackground">@null</item>
         <item name="buttonBarStyle">?android:attr/buttonBarStyle</item>
         <item name="buttonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
@@ -24,9 +24,9 @@
     <item name="windowActionBar">false</item> -->
 
 <!-- android:Widget.Holo.Light.DarkActionBar -->
-    <style name="FullscreenActionBarStyle" parent="android:Widget.Holo.Light.ActionBar">
-        <item name="android:background">@color/black_overlay</item>
-   <item name="android:titleTextStyle">@style/HoloTitleText</item>
+    <style name="FullscreenActionBarStyle" parent="@style/Widget.AppCompat.Light.ActionBar"> <!--  android:Widget.Holo.Light.ActionBar -->
+       <item name="android:background">@color/black_overlay</item>
+   		<item name="android:titleTextStyle">@style/HoloTitleText</item>  
 </style>
 
 <style name="HoloTitleText" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">

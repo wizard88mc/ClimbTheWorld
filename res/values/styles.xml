@@ -23,7 +23,7 @@
         <item name="android:windowBackground">@null</item>
         <item name="buttonBarStyle">@style/ButtonBar</item>
         <item name="buttonBarButtonStyle">@style/ButtonBarButton</item>  
-         <item name="actionBarStyle">@style/FullscreenActionBarStyle</item>
+       <item name="actionBarStyle">@style/FullscreenActionBarStyle</item> 
                  <item name="actionBarTabTextStyle">@style/MyActionBarTabText</item>
     <item name="actionBarTabStyle">@style/MyActionBarTabView</item> 
     <item name="actionMenuTextColor">@color/white</item>

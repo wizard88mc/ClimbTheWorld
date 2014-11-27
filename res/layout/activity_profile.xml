@@ -3,7 +3,10 @@
     xmlns:facebook="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ProfileActivity" >
+    tools:context=".ProfileActivity" 
+    android:background="@color/white"
+
+    >
 
     <com.facebook.widget.LoginButton
         android:id="@+id/login_button"
@@ -25,6 +28,8 @@
             android:layout_height="match_parent"
             android:layout_above="@+id/login_button"
             android:orientation="vertical" 
+            android:layout_marginRight="10dp"
+    		android:layout_marginLeft="10dp"
            >
 
             <TextView
@@ -32,7 +37,8 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/profile_title" 
-                android:layout_weight="0.03"/>
+                android:layout_weight="0.03"
+                android:layout_marginBottom="5dp"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
