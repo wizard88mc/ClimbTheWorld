@@ -42,6 +42,7 @@ import org.unipd.nbeghin.climbtheworld.util.ParseUtils;
 import org.unipd.nbeghin.climbtheworld.util.StatUtils;
 import org.unipd.nbeghin.climbtheworld.util.SystemUiHider;
 
+import android.animation.AnimatorSet;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -61,7 +62,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
-import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.util.DisplayMetrics;
@@ -76,6 +76,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -394,7 +395,7 @@ public class ClimbActivity extends ActionBarActivity {
 		Log.i("apply_update", "apply_update " + new_steps);
 		findViewById(R.id.encouragment).setVisibility(View.VISIBLE);
 		((TextView) findViewById(R.id.encouragment)).setText(getString(R.string.well_done));
-		if (!isCounterMode) {
+		if (!isCounterMode && (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty"))) {
 			((ImageButton) findViewById(R.id.btnAccessPhotoGallery)).setImageResource(R.drawable.social_share);
 			findViewById(R.id.btnAccessPhotoGallery).setVisibility(View.VISIBLE);
 		}
@@ -404,6 +405,38 @@ public class ClimbActivity extends ActionBarActivity {
 	private void enableRocket() {
 		Animation animSequential = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rocket);
 		findViewById(R.id.imgRocket).startAnimation(animSequential);
+	}
+	
+	private void win_microgoal_animation(int bonus)
+	{
+		seekbarIndicator.goldStar();
+		final TextView bonus_microgoal = (TextView) findViewById(R.id.bonusMicrogoal);
+		bonus_microgoal.setText("Goal completed\n +" + bonus + " XP");
+		Animation anim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_slide_in_top);
+		anim.setDuration(2000);
+		anim.setAnimationListener(new AnimationListener() {
+			
+			@Override
+			public void onAnimationStart(Animation animation) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				Animation anim2 = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_slide_out_bottom);
+				anim2.setDuration(2000);
+				bonus_microgoal.startAnimation(anim2);				
+			}
+		});
+		
+		bonus_microgoal.startAnimation(anim);
 	}
 
 	private void apply_win_microgoal() {
@@ -423,7 +456,10 @@ public class ClimbActivity extends ActionBarActivity {
 		int reward = microgoal.getReward() * multiplier;
 		me.setXP(me.getXP() + reward);
 		ClimbApplication.userDao.update(me);
-		Toast.makeText(this, getString(R.string.microgoal_terminated, reward), Toast.LENGTH_SHORT).show();
+		
+		//Toast.makeText(this, getString(R.string.microgoal_terminated, reward), Toast.LENGTH_SHORT).show();
+		win_microgoal_animation(reward);
+		
 		if(percentage >= 1.00) current_win = true;
 		if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty"))
 			deleteMicrogoalInParse();
@@ -1458,6 +1494,8 @@ public class ClimbActivity extends ActionBarActivity {
 			microgoal.setTot_steps(tot_steps);
 			microgoal.setStory_id(story_id);
 			microgoal.setReward(5);
+			double progress = ((double) building.getSteps() * (double) 100) / (double) tot_steps;
+			seekbarIndicator.nextStar((int) Math.round(progress));
 			if (!me.getFBid().equalsIgnoreCase("empty")) {
 				microgoal.setSaved(false);
 				ClimbApplication.microgoalDao.create(microgoal);
@@ -1566,7 +1604,17 @@ public class ClimbActivity extends ActionBarActivity {
 			findViewById(R.id.lblReadyToClimb).startAnimation(anim);
 			findViewById(R.id.imgArrow).startAnimation(arrowAnim);
 			findViewById(R.id.lblReadyToClimb).setVisibility(View.VISIBLE);
+			
+			
+			
 		}
+	}
+	
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		double progress = ((double) building.getSteps() * (double) 100) / (double) microgoal.getTot_steps();
+		seekbarIndicator.nextStar((int) Math.round(progress));
+	    super.onWindowFocusChanged(hasFocus);
 	}
 
 	private void checkUserStats() {
@@ -1730,6 +1778,11 @@ public class ClimbActivity extends ActionBarActivity {
 	 * @param v
 	 */
 	public void onBtnStartClimbing(View v) {
+		
+		
+		
+	
+		
 		if (percentage >= 1.00) { // already win
 			FacebookUtils fb = new FacebookUtils(this);
 			try {

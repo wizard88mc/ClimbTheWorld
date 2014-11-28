@@ -5,6 +5,7 @@ import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +19,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class HelpDialogActivity extends Dialog {
+	
+	SharedPreferences pref;
 	
 	ImageView imageShare;
 	ImageView imageGallery;
@@ -98,6 +101,7 @@ public class HelpDialogActivity extends Dialog {
 	int n_icons;
 	boolean samplingEnabled;
 	boolean isCounterMode;
+	boolean fbConnected;
 	
 	public HelpDialogActivity(Context context, int theme, GameModeType mode, double percentage, boolean new_steps, int n_icons, boolean samplingEnabled, boolean isCounterMode) {
 		super(context, theme);
@@ -108,6 +112,8 @@ public class HelpDialogActivity extends Dialog {
 		this.n_icons = n_icons;
 		this.samplingEnabled = samplingEnabled;
 		this.isCounterMode = isCounterMode;
+		pref = context.getSharedPreferences("UserSession", 0);
+		fbConnected = (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty")) ? true : false;
 	}
 	
 	private void setClimbActivityHelp(){
@@ -142,9 +148,13 @@ public class HelpDialogActivity extends Dialog {
 
 				if(percentage >= 1.00){
 					//end climb
-					imageShare.setVisibility(View.VISIBLE);
-					textShare.setText(ClimbApplication.getContext().getString(R.string.share_victory_help));
-					
+					if(fbConnected){
+						imageShare.setVisibility(View.VISIBLE);
+						textShare.setText(ClimbApplication.getContext().getString(R.string.share_victory_help));
+						}else{
+							imageShare.setVisibility(View.INVISIBLE);
+							textShare.setVisibility(View.INVISIBLE);
+						}
 					imageGallery.setVisibility(View.VISIBLE);
 					textGallery.setText(ClimbApplication.getContext().getString(R.string.gallery_help));
 					
@@ -173,9 +183,10 @@ public class HelpDialogActivity extends Dialog {
 						imageGallery.setVisibility(View.INVISIBLE);
 						textGallery.setVisibility(View.INVISIBLE);
 					}else{
-						textGallery.setText(ClimbApplication.getContext().getString(R.string.share_progress_help));
-						textGallery.setVisibility(View.VISIBLE);
-						imageGallery.setVisibility(View.VISIBLE);
+						if(fbConnected){
+							textGallery.setText(ClimbApplication.getContext().getString(R.string.share_progress_help));
+							textGallery.setVisibility(View.VISIBLE);
+							imageGallery.setVisibility(View.VISIBLE);}
 					}
 					
 						
