@@ -230,6 +230,11 @@ public class LogUtils {
 					
 					if(e.getRepeatingDay(lastDayIndex)){
 						status=status+" attivo";
+						
+						if(pref.getBoolean("next_alarm_mutated", false)){
+							status=status+" dopo mutazione";							
+							pref.edit().putBoolean("next_alarm_mutated", false).commit();
+						}						
 					}
 					else{
 						status=status+" non attivo";
@@ -305,6 +310,11 @@ public class LogUtils {
 					
 					if(first_interval_stop.getRepeatingDay(ii)){
 						status=status+" attivo";
+						
+						if(pref.getBoolean("next_alarm_mutated", false)){
+							status=status+" dopo mutazione";							
+							pref.edit().putBoolean("next_alarm_mutated", false).commit();
+						}		
 					}
 					else{
 						status=status+" non attivo";
@@ -349,6 +359,11 @@ public class LogUtils {
 							
 							if(e.getRepeatingDay(ii)){
 								status=status+" attivo";
+								
+								if(pref.getBoolean("next_alarm_mutated", false)){
+									status=status+" dopo mutazione";							
+									pref.edit().putBoolean("next_alarm_mutated", false).commit();
+								}		
 							}
 							else{
 								status=status+" non attivo";
