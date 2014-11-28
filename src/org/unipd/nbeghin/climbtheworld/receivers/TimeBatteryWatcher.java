@@ -164,7 +164,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    	//dopo un reboot del device quello impostato in precedenza non viene lanciato; 
 		    	//quest'ultimo viene prima cancellato attraverso l'alarm manager		    	
 		    	Intent update_index_intent = new Intent(context, TimeBatteryWatcher.class);
-		    	update_index_intent.setAction("UPDATE_DAY_INDEX_TESTING");  
+		    	update_index_intent.setAction("org.unipd.nbeghin.climbtheworld.UPDATE_DAY_INDEX_TESTING");  
 				alarmManager.cancel(PendingIntent.getBroadcast(context, 0, update_index_intent, 0));
 		    	//si reimposta l'alarm per l'update dell'indice artificiale
 				Calendar calendar = Calendar.getInstance();
