@@ -220,6 +220,7 @@ public class LogUtils {
 					Log.d(MainActivity.AppName, "On Boot - device spento nell'intervallo: start-stop: " + start_id+"-"+stop_id);
 				
 					String status="";
+					String after_mutation_string="";
 					
 					if(e.isStepsInterval(lastDayIndex)){
 						status="Intervallo con scalini";
@@ -232,7 +233,7 @@ public class LogUtils {
 						status=status+" attivo";
 						
 						if(pref.getBoolean("next_alarm_mutated", false)){
-							status=status+" dopo mutazione";							
+							after_mutation_string=" dopo mutazione";							
 							pref.edit().putBoolean("next_alarm_mutated", false).commit();
 						}						
 					}
@@ -240,7 +241,7 @@ public class LogUtils {
 						status=status+" non attivo";
 					}					
 					
-					writeLogFile(context,status+": " + previous_start_time+" - "+e.get_hour()+":"
+					writeLogFile(context,status+after_mutation_string+": " + previous_start_time+" - "+e.get_hour()+":"
 							+e.get_minute()+":"+e.get_second()+" | "+not_evaluated_cause+" | "+
 							status+" la prossima settimana");
 				}
@@ -300,7 +301,8 @@ public class LogUtils {
 		    		Alarm first_interval_start = AlarmUtils.getAlarm(context, 1);
 		    				    		
 		    		String status="";
-					
+		    		String after_mutation_string="";
+		    		
 					if(first_interval_stop.isStepsInterval(ii)){
 						status="Intervallo con scalini";
 					}
@@ -312,7 +314,7 @@ public class LogUtils {
 						status=status+" attivo";
 						
 						if(pref.getBoolean("next_alarm_mutated", false)){
-							status=status+" dopo mutazione";							
+							after_mutation_string=" dopo mutazione";						
 							pref.edit().putBoolean("next_alarm_mutated", false).commit();
 						}		
 					}
@@ -321,7 +323,7 @@ public class LogUtils {
 					}					
 										
 					
-					writeLogFile(context,status+": " + first_interval_start.get_hour()+":"+
+					writeLogFile(context,status+after_mutation_string+": " + first_interval_start.get_hour()+":"+
 							first_interval_start.get_minute()+":"+first_interval_start.get_second()+" - "+
 							first_interval_stop.get_hour()+":"+first_interval_stop.get_minute()+":"+
 							first_interval_stop.get_second()+" | "+not_evaluated_cause+" | "+
@@ -349,6 +351,7 @@ public class LogUtils {
 							Log.d(MainActivity.AppName, "On Boot - device spento nell'intervallo: start-stop: " + start_id+"-"+stop_id);
 						
 							String status="";
+							String after_mutation_string="";
 							
 							if(e.isStepsInterval(ii)){
 								status="Intervallo con scalini";
@@ -361,7 +364,7 @@ public class LogUtils {
 								status=status+" attivo";
 								
 								if(pref.getBoolean("next_alarm_mutated", false)){
-									status=status+" dopo mutazione";							
+									after_mutation_string=" dopo mutazione";						
 									pref.edit().putBoolean("next_alarm_mutated", false).commit();
 								}		
 							}
@@ -369,7 +372,7 @@ public class LogUtils {
 								status=status+" non attivo";
 							}					
 							
-							writeLogFile(context,status+": " + previous_start_time+" - "+e.get_hour()+":"
+							writeLogFile(context,status+after_mutation_string+": " + previous_start_time+" - "+e.get_hour()+":"
 									+e.get_minute()+":"+e.get_second()+" | "+not_evaluated_cause+" | "+
 									status+" la prossima settimana");
 						

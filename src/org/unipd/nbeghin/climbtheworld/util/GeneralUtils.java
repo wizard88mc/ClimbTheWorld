@@ -16,6 +16,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
@@ -363,12 +364,11 @@ public class GeneralUtils {
         	HttpPost post = new HttpPost(uploadServerUri);
         	MultipartEntityBuilder builder = MultipartEntityBuilder.create();        
         	builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-        	
 
             FileBody fb = new FileBody(logFile);
 
             builder.addPart("file", fb);  
-            builder.addTextBody("log_file_id", String.valueOf(log_file_id));
+            builder.addTextBody("log_file_id", String.valueOf(log_file_id), ContentType.TEXT_PLAIN);
         	
             final HttpEntity entity = builder.build();
         	 
