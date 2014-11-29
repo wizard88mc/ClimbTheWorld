@@ -186,7 +186,12 @@ public class HelpDialogActivity extends Dialog {
 						if(fbConnected){
 							textGallery.setText(ClimbApplication.getContext().getString(R.string.share_progress_help));
 							textGallery.setVisibility(View.VISIBLE);
-							imageGallery.setVisibility(View.VISIBLE);}
+							imageGallery.setVisibility(View.VISIBLE);
+							}
+						else{
+							textGallery.setVisibility(View.INVISIBLE);
+							imageGallery.setVisibility(View.INVISIBLE);
+						}
 					}
 					
 						

@@ -161,6 +161,8 @@
     <string name="win">YOU DID IT!</string>
     <string name="encouragement">Well Done!</string>
     <string name="microgoal_terminated">Goal completed!!!! You earn %d XP</string>
+    <string name="microgoal_terminated2">Goal completed!!!! + %d XP extra</string>
+    
     <string name="successfull_climb">You successfully climbed %1$d steps (%2$d m) of %3$s !</string>
     <string name="kicked_out">You have been kicked out!</string>
     <string name="new_level">Great! You have reached a new level!</string>
@@ -287,7 +289,7 @@
 	<string name="title_1">How it works (also offline)</string>
 	<string name="text_1_1">1. Choose a building to climb</string>
 	<string name="text_1_2">2. Press p1 \nPick your phone with you \nMake stairs</string>
-	<string name="text_1_3">3. Complete goals \nEarn points \nWin trophies and \nClimb the Word!!!!</string>
+	<string name="text_1_3">3. Complete goals reaching stars \nEarn points \nWin trophies and \nClimb the Word!!!!</string>
 	
 	<string name="title_2">Connect to facebook</string>
 	<string name="intro_2">Bring your progress always with you \nPlay with your friends</string>
@@ -308,7 +310,7 @@
 	<!-- onboarding -->
 	<string name="onboarding_1">Welcome! \n Are you ready to start this new adventure? \nPress on Mushrooms</string>
 	<string name="onboarding_2">Well done! \n Now you have to make 11 steps \nPress play to start your first climb</string>
-	<string name="onboarding_3">Fantastic! First goals completed, level passed and got a trophy, did you like it? \nNow you can continue to climb and win more and more!</string>
+	<string name="onboarding_3">Fantastic! First goals completed, level passed and got a trophy! \nNow you can continue to climb and win more and more! \nRemember: when you reach the stars, they will give you extra points!</string>
 	<string name="onboarding_btn_1">Yes, let\'s start!</string>
 	<string name="onboarding_btn_2">Ok, I can do it!</string>
 	<string name="onboarding_btn_3">Yeah, let\'s start the game!</string>

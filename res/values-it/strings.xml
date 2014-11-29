@@ -151,6 +151,8 @@
     <string name="win">CE L\'HAI FATTA!</string>
     <string name="encouragement">Ben fatto!</string>
     <string name="microgoal_terminated">Goal completato!!!! Hai vinto %d XP</string>
+    <string name="microgoal_terminated2">Goal completato!\n + %d XP extra</string>
+    
     <string name="successfull_climb">Hai fatto i %1$d scalini (%2$d m) dell\'edificio %3$s !</string>
     <string name="kicked_out">Sei stato cacciato!</string>
     <string name="new_level">Grande! Hai raggiunto un nuovo livello!</string>
@@ -293,8 +295,9 @@
 	<string name="title_1">Come giocare (anche offline)</string>
 	<string name="text_1_1">1. Scegli un edificio da scalare</string>
 	<string name="text_1_2">2. Premi p1 \nTieni il telefono con te \nSali le scale</string>
-	<string name="text_1_3">3. Completa i goal \nGuadagna punti \nVinci trofei e \nScala il mondo!!!!</string>
-	
+	<string name="text_1_3">3. Completa i goal raggiungendo le stelle \nGuadagna punti \nVinci trofei e \nScala il mondo!!!!</string>
+	<!-- 	<string name="text_1_3">3. Completa i goal \nGuadagna punti \nVinci trofei e \nScala il mondo!!!!</string>
+	 -->
 	<string name="title_2">Connettiti con Facebook</string>
 	<string name="intro_2">Porta i tuoi progressi sempre con te \nGioca con i tuoi amici</string>
 	<string name="text_2_1">Social Climb: \nchiedi aiuto fino a 5 amici per scalare un edificio più velocemente</string>
@@ -314,7 +317,7 @@
 	<!-- onboarding -->
 	<string name="onboarding_1">Benvenuto! \n Sei pronto per iniziare una nuova avventura? \nPremi Funghi</string>
 	<string name="onboarding_2">Ben fatto! \n Ora fai 11 scalini \nPremi play per iniziare la tua prima scalata</string>
-	<string name="onboarding_3">Fantastico! Hai completato i tuoi primi obiettivi, superato livelli e vinto un trofeo, ti è piaciuto? \nOra puoi contuare le scalate e a vincere sempre di più!</string>
+	<string name="onboarding_3">Fantastico! Hai completato i tuoi primi obiettivi, superato livelli e vinto un trofeo! \nOra puoi contuare le scalate e a vincere sempre di più! Ricorda: raggiungendo le stelle, otterrai punti extra!</string>
 	<string name="onboarding_btn_1">Si, cominciamo!</string>
 	<string name="onboarding_btn_2">Ok, posso farlo!</string>
 	<string name="onboarding_btn_3">Yeah, iniziamo il gioco!</string>

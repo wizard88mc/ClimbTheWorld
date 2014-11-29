@@ -411,7 +411,7 @@ public class ClimbActivity extends ActionBarActivity {
 	{
 		seekbarIndicator.goldStar();
 		final TextView bonus_microgoal = (TextView) findViewById(R.id.bonusMicrogoal);
-		bonus_microgoal.setText("Goal completed\n +" + bonus + " XP");
+		bonus_microgoal.setText(getString(R.string.microgoal_terminated2, bonus));
 		Animation anim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_slide_in_top);
 		anim.setDuration(2000);
 		anim.setAnimationListener(new AnimationListener() {
@@ -1494,7 +1494,7 @@ public class ClimbActivity extends ActionBarActivity {
 			microgoal.setTot_steps(tot_steps);
 			microgoal.setStory_id(story_id);
 			microgoal.setReward(5);
-			double progress = ((double) building.getSteps() * (double) 100) / (double) tot_steps;
+			double progress = ((double) (tot_steps + num_steps)  * (double) 100) / (double) building.getSteps();
 			seekbarIndicator.nextStar((int) Math.round(progress));
 			if (!me.getFBid().equalsIgnoreCase("empty")) {
 				microgoal.setSaved(false);
@@ -1612,7 +1612,7 @@ public class ClimbActivity extends ActionBarActivity {
 	
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
-		double progress = ((double) building.getSteps() * (double) 100) / (double) microgoal.getTot_steps();
+		double progress = ((double) (microgoal.getTot_steps() + climbing.getCompleted_steps()) * (double) 100) / (double) building.getSteps();
 		seekbarIndicator.nextStar((int) Math.round(progress));
 	    super.onWindowFocusChanged(hasFocus);
 	}
@@ -1788,7 +1788,7 @@ public class ClimbActivity extends ActionBarActivity {
 			try {
 				fb.postToWall(climbing);
 			} catch (NoFBSession e) {
-				Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+				Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
 				startActivity(intent);
 			}
 		} else {
@@ -1857,6 +1857,7 @@ public class ClimbActivity extends ActionBarActivity {
 
 		if (!isCounterMode) {
 			// update db
+			System.out.println(pref.getString("FBid", "none"));
 			if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty"))
 				updateMicrogoalInParse();
 			climbing.setModified(new Date().getTime()); // update climbing last

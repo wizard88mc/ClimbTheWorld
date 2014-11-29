@@ -5,25 +5,21 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
-import java.text.DateFormat;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.SimpleTimeZone;
 import java.util.Vector;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.unipd.nbeghin.climbtheworld.adapters.PagerAdapter;
-import org.unipd.nbeghin.climbtheworld.db.DbHelper;
-import org.unipd.nbeghin.climbtheworld.db.PreExistingDbLoader;
 import org.unipd.nbeghin.climbtheworld.fragments.BadgesFragment;
 import org.unipd.nbeghin.climbtheworld.fragments.BuildingsFragment;
 import org.unipd.nbeghin.climbtheworld.fragments.NotificationFragment;
@@ -31,45 +27,33 @@ import org.unipd.nbeghin.climbtheworld.fragments.ToursFragment;
 import org.unipd.nbeghin.climbtheworld.models.AskCollaborationNotification;
 import org.unipd.nbeghin.climbtheworld.models.AskCompetitionNotification;
 import org.unipd.nbeghin.climbtheworld.models.AskTeamDuelNotification;
-import org.unipd.nbeghin.climbtheworld.models.Building;
-import org.unipd.nbeghin.climbtheworld.models.BuildingTour;
-import org.unipd.nbeghin.climbtheworld.models.Climbing;
-import org.unipd.nbeghin.climbtheworld.models.Collaboration;
-import org.unipd.nbeghin.climbtheworld.models.Competition;
-import org.unipd.nbeghin.climbtheworld.models.Group;
 import org.unipd.nbeghin.climbtheworld.models.InviteNotification;
-import org.unipd.nbeghin.climbtheworld.models.Microgoal;
 import org.unipd.nbeghin.climbtheworld.models.Notification;
 import org.unipd.nbeghin.climbtheworld.models.NotificationType;
-import org.unipd.nbeghin.climbtheworld.models.Photo;
-import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
-import org.unipd.nbeghin.climbtheworld.models.Tour;
 import org.unipd.nbeghin.climbtheworld.models.User;
-import org.unipd.nbeghin.climbtheworld.models.UserBadge;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
-import org.unipd.nbeghin.climbtheworld.util.ModelsUtil;
-import org.unipd.nbeghin.climbtheworld.weka.WekaClassifier;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.database.sqlite.SQLiteDatabase;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.Signature;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -131,22 +115,22 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 
 		uiHelper = new UiLifecycleHelper(this, callback);
 		uiHelper.onCreate(savedInstanceState);
-		// try {
-		// PackageInfo info =
-		// getPackageManager().getPackageInfo("org.unipd.nbeghin.climbtheworld",
-		// PackageManager.GET_SIGNATURES);
-		// for (Signature signature : info.signatures) {
-		// System.out.println("qui");
-		// MessageDigest md = MessageDigest.getInstance("SHA");
-		// md.update(signature.toByteArray());
-		// Log.d("KeyHash:", Base64.encodeToString(md.digest(),
-		// Base64.DEFAULT));
-		// }
-		// } catch (NameNotFoundException e) {
-		//
-		// } catch (NoSuchAlgorithmException e) {
-		//
-		// }
+		 try {
+		 PackageInfo info =
+		 getPackageManager().getPackageInfo("org.unipd.nbeghin.climbtheworld",
+		 PackageManager.GET_SIGNATURES);
+		 for (Signature signature : info.signatures) {
+		 System.out.println("qui");
+		 MessageDigest md = MessageDigest.getInstance("SHA");
+		 md.update(signature.toByteArray());
+		 Log.d("KeyHash:", Base64.encodeToString(md.digest(),
+		 Base64.DEFAULT));
+		 }
+		 } catch (NameNotFoundException e) {
+		
+		 } catch (NoSuchAlgorithmException e) {
+		
+		 }
 
 		ClimbApplication.notifications = new ArrayList<Notification>();
 

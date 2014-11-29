@@ -55,12 +55,22 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="50dp" >
+        
+        <View
+            android:id="@+id/redLine"
+            android:layout_width="wrap_content"
+            android:layout_height="2dp"
+            android:background="@color/red"
+            android:layout_alignParentBottom="true"
+             />
 
         <android.widget.VerticalSeekBar
             android:id="@+id/seekBarPosition"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:thumb="@drawable/navigation_next_item" />
+            android:thumb="@drawable/navigation_next_item"
+            android:paddingBottom="30dp"
+             />
         
         <android.widget.VerticalSeekBar
             android:id="@+id/seekBarPosition2"
