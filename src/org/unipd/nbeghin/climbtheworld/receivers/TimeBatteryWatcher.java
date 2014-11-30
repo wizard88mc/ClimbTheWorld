@@ -245,12 +245,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    			Log.d(MainActivity.AppName,"On boot - the previous alarm is not valid; we set another alarm");		
 		    		}
 												
-		    		////////////////////////////
-		    		//utile per scrivere il LOG
-		    		pref.edit().putBoolean("next_alarm_mutated", false).commit();
-		    		////////////////////////////
-		    		
-		    		
+		    				    		
 		    		Thread thread = new Thread(){					    	
 		    			@Override
 		    			public void run() {

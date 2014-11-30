@@ -899,6 +899,14 @@ public class AlarmUtils {
 				//si registra anche il receiver
 				context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);					
 			}
+			
+			////////////////////////////
+			//utile per scrivere il LOG
+			if(nextAlarm.get_id()!=current_alarm_id+1){			
+				System.out.println("prev alarm not valid - l'intervallo NON è l'ultimo considerato");
+				prefs.edit().putBoolean("next_alarm_mutated", false).commit();				
+			}
+			////////////////////////////			
 		}
 		
 		
