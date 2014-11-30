@@ -501,7 +501,7 @@ public class AlarmUtils {
 							
 							LogUtils.writeLogFile(context,status+": " + nextAlarm.get_hour()+":"+nextAlarm.get_minute()+
 									":"+nextAlarm.get_second()+" - "+next_stop.get_hour()+":"+next_stop.get_minute()+
-									":"+next_stop.get_second()+ " | Non valutato perché non mutato | "+
+									":"+next_stop.get_second()+ " | Non valutato perche' non mutato | "+
 									status+" la prossima settimana");
 							////////////////////////////
 							
@@ -604,7 +604,7 @@ public class AlarmUtils {
 								
 								LogUtils.writeLogFile(context,status+": " + e.get_hour()+":"+e.get_minute()+
 										":"+e.get_second()+" - "+next_stop.get_hour()+":"+next_stop.get_minute()+
-										":"+next_stop.get_second()+ " | Non valutato perché non mutato | "+
+										":"+next_stop.get_second()+ " | Non valutato perche' non mutato | "+
 										status+" la prossima settimana");
 								
 							}
@@ -716,7 +716,7 @@ public class AlarmUtils {
 							
 							LogUtils.writeLogFile(context,status+": " + e.get_hour()+":"+e.get_minute()+
 									":"+e.get_second()+" - "+next_stop.get_hour()+":"+next_stop.get_minute()+
-									":"+next_stop.get_second()+ " | Non valutato perché non mutato | "+
+									":"+next_stop.get_second()+ " | Non valutato perche' non mutato | "+
 									status+" la prossima settimana");
 							
 						}
@@ -824,7 +824,7 @@ public class AlarmUtils {
 								
 								LogUtils.writeLogFile(context,status+": " + e.get_hour()+":"+e.get_minute()+
 										":"+e.get_second()+" - "+next_stop.get_hour()+":"+next_stop.get_minute()+
-										":"+next_stop.get_second()+ " | Non valutato perché non mutato | "+
+										":"+next_stop.get_second()+ " | Non valutato perche' non mutato | "+
 										status+" la prossima settimana");								
 							}
 							////////////////////////////

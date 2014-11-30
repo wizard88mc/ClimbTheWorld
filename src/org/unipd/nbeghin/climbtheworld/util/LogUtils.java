@@ -121,14 +121,14 @@ public class LogUtils {
     		dd=time_before.get(Calendar.DATE);
     		mm=time_before.get(Calendar.MONTH);
     		yyyy=time_before.get(Calendar.YEAR);  
-    		not_evaluated_cause="Non considerato perché algoritmo non ancora configurato";
+    		not_evaluated_cause="Non considerato perche' algoritmo non ancora configurato";
     	}
     	else{    	
     		lastDayIndex=pref.getInt("alarm_artificial_day_index", 0); //normalmente, indice ottenuto dalla data dell'alarm
     		dd=pref.getInt("alarm_date", -1);
     		mm=pref.getInt("alarm_month", -1);
     		yyyy=pref.getInt("alarm_year", -1);		
-    		not_evaluated_cause="Non considerato perché device spento";
+    		not_evaluated_cause="Non considerato perche' device spento";
     	}    	
 
 		time_before.set(Calendar.DATE,dd);
