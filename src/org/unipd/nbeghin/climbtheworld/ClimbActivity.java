@@ -115,7 +115,7 @@ public class ClimbActivity extends ActionBarActivity {
 																		// output
 	public static final String SAMPLING_DELAY = "DELAY"; // intent's action
 	
-	public static boolean current_win = false;
+	public boolean current_win = false;
 	
 	private boolean samplingEnabled = false; // sentinel if sampling is running
 	private static double detectedSamplingRate = 0; // detected sampling rate
@@ -360,7 +360,7 @@ public class ClimbActivity extends ActionBarActivity {
 
 	private void apply_win() {
 		Log.i(MainActivity.AppName, "Succesfully climbed building #" + building.get_id());
-		Toast.makeText(getApplicationContext(), getString(R.string.successfull_climb, building.getSteps(), building.getHeight(), building.getName()), Toast.LENGTH_LONG).show(); // show
+		//Toast.makeText(getApplicationContext(), getString(R.string.successfull_climb, building.getSteps(), building.getHeight(), building.getName()), Toast.LENGTH_LONG).show(); // show
 																																													// completion
 																																													// text
 		findViewById(R.id.lblWin).setVisibility(View.VISIBLE); // load and
@@ -1481,7 +1481,9 @@ public class ClimbActivity extends ActionBarActivity {
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 			difficulty = Integer.parseInt(settings.getString("difficulty", "10"));
 		}
-		int tot_steps = ClimbApplication.generateStepsToDo(climbing.getRemaining_steps(), currentUser.getMean(), difficulty);
+		updateUserStats();
+		double newCurrentMean = ClimbApplication.calculateNewMean((long) currentUser.getMean(), currentUser.getN_measured_days(), (currentUser.getCurrent_steps_value()));
+		int tot_steps = ClimbApplication.generateStepsToDo(climbing.getRemaining_steps(), /*currentUser.getMean()*/ newCurrentMean, difficulty);
 		int story_id;
 		try {
 			User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
@@ -1567,7 +1569,7 @@ public class ClimbActivity extends ActionBarActivity {
 			}
 
 			Log.i(MainActivity.AppName, "Created new climbing #" + climbing.get_id());
-
+			//current_win = false;
 			if(percentage < 1.00 && !current_win) createMicrogoal();
 
 		} else {
@@ -1612,8 +1614,10 @@ public class ClimbActivity extends ActionBarActivity {
 	
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
-		double progress = ((double) (microgoal.getTot_steps() + climbing.getCompleted_steps()) * (double) 100) / (double) building.getSteps();
-		seekbarIndicator.nextStar((int) Math.round(progress));
+		if(microgoal != null){
+			double progress = ((double) (microgoal.getTot_steps() + climbing.getCompleted_steps()) * (double) 100) / (double) building.getSteps();
+			seekbarIndicator.nextStar((int) Math.round(progress));
+		}
 	    super.onWindowFocusChanged(hasFocus);
 	}
 
@@ -1789,6 +1793,7 @@ public class ClimbActivity extends ActionBarActivity {
 				fb.postToWall(climbing);
 			} catch (NoFBSession e) {
 				Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+				intent.putExtra("need_help", true);
 				startActivity(intent);
 			}
 		} else {
@@ -1935,19 +1940,27 @@ public class ClimbActivity extends ActionBarActivity {
 
 	private void updateUserStats() {
 		Log.d("ClimbActivity", "UpdateUserStats");
+		
+		if(difficulty == 0){
+			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()); // get
+			difficulty = Integer.parseInt(settings.getString("difficulty", "10"));
+		}
+		int real_steps = new_steps / difficulty;
+		
 		ParseUser user = ParseUser.getCurrentUser();
 		if (ClimbApplication.are24hPassed(currentUser.getBegin_date())) {
 			System.out.println("new mean");
 			currentUser.setMean(ClimbApplication.calculateNewMean((long) currentUser.getMean(), currentUser.getN_measured_days(), (currentUser.getCurrent_steps_value())));
-			currentUser.setCurrent_steps_value(new_steps);
+			currentUser.setCurrent_steps_value(real_steps);
 			currentUser.setN_measured_days(currentUser.getN_measured_days() + 1);
 			currentUser.setBegin_date(String.valueOf(new Date().getTime()));
 			// ClimbApplication.userDao.update(currentUser);
 		} else {
 			System.out.println("update current value");
-			currentUser.setCurrent_steps_value(currentUser.getCurrent_steps_value() + new_steps);
+			
+			currentUser.setCurrent_steps_value(currentUser.getCurrent_steps_value() + real_steps);
 		}
-		currentUser.setHeight(currentUser.getHeight() + ClimbApplication.fromStepsToMeters(new_steps));
+		currentUser.setHeight(currentUser.getHeight() + ClimbApplication.fromStepsToMeters(real_steps));
 		ClimbApplication.userDao.update(currentUser);
 
 		if (user != null) {
@@ -2967,10 +2980,15 @@ public class ClimbActivity extends ActionBarActivity {
 
 			for (int k = 0; k < checked_size; k++) {
 				int currents_steps = steps_per_part;
-				if (k == checked_size - 1)
+				int check_steps = steps_per_part;
+				if (k == checked_size - 1 && resume != 0){
 					currents_steps += resume;
+					check_steps = currents_steps;
+				}else{
+					check_steps = steps_per_part * (k + 1);
+				}
 				steps[k] = String.format((steps_obj.getString(keys.next())), currents_steps);
-				checked[k] = microgoal.getDone_steps() >= currents_steps ? true : false;
+				checked[k] = microgoal.getDone_steps() >= check_steps ? true : false;
 				climbs[k] = currents_steps;
 			}
 

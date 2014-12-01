@@ -66,7 +66,7 @@ public class VerticalSeekBar extends SeekBar {
 		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)line.getLayoutParams();
 		params.setMargins(0,  height - ((int) starHeight) - 30, 0, 0); //substitute parameters for left, top, right, bottom
 		line.setLayoutParams(params);
-		System.out.println("onDraw " + starHeight);
+		//System.out.println("onDraw " + starHeight);
 		line.setBackgroundColor(getResources().getColor(R.color.red));
 		
 		
@@ -79,11 +79,11 @@ public class VerticalSeekBar extends SeekBar {
 	
 	public void nextStar(int progress){
 		thumb1 = BitmapFactory.decodeResource(getResources(), R.drawable.star);
-		System.out.println("height " + height  + " progress " + progress);
+		//System.out.println("height " + height  + " progress " + progress);
 		starHeight = (((double) progress * ((double) height)) /(double) 100);
 		if(starHeight == height)
 			starHeight = height - 60;
-		System.out.println(starHeight);
+		//System.out.println(starHeight);
 		invalidate();
 		
 	}

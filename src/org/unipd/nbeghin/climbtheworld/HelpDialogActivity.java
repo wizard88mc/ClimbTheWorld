@@ -89,6 +89,9 @@ public class HelpDialogActivity extends Dialog {
 		case 1:
 			setTeamPreparationActivityHelp();
 			break;
+		case 2:
+			setProfileHelp();
+			break;
 		default:
 			break;
 		}
@@ -272,6 +275,32 @@ public class HelpDialogActivity extends Dialog {
 			textRow2.setVisibility(View.GONE);
 		}
 	}
+	
+	
+	public HelpDialogActivity(Context context, int theme, boolean fb) {
+		super(context, theme);
+		i = 2;
+	}
+	
+	private void setProfileHelp(){
+		imageUpdate.setVisibility(View.INVISIBLE);
+		imageMicrogoal.setVisibility(View.INVISIBLE);
+		textUpdate.setVisibility(View.INVISIBLE);
+		textMicrogoal.setVisibility(View.INVISIBLE);
+		
+		textRow1.setVisibility(View.INVISIBLE);
+		textRow2.setVisibility(View.INVISIBLE);
+		imageRow1.setVisibility(View.INVISIBLE);
+		imageRow2.setVisibility(View.INVISIBLE);
+		
+		textGallery.setVisibility(View.INVISIBLE);
+		imageGallery.setVisibility(View.INVISIBLE);
+		
+		textShare.setVisibility(View.VISIBLE);
+		imageShare.setVisibility(View.VISIBLE);
+		textShare.setText(ClimbApplication.getContext().getString(R.string.profile_fb_help));
+	}
+	
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {

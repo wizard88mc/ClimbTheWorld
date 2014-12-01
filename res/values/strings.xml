@@ -275,6 +275,7 @@
     <string name="add_challenger">Choose the challenger between your facebook friends</string>
     <string name="add_other_help">Invite other Facebook friends of yours to join your team</string>
     <string name="delete_player">Kick one of your friends out from this climb</string>
+    <string name="profile_fb_help">Log in with facebook to share this victory with your friends!</string>
 	
     <!-- splash -->
     <string name="loading">Loading...</string>

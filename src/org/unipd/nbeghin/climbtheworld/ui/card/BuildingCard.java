@@ -299,10 +299,15 @@ public class BuildingCard extends Card {
 
 							for (int k = 0; k < checked_size; k++) {
 								int currents_steps = steps_per_part;
-								if (k == checked_size - 1)
+								int check_steps = steps_per_part;
+								if (k == checked_size - 1 && resume != 0){
 									currents_steps += resume;
+									check_steps = currents_steps;
+								}else{
+									check_steps = steps_per_part * (k + 1);
+								}
 								steps[k] = String.format((steps_obj.getString(keys.next())), currents_steps);
-								checked[k] = microgoal.getDone_steps() >= currents_steps ? true : false;
+								checked[k] = microgoal.getDone_steps() >= check_steps ? true : false;
 								climbs[k] = currents_steps;
 							}
 

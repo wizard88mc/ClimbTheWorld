@@ -281,6 +281,7 @@
     <string name="add_challenger">Scegli lo sfidante tra i tuoi amici di facebook</string>
     <string name="add_other_help">Invita altri tuoi amici su Facebook ad entrare nel tuo team</string>
     <string name="delete_player">Caccia un tuo amico da questa scalata</string>
+    <string name="profile_fb_help">Connettiti con Facebook per condividere questa vittoria con i tuoi amici!</string>
     
     <!-- splash -->
     <string name="loading">Caricamento...</string>

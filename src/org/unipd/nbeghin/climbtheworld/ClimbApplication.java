@@ -995,6 +995,9 @@ public class ClimbApplication extends Application{
 		 */
 		public static double calculateNewMean(long old_mean, int n, int new_val){
 			long sum_old_mean = old_mean * n;
+			System.out.println("sum_old_mean " + sum_old_mean);
+			System.out.println("new_val " + new_val);
+			System.out.println("n " + n);
 			return (sum_old_mean + new_val) / (n + 1);
 		}
 		
@@ -1023,6 +1026,8 @@ public class ClimbApplication extends Application{
 		 * @return number of steps to be done in order to complete a microgoal
 		 */
 		public static int generateStepsToDo(int remainingSteps, double current_mean, int difficulty){
+			System.out.println("remainingSteps " + remainingSteps);
+			System.out.println("current_mean " + current_mean);
 			if(current_mean >= remainingSteps)
 				return remainingSteps;
 			else{

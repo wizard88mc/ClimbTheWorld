@@ -101,6 +101,12 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 		if (session != null && session.isOpened()) {
 			setProfilePicture(session, session.getState());
 		}
+		
+		boolean needHelp = getIntent().getBooleanExtra("need_help", false);
+		System.out.println("need help? " + needHelp);
+		if(needHelp){
+			new HelpDialogActivity(this, R.style.Transparent, true).show();
+		}
 
 	}
 	
