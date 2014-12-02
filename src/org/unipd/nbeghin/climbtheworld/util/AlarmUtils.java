@@ -8,7 +8,7 @@ import java.util.Random;
 
 import org.unipd.nbeghin.climbtheworld.AlgorithmConfigFragment;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
-import org.unipd.nbeghin.climbtheworld.R;
+import org.unipd.nbeghin.climbtheworldAlgorithm.R;
 import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionIntentService;
 import org.unipd.nbeghin.climbtheworld.comparator.AlarmComparator;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;

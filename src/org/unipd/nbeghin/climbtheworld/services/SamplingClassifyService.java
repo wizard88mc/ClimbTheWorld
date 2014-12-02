@@ -1,7 +1,7 @@
 package org.unipd.nbeghin.climbtheworld.services;
 
 import org.unipd.nbeghin.climbtheworld.MainActivity;
-import org.unipd.nbeghin.climbtheworld.R;
+import org.unipd.nbeghin.climbtheworldAlgorithm.R;
 import org.unipd.nbeghin.climbtheworld.listeners.AccelerometerClassifyListener;
 
 import android.app.IntentService;

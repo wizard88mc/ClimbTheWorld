@@ -5,14 +5,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.unipd.nbeghin.climbtheworld.comparator.BuildingTourComparator;
 import org.unipd.nbeghin.climbtheworld.fragments.BuildingsForTourFragment;
 import org.unipd.nbeghin.climbtheworld.fragments.ToursFragment;
 import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.BuildingTour;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
-
+import org.unipd.nbeghin.climbtheworldAlgorithm.R;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;

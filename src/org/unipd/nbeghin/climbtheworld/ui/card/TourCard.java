@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.unipd.nbeghin.climbtheworld.ClimbTheWorldApp;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
-import org.unipd.nbeghin.climbtheworld.R;
+import org.unipd.nbeghin.climbtheworldAlgorithm.R;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
 
 import android.content.Context;

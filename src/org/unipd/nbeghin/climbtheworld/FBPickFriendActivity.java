@@ -2,10 +2,9 @@ package org.unipd.nbeghin.climbtheworld;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
 import org.unipd.nbeghin.climbtheworld.exceptions.NoFBSession;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
-
+import org.unipd.nbeghin.climbtheworldAlgorithm.R;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
@@ -16,7 +15,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-
 import com.facebook.FacebookException;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.FriendPickerFragment;

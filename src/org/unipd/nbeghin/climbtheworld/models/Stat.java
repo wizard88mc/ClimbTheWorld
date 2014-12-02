@@ -1,6 +1,6 @@
 package org.unipd.nbeghin.climbtheworld.models;
 
-import org.unipd.nbeghin.climbtheworld.R;
+import org.unipd.nbeghin.climbtheworldAlgorithm.R;
 
 /**
  * Model representing a single statistic

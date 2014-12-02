@@ -3,10 +3,9 @@ package org.unipd.nbeghin.climbtheworld;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-
 import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
 import org.unipd.nbeghin.climbtheworld.util.LogUtils;
-
+import org.unipd.nbeghin.climbtheworldAlgorithm.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;

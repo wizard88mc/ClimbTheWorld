@@ -2,7 +2,7 @@ package org.unipd.nbeghin.climbtheworld;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-
+import org.unipd.nbeghin.climbtheworldAlgorithm.R;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;

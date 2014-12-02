@@ -1,7 +1,7 @@
 package org.unipd.nbeghin.climbtheworld.adapters;
 
 import org.unipd.nbeghin.climbtheworld.AlgorithmConfigFragment;
-import org.unipd.nbeghin.climbtheworld.R;
+import org.unipd.nbeghin.climbtheworldAlgorithm.R;
 
 import android.content.Context;
 import android.graphics.Typeface;

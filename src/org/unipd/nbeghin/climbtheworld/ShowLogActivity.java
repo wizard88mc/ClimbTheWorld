@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.Toast;
+import org.unipd.nbeghin.climbtheworldAlgorithm.R;
 
 public class ShowLogActivity  extends FragmentActivity implements ShowLogFragment.Callbacks {
 

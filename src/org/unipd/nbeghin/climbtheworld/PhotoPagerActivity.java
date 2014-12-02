@@ -16,9 +16,8 @@
 package org.unipd.nbeghin.climbtheworld;
 
 import java.util.List;
-
 import org.unipd.nbeghin.climbtheworld.models.Photo;
-
+import org.unipd.nbeghin.climbtheworldAlgorithm.R;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -34,7 +33,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;

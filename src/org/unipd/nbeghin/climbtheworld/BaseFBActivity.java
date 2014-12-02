@@ -2,7 +2,7 @@ package org.unipd.nbeghin.climbtheworld;
 
 import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
-
+import org.unipd.nbeghin.climbtheworldAlgorithm.R;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,7 +10,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.widget.TextView;
-
 import com.facebook.FacebookRequestError;
 import com.facebook.Request;
 import com.facebook.Response;

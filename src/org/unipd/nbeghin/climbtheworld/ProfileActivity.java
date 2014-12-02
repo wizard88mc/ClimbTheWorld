@@ -1,11 +1,10 @@
 package org.unipd.nbeghin.climbtheworld;
 
 import java.util.List;
-
 import org.unipd.nbeghin.climbtheworld.adapters.StatAdapter;
 import org.unipd.nbeghin.climbtheworld.models.Stat;
 import org.unipd.nbeghin.climbtheworld.util.StatUtils;
-
+import org.unipd.nbeghin.climbtheworldAlgorithm.R;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.os.Build;

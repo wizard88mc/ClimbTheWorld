@@ -4,7 +4,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.unipd.nbeghin.climbtheworld.R;
+import org.unipd.nbeghin.climbtheworldAlgorithm.R;
 import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionIntentService;
 import org.unipd.nbeghin.climbtheworld.exceptions.ClimbingNotFound;
 import org.unipd.nbeghin.climbtheworld.exceptions.NoFBSession;

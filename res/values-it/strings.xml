@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="app_name">Climb The World</string>
     <string name="action_settings">Impostazioni</string>
     <string name="title_activity_climb">Scala l\'edificio!</string>
     <string name="dummy_button">Dummy Button</string>

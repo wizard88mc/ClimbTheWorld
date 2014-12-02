@@ -1,7 +1,6 @@
 package android.widget;
 
-import org.unipd.nbeghin.climbtheworld.R;
-import org.unipd.nbeghin.climbtheworld.R.styleable;
+import org.unipd.nbeghin.climbtheworldAlgorithm.R;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

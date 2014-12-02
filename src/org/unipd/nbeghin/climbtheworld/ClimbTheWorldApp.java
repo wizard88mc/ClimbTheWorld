@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.db.PreExistingDbLoader;
 import org.unipd.nbeghin.climbtheworld.models.Building;
@@ -14,9 +13,8 @@ import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Photo;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
 import org.unipd.nbeghin.climbtheworld.weka.WekaClassifier;
-
+import org.unipd.nbeghin.climbtheworldAlgorithm.R;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
-
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;

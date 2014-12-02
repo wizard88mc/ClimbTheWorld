@@ -3,10 +3,9 @@ package org.unipd.nbeghin.climbtheworld;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.unipd.nbeghin.climbtheworld.adapters.StaggeredPhotoAdapter;
 import org.unipd.nbeghin.climbtheworld.models.Photo;
-
+import org.unipd.nbeghin.climbtheworldAlgorithm.R;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
@@ -17,7 +16,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-
 import com.origamilabs.library.views.StaggeredGridView;
 import com.origamilabs.library.views.StaggeredGridView.OnItemClickListener;
 

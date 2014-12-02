@@ -3,9 +3,8 @@ package org.unipd.nbeghin.climbtheworld;
 import org.unipd.nbeghin.climbtheworld.adapters.RectangleShapeAdapter;
 import org.unipd.nbeghin.climbtheworld.util.AlarmUtils;
 import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
-
+import org.unipd.nbeghin.climbtheworldAlgorithm.R;
 import com.etsy.android.grid.StaggeredGridView;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;

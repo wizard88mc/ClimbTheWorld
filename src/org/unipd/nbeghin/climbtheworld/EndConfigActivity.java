@@ -7,6 +7,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import org.unipd.nbeghin.climbtheworldAlgorithm.R;
 
 public class EndConfigActivity extends Activity {
 

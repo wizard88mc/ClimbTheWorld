@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
+import org.unipd.nbeghin.climbtheworldAlgorithm.R;
 
 public class AlgorithmConfigActivity extends FragmentActivity implements AlgorithmConfigFragment.Callbacks {
 
