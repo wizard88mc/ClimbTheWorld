@@ -912,6 +912,8 @@ public class ClimbApplication extends Application{
 				where.eq("user_id", user_id);
 				where.and();
 				where.eq("building_id", building_id);
+				where.and();
+				where.eq("deleted", 0);
 				PreparedQuery<Microgoal> preparedQuery = query.prepare();
 				List<Microgoal> microgoals = microgoalDao.query(preparedQuery);
 				if(microgoals.size() == 0)

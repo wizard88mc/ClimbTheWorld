@@ -69,7 +69,7 @@ public class CheckboxListViewAdapter extends ArrayAdapter<JSONObject> implements
 
 			protected void onPostExecute(Bitmap result) {
 				bmImage.setImageBitmap(result);
-				ScaleImageView.scaleImage(bmImage, 100);
+				ScaleImageView.scaleImage(bmImage, 100, true);
 
 			}
 			

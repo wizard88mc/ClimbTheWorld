@@ -138,7 +138,7 @@ public class ScaleImageView extends ImageView {
 		}
 	}
 	
-	public static void scaleImage(ImageView view, int boundBoxInDp)
+	public static void scaleImage(ImageView view, int boundBoxInDp, boolean rounded)
 	{
 	    // Get the ImageView and its bitmap
 	    Drawable drawing = view.getDrawable();
@@ -161,9 +161,15 @@ public class ScaleImageView extends ImageView {
 
 	    // Create a new bitmap and convert it to a format understood by the ImageView
 	    Bitmap scaledBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
-	    BitmapDrawable result = new BitmapDrawable(scaledBitmap);
+	    BitmapDrawable result;
+	    if(rounded)
+	    	result= new BitmapDrawable(GraphicsUtils.getRoundedShape(scaledBitmap));
+	    else 
+	    	result= new BitmapDrawable(scaledBitmap);
 	    width = scaledBitmap.getWidth();
 	    height = scaledBitmap.getHeight();
+	    
+	    
 
 	    // Apply the scaled bitmap
 	    view.setImageDrawable(result);

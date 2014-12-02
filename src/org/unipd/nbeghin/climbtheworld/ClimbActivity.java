@@ -461,11 +461,12 @@ public class ClimbActivity extends ActionBarActivity {
 		win_microgoal_animation(reward);
 		
 		if(percentage >= 1.00) current_win = true;
+		if(percentage < 1.00 && !current_win) createMicrogoal();
+
 		if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty"))
 			deleteMicrogoalInParse();
 		else {
 			ClimbApplication.microgoalDao.delete(microgoal);
-			if(percentage < 1.00 && !current_win) createMicrogoal();
 		}
 	}
 
@@ -1430,12 +1431,17 @@ public class ClimbActivity extends ActionBarActivity {
 //					System.out.println("parse");
 //					System.out.println("% " + percentage);
 //					System.out.println("fine???? " + current_win);
-					if(percentage < 1.00 && !current_win) createMicrogoal();
+					//if(percentage < 1.00 && !current_win) createMicrogoal();
 
 				} else {
-					microgoal.setDeleted(true);
-					microgoal.setSaved(false);
-					ClimbApplication.microgoalDao.update(microgoal);
+					if(e.getCode() == ParseException.OBJECT_NOT_FOUND){
+						ClimbApplication.microgoalDao.delete(microgoal);
+					}else{
+						microgoal.setDeleted(true);
+						microgoal.setSaved(false);
+						ClimbApplication.microgoalDao.update(microgoal);
+					}
+					//if(percentage < 1.00 && !current_win) createMicrogoal();
 					// Toast.makeText(getApplicationContext(),
 					// getString(R.string.connection_problem2),
 					// Toast.LENGTH_SHORT).show();
@@ -1498,7 +1504,8 @@ public class ClimbActivity extends ActionBarActivity {
 			microgoal.setReward(5);
 			double progress = ((double) (tot_steps + num_steps)  * (double) 100) / (double) building.getSteps();
 			seekbarIndicator.nextStar((int) Math.round(progress));
-			if (!me.getFBid().equalsIgnoreCase("empty")) {
+			//if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty"))
+			if (!me.getFBid().equalsIgnoreCase("empty") && !me.getFBid().equalsIgnoreCase("none")) {
 				microgoal.setSaved(false);
 				ClimbApplication.microgoalDao.create(microgoal);
 				saveMicrogoalInParse();

@@ -888,8 +888,12 @@ public class UpdateService extends IntentService {
 //							microgoalDao.update(microgoal);
 						}
 					}else{
-						Toast.makeText(context, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
-						Log.e("UpdateService - save microgoals", e.getMessage());
+						if(e.getCode() == ParseException.OBJECT_NOT_FOUND){
+							microgoalDao.delete(microgoal);
+						}else{
+							Toast.makeText(context, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
+							Log.e("UpdateService - save microgoals", e.getMessage());
+						}
 					}
 					
 				}
