@@ -858,6 +858,7 @@ public class UpdateService extends IntentService {
 		conditions.put("saved", 0); 
 		final List<Microgoal> microgoals = microgoalDao.queryForFieldValuesArgs(conditions);	
 		for(final Microgoal microgoal : microgoals){
+			System.out.println("Microgoals " + microgoals.size());
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("Microgoal");
 			query.whereEqualTo("FBid", microgoal.getUser().getFBid());
 			query.whereEqualTo("building", microgoal.getBuilding().get_id());
@@ -867,10 +868,11 @@ public class UpdateService extends IntentService {
 				public void done(ParseObject mg, ParseException e) {
 					if(e == null){
 						if(microgoal.getDeleted()){
-							System.out.println("QUIIIIII");
 							if(mg != null) mg.deleteEventually();
 							microgoalDao.delete(microgoal);
 						}else if(!microgoal.getDeleted()){
+							System.out.println("QUIIIIII");
+
 							if(mg == null){
 								mg = new ParseObject("Microgoal");
 								mg.put("story_id", microgoal.getStory_id());

@@ -74,6 +74,7 @@ public class ParseUtils {
 	}
 	
 	public static void saveUserInParse(ParseUser user){
+		System.out.println("save user in parse");
 		user.saveInBackground(new SaveCallback() {
 			
 			@Override

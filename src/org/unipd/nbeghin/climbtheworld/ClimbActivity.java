@@ -264,6 +264,8 @@ public class ClimbActivity extends ActionBarActivity {
 			}
 
 			if (finalClassification > 0) {
+				System.out.println(percentage);
+				System.out.println(climbedYesterday);
 				if (climbedYesterday && percentage > 0.25f && percentage < 0.50f && used_bonus == false && building.get_id() != 6) { // bonus
 					// at
 					// 25%
@@ -344,11 +346,15 @@ public class ClimbActivity extends ActionBarActivity {
 	private void apply_percentage_bonus() {
 		Log.i(MainActivity.AppName, "Applying percentage bonus");
 		percentage += percentage_bonus;
+		int old_steps = num_steps;
 		num_steps = (int) (((double) building.getSteps()) * percentage);
+		int gift_steps = num_steps - old_steps;
 		stopClassify();
 		used_bonus = true;
 		Toast.makeText(getApplicationContext(), getString(R.string.bonus), Toast.LENGTH_LONG).show();
 		enableRocket();
+		double progress = ((double) ((microgoal.getTot_steps() - gift_steps) + num_steps)  * (double) 100) / (double) building.getSteps();
+		seekbarIndicator.nextStar((int) Math.round(progress));
 		updateStats(); // update the view of current stats
 		if (mode == GameModeType.SOCIAL_CLIMB) {
 			seekbarIndicator.setProgress(num_steps + sumOthersStep());
@@ -399,6 +405,7 @@ public class ClimbActivity extends ActionBarActivity {
 			((ImageButton) findViewById(R.id.btnAccessPhotoGallery)).setImageResource(R.drawable.social_share);
 			findViewById(R.id.btnAccessPhotoGallery).setVisibility(View.VISIBLE);
 		}
+		new_steps = 0;
 
 	}
 
@@ -461,12 +468,13 @@ public class ClimbActivity extends ActionBarActivity {
 		win_microgoal_animation(reward);
 		
 		if(percentage >= 1.00) current_win = true;
-		if(percentage < 1.00 && !current_win) createMicrogoal();
+		Microgoal old_microgoal = microgoal;
+		if(percentage < 1.00 && !current_win) old_microgoal = createMicrogoal();
 
 		if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty"))
-			deleteMicrogoalInParse();
+			deleteMicrogoalInParse(old_microgoal);
 		else {
-			ClimbApplication.microgoalDao.delete(microgoal);
+			ClimbApplication.microgoalDao.delete(old_microgoal);
 		}
 	}
 
@@ -1193,13 +1201,13 @@ public class ClimbActivity extends ActionBarActivity {
 									// threshold
 									socialPenalty();
 									current_win = true;
-									if(microgoal != null) deleteMicrogoalInParse();
+									if(microgoal != null) deleteMicrogoalInParse(microgoal);
 								} else if ((num_steps + sumOthersStep() >= building.getSteps()) && (num_steps < threshold)) {
 									percentage = 1.0;
 									current_win = true;
 									updatePoints(false);
 									saveBadges();
-									if(microgoal != null) deleteMicrogoalInParse();
+									if(microgoal != null) deleteMicrogoalInParse(microgoal);
 
 								}
 
@@ -1416,7 +1424,7 @@ public class ClimbActivity extends ActionBarActivity {
 		ParseUtils.saveMicrogoal(mg, microgoal);
 	}
 
-	private void deleteMicrogoalInParse() {
+	private void deleteMicrogoalInParse(final Microgoal microgoal) {
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("Microgoal");
 		query.whereEqualTo("user_id", microgoal.getUser().getFBid());
 		query.whereEqualTo("building", microgoal.getBuilding().get_id());
@@ -1481,12 +1489,13 @@ public class ClimbActivity extends ActionBarActivity {
 		});
 	}
 
-	private void createMicrogoal() {
+	private Microgoal createMicrogoal() {
 		Log.i("ClimbActivity", "createMicrogoal");
 		if (difficulty == 0) {
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 			difficulty = Integer.parseInt(settings.getString("difficulty", "10"));
 		}
+		Microgoal old_microgoal = microgoal;
 		updateUserStats();
 		double newCurrentMean = ClimbApplication.calculateNewMean((long) currentUser.getMean(), currentUser.getN_measured_days(), (currentUser.getCurrent_steps_value()));
 		int tot_steps = ClimbApplication.generateStepsToDo(climbing.getRemaining_steps(), /*currentUser.getMean()*/ newCurrentMean, difficulty);
@@ -1517,6 +1526,9 @@ public class ClimbActivity extends ActionBarActivity {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		if(old_microgoal != null) System.out.println("old_microgoal " + old_microgoal.getDone_steps());
+		System.out.println("new micro " + microgoal.getDone_steps());
+		return old_microgoal;
 	}
 
 	/**
@@ -1789,11 +1801,7 @@ public class ClimbActivity extends ActionBarActivity {
 	 * @param v
 	 */
 	public void onBtnStartClimbing(View v) {
-		
-		
-		
-	
-		
+
 		if (percentage >= 1.00) { // already win
 			FacebookUtils fb = new FacebookUtils(this);
 			try {
@@ -1936,13 +1944,14 @@ public class ClimbActivity extends ActionBarActivity {
 				saveTeamDuelData();
 
 			updatePoints(false);
-				saveBadges();
+			saveBadges();
 		}
 		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.av_play); // set
 		findViewById(R.id.progressBarClimbing).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_fade_out)); // hide
 		// progress
 		// bar
 		findViewById(R.id.progressBarClimbing).setVisibility(View.INVISIBLE);
+
 	}
 
 	private void updateUserStats() {
@@ -1986,7 +1995,7 @@ public class ClimbActivity extends ActionBarActivity {
 				e.printStackTrace();
 			}
 		}
-	}
+	}		
 
 	/**
 	 * Saves the data about current Collaboration object in Parse if possible,
@@ -2131,9 +2140,12 @@ public class ClimbActivity extends ActionBarActivity {
 				difficulty = 1;
 			}
 		}
+		System.out.println("start service");
 		startService(backgroundClassifySampler); // start background service
 		registerReceiver(classifierReceiver, classifierFilter); // register
 																// listener
+		System.out.println("done service");
+
 		samplingEnabled = true;
 		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.av_pause); // set
 																									// button
@@ -2395,7 +2407,7 @@ public class ClimbActivity extends ActionBarActivity {
 			updateClimbingInParse(climbing, false);
 			((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.social_share);
 		}
-		if(microgoal != null) deleteMicrogoalInParse();
+		if(microgoal != null) deleteMicrogoalInParse(microgoal);
 	}
 
 	private void endTeamCompetition(boolean penalty) {
@@ -2414,7 +2426,7 @@ public class ClimbActivity extends ActionBarActivity {
 			updateClimbingInParse(climbing, false);
 			((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.social_share);
 		}
-		if(microgoal != null) deleteMicrogoalInParse();
+		if(microgoal != null) deleteMicrogoalInParse(microgoal);
 	}
 
 	// non ho superato la threshold
@@ -2818,7 +2830,6 @@ public class ClimbActivity extends ActionBarActivity {
 			// currentUser.saveEventually();
 			ParseUtils.saveUserInParse(currentUser);
 		}
-
 		/*
 		 * ParseQuery<ParseUser> query = ParseUser.getQuery();
 		 * query.whereEqualTo("FBid", me.getFBid());
@@ -2926,7 +2937,6 @@ public class ClimbActivity extends ActionBarActivity {
 							bs.put(newBadge);
 							user.put("badges", bs);
 							// user.saveEventually();
-							ParseUtils.saveUserInParse(user);
 							ub.setSaved(true);
 							ClimbApplication.userBadgeDao.update(ub);
 						} catch (JSONException e1) {
@@ -2934,6 +2944,9 @@ public class ClimbActivity extends ActionBarActivity {
 							e1.printStackTrace();
 						}
 					}
+					ParseUtils.saveUserInParse(user);
+
+					
 				} else {
 					// Toast.makeText(getApplicationContext(),
 					// getString(R.string.connection_problem2),

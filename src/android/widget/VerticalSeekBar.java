@@ -29,16 +29,19 @@ public class VerticalSeekBar extends SeekBar {
 	public VerticalSeekBar(Context context) {
 		super(context);
 		requestLayout();
+		setWillNotDraw(false);
 	}
 
 	public VerticalSeekBar(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		requestLayout();
+		setWillNotDraw(false);
 	}
 
 	public VerticalSeekBar(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		requestLayout();
+		setWillNotDraw(false);
 	}
 
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
