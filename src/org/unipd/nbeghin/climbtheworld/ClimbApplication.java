@@ -85,6 +85,8 @@ import com.parse.SignUpCallback;
  * service, or receiver in a process. If you override this method, be sure to call super.onCreate().
  */
 public class ClimbApplication extends Application{
+	public static final boolean DEBUG = true;
+	
 	public static final int N_MEMBERS_PER_GROUP = 6; // 5 friends + me
 	public static boolean BUSY = false;
 	public static Object lock = new Object();

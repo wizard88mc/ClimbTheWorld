@@ -72,7 +72,7 @@ public class VerticalSeekBar extends SeekBar {
 		//System.out.println("onDraw " + starHeight);
 		line.setBackgroundColor(getResources().getColor(R.color.red));
 		
-		
+		System.out.println("starheight " + starHeight);
 		c.drawBitmap(thumb1, (float)starHeight , 40,null);
 		//c.drawBitmap(thumb2, 1000 , 20,null);
         
@@ -94,8 +94,8 @@ public class VerticalSeekBar extends SeekBar {
 	
 	
 	public void goldStar(){
-		thumb1 = BitmapFactory.decodeResource(getResources(), R.drawable.gold_star);
-		invalidate();
+//		thumb1 = BitmapFactory.decodeResource(getResources(), R.drawable.gold_star);
+//		invalidate();
 	}
 
 	/*

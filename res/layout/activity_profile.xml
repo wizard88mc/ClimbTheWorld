@@ -96,7 +96,7 @@
                             style="@style/CardText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="0.8"
+                            android:layout_weight="0.75"
                             android:text="Level" />
 
                         <ProgressBar
@@ -105,7 +105,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginRight="5dp"
-                            android:layout_weight="0.2" />
+                            android:layout_weight="0.25" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>

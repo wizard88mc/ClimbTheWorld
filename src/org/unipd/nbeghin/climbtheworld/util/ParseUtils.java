@@ -29,26 +29,34 @@ import com.parse.SaveCallback;
  */
 public class ParseUtils {
 
-	public static void saveClimbing(ParseObject p_climbing, final Climbing l_climbing){
-		p_climbing.saveInBackground(new SaveCallback() {
+	public static void saveClimbing(final ParseObject p_climbing, final Climbing l_climbing){
+		new Runnable() {
 			
 			@Override
-			public void done(ParseException ex) {
-				if(ex == null){
-					//no problems
-					l_climbing.setSaved(true);
-					ClimbApplication.climbingDao.update(l_climbing);
-					Log.i(getClass().getName(), "Climbing correctly saved in Parse");
-				}else{
-					l_climbing.setSaved(false);
-					ClimbApplication.climbingDao.update(l_climbing);
-					//Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
-					//ClimbApplication.showConnectionProblemsToast();
-					Log.e(getClass().getName(), ex.getMessage());
-				}
+			public void run() {
+				p_climbing.saveInBackground(new SaveCallback() {
+					
+					@Override
+					public void done(ParseException ex) {
+						if(ex == null){
+							//no problems
+							l_climbing.setSaved(true);
+							ClimbApplication.climbingDao.update(l_climbing);
+							Log.i(getClass().getName(), "Climbing correctly saved in Parse");
+						}else{
+							l_climbing.setSaved(false);
+							ClimbApplication.climbingDao.update(l_climbing);
+							//Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+							//ClimbApplication.showConnectionProblemsToast();
+							Log.e(getClass().getName(), ex.getMessage());
+						}
+						
+					}
+				});
 				
 			}
-		});
+		};
+		
 	}
 	
 	public static void saveMicrogoal(ParseObject p_microgoal, final Microgoal l_microgoal){

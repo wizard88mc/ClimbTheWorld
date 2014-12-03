@@ -706,7 +706,9 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 	}
 
 	
-
+	public void onShareAnr(MenuItem v) {
+		shareAnr();
+	}
 	
 	
 
@@ -808,6 +810,29 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 			Log.e(AppName, e.getMessage());
 		}
 	}
+	
+	//DEBUG ONLY
+		private void shareAnr() {
+			SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
+			String output_name = "ClimbTheWorld_" + df.format(new Date()) + ".txt";
+			try {
+				File file = new File("/data/anr/traces.txt"); // get
+																				// private
+																				// db
+				// reference
+				if (file.exists() == false || file.length() == 0)
+					throw new Exception("Empty DB");
+				this.copyFile(new FileInputStream(file), this.openFileOutput(output_name, MODE_WORLD_READABLE));
+				file = this.getFileStreamPath(output_name);
+				Intent i = new Intent(Intent.ACTION_SEND);
+				i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+				i.setType("*/*");
+				startActivity(Intent.createChooser(i, "Share to"));
+			} catch (Exception e) {
+				Toast.makeText(getApplicationContext(), getString(R.string.db_error, e.getMessage()), Toast.LENGTH_SHORT).show();
+				Log.e(AppName, e.getMessage());
+			}
+		}
 
 	public static void emptyNotificationList() {
 		ClimbApplication.notifications.clear();

@@ -40,6 +40,13 @@
         climbtheworld:showAsAction="never">
     </item>
     
+    <item
+        android:id="@+id/itemShareAnr"
+        android:onClick="onShareAnr"
+        android:title="Share Anr"
+        climbtheworld:showAsAction="never">
+    </item>
+    
     
     <!-- <item
         android:id="@+id/itemGroups"

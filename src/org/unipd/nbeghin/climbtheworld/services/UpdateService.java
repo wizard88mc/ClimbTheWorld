@@ -54,15 +54,15 @@ public class UpdateService extends IntentService {
     public UpdateService() {
         super("UpdateService");
     }
- 
-	private DbHelper dbHelper;
-	public RuntimeExceptionDao<Collaboration, Integer> collaborationDao;
-	public RuntimeExceptionDao<Competition, Integer> competitionDao;
-	public RuntimeExceptionDao<Climbing, Integer> climbingDao; 
-	public RuntimeExceptionDao<TeamDuel, Integer> teamDuelDao;
-	public RuntimeExceptionDao<User, Integer> userDao;
-	public RuntimeExceptionDao<UserBadge, Integer> userBadgesDao;
-	public RuntimeExceptionDao<Microgoal, Integer> microgoalDao;
+// 
+//	private DbHelper dbHelper;
+//	public RuntimeExceptionDao<Collaboration, Integer> collaborationDao;
+//	public RuntimeExceptionDao<Competition, Integer> competitionDao;
+//	public RuntimeExceptionDao<Climbing, Integer> climbingDao; 
+//	public RuntimeExceptionDao<TeamDuel, Integer> teamDuelDao;
+//	public RuntimeExceptionDao<User, Integer> userDao;
+//	public RuntimeExceptionDao<UserBadge, Integer> userBadgesDao;
+//	public RuntimeExceptionDao<Microgoal, Integer> microgoalDao;
 
 	public boolean isOnline(Context context) {
 	    ConnectivityManager cm =
@@ -76,7 +76,7 @@ public class UpdateService extends IntentService {
 	
 	private Collaboration getCollaborationByBuildingAndUser(int building_id, int user_id){
 		//per ogni edificio, una sola collaborazione
-			QueryBuilder<Collaboration, Integer> query = collaborationDao.queryBuilder();
+			QueryBuilder<Collaboration, Integer> query = ClimbApplication.collaborationDao.queryBuilder();
 			Where<Collaboration, Integer> where = query.where();
 			
 			try {
@@ -84,7 +84,7 @@ public class UpdateService extends IntentService {
 				where.and();
 				where.eq("user_id", user_id);
 				PreparedQuery<Collaboration> preparedQuery = query.prepare();
-				List<Collaboration> collabs = collaborationDao.query(preparedQuery);
+				List<Collaboration> collabs = ClimbApplication.collaborationDao.query(preparedQuery);
 				if(collabs.size() == 0)
 					return null;
 				else return collabs.get(0);
@@ -96,7 +96,7 @@ public class UpdateService extends IntentService {
 	
 	private Competition getCompetitionByBuildingAndUser(int building_id, int user_id){
 		//per ogni edificio, una sola competizione
-			QueryBuilder<Competition, Integer> query = competitionDao.queryBuilder();
+			QueryBuilder<Competition, Integer> query = ClimbApplication.competitionDao.queryBuilder();
 			Where<Competition, Integer> where = query.where();
 			
 			try {
@@ -104,7 +104,7 @@ public class UpdateService extends IntentService {
 				where.and();
 				where.eq("user_id", user_id);
 				PreparedQuery<Competition> preparedQuery = query.prepare();
-				List<Competition> collabs = competitionDao.query(preparedQuery);
+				List<Competition> collabs = ClimbApplication.competitionDao.query(preparedQuery);
 				if(collabs.size() == 0)
 					return null;
 				else return collabs.get(0);
@@ -116,7 +116,7 @@ public class UpdateService extends IntentService {
 	
 	private TeamDuel getTeamDuelByBuildingAndUser(int building_id, int user_id){
 		//per ogni edificio, una sola competizione
-			QueryBuilder<TeamDuel, Integer> query = teamDuelDao.queryBuilder();
+			QueryBuilder<TeamDuel, Integer> query = ClimbApplication.teamDuelDao.queryBuilder();
 			Where<TeamDuel, Integer> where = query.where();
 			
 			try {
@@ -124,7 +124,7 @@ public class UpdateService extends IntentService {
 				where.and();
 				where.eq("user_id", user_id);
 				PreparedQuery<TeamDuel> preparedQuery = query.prepare();
-				List<TeamDuel> collabs = teamDuelDao.query(preparedQuery);
+				List<TeamDuel> collabs = ClimbApplication.teamDuelDao.query(preparedQuery);
 				if(collabs.size() == 0)
 					return null;
 				else return collabs.get(0);
@@ -136,13 +136,13 @@ public class UpdateService extends IntentService {
 	
 	private void saveClimbings(final Context context, int mode) throws SQLException{
 		//salvo tutti i climbing online
-		QueryBuilder<Climbing, Integer> query1 = climbingDao.queryBuilder();
+		QueryBuilder<Climbing, Integer> query1 = ClimbApplication.climbingDao.queryBuilder();
 		Where<Climbing, Integer> where = query1.where();
 		where.eq("saved", 0);
 		where.and();
 		where.eq("game_mode", mode);
 		PreparedQuery<Climbing> preparedQuery = query1.prepare();
-		List<Climbing> climbings = climbingDao.query(preparedQuery);
+		List<Climbing> climbings = ClimbApplication.climbingDao.query(preparedQuery);
 		Log.d("updateService", "Climbings: " + climbings.size());
 		for(final Climbing climbing: climbings)
 		{
@@ -181,20 +181,20 @@ public class UpdateService extends IntentService {
 										case 1:
 											Collaboration coll = getCollaborationByBuildingAndUser(climbing.getBuilding().get_id(), climbing.getUser().get_id());
 											climbing.setId_mode(coll.getId());
-											climbingDao.update(climbing);
+											ClimbApplication.climbingDao.update(climbing);
 											break;
 										case 2:
 											Competition comp = getCompetitionByBuildingAndUser(climbing.getBuilding().get_id(), climbing.getUser().get_id());
 											climbing.setId_mode(comp.getId_online());
-											climbingDao.update(climbing);
+											ClimbApplication.climbingDao.update(climbing);
 											break;
 										case 3:
 											TeamDuel duel = getTeamDuelByBuildingAndUser(climbing.getBuilding().get_id(), climbing.getUser().get_id());
 											climbing.setId_mode(duel.getId_online());
-											climbingDao.update(climbing);
+											ClimbApplication.climbingDao.update(climbing);
 										}
 									}
-										climbOnline.put("id_mode", climbing.getId_mode());
+									if(climbing.getGame_mode() != 0) climbOnline.put("id_mode", climbing.getId_mode());
 									climbOnline.saveInBackground(new SaveCallback() {
 										
 										@Override
@@ -202,10 +202,10 @@ public class UpdateService extends IntentService {
 											if(e == null){
 												climbing.setId_online(climbOnline.getObjectId());
 												climbing.setSaved(true);
-												climbingDao.update(climbing);
+												ClimbApplication.climbingDao.update(climbing);
 											}else{
 												climbing.setSaved(false);
-												climbingDao.update(climbing);
+												ClimbApplication.climbingDao.update(climbing);
 												//Toast.makeText(context, getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
 											}
 										}
@@ -215,7 +215,7 @@ public class UpdateService extends IntentService {
 								
 							}else
 							if(climbs.size() == 0 && climbing.isDeleted()){
-								climbingDao.delete(climbing);
+								ClimbApplication.climbingDao.delete(climbing);
 							}else
 							{System.out.println(climbs.size());
 								if(!climbing.isDeleted()){
@@ -243,7 +243,7 @@ public class UpdateService extends IntentService {
 											climbing.setGame_mode(0);
 											climbing.setId_mode("");
 										}
-										climbingDao.update(climbing);
+										ClimbApplication.climbingDao.update(climbing);
 										break;
 									case 2:
 										System.out.println("cerco id");
@@ -259,7 +259,7 @@ public class UpdateService extends IntentService {
 											climbOnline.put("id_mode", climbing.getId_mode());
 											climbOnline.put("game_mode", climbing.getGame_mode());
 										}
-										climbingDao.update(climbing);
+										ClimbApplication.climbingDao.update(climbing);
 										break;
 									case 3:
 										TeamDuel duel = getTeamDuelByBuildingAndUser(climbing.getBuilding().get_id(), climbing.getUser().get_id());
@@ -272,7 +272,7 @@ public class UpdateService extends IntentService {
 											climbOnline.put("id_mode", climbing.getId_mode());
 											climbOnline.put("game_mode", climbing.getGame_mode());
 										}
-										climbingDao.update(climbing);
+										ClimbApplication.climbingDao.update(climbing);
 										break;
 									}
 								} else{ System.out.println("no switch");
@@ -284,7 +284,7 @@ public class UpdateService extends IntentService {
 								ParseUtils.saveClimbing(climbOnline, climbing);
 								}else{
 									climbs.get(0).deleteEventually();
-									climbingDao.delete(climbing);
+									ClimbApplication.climbingDao.delete(climbing);
 								}
 							}
 						}else{
@@ -300,7 +300,7 @@ public class UpdateService extends IntentService {
 		//salvo tutti i climbing online
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("saved", 0); 
-		final List<Collaboration> collaborations = collaborationDao.queryForFieldValuesArgs(conditions);
+		final List<Collaboration> collaborations = ClimbApplication.collaborationDao.queryForFieldValuesArgs(conditions);
 		Log.d("updateService", "Collaborations: " + collaborations.size());
 		for(final Collaboration collaboration : collaborations){
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("Collaboration");
@@ -351,11 +351,11 @@ public class UpdateService extends IntentService {
 									if(e == null){
 										collaboration.setId(collabParse.getObjectId());
 										collaboration.setSaved(true);
-										collaborationDao.update(collaboration);
+										ClimbApplication.collaborationDao.update(collaboration);
 										
 									}else{
 										collaboration.setSaved(false);
-										collaborationDao.update(collaboration);
+										ClimbApplication.collaborationDao.update(collaboration);
 										Log.e("load collab", e.getMessage());
 									}
 									if(collaborations.indexOf(collaboration) == (collaborations.size() - 1)){
@@ -393,7 +393,7 @@ public class UpdateService extends IntentService {
 									ParseUtils.saveCollaboration(collabParse, collaboration);
 									collaboration.setId(collabParse.getObjectId());
 									collaboration.setSaved(true);
-									collaborationDao.update(collaboration);
+									ClimbApplication.collaborationDao.update(collaboration);
 								} catch (JSONException e1) {
 									// TODO Auto-generated catch block
 									e1.printStackTrace();
@@ -413,7 +413,7 @@ public class UpdateService extends IntentService {
 							}
 						}else if(collabs.size() == 0 && collaboration.isLeaved())
 						{
-							collaborationDao.delete(collaboration);
+							ClimbApplication.collaborationDao.delete(collaboration);
 						}
 					}else{
 						Toast.makeText(context, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
@@ -437,7 +437,7 @@ public class UpdateService extends IntentService {
 		//salvo tutti i climbing online
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("saved", 0); 
-		final List<Competition> competitions = competitionDao.queryForFieldValuesArgs(conditions);
+		final List<Competition> competitions = ClimbApplication.competitionDao.queryForFieldValuesArgs(conditions);
 		Log.d("updateService", "Competitions: " + competitions.size());
 		for(final Competition competition : competitions){
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("Competition");
@@ -486,7 +486,7 @@ public class UpdateService extends IntentService {
 									if(e == null){ System.out.println("collab saved " + comp.getObjectId());
 										competition.setId_online(comp.getObjectId());
 										competition.setSaved(true);
-										competitionDao.update(competition);
+										ClimbApplication.competitionDao.update(competition);
 										if(competitions.indexOf(competition) == (competitions.size() - 1)){
 											try {
 												System.out.println("save climbs 2");
@@ -499,7 +499,7 @@ public class UpdateService extends IntentService {
 											
 									}else{ System.out.println("collab not saved");
 										competition.setSaved(false);
-										competitionDao.update(competition);
+										ClimbApplication.competitionDao.update(competition);
 										Log.e("load comp", e.getMessage());
 									}
 									
@@ -518,7 +518,7 @@ public class UpdateService extends IntentService {
 								ParseUtils.saveCompetition(collabParse, competition);
 //								collabParse.saveEventually();
 //								competition.setSaved(true);
-								competitionDao.delete(competition);
+								ClimbApplication.competitionDao.delete(competition);
 							}else{
 								try {
 									if(stairs.has(competition.getUser().getFBid())){
@@ -528,7 +528,7 @@ public class UpdateService extends IntentService {
 									ParseUtils.saveCompetition(collabParse, competition);
 									competition.setId_online(collabParse.getObjectId());
 									competition.setSaved(true);
-									competitionDao.update(competition);
+									ClimbApplication.competitionDao.update(competition);
 									if(competitions.indexOf(competition) == (competitions.size() - 1)){
 										try {
 											System.out.println("save climbs 2");
@@ -550,7 +550,7 @@ public class UpdateService extends IntentService {
 							
 						}else if(collabs.size() == 0 && competition.isLeaved())
 						{
-							competitionDao.delete(competition);
+							ClimbApplication.competitionDao.delete(competition);
 						}
 					}else{
 						Toast.makeText(context, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
@@ -574,7 +574,7 @@ public class UpdateService extends IntentService {
 	private void saveTeamDuels(final Context context){
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("saved", 0); 
-		final List<TeamDuel> duels = teamDuelDao.queryForFieldValuesArgs(conditions);
+		final List<TeamDuel> duels = ClimbApplication.teamDuelDao.queryForFieldValuesArgs(conditions);
 		Log.d("updateService", "Duels: " + duels.size());
 		for(final TeamDuel duel : duels){
 			ParseQuery<ParseObject> main_query = ParseQuery.getQuery("TeamDuel");
@@ -652,7 +652,7 @@ public class UpdateService extends IntentService {
 									if(e == null){ //System.out.println("collab saved " + comp.getObjectId());
 										duel.setId_online(newDuelParse.getObjectId());
 										duel.setSaved(true);
-										teamDuelDao.update(duel);
+										ClimbApplication.teamDuelDao.update(duel);
 										if(duels.indexOf(duel) == (duels.size() - 1)){
 											try {
 												System.out.println("save climbs 3");
@@ -665,7 +665,7 @@ public class UpdateService extends IntentService {
 											
 									}else{ System.out.println("duel not saved");
 										duel.setSaved(false);
-										teamDuelDao.update(duel);
+										ClimbApplication.teamDuelDao.update(duel);
 										Log.e("load duels", e.getMessage());
 									}
 									
@@ -677,7 +677,7 @@ public class UpdateService extends IntentService {
 							if(duel.isDeleted()){
 								//elimina
 								duelParse.deleteEventually();
-								teamDuelDao.delete(duel);
+								ClimbApplication.teamDuelDao.delete(duel);
 							}else{
 								//aggiorna
 								JSONObject creator = new JSONObject();
@@ -733,7 +733,7 @@ public class UpdateService extends IntentService {
 								ParseUtils.saveTeamDuel(duelParse, duel);
 								duel.setId_online(duelParse.getObjectId());
 								duel.setSaved(true);
-								teamDuelDao.update(duel);
+								ClimbApplication.teamDuelDao.update(duel);
 								if(duels.indexOf(duel) == (duels.size() - 1)){
 									try {
 										System.out.println("save climbs 3");
@@ -748,7 +748,7 @@ public class UpdateService extends IntentService {
 
 						} else if(duelsParse.size() == 0 && duel.isDeleted())
 						{
-							teamDuelDao.delete(duel);
+							ClimbApplication.teamDuelDao.delete(duel);
 						}
 					}else{
 						Toast.makeText(context, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
@@ -776,7 +776,7 @@ public class UpdateService extends IntentService {
 	private void saveUsersData(final Context ctx){
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("saved", 0); 
-		final List<UserBadge> badges = userBadgesDao.queryForFieldValuesArgs(conditions);	
+		final List<UserBadge> badges = ClimbApplication.userBadgeDao.queryForFieldValuesArgs(conditions);	
 		for(final UserBadge badge : badges){
 			ParseQuery<ParseUser> query = ParseUser.getQuery();
 			query.whereEqualTo("FBid", badge.getUser().getFBid());
@@ -802,7 +802,7 @@ public class UpdateService extends IntentService {
 							//parseUser.saveEventually();
 							ParseUtils.saveUserInParse(parseUser);
 							badge.setSaved(true);
-							userBadgesDao.update(badge);
+							ClimbApplication.userBadgeDao.update(badge);
 						} catch (JSONException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
@@ -819,7 +819,7 @@ public class UpdateService extends IntentService {
 
 	private void saveUsers(final Context context){
 		Map<String, Object> conditions = new HashMap<String, Object>();
-		final List<User> users = userDao.queryForFieldValuesArgs(conditions);	
+		final List<User> users = ClimbApplication.userDao.queryForFieldValuesArgs(conditions);	
 		for(final User user : users){
 			ParseQuery<ParseUser> query = ParseUser.getQuery();
 			query.whereEqualTo("FBid", user.getFBid());
@@ -856,7 +856,7 @@ public class UpdateService extends IntentService {
 	private void saveMicrogoals(final Context context){
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("saved", 0); 
-		final List<Microgoal> microgoals = microgoalDao.queryForFieldValuesArgs(conditions);	
+		final List<Microgoal> microgoals = ClimbApplication.microgoalDao.queryForFieldValuesArgs(conditions);	
 		for(final Microgoal microgoal : microgoals){
 			System.out.println("Microgoals " + microgoals.size());
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("Microgoal");
@@ -869,7 +869,7 @@ public class UpdateService extends IntentService {
 					if(e == null){
 						if(microgoal.getDeleted()){
 							if(mg != null) mg.deleteEventually();
-							microgoalDao.delete(microgoal);
+							ClimbApplication.microgoalDao.delete(microgoal);
 						}else if(!microgoal.getDeleted()){
 							System.out.println("QUIIIIII");
 
@@ -891,7 +891,17 @@ public class UpdateService extends IntentService {
 						}
 					}else{
 						if(e.getCode() == ParseException.OBJECT_NOT_FOUND){
-							microgoalDao.delete(microgoal);
+							if(microgoal.getDone_steps() == microgoal.getTot_steps())
+								ClimbApplication.microgoalDao.delete(microgoal);
+							else{
+								mg = new ParseObject("Microgoal");
+								mg.put("story_id", microgoal.getStory_id());
+								mg.put("building", microgoal.getBuilding().get_id());
+								mg.put("done_steps", microgoal.getDone_steps());
+								mg.put("tot_steps", microgoal.getTot_steps());
+								mg.put("user_id", microgoal.getUser().getFBid());
+								ParseUtils.saveMicrogoal(mg, microgoal);
+							}
 						}else{
 							Toast.makeText(context, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 							Log.e("UpdateService - save microgoals", e.getMessage());
@@ -907,20 +917,18 @@ public class UpdateService extends IntentService {
 	
     @Override
     protected void onHandleIntent(Intent intent) {
-System.out.println("service on");
-PreExistingDbLoader preExistingDbLoader = new PreExistingDbLoader(
-				this); // extract db from zip
-		Log.d("Load normal db", "fine service");
-		SQLiteDatabase db = preExistingDbLoader.getReadableDatabase();
-		db.close(); // close connection to extracted db
-		dbHelper = new DbHelper(getApplicationContext());
-		climbingDao = dbHelper.getClimbingDao(); // create climbing DAO
-		collaborationDao = dbHelper.getCollaborationDao();
-		competitionDao = dbHelper.getCompetitionDao();
-		teamDuelDao = dbHelper.getTeamDuelDao();
-		userDao = dbHelper.getUserDao();
-		userBadgesDao = dbHelper.getUserBadgeDao();
-		microgoalDao = dbHelper.getMicrogoalDao();
+//PreExistingDbLoader preExistingDbLoader = new PreExistingDbLoader(this); // extract db from zip
+//		Log.d("Load normal db", "fine service");
+//		SQLiteDatabase db = preExistingDbLoader.getReadableDatabase();
+//		db.close(); // close connection to extracted db
+//		dbHelper = new DbHelper(getApplicationContext());
+//		climbingDao = dbHelper.getClimbingDao(); // create climbing DAO
+//		collaborationDao = dbHelper.getCollaborationDao();
+//		competitionDao = dbHelper.getCompetitionDao();
+//		teamDuelDao = dbHelper.getTeamDuelDao();
+//		userDao = dbHelper.getUserDao();
+//		userBadgesDao = dbHelper.getUserBadgeDao();
+//		microgoalDao = dbHelper.getMicrogoalDao();
 		if(isOnline(this)){
 			saveUsersData(this);
 			saveCollaborations(this);
