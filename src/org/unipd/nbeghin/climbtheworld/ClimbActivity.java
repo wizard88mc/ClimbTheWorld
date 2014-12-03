@@ -332,6 +332,11 @@ public class ClimbActivity extends ActionBarActivity {
 					updateStats(); // update the view of current stats
 					if (win && !isCounterMode) {
 						new SaveProgressTask().execute(); //stopClassify(); // stop classifier service service
+						((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.av_play); // set
+						 findViewById(R.id.progressBarClimbing).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_fade_out)); // hide
+							// progress
+							// bar
+							findViewById(R.id.progressBarClimbing).setVisibility(View.INVISIBLE);
 						apply_win();
 					}
 				}
@@ -2951,7 +2956,7 @@ public class ClimbActivity extends ActionBarActivity {
 
 			}
 			ris.add(ub);
-			if(percentage >= 1.00) Toast.makeText(getApplicationContext(), getString(R.string.new_badge, tour.getTitle()), Toast.LENGTH_SHORT).show();
+			if(percentage >= 1.00) showMessage(getString(R.string.new_badge, tour.getTitle()));
 
 		}
 		return ris;
