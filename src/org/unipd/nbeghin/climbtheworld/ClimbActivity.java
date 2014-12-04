@@ -331,7 +331,7 @@ public class ClimbActivity extends ActionBarActivity {
 					}
 					updateStats(); // update the view of current stats
 					if (win && !isCounterMode) {
-						new SaveProgressTask().execute(); //stopClassify(); // stop classifier service service
+						new SaveProgressTask(true).execute(); //stopClassify(); // stop classifier service service
 						((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.av_play); // set
 						 findViewById(R.id.progressBarClimbing).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_fade_out)); // hide
 							// progress
@@ -361,7 +361,7 @@ public class ClimbActivity extends ActionBarActivity {
 		used_bonus = true;
 		Toast.makeText(getApplicationContext(), getString(R.string.bonus), Toast.LENGTH_LONG).show();
 		enableRocket();
-		double progress = ((double) ((microgoal.getTot_steps() - gift_steps) + num_steps)  * (double) 100) / (double) building.getSteps();
+		double progress = ((double) ((microgoal.getTot_steps() - microgoal.getDone_steps()) + num_steps)  * (double) 100) / (double) building.getSteps();
 		seekbarIndicator.nextStar((int) Math.round(progress));
 		updateStats(); // update the view of current stats
 		if (mode == GameModeType.SOCIAL_CLIMB) {
@@ -1655,7 +1655,7 @@ public class ClimbActivity extends ActionBarActivity {
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		if(microgoal != null){
-			double progress = ((double) (microgoal.getTot_steps() + climbing.getCompleted_steps()) * (double) 100) / (double) building.getSteps();
+			double progress = ((double) ((microgoal.getTot_steps() - microgoal.getDone_steps())+ climbing.getCompleted_steps()) * (double) 100) / (double) building.getSteps();
 			seekbarIndicator.nextStar((int) Math.round(progress));
 		}
 	    super.onWindowFocusChanged(hasFocus);
@@ -1834,7 +1834,10 @@ public class ClimbActivity extends ActionBarActivity {
 		} else {
 			if (samplingEnabled) { // if sampling is enabled stop the classifier
 				
-					new SaveProgressTask().execute(); //stopClassify();	
+				boolean changes = false;
+				if (new_steps != 0)
+					changes = true;
+					new SaveProgressTask(changes).execute(); //stopClassify();	
 
 				 ((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.av_play); // set
 				 findViewById(R.id.progressBarClimbing).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_fade_out)); // hide
@@ -1895,7 +1898,7 @@ public class ClimbActivity extends ActionBarActivity {
 	/**
 	 * Stop background classifier service
 	 */
-	public void stopClassify() {
+	public void stopClassify(boolean changes) {
 		Log.i("ClimbActivity", "stopClassify");
 		if (samplingEnabled) {
 			stopService(backgroundClassifySampler); // stop background service
@@ -1904,7 +1907,7 @@ public class ClimbActivity extends ActionBarActivity {
 		}
 		updateUserStats();
 
-		if (!isCounterMode && new_steps != 0) {
+		if (!isCounterMode && changes) {
 			// update db
 			if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty"))
 				updateMicrogoalInParse();
@@ -1994,11 +1997,15 @@ public class ClimbActivity extends ActionBarActivity {
 	    	 
 	     }
 
-
+	     boolean changes;
+	     
+	     public SaveProgressTask(boolean changes){
+	    	 this.changes = changes;
+	     }
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			stopClassify();
+			stopClassify(changes);
 			return null;
 		}
 	 }

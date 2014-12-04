@@ -67,8 +67,6 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 		if(login){
 			String own = me.isOwner() ? "\n" + getString(R.string.owner) : "";
 			Toast.makeText(this, getString(R.string.logged_as, me.getName()) + own, Toast.LENGTH_SHORT).show();
-			//		Toast.makeText(activity, activity.getString(R.string.welcome, me.getName()), Toast.LENGTH_SHORT).show();
-
 		}
 		updateUserData();
 	}
@@ -92,11 +90,6 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 		
 		updateUserData();
 
-		// Session session = Session.getActiveSession();
-		// if (session != null && session.isOpened()) {
-		// updateFacebookSession(session, session.getState());
-		// }
-
 		Session session = Session.getActiveSession();
 		if (session != null && session.isOpened()) {
 			setProfilePicture(session, session.getState());
@@ -112,10 +105,13 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 	@Override
 	protected void onStart(){
 		super.onStart();
-//		ScrollView sw = (ScrollView) findViewById(R.id.scrollViewProfile);
-//		sw.fullScroll(View.FOCUS_UP);
 	}
 
+	/**
+	 * Downloads Facebook profile picture asynchronously
+	 * @param session
+	 * @param state
+	 */
 	private void setProfilePicture(final Session session, SessionState state) {
 		if (state.isOpened()) {
 			Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
@@ -238,7 +234,6 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 				edit.commit();
 				new NetworkRequestAsyncTask(session, this).execute();
 
-				// }
 			} else if (state.isClosed()) {
 				Log.i("Climb The World", "Logged out...");
 				ParseUser.getCurrentUser().logOut();
@@ -349,6 +344,9 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 		}
 	}
 
+	/**
+	 * Starts activity for inviting Facebook friends if user is currently logged in
+	 */
 	private void sendInviteToFriends() {
 		Session session = Session.getActiveSession();
 		if (session == null || !session.isOpened()) {
@@ -360,6 +358,9 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 
 	}
 
+	/**
+	 * Request to be executed asynchronously
+	 */
 	@Override
 	public void makeRequest(final Session session, final ProgressDialog PD) {
 		Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
@@ -384,9 +385,7 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 							// already connected FB account????
 							if (users.isEmpty()) {
 								// no, am I the owner????
-								if (!users2.isEmpty()) { // there is an
-															// owner
-															// locally
+								if (!users2.isEmpty()) { // there is an owner locally
 									if (users2.get(0).getFBid().equalsIgnoreCase("empty")) {
 										// this is FBid of the owner
 										newUser = users2.get(0);

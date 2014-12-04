@@ -15,6 +15,11 @@ import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.model.GraphUser;
 
+/**
+ * Asynctask for requests to be executed asynchronously.
+ * @author silviasegato
+ *
+ */
 public class NetworkRequestAsyncTask extends AsyncTask<Void, Void, Void>{
 
 	Session session;
@@ -75,13 +80,6 @@ public class NetworkRequestAsyncTask extends AsyncTask<Void, Void, Void>{
 		}
 
 	}
-	
-	private void mainActivityRequest(){
-		
-	}
-	
-	private void profileActivityRequest(){
-	
-	}
+
 	
 }

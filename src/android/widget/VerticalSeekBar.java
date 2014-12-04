@@ -21,7 +21,7 @@ public class VerticalSeekBar extends SeekBar {
 	
 	 private Bitmap thumb1 = BitmapFactory.decodeResource(getResources(), R.drawable.star);
 
-	 private double starHeight = 0;
+	 private static double starHeight = 0;
 	 private int height;
 	 private int width;
 	 private View line;
@@ -83,9 +83,9 @@ public class VerticalSeekBar extends SeekBar {
 	public void nextStar(int progress){
 		thumb1 = BitmapFactory.decodeResource(getResources(), R.drawable.star);
 		//System.out.println("height " + height  + " progress " + progress);
-		starHeight = (((double) progress * ((double) height)) /(double) 100);
-		if(starHeight == height)
-			starHeight = height - 60;
+		starHeight = (((double) progress * ((double) height)) /(double) 100) + 5;
+		if(starHeight >= height)
+			starHeight = height - 60 + 5;
 		//System.out.println(starHeight);
 		invalidate();
 		

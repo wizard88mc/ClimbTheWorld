@@ -35,7 +35,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 /**
- * AsyncTask (with Dialog) called during login, to let user wait for his game progress and other data to be downloaded ad saved locally.
+ * Class called during login in asynchronus threads, to let user wait for his game progress and other data to be downloaded ad saved locally.
  * @author Silvia
  *
  */
@@ -63,7 +63,7 @@ public class MyAsync {
 
 	protected Void execute() {
 		ClimbApplication.BUSY = true;
-		//NetworkRequestAsyncTask.setMessage("load friends");
+		//PD.setMessage("load friends");
 		RequestBatch requestBatch = ClimbApplication.loadFriendsFromFacebook();
 		// Execute the batch of requests asynchronously
 		if(inside) requestBatch.executeAsync();

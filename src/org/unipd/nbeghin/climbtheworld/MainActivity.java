@@ -5,8 +5,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,27 +37,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.pm.Signature;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.facebook.FacebookException;
-import com.facebook.FacebookOperationCanceledException;
 import com.facebook.FacebookRequestError;
 import com.facebook.HttpMethod;
 import com.facebook.Request;
@@ -71,24 +60,20 @@ import com.facebook.model.GraphObject;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.WebDialog;
 
-
 /**
  * Main activity
  * 
  */
 @SuppressLint("NewApi")
-public class MainActivity extends ActionBarActivity implements NetworkRequests{
+public class MainActivity extends ActionBarActivity implements NetworkRequests {
 	private static final String APP_TITLE = "Climb the world";
 	public static final String AppName = "ClimbTheWorld";
 
-	private List<Fragment> fragments = new Vector<Fragment>(); // list of
-																// fragments to
-																// be loaded
+	private List<Fragment> fragments = new Vector<Fragment>(); // list of fragments to be loaded
 	private PagerAdapter mPagerAdapter; // page adapter for ViewPager
 
 	private ViewPager mPager;
 	private static Context sContext;
-	
 
 	private WebDialog dialog = null;
 	private String dialogAction = null;
@@ -115,98 +100,94 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 
 		uiHelper = new UiLifecycleHelper(this, callback);
 		uiHelper.onCreate(savedInstanceState);
-//		 try {
-//		 PackageInfo info =
-//		 getPackageManager().getPackageInfo("org.unipd.nbeghin.climbtheworld",
-//		 PackageManager.GET_SIGNATURES);
-//		 for (Signature signature : info.signatures) {
-//		 MessageDigest md = MessageDigest.getInstance("SHA");
-//		 md.update(signature.toByteArray());
-//		 Log.d("KeyHash:", Base64.encodeToString(md.digest(),
-//		 Base64.DEFAULT));
-//		 }
-//		 } catch (NameNotFoundException e) {
-//		
-//		 } catch (NoSuchAlgorithmException e) {
-//		
-//		 }
+
+		// DEBUG: used to obtain the key hash to use to enable Facebook login in
+		// sandbox mode
+
+		// try {
+		// PackageInfo info =
+		// getPackageManager().getPackageInfo("org.unipd.nbeghin.climbtheworld",
+		// PackageManager.GET_SIGNATURES);
+		// for (Signature signature : info.signatures) {
+		// MessageDigest md = MessageDigest.getInstance("SHA");
+		// md.update(signature.toByteArray());
+		// Log.d("KeyHash:", Base64.encodeToString(md.digest(),
+		// Base64.DEFAULT));
+		// }
+		// } catch (NameNotFoundException e) {
+		//
+		// } catch (NoSuchAlgorithmException e) {
+		//
+		// }
 
 		ClimbApplication.notifications = new ArrayList<Notification>();
-
 		sContext = getApplicationContext();
 
-
 		// loading fragments
-		fragments.add(Fragment.instantiate(this, BuildingsFragment.class.getName())); // instance
-																						// building
-																						// fragments
-		fragments.add(Fragment.instantiate(this, ToursFragment.class.getName())); // instance
-																					// tours
-																					// fragments
+		fragments.add(Fragment.instantiate(this, BuildingsFragment.class.getName())); // instance building fragments
+		fragments.add(Fragment.instantiate(this, ToursFragment.class.getName())); // instance tours fragments
 		fragments.add(Fragment.instantiate(this, NotificationFragment.class.getName()));
-
 		fragments.add(Fragment.instantiate(this, BadgesFragment.class.getName()));
 
 		mPagerAdapter = new PagerAdapter(super.getSupportFragmentManager(), fragments);
 		mPager = (ViewPager) super.findViewById(R.id.pager);
 		mPager.setAdapter(this.mPagerAdapter);
-		
+
 	}
-	
+
 	@Override
-	protected void onStart(){
+	protected void onStart() {
 		super.onStart();
-		//if not logged in, login default owner user
-		
-		
-				if (pref.getInt("local_id", -1) == -1) {
-					setUserOwner();
-				}else{
-					ClimbApplication.refreshClimbings();
-					ClimbApplication.refreshCollaborations();
-					ClimbApplication.refreshCompetitions();
-					ClimbApplication.refreshMicrogoals();
-					ClimbApplication.refreshTeamDuels();
-					ClimbApplication.refreshUserBadge();
-				}
-				
-				Intent i = getIntent();
-				boolean isFromSplashScreen = i.getBooleanExtra("FirstOpen", false);
-				
-				if(!FacebookUtils.isOnline(sContext) && isFromSplashScreen){
-					Toast t = Toast.makeText(getContext(), getString(R.string.offline), Toast.LENGTH_LONG);
-					t.setGravity(Gravity.TOP, 0, 300);
-					t.show();
-				}
-			
-				if(pref.getBoolean("first_open_1", true))	{
-					
-					Intent intent = new Intent(getContext(), OnBoardingActivity.class);
-					intent.putExtra("source", "MainActivity");
-					startActivity(intent); 
-					pref.edit().putBoolean("first_open_1", false).commit();
-				}
-				
+		// if not logged in, login default owner user
+
+		if (pref.getInt("local_id", -1) == -1) {
+			setUserOwner();
+		} else {
+			ClimbApplication.refreshClimbings();
+			ClimbApplication.refreshCollaborations();
+			ClimbApplication.refreshCompetitions();
+			ClimbApplication.refreshMicrogoals();
+			ClimbApplication.refreshTeamDuels();
+			ClimbApplication.refreshUserBadge();
+		}
+
+		Intent i = getIntent();
+		boolean isFromSplashScreen = i.getBooleanExtra("FirstOpen", false);
+
+		if (!FacebookUtils.isOnline(sContext) && isFromSplashScreen) {
+			Toast t = Toast.makeText(getContext(), getString(R.string.offline), Toast.LENGTH_LONG);
+			t.setGravity(Gravity.TOP, 0, 300);
+			t.show();
+		}
+
+		// onboarding message 1
+		if (pref.getBoolean("first_open_1", true)) {
+
+			Intent intent = new Intent(getContext(), OnBoardingActivity.class);
+			intent.putExtra("source", "MainActivity");
+			startActivity(intent);
+			pref.edit().putBoolean("first_open_1", false).commit();
+		}
+
 	}
 
 	private void onSessionStateChange(final Session session, SessionState state, Exception exception) {
 		updateFacebookSession(session, state);
 	}
-	
-	
+
 	private void setUserOwner() {
 		Map<String, Object> conditions = new HashMap<String, Object>();
 		conditions.put("owner", new Integer(1));
 		List<User> users = ClimbApplication.userDao.queryForFieldValuesArgs(conditions);
 
-		if (users.isEmpty()) { //is there user owner in the db????
+		if (users.isEmpty()) { // is there user owner in the db????
 			// no, create local user owner
 			User user = new User();
 			user.setFBid("empty");
 			user.setLevel(0);
 			user.setXP(0);
 			user.setOwner(true);
-			user.setName("user owner");
+			user.setName("User");
 			ClimbApplication.userDao.create(user);
 			ClimbApplication.setCurrentUser(user);
 			SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
@@ -214,7 +195,7 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 			editor.putInt("local_id", user.get_id());
 			editor.commit();
 		} else {
-			//owner found
+			// owner found
 			User user = users.get(0);
 			ClimbApplication.setCurrentUser(user);
 			Log.d("MainActivity", "current User set");
@@ -231,6 +212,7 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 		ClimbApplication.refreshUserBadge();
 		ClimbApplication.refreshMicrogoals();
 
+		//user account connected to FB?
 		if (FacebookUtils.isOnline(this)) {
 			Session session = Session.getActiveSession();
 			if (session != null && session.isOpened()) {
@@ -245,6 +227,7 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 
 	/**
 	 * Method necessary not to repeat makeMeRequest twice
+	 * 
 	 * @param session
 	 * @return
 	 */
@@ -266,14 +249,15 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 		return false;
 	}
 
+	
 	private void updateFacebookSession(final Session session, SessionState state) {
 		Log.d("MainActivity", "updateFBSession");
 		if (FacebookUtils.isOnline(this)) {
 			if (state.isOpened()) {
-				//this check is necessary not to repeat the newMeRequest twice
+				// this check is necessary not to repeat the newMeRequest twice
 				if (mSession == null || isSessionChanged(session)) {
 					mSession = session;
-					if(!pref.getString("FBid", "none").equalsIgnoreCase("none") && pref.getBoolean("openedFirst", false)){
+					if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && pref.getBoolean("openedFirst", false)) {
 						new NetworkRequestAsyncTask(session, this).execute();
 						Editor edit = pref.edit();
 						edit.putBoolean("openedFirst", false);
@@ -283,25 +267,27 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 			} else if (state.isClosed()) {
 				Log.i(MainActivity.AppName, "Logged out...");
 			}
-		}// else
-			//Toast.makeText(getApplicationContext(), getString(R.string.check_connection), Toast.LENGTH_LONG).show();
+		}
 	}
 
+	/**
+	 * Asynctask with ProgressDialog to download FB notification in app
+	 * @author silviasegato
+	 *
+	 */
 	private class NotificationAsyncTask extends AsyncTask<Void, Void, Void> {
 
 		final SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
 		private ProgressDialog PD;
-		
-		
+
 		NotificationAsyncTask() {
-			
+
 		}
 
 		@Override
 		protected void onPreExecute() {
 
 			super.onPreExecute();
-			//me = ClimbApplication.getUserById(activity.getSharedPreferences("UserSession", 0).getInt("local_id", -1));
 			PD = new ProgressDialog(MainActivity.this);
 			PD.setTitle(MainActivity.this.getString(R.string.wait));
 			PD.setMessage(MainActivity.this.getString(R.string.download_notifications));
@@ -316,20 +302,20 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 			params_.putString("access_token", session.getAccessToken());
 			Request request = new Request(session, "me/apprequests", params_, HttpMethod.GET, new Request.Callback() {
 
-			    @Override
-			    public void onCompleted(Response response) {
-			        try {
-			        		List<Request> deleteRequests = new ArrayList<Request>();
-			            GraphObject res = response.getGraphObject();
-			            JSONArray array = (JSONArray) res.getProperty("data");
-			            Log.d("MainActivity", "Notifications: " + array.length());
-			            for(int i = 0; i < array.length(); i++){
-			            		createNotification((JSONObject) array.get(i), deleteRequests);
-			            }
-			            Request.executeBatchAndWait(deleteRequests);
-			        } catch (Exception e) {
-			        }
-			    }
+				@Override
+				public void onCompleted(Response response) {
+					try {
+						List<Request> deleteRequests = new ArrayList<Request>();
+						GraphObject res = response.getGraphObject();
+						JSONArray array = (JSONArray) res.getProperty("data");
+						Log.d("MainActivity", "Notifications: " + array.length());
+						for (int i = 0; i < array.length(); i++) {
+							createNotification((JSONObject) array.get(i), deleteRequests);
+						}
+						Request.executeBatchAndWait(deleteRequests);
+					} catch (Exception e) {
+					}
+				}
 			});
 			Request.executeAndWait(request);
 
@@ -340,29 +326,26 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
 			PD.dismiss();
-			if(ClimbApplication.notifications.isEmpty())
+			if (ClimbApplication.notifications.isEmpty())
 				Toast.makeText(MainActivity.this, MainActivity.this.getString(R.string.no_notification), Toast.LENGTH_SHORT).show();
-			else{
+			else {
 				Toast.makeText(MainActivity.this, MainActivity.this.getResources().getQuantityString(R.plurals.n_notification, ClimbApplication.notifications.size()), Toast.LENGTH_SHORT).show();
-				mPager.getAdapter().notifyDataSetChanged();
+				mPager.getAdapter().notifyDataSetChanged(); //update UI with new data
 			}
 		}
 	}
 
 	/**
 	 * Starts to download facebook notification for current user e create the corresponding Notification objects.
+	 * 
 	 * @param v
 	 */
-	public void downloadFBNotification(MenuItem v){
+	public void downloadFBNotification(MenuItem v) {
 		new NotificationAsyncTask().execute();
 	}
 
-
-
 	/**
-	 * Check for an incoming notifications. If there's any and if they're valid,
-	 * then create the corresponding Notification object and add it to the
-	 * Nofitication list.
+	 * Check for an incoming notifications. If there's any and if they're valid, then create the corresponding Notification object and add it to the Nofitication list.
 	 */
 	public void onUpdateNotifications(MenuItem v) {
 		// Check for an incoming notification. Save the info if it is valid
@@ -374,10 +357,9 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 				for (int i = 0; i < array.length; i++) {
 					requestId = array[i];
 					Log.i("onActivityCreated", "Request id: " + requestId);
-					// deleteRequest(requestId);
 					getRequestData(requestId);
 				}
-				if(ClimbApplication.notifications.isEmpty())
+				if (ClimbApplication.notifications.isEmpty())
 					Toast.makeText(this, getString(R.string.no_notification), Toast.LENGTH_SHORT).show();
 				else
 					Toast.makeText(this, getResources().getQuantityString(R.plurals.n_notification, ClimbApplication.notifications.size()), Toast.LENGTH_SHORT).show();
@@ -386,10 +368,14 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 
 		}
 	}
-	
-	private void createNotification(JSONObject notification, List<Request> deleted){
-		// Get the data, parse info to get the key/value
-		// info
+
+	/**
+	 * Creates the notification objects, given the FB notification for the currently logged user, and delete the exipred ones.
+	 * @param notification FB notification data in JSON format
+	 * @param deleted list of the expired notification Request
+	 */
+	private void createNotification(JSONObject notification, List<Request> deleted) {
+		// Get the data, parse info to get the key/value info
 		JSONObject dataObject;
 		JSONObject fromObject;
 		JSONObject toObject;
@@ -413,7 +399,7 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 			type = dataObject.getInt("type");
 			sender = fromObject.getString("name");
 			toId = toObject.getString("id");
-			id =  notification.getString("id");
+			id = notification.getString("id");
 
 			if (type == 1 || type == 2) {
 				building_id = dataObject.getInt("idBuilding");
@@ -427,69 +413,64 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 				building_name = dataObject.getString("nameBuilding");
 			}
 
-		
+			String time = notification.getString("created_time");
+			boolean isNotfValid = isValid(time);
+			if (isNotfValid && toId.equalsIgnoreCase(pref.getString("FBid", ""))) {
+				Log.d("qui", "request valida");
+				switch (type) {
+				case 0:
+					Notification notf = new InviteNotification(id, sender, groupName, type);
+					ClimbApplication.notifications.add(notf);
+					break;
 
+				case 1:
+					Notification notfA = new AskCollaborationNotification(id, sender, groupName, type);
+					((AskCollaborationNotification) notfA).setBuilding_id(building_id);
+					((AskCollaborationNotification) notfA).setBuilding_name(building_name);
+					((AskCollaborationNotification) notfA).setCollaborationId(collaboration_id);
+					ClimbApplication.notifications.add(notfA);
+					break;
 
-		String time = notification.getString("created_time");
-		boolean isNotfValid = isValid(time);
-		if (isNotfValid && toId.equalsIgnoreCase(pref.getString("FBid", ""))) {
-			Log.d("qui", "request valida");
-			switch (type) {
-			case 0:
-				Notification notf = new InviteNotification(id, sender, groupName, type);
-				ClimbApplication.notifications.add(notf);
-				break;
+				case 2:
+					Notification notfB = new AskCompetitionNotification(id, sender, groupName, type);
+					((AskCompetitionNotification) notfB).setBuilding_id(building_id);
+					((AskCompetitionNotification) notfB).setBuilding_name(building_name);
+					((AskCompetitionNotification) notfB).setCompetitionId(collaboration_id);
+					ClimbApplication.notifications.add(notfB);
+					break;
+				case 3:
+					Notification notfC = new AskTeamDuelNotification(id, sender, duel_id, type, isReceiverChallenged, isSenderCreator);
+					((AskTeamDuelNotification) notfC).setBuilding_id(building_id);
+					((AskTeamDuelNotification) notfC).setBuilding_name(building_name);
+					if (isReceiverChallenged)
+						((AskTeamDuelNotification) notfC).setType(NotificationType.ASK_TEAM_COMPETITION_CHALLENGER);
+					else
+						((AskTeamDuelNotification) notfC).setType(NotificationType.ASK_TEAM_COMPETITION_TEAM);
 
-			case 1:
-				Notification notfA = new AskCollaborationNotification(id, sender, groupName, type);
-				((AskCollaborationNotification) notfA).setBuilding_id(building_id);
-				((AskCollaborationNotification) notfA).setBuilding_name(building_name);
-				((AskCollaborationNotification) notfA).setCollaborationId(collaboration_id);
-				ClimbApplication.notifications.add(notfA);
-				break;
+					ClimbApplication.notifications.add(notfC);
+					break;
+				}
 
-			case 2:
-				Notification notfB = new AskCompetitionNotification(id, sender, groupName, type);
-				((AskCompetitionNotification) notfB).setBuilding_id(building_id);
-				((AskCompetitionNotification) notfB).setBuilding_name(building_name);
-				((AskCompetitionNotification) notfB).setCompetitionId(collaboration_id);
-				ClimbApplication.notifications.add(notfB);
-				break;
-			case 3:
-				Notification notfC = new AskTeamDuelNotification(id, sender, duel_id, type, isReceiverChallenged, isSenderCreator);
-				((AskTeamDuelNotification) notfC).setBuilding_id(building_id);
-				((AskTeamDuelNotification) notfC).setBuilding_name(building_name);
-				if (isReceiverChallenged)
-					((AskTeamDuelNotification) notfC).setType(NotificationType.ASK_TEAM_COMPETITION_CHALLENGER);
-				else
-					((AskTeamDuelNotification) notfC).setType(NotificationType.ASK_TEAM_COMPETITION_TEAM);
-
-				ClimbApplication.notifications.add(notfC);
-				break;
+			} else if (!isNotfValid && toId.equalsIgnoreCase(pref.getString("FBid", ""))) {
+				deleted.add(deleteRequest(id));
+				// Request.executeBatchAndWait(deleteRequest(id));
 			}
-
-		}else if (!isNotfValid && toId.equalsIgnoreCase(pref.getString("FBid", ""))){
-			deleted.add(deleteRequest(id));
-			//Request.executeBatchAndWait(deleteRequest(id));
-		}
 		} catch (JSONException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 
 		}
-	
+
 	}
 
 	/**
-	 * Examines the request with given id and create the corrispondent
-	 * Notification object
+	 * Examines the request with given id and create the corrispondent Notification object
 	 * 
 	 * @param inRequestId
 	 *            the id of the request to examine
 	 */
 	private void getRequestData(final String inRequestId) {
-		// Create a new request for an HTTP GET with the
-		// request ID as the Graph path.
+		// Create a new request for an HTTP GET with the request ID as the Graph path.
 		Request request = new Request(Session.getActiveSession(), inRequestId, null, HttpMethod.GET, new Request.Callback() {
 
 			@Override
@@ -501,8 +482,7 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 				if (graphObject != null) {
 					Log.d("graph obj not null", graphObject.toString());
 
-					// Get the data, parse info to get the key/value
-					// info
+					// Get the data, parse info to get the key/value info
 					JSONObject dataObject;
 					JSONObject fromObject;
 					JSONObject toObject;
@@ -526,7 +506,6 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 						sender = fromObject.getString("name");
 						toId = toObject.getString("id");
 						id = ((String) graphObject.getProperty("id"));
-
 
 						if (type == 1 || type == 2) {
 							building_id = dataObject.getInt("idBuilding");
@@ -587,13 +566,11 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 							break;
 						}
 
-					}else if (!isNotfValid && toId.equalsIgnoreCase(pref.getString("FBid", ""))){
+					} else if (!isNotfValid && toId.equalsIgnoreCase(pref.getString("FBid", ""))) {
 						Request.executeBatchAsync(deleteRequest(inRequestId));
 					}
 
 					String title = "";
-					// Create the text for the alert based on the sender
-					// and the data
 					message = title;
 
 				} else {
@@ -607,11 +584,12 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 		// Execute the request asynchronously.
 		Request.executeBatchAsync(request);
 	}
-	
 
 	/**
 	 * Checks if the notification is valid (that is if the given date is older than 24h).
-	 * @param creation_time creation time of the notification to check
+	 * 
+	 * @param creation_time
+	 *            creation time of the notification to check
 	 * @return true if (current time - creation_time) < 24h, false otherwise
 	 */
 	private boolean isValid(String creation_time) {
@@ -698,16 +676,122 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 		shareDb();
 	}
 
-	
 	public void onShareAnr(MenuItem v) {
 		shareAnr();
 	}
+
+
+	public static void emptyNotificationList() {
+		ClimbApplication.notifications.clear();
+	}
+
+	/**
+	 * Create a Request object to delete a request in Facebook
+	 * 
+	 * @param inRequestId
+	 *            the id of the request to be deleted
+	 * @return the Request object to delete the request with the given id from Facebook
+	 */
+	private Request deleteRequest(final String inRequestId) {
+		// Create a new request for an HTTP delete with the
+		// request ID as the Graph path.
+		Request request = new Request(Session.getActiveSession(), inRequestId, null, HttpMethod.DELETE, new Request.Callback() {
+
+			@Override
+			public void onCompleted(Response response) {
+				// Show a confirmation of the deletion
+				// when the API call completes successfully.
+				Log.d("deleteRequest", "Request " + inRequestId + " succesfully deleted");
+				Toast.makeText(MainActivity.getContext(), getString(R.string.request_deleted), Toast.LENGTH_SHORT).show();
+			}
+		});
+		// Execute the request asynchronously.
+		// Request.executeBatchAsync(request);
+		return request;
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		uiHelper.onActivityResult(requestCode, resultCode, data);
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		uiHelper.onDestroy();
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		uiHelper.onSaveInstanceState(outState);
+	}
+
+	/**
+	 * Request to be executed asynchronously: it check if user has already connected his account with Facebook. If this is the case, it downloads all his previous data.
+	 */
+	@Override
+	public void makeRequest(final Session session, final ProgressDialog PD) {
+		Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
+			@Override
+			public void onCompleted(GraphUser user, Response response) {
+				if (session == Session.getActiveSession()) {
+					ClimbApplication.user = user;
+					if (user != null && pref.getString("FBid", "none").equalsIgnoreCase("none")) {
+						// look for my FBid
+						Map<String, Object> conditions = new HashMap<String, Object>();
+						conditions.put("FBid", user.getId());
+						User newUser = null;
+
+						List<User> users = ClimbApplication.userDao.queryForFieldValuesArgs(conditions);
+						if (users.size() > 0) {
+							// this FBid is already linked to a user
+							newUser = users.get(0);
+							ClimbApplication.setCurrentUser(newUser);
+							// save data locally
+							Editor editor = pref.edit();
+							editor.putString("FBid", newUser.getFBid());
+							editor.putString("username", newUser.getName());
+							editor.putInt("local_id", newUser.get_id());
+							editor.commit();
+							String own = newUser.isOwner() ? "\n" + getString(R.string.owner) : "";
+							Toast.makeText(MainActivity.this, getString(R.string.logged_as, newUser.getName()) + own, Toast.LENGTH_SHORT).show();
+							//check if user exists in parse
+							ClimbApplication.userExists(user, session, PD, MainActivity.this);
+						} else {
+							Toast.makeText(MainActivity.this, getString(R.string.not_logged), Toast.LENGTH_SHORT).show();
+						}
+					} else {
+						// System.err.println("no user");
+						//FBid giˆ settato, scarico le mie informazioni
+						new MyAsync(MainActivity.this, PD, false).execute();
+						Editor edit = pref.edit();
+						edit.putBoolean("openedFirst", false);
+						edit.commit();
+
+					}
+				}
+				if (response.getError() != null) {
+					Log.e(MainActivity.AppName, "FB exception: " + response.getError());
+				}
+			}
+		});
+		request.executeAndWait();
+	}
+
+	public void showDemo(MenuItem v) {
+		Intent i = new Intent(this, WalkthroughActivity.class);
+		startActivity(i);
+	}
+	
 	
 	
 
 	/**
+	 * UNUSED
 	 * Send invite to user's facebook friends.
-	 */
+	 
 	private void sendInvites() {
 		Bundle params = new Bundle();
 
@@ -742,8 +826,13 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 		//
 		// Show FBDialog without a notification bar
 		showDialogWithoutNotificationBar("apprequests", params);
-	}
+	}*/
 
+	/**
+	 * UNUSED
+	 * @param action
+	 * @param params
+	
 	private void showDialogWithoutNotificationBar(String action, Bundle params) {
 		// Create the dialog
 		dialog = new WebDialog.Builder(this, Session.getActiveSession(), action, params).setOnCompleteListener(new WebDialog.OnCompleteListener() {
@@ -753,10 +842,7 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 				if (error != null) {
 					if (error instanceof FacebookOperationCanceledException) {
 						Toast.makeText(getApplicationContext(), getString(R.string.request_cancelled), Toast.LENGTH_SHORT).show();
-					} /*
-					 * else { Toast.makeText(getApplicationContext(),
-					 * "Network Error", Toast.LENGTH_SHORT).show(); }
-					 */
+					} 
 				} else {
 					final String requestId = values.getString("request");
 					if (requestId != null) {
@@ -779,9 +865,9 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 
 		// Show the dialog
 		dialog.show();
-	}
+	} */
 
-//DEBUG ONLY
+	// DEBUG ONLY
 	private void shareDb() {
 		SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
 		String output_name = "ClimbTheWorld_" + df.format(new Date()) + ".db";
@@ -803,135 +889,28 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 			Log.e(AppName, e.getMessage());
 		}
 	}
-	
-	//DEBUG ONLY
-		private void shareAnr() {
-			SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
-			String output_name = "ClimbTheWorld_" + df.format(new Date()) + ".txt";
-			try {
-				File file = new File("/data/anr/traces.txt"); // get
-																				// private
-																				// db
-				// reference
-				if (file.exists() == false || file.length() == 0)
-					throw new Exception("Empty DB");
-				this.copyFile(new FileInputStream(file), this.openFileOutput(output_name, MODE_WORLD_READABLE));
-				file = this.getFileStreamPath(output_name);
-				Intent i = new Intent(Intent.ACTION_SEND);
-				i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
-				i.setType("*/*");
-				startActivity(Intent.createChooser(i, "Share to"));
-			} catch (Exception e) {
-				Toast.makeText(getApplicationContext(), getString(R.string.db_error, e.getMessage()), Toast.LENGTH_SHORT).show();
-				Log.e(AppName, e.getMessage());
-			}
+
+	// DEBUG ONLY
+	private void shareAnr() {
+		SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
+		String output_name = "ClimbTheWorld_" + df.format(new Date()) + ".txt";
+		try {
+			File file = new File("/data/anr/traces.txt"); // get
+															// private
+															// db
+			// reference
+			if (file.exists() == false || file.length() == 0)
+				throw new Exception("Empty DB");
+			this.copyFile(new FileInputStream(file), this.openFileOutput(output_name, MODE_WORLD_READABLE));
+			file = this.getFileStreamPath(output_name);
+			Intent i = new Intent(Intent.ACTION_SEND);
+			i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+			i.setType("*/*");
+			startActivity(Intent.createChooser(i, "Share to"));
+		} catch (Exception e) {
+			Toast.makeText(getApplicationContext(), getString(R.string.db_error, e.getMessage()), Toast.LENGTH_SHORT).show();
+			Log.e(AppName, e.getMessage());
 		}
-
-	public static void emptyNotificationList() {
-		ClimbApplication.notifications.clear();
 	}
 
-	/**
-	 * Create a Request object to delete a request in Facebook
-	 * @param inRequestId the id of the request to be deleted
-	 * @return the Request object to delete the request with the given id from Facebook
-	 */
-	private Request deleteRequest(final String inRequestId) {
-		// Create a new request for an HTTP delete with the
-		// request ID as the Graph path.
-		Request request = new Request(Session.getActiveSession(), inRequestId, null, HttpMethod.DELETE, new Request.Callback() {
-
-			@Override
-			public void onCompleted(Response response) {
-				// Show a confirmation of the deletion
-				// when the API call completes successfully.
-				Log.d("deleteRequest", "Request " + inRequestId + " succesfully deleted");
-				Toast.makeText(MainActivity.getContext(), getString(R.string.request_deleted), Toast.LENGTH_SHORT).show();
-			}
-		});
-		// Execute the request asynchronously.
-		//Request.executeBatchAsync(request);
-		return request;
-	}
-
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		uiHelper.onActivityResult(requestCode, resultCode, data);
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		uiHelper.onDestroy();
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		uiHelper.onSaveInstanceState(outState);
-	}
-
-	@Override
-	public void makeRequest(final Session session, final ProgressDialog PD) {
-		Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
-			@Override
-			public void onCompleted(GraphUser user, Response response) {
-				if (session == Session.getActiveSession()) {
-					ClimbApplication.user = user;
-					if (user != null && pref.getString("FBid", "none").equalsIgnoreCase("none")) {
-						// look for my FBid
-						Map<String, Object> conditions = new HashMap<String, Object>();
-						conditions.put("FBid", user.getId());
-						User newUser = null;
-						
-						List<User> users = ClimbApplication.userDao.queryForFieldValuesArgs(conditions);
-						if (users.size() > 0) {
-							//this FBid is already linked to a user
-							newUser = users.get(0);
-							ClimbApplication.setCurrentUser(newUser);
-							// save data locally
-							Editor editor = pref.edit();
-							editor.putString("FBid", newUser.getFBid());
-							editor.putString("username", newUser.getName());
-							editor.putInt("local_id", newUser.get_id());
-							editor.commit();
-							String own = newUser.isOwner() ? "\n" + getString(R.string.owner) : "";
-							Toast.makeText(MainActivity.this, getString(R.string.logged_as, newUser.getName()) + own, Toast.LENGTH_SHORT).show();
-				
-							ClimbApplication.userExists(user, session, PD, MainActivity.this);
-						} else {
-							Toast.makeText(MainActivity.this, getString(R.string.not_logged), Toast.LENGTH_SHORT).show();
-						}
-					} else {
-						System.err.println("no user");
-						//to do only when the user opens main activity for the first time
-//						if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && pref.getBoolean("openedFirst", false)){
-							new MyAsync(MainActivity.this, PD, false).execute();
-							Editor edit = pref.edit();
-							edit.putBoolean("openedFirst", false);
-							edit.commit();
-//						}else{
-//							System.out.println("not open first");
-//							synchronized (ClimbApplication.lock) {
-//								ClimbApplication.lock.notify();
-//								ClimbApplication.BUSY = false;
-//							}
-//						}
-					}
-				}
-				if (response.getError() != null) {
-					Log.e(MainActivity.AppName, "FB exception: " + response.getError());
-				}
-			}
-		});
-		request.executeAndWait();
-	}
-	
-	
-	public void showDemo(MenuItem v){
-		Intent i = new Intent(this, WalkthroughActivity.class);
-		startActivity(i);
-	}
-	
 }
