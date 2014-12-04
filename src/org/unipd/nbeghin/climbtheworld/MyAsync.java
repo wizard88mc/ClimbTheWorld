@@ -149,12 +149,11 @@ public class MyAsync {
 			@Override
 			public void done(List<ParseObject> microgoals, ParseException e) {
 				if (e == null) {
-					System.out.println("microgoal :" + microgoals.size());
+					//System.out.println("microgoal :" + microgoals.size());
 					for (ParseObject microgoal : microgoals) {
-						System.out.println("cerco microgoal per building " + microgoal.getInt("building"));
+						//System.out.println("cerco microgoal per building " + microgoal.getInt("building"));
 						Microgoal current_microgoal = ClimbApplication.getMicrogoalByUserAndBuilding(pref.getInt("local_id", -1), microgoal.getInt("building"));
 						if (current_microgoal == null) {
-							System.out.println("nuovo microgoal");
 							Building building = ClimbApplication.getBuildingById(microgoal.getInt("building"));
 							User user = ClimbApplication.getUserByFBId(microgoal.getString("user_id"));
 							current_microgoal = new Microgoal();
@@ -168,7 +167,6 @@ public class MyAsync {
 							current_microgoal.setReward(5);
 							ClimbApplication.microgoalDao.create(current_microgoal);
 						} else {
-							System.out.println("update microgoal");
 							current_microgoal.setDone_steps(microgoal.getInt("done_steps"));
 							current_microgoal.setTot_steps(microgoal.getInt("tot_steps"));
 							current_microgoal.setSaved(true);
@@ -207,16 +205,20 @@ public class MyAsync {
 						int idx = climbings.indexOf(climb);
 						boolean last = idx == (climbings.size() - 1);
 						Climbing localClimb = null;
-
+						boolean pausedExists = false;
 						List<Climbing> climbs = ClimbApplication.getClimbingListForBuildingAndUser(climb.getInt("building"), pref.getInt("local_id", -1));
 						if (climbs.size() > 0) {
-							for (Climbing c : climbs) {
-								if (c.getGame_mode() == climb.getInt("game_mode"))
-									localClimb = c;
+							for(Climbing climbing : climbs){
+								if (climbing.getGame_mode()== climb.getInt("game_mode"))
+									localClimb = climbing;
 							}
+							
+						if(climbs.size() >= 2)
+							pausedExists = true;
+								
+							
 						}
 						if (localClimb == null) {
-							System.out.println("creo nuovo");
 							// save new climbing locally
 							Climbing c = new Climbing();
 							c.setBuilding(ClimbApplication.getBuildingById(climb.getInt("building")));
@@ -232,8 +234,7 @@ public class MyAsync {
 							c.setGame_mode(climb.getInt("game_mode"));
 							c.setId_online(climb.getObjectId());
 							ClimbApplication.climbingDao.create(c);
-							System.out.println("set id online" + c.getId_online());
-							System.out.println("getgamemode" + c.getGame_mode());
+					
 							switch (c.getGame_mode()) {
 							case 1:
 								loadCollaborationsFromParse(c.getId_mode(), last);
@@ -242,14 +243,12 @@ public class MyAsync {
 								loadCompetitionsFromParse(c.getId_mode(), last);
 								break;
 							case 3:
-								loadTeamDuelsFromParse(c.getId_mode(), last);
+								loadTeamDuelsFromParse(c.getId_mode(), last, c, climb, pausedExists);
 								break;
 							default:
 								break;
 							}
-							System.out.println("user " + c.getUser().get_id());
 						} else {
-							System.out.println("modifica");
 							long localTime = localClimb.getModified();
 							long parseTime = climb.getDate("modified").getTime();
 							if (localTime < parseTime) { // parseTime � piu
@@ -264,7 +263,6 @@ public class MyAsync {
 								localClimb.setSaved(true);
 								localClimb.setId_mode(climb.getString("id_mode"));
 								localClimb.setId_online(climb.getObjectId());
-								System.out.println("set id online" + localClimb.getId_online());
 								ClimbApplication.climbingDao.update(localClimb);
 							}
 							switch (localClimb.getGame_mode()) {
@@ -275,7 +273,8 @@ public class MyAsync {
 								loadCompetitionsFromParse(localClimb.getId_mode(), last);
 								break;
 							case 3:
-								loadTeamDuelsFromParse(localClimb.getId_mode(), last);
+								
+								loadTeamDuelsFromParse(localClimb.getId_mode(), last, localClimb, climb, pausedExists);
 								break;
 							default:
 								break;
@@ -323,7 +322,7 @@ public class MyAsync {
 	 * @param id the id of the team duel object to download
 	 * @param last true if this is the last operation of the asynctask, false otherwise
 	 */
-	private void loadTeamDuelsFromParse(String id, final boolean last) {
+	private void loadTeamDuelsFromParse(final String id, final boolean last, final Climbing c, final ParseObject climb, final boolean pausedExists) {
 		final SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("TeamDuel");
 		query.whereEqualTo("objectId", id);
@@ -333,6 +332,24 @@ public class MyAsync {
 			public void done(List<ParseObject> duels, ParseException e) {
 				if (e == null) {
 					boolean created = false;
+					if(duels.size() == 0){
+						if(!pausedExists){
+							TeamDuel local_duel = ClimbApplication.getTeamDuelById(id);
+							ClimbApplication.teamDuelDao.delete(local_duel);
+							c.setId_mode("");
+							c.setGame_mode(0);
+							ClimbApplication.climbingDao.update(c);
+							climb.put("id_mode", "");
+							climb.put("game_mode", 0);
+							ParseUtils.saveClimbing(climb, c);
+						}else{
+							TeamDuel local_duel = ClimbApplication.getTeamDuelById(id);
+							ClimbApplication.teamDuelDao.delete(local_duel);
+							ParseUtils.deleteClimbing(climb, c);
+							ClimbApplication.climbingDao.delete(c);
+							
+						}
+					}else{
 					ParseObject duel = duels.get(0);
 					TeamDuel local_duel = ClimbApplication.getTeamDuelById(duel.getObjectId());
 					if (local_duel == null) {
@@ -442,7 +459,7 @@ public class MyAsync {
 						ClimbApplication.teamDuelDao.create(local_duel);
 					else
 						ClimbApplication.teamDuelDao.update(local_duel);
-
+				}
 				} else {
 					Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 					Log.e("loadTeamDuelsFromParse", e.getMessage());
@@ -468,7 +485,7 @@ public class MyAsync {
 		final SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("Collaboration");
 		query.whereEqualTo("objectId", id);
-		System.out.println("loadCollabortion: " + id);
+		//System.out.println("loadCollabortion: " + id);
 		query.findInBackground(new FindCallback<ParseObject>() {
 
 			@Override

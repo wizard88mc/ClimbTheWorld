@@ -656,7 +656,6 @@ public class ClimbActivity extends ActionBarActivity {
 		secondSeekbar.setMax(building.getSteps());
 		current = (TextView) findViewById(R.id.textPosition);
 		for (int i = 1; i <= ClimbApplication.N_MEMBERS_PER_GROUP; i++) {
-			System.out.println("qui " + i);
 			int idNome = getResources().getIdentifier("nome" + i, "id", getPackageName());
 			int idPassi = getResources().getIdentifier("passi" + i, "id", getPackageName());
 			int idMinus = getResources().getIdentifier("minus" + i, "id", getPackageName());
@@ -851,7 +850,6 @@ public class ClimbActivity extends ActionBarActivity {
 																				// in
 																				// received
 																				// intent
-				System.out.println(building_id);
 				buildingText = ClimbApplication.buildingTextDao.queryForId(building_id);
 				building = buildingText.getBuilding();// =
 														// ClimbApplication.buildingDao.queryForId(building_id);
@@ -1127,8 +1125,6 @@ public class ClimbActivity extends ActionBarActivity {
 								while (members.hasNext()) {
 									String key = (String) members.next();
 									if (!key.equalsIgnoreCase(pref.getString("FBid", ""))) {
-										System.out.println(key);
-										System.out.println(pref.getString("FBid", ""));
 										String name = "";
 										int steps = -1;
 										try {
@@ -1748,7 +1744,6 @@ public class ClimbActivity extends ActionBarActivity {
 			rotation.setRepeatCount(Animation.INFINITE);
 			iv.startAnimation(rotation);
 			MenuItemCompat.setActionView(item, iv);
-			System.out.println("animaz on");
 			onUpdate();
 			return true;
 		case android.R.id.home:

@@ -115,22 +115,21 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 
 		uiHelper = new UiLifecycleHelper(this, callback);
 		uiHelper.onCreate(savedInstanceState);
-		 try {
-		 PackageInfo info =
-		 getPackageManager().getPackageInfo("org.unipd.nbeghin.climbtheworld",
-		 PackageManager.GET_SIGNATURES);
-		 for (Signature signature : info.signatures) {
-		 System.out.println("qui");
-		 MessageDigest md = MessageDigest.getInstance("SHA");
-		 md.update(signature.toByteArray());
-		 Log.d("KeyHash:", Base64.encodeToString(md.digest(),
-		 Base64.DEFAULT));
-		 }
-		 } catch (NameNotFoundException e) {
-		
-		 } catch (NoSuchAlgorithmException e) {
-		
-		 }
+//		 try {
+//		 PackageInfo info =
+//		 getPackageManager().getPackageInfo("org.unipd.nbeghin.climbtheworld",
+//		 PackageManager.GET_SIGNATURES);
+//		 for (Signature signature : info.signatures) {
+//		 MessageDigest md = MessageDigest.getInstance("SHA");
+//		 md.update(signature.toByteArray());
+//		 Log.d("KeyHash:", Base64.encodeToString(md.digest(),
+//		 Base64.DEFAULT));
+//		 }
+//		 } catch (NameNotFoundException e) {
+//		
+//		 } catch (NoSuchAlgorithmException e) {
+//		
+//		 }
 
 		ClimbApplication.notifications = new ArrayList<Notification>();
 
@@ -169,7 +168,6 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 					ClimbApplication.refreshMicrogoals();
 					ClimbApplication.refreshTeamDuels();
 					ClimbApplication.refreshUserBadge();
-					System.out.println("END REFRESH");
 				}
 				
 				Intent i = getIntent();
@@ -275,9 +273,7 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 				//this check is necessary not to repeat the newMeRequest twice
 				if (mSession == null || isSessionChanged(session)) {
 					mSession = session;
-					System.out.println(pref.getBoolean("openedFirst", false));
 					if(!pref.getString("FBid", "none").equalsIgnoreCase("none") && pref.getBoolean("openedFirst", false)){
-						System.out.println("open first");
 						new NetworkRequestAsyncTask(session, this).execute();
 						Editor edit = pref.edit();
 						edit.putBoolean("openedFirst", false);
@@ -375,7 +371,6 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 			String requestIdParam = intentUri.getQueryParameter("request_ids");
 			if (requestIdParam != null) {
 				String array[] = requestIdParam.split(",");
-				System.out.println("array " + array.length);
 				for (int i = 0; i < array.length; i++) {
 					requestId = array[i];
 					Log.i("onActivityCreated", "Request id: " + requestId);
@@ -389,11 +384,10 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 
 			}
 
-			System.out.println("notf " + ClimbApplication.notifications.size());
 		}
 	}
 	
-	private void createNotification(JSONObject notification, List<Request> deleted){System.out.println("create notification");
+	private void createNotification(JSONObject notification, List<Request> deleted){
 		// Get the data, parse info to get the key/value
 		// info
 		JSONObject dataObject;
@@ -533,7 +527,6 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests{
 						toId = toObject.getString("id");
 						id = ((String) graphObject.getProperty("id"));
 
-						System.out.println("type " + type);
 
 						if (type == 1 || type == 2) {
 							building_id = dataObject.getInt("idBuilding");

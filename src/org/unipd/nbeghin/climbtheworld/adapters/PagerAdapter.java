@@ -9,6 +9,7 @@ import org.unipd.nbeghin.climbtheworld.ui.card.Updater;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 
 public class PagerAdapter extends FragmentPagerAdapter {
 	private List<Fragment>	fragments;
@@ -30,9 +31,11 @@ public class PagerAdapter extends FragmentPagerAdapter {
 	
 	@Override
 	public void notifyDataSetChanged() {
+		//Fragment page = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.pager + ":" + ViewPager.getCurrentItem());
 	    for(int i = 0; i < fragments.size(); i++) {
+	    	//int current = getCurrentItem();
 	    	Updater fragment = (Updater) fragments.get(i);
-	    	fragment.refresh();
+	    	if(((Fragment)fragment).isVisible()) ((Updater)fragment).refresh();
 	    }
 	    super.notifyDataSetChanged();
 	}

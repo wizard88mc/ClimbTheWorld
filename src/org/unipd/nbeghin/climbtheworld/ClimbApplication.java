@@ -163,7 +163,7 @@ public class ClimbApplication extends Application{
 		return sContext;
 	}
 	
-	public static void setCurrentUser(User user){ System.out.println("current user set");
+	public static void setCurrentUser(User user){
 		currentUser = user;
 	}
 	
@@ -325,7 +325,7 @@ public class ClimbApplication extends Application{
 		public static void refreshMicrogoalTexts(){
 			QueryBuilder<MicrogoalText, Integer> query = microgoalTextDao.queryBuilder();
 			Where<MicrogoalText, Integer> where = query.where();
-			try{ System.out.println("micro goal language " + language);
+			try{
 				where.eq("language", language);
 				PreparedQuery<MicrogoalText> preparedQuery = query.prepare();
 				microgoalTexts = microgoalTextDao.query(preparedQuery);
@@ -373,7 +373,6 @@ public class ClimbApplication extends Application{
 				where.eq("user_id", pref.getInt("local_id", -1));
 				PreparedQuery<UserBadge> preparedQuery = query.prepare();
 				userBadges = userBadgeDao.query(preparedQuery);
-				System.out.println("userbadges size " + userBadges.size());
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -389,12 +388,9 @@ public class ClimbApplication extends Application{
 			try {
 
 				where.eq("user_id", pref.getInt("local_id", -1));
-				System.out.println("collaborations di " + pref.getInt("local_id", -1));
-
 				PreparedQuery<Collaboration> preparedQuery = query.prepare();
 				List<Collaboration> colls = collaborationDao.query(preparedQuery);
 				collaborations = colls;
-				System.out.println(collaborations.size());
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -410,12 +406,9 @@ public class ClimbApplication extends Application{
 			try {
 
 				where.eq("user_id", pref.getInt("local_id", -1));
-				System.out.println("competition di " + pref.getInt("local_id", -1));
-
 				PreparedQuery<Competition> preparedQuery = query.prepare();
 				List<Competition> colls = competitionDao.query(preparedQuery);
 				competitions = colls;
-				System.out.println(competitions.size());
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -424,7 +417,6 @@ public class ClimbApplication extends Application{
 		}
 
 		public static void refreshClimbings() {
-			System.out.println("refreshClimbings");
 			SharedPreferences pref = sContext.getSharedPreferences("UserSession", 0);
 			QueryBuilder<Climbing, Integer> query = climbingDao.queryBuilder();
 			Where<Climbing, Integer> where = query.where();
@@ -432,12 +424,9 @@ public class ClimbApplication extends Application{
 			try {
 
 				where.eq("users_id", pref.getInt("local_id", -1));
-				System.out.println("climbing di " + pref.getInt("local_id", -1));
-
 				PreparedQuery<Climbing> preparedQuery = query.prepare();
 				List<Climbing> climbs = climbingDao.query(preparedQuery);
 				climbings = climbs;
-				System.out.println(climbings.size());
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -455,12 +444,9 @@ public class ClimbApplication extends Application{
 			try {
 
 				where.eq("user_id", pref.getInt("local_id", -1));
-				System.out.println("climbing di " + pref.getInt("local_id", -1));
-
 				PreparedQuery<TeamDuel> preparedQuery = query.prepare();
 				List<TeamDuel> duels = teamDuelDao.query(preparedQuery);
 				teamDuels = duels;
-				System.out.println(teamDuels.size());
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -1221,7 +1207,7 @@ public class ClimbApplication extends Application{
 							}
 
 							setInvitableFriend(invitableFriends);	
-							System.out.println(invitableFriends.size());
+							
 						}
 					}
 				}

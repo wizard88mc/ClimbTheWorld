@@ -48,8 +48,6 @@ public class MicrogoalText {
 	public JSONObject getSteps() throws JSONException {
 		String str1 = steps.replaceAll("\u201C", "\\\"");//“
 		String str2 = str1.replaceAll("\u201D", "\\\"");//”
-
-		System.out.println(str2);
 		return new JSONObject(str2);
 	}
 

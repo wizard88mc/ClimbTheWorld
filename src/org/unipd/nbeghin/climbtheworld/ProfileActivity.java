@@ -103,7 +103,6 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 		}
 		
 		boolean needHelp = getIntent().getBooleanExtra("need_help", false);
-		System.out.println("need help? " + needHelp);
 		if(needHelp){
 			new HelpDialogActivity(this, R.style.Transparent, true).show();
 		}
@@ -231,10 +230,8 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 	private void updateFacebookSession(final Session session, SessionState state) {
 
 		if (FacebookUtils.isOnline(this)) {
-			System.out.println("sono online");
 
 			if (state.isOpened()) {
-				System.out.println("opened");
 				SharedPreferences pref = getSharedPreferences("UserSession", 0);
 				Editor edit = pref.edit();
 				edit.putBoolean("openedFirst", false);
@@ -368,7 +365,6 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 		Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
 			@Override
 			public void onCompleted(GraphUser user, Response response) {
-				System.out.println("make req pa");
 
 				if (session == Session.getActiveSession()) {
 					if (user != null && profilePictureView != null) {
@@ -429,7 +425,6 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 							} else {// yes, get my account
 								newUser = users.get(0);
 							}
-							System.out.println("qui");
 							// save data locally
 							SharedPreferences pref = getSharedPreferences("UserSession", 0);
 							Editor editor = pref.edit();

@@ -157,7 +157,7 @@ public class ParseUtils {
 			public void done(ParseException ex) {
 				if(ex == null){
 					//no problems
-					Log.i(getClass().getName(), "Competition correctly saved in Parse");
+					Log.i(getClass().getName(), "Team Duel correctly saved in Parse");
 					l_teamduel.setSaved(true);
 					ClimbApplication.teamDuelDao.update(l_teamduel);
 				}else{
