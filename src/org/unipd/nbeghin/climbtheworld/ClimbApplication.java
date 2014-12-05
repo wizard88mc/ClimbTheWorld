@@ -1069,7 +1069,7 @@ public class ClimbApplication extends Application {
 			try {
 				badge.put("badge_id", ub.getBadge().get_id());
 				badge.put("obj_id", ub.getObj_id());
-				badge.put("perentage", ub.getPercentage());
+				badge.put("percentage", ub.getPercentage());
 				badges.put(badge);
 			} catch (JSONException e1) {
 				// TODO Auto-generated catch block

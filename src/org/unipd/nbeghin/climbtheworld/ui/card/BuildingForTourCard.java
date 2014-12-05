@@ -21,7 +21,7 @@ import com.fima.cardsui.objects.Card;
 
 /**
  * CardsUI card for a single building associated to a tour
- *
+ *	UNUSED
  */
 public class BuildingForTourCard extends Card {
 	final private Building	building;

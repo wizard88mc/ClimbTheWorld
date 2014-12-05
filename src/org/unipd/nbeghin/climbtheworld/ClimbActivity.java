@@ -120,37 +120,17 @@ public class ClimbActivity extends ActionBarActivity {
 	public boolean current_win = false;
 	
 	private boolean samplingEnabled = false; // sentinel if sampling is running
-	private static double detectedSamplingRate = 0; // detected sampling rate
-													// (after sampling rate
-													// detector)
+	private static double detectedSamplingRate = 0; // detected sampling rate (after sampling rate detector)
 	private static int samplingDelay; // current sampling delay (SensorManager)
-	private double minimumSamplingRate = 13; // minimum sampling rate for using
-												// this app
-	private Intent backgroundClassifySampler; // classifier background service
-												// intent
-	private Intent backgroundSamplingRateDetector; // sampling rate detector
-													// service intent
-	private IntentFilter classifierFilter = new IntentFilter(ClassifierCircularBuffer.CLASSIFIER_ACTION); // intent
-																											// filter
-																											// (for
-																											// BroadcastReceiver)
-	private IntentFilter samplingRateDetectorFilter = new IntentFilter(AccelerometerSamplingRateDetect.SAMPLING_RATE_ACTION); // intent
-																																// filter
-																																// (for
-																																// BroadcastReceiver)
-	private BroadcastReceiver classifierReceiver = new ClassifierReceiver(); // implementation
-																				// of
-																				// BroadcastReceiver
-																				// for
-																				// classifier
-																				// service
-	private BroadcastReceiver sampleRateDetectorReceiver = new SamplingRateDetectorReceiver(); // implementation
-																								// of
-																								// BroadcastReceiver
-																								// for
-																								// sampling
-																								// rate
-																								// detector
+	private double minimumSamplingRate = 13; // minimum sampling rate for using this app
+	private Intent backgroundClassifySampler; // classifier background service intent
+	private Intent backgroundSamplingRateDetector; // sampling rate detector service intent
+	private IntentFilter classifierFilter = new IntentFilter(ClassifierCircularBuffer.CLASSIFIER_ACTION); // intent filter (for BroadcastReceiver)
+	private IntentFilter samplingRateDetectorFilter = new IntentFilter(AccelerometerSamplingRateDetect.SAMPLING_RATE_ACTION); // intent filter (for BroadcastReceiver)
+	private BroadcastReceiver classifierReceiver = new ClassifierReceiver(); // implementation of BroadcastReceiver for classifier service
+	private BroadcastReceiver sampleRateDetectorReceiver = new SamplingRateDetectorReceiver(); // implementation of BroadcastReceiver for sampling rate detector
+	
+	private int previous_progress = 0;
 	private int num_steps = 0; // number of currently detected steps
 	private double percentage = 0.0; // current progress percentage
 	private BuildingText buildingText;
@@ -413,6 +393,7 @@ public class ClimbActivity extends ActionBarActivity {
 			((ImageButton) findViewById(R.id.btnAccessPhotoGallery)).setImageResource(R.drawable.social_share);
 			findViewById(R.id.btnAccessPhotoGallery).setVisibility(View.VISIBLE);
 		}
+		previous_progress = new_steps;
 		new_steps = 0;
 
 	}
@@ -593,7 +574,7 @@ public class ClimbActivity extends ActionBarActivity {
 			FacebookUtils fb = new FacebookUtils(this);
 
 			try {
-				fb.postUpdateToWall(climbing, new_steps);
+				fb.postUpdateToWall(climbing, previous_progress);
 			} catch (NoFBSession e) {
 				Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
 				startActivity(intent);
@@ -1094,9 +1075,7 @@ public class ClimbActivity extends ActionBarActivity {
 	 * Update graphics to let user see the latest update about my friends' steps
 	 */
 	private void updateOthers(final boolean isUpdate) {
-		if (!(mode == GameModeType.SOLO_CLIMB) && FacebookUtils.isOnline(this)) { // If
-																					// is
-																					// online
+		if (!(mode == GameModeType.SOLO_CLIMB) && FacebookUtils.isOnline(this)) { // If is online
 			// look for current collaboration in Parse
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("Collaboration");
 			query.whereEqualTo("objectId", collaboration.getId());
@@ -1208,7 +1187,10 @@ public class ClimbActivity extends ActionBarActivity {
 									});
 									i++;
 								}
-								seekbarIndicator.setProgress(num_steps + sumOthersStep());
+								int new_seekbar_progress = num_steps + sumOthersStep();
+								seekbarIndicator.setProgress(new_seekbar_progress);
+								double progress = ((double) (new_seekbar_progress + (microgoal.getTot_steps() - microgoal.getDone_steps())) * (double) 100) / (double) (building.getSteps());
+								seekbarIndicator.nextStar((int) Math.round(progress));
 								for (; i < group_members.size(); i++) {
 									group_members.get(i).setClickable(false);
 									group_members.get(i).setVisibility(View.INVISIBLE);
@@ -1226,8 +1208,8 @@ public class ClimbActivity extends ActionBarActivity {
 								} else if ((num_steps + sumOthersStep() >= building.getSteps()) && (num_steps < threshold)) {
 									percentage = 1.0;
 									current_win = true;
-									updatePoints(false);
-									saveBadges();
+									updatePoints(false, false);
+									saveBadges(true);
 									if(microgoal != null) deleteMicrogoalInParse(microgoal);
 
 								}
@@ -1236,6 +1218,14 @@ public class ClimbActivity extends ActionBarActivity {
 								showMessage( getString(R.string.kicked_out));
 								ClimbApplication.collaborationDao.delete(collaboration);
 								apply_removed_from_collaboration();
+								//reset graphics
+								current.setVisibility(View.GONE);
+								for (int i = 0; i < group_members.size(); i++) {
+									group_members.get(i).setVisibility(View.GONE);
+									group_steps.get(i).setVisibility(View.GONE);
+									group_minus.get(i).setVisibility(View.GONE);
+
+								}
 							}
 						}
 
@@ -1366,7 +1356,7 @@ public class ClimbActivity extends ActionBarActivity {
 	 * 
 	 */
 	private void updateClimbingInParse(final Climbing myclimbing, boolean paused) {
-
+		Log.i("ClimbActivity", "updateClimbingInParse");
 		final SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
 		if (FacebookUtils.isOnline(this)) {
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
@@ -1446,6 +1436,7 @@ public class ClimbActivity extends ActionBarActivity {
 	}
 
 	private void deleteMicrogoalInParse(final Microgoal microgoal) {
+		Log.i("CLimbActivity", "deleteMicrogoalInParse");
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("Microgoal");
 		query.whereEqualTo("user_id", microgoal.getUser().getFBid());
 		query.whereEqualTo("building", microgoal.getBuilding().get_id());
@@ -1517,7 +1508,7 @@ public class ClimbActivity extends ActionBarActivity {
 			difficulty = Integer.parseInt(settings.getString("difficulty", "10"));
 		}
 		Microgoal old_microgoal = microgoal;
-		updateUserStats();
+		updateUserStats(true);
 		double newCurrentMean = ClimbApplication.calculateNewMean((long) currentUser.getMean(), currentUser.getN_measured_days(), (currentUser.getCurrent_steps_value()));
 		int tot_steps = ClimbApplication.generateStepsToDo(climbing.getRemaining_steps(), /*currentUser.getMean()*/ newCurrentMean, difficulty);
 		int story_id;
@@ -1884,7 +1875,7 @@ public class ClimbActivity extends ActionBarActivity {
 	// la collaborazione si � conclusa e non ho superato la soglia minima
 	// quindi torno in social climb e elimino la collab localmente
 	private void socialPenalty() {
-		updatePoints(true);
+		updatePoints(true, true);
 		Toast.makeText(this.getApplicationContext(), getString(R.string.social_penalty), Toast.LENGTH_SHORT).show();
 		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.social_share);
 		mode = GameModeType.SOLO_CLIMB;
@@ -1905,20 +1896,17 @@ public class ClimbActivity extends ActionBarActivity {
 			samplingEnabled = false;
 			unregisterReceiver(classifierReceiver); // unregister listener
 		}
-		updateUserStats();
+		if(isCounterMode) updateUserStats(true);
+		else updateUserStats(false);
 
 		if (!isCounterMode && changes) {
 			// update db
 			if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty"))
 				updateMicrogoalInParse();
-			climbing.setModified(new Date().getTime()); // update climbing last
-														// edit
-														// date
+			climbing.setModified(new Date().getTime()); // update climbing last/ edit date
 			climbing.setCompleted_steps(num_steps); // update completed steps
 			climbing.setPercentage(percentage); // update progress percentage
-			climbing.setRemaining_steps(building.getSteps() - num_steps); // update
-																			// remaining
-																			// steps
+			climbing.setRemaining_steps(building.getSteps() - num_steps); // update remaining steps
 			if (percentage >= 1.00 && (mode != GameModeType.SOCIAL_CHALLENGE) && (mode != GameModeType.TEAM_VS_TEAM))
 				climbing.setCompleted(new Date().getTime());
 			if (percentage >= 1.00) {
@@ -1961,12 +1949,10 @@ public class ClimbActivity extends ActionBarActivity {
 			}
 
 			Log.i(MainActivity.AppName, "Updated climbing #" + climbing.get_id());
-			// button
-			// icon
-			// to
-			// play
-			// again
 
+			System.out.println("entra????");
+			System.out.println(collaboration != null);
+			System.out.println(mode == GameModeType.SOCIAL_CLIMB);
 			if (mode == GameModeType.SOCIAL_CLIMB && collaboration != null)
 				saveCollaborationData();
 			else if (mode == GameModeType.SOCIAL_CHALLENGE && competition != null)
@@ -1974,8 +1960,8 @@ public class ClimbActivity extends ActionBarActivity {
 			else if (mode == GameModeType.TEAM_VS_TEAM && teamDuel != null)
 				saveTeamDuelData();
 
-			updatePoints(false);
-			saveBadges();
+			updatePoints(false,false);
+			saveBadges(true);
 			System.out.println("END");
 		}
 		
@@ -2011,7 +1997,7 @@ public class ClimbActivity extends ActionBarActivity {
 	 }
 	
 
-	private void updateUserStats() {
+	private void updateUserStats(boolean saveOnline) {
 		Log.d("ClimbActivity", "UpdateUserStats");
 		
 		if(difficulty == 0){
@@ -2046,7 +2032,7 @@ public class ClimbActivity extends ActionBarActivity {
 				user.put("mean_daily_steps", stats);
 				user.put("height", currentUser.getHeight());
 				// user.saveEventually();
-				ParseUtils.saveUserInParse(user);
+				if(saveOnline) ParseUtils.saveUserInParse(user);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -2060,9 +2046,17 @@ public class ClimbActivity extends ActionBarActivity {
 	 * available.
 	 */
 	private void saveCollaborationData() {
+		Log.i("ClimbActivity", "saveCollaborationData");
 		collaboration.setMy_stairs(climbing.getCompleted_steps());
+		if (percentage >= 1.00 || current_win) {
+			System.out.println("completato");
+			collaboration.setCompleted(true);
+
+		}
+		ClimbApplication.collaborationDao.update(collaboration);
 		if (collab_parse == null) {
 			collaboration.setSaved(false);
+			ClimbApplication.collaborationDao.update(collaboration);
 			// Toast.makeText(getApplicationContext(),
 			// getString(R.string.connection_problem2), Toast.LENGTH_SHORT)
 			// .show();
@@ -2072,10 +2066,9 @@ public class ClimbActivity extends ActionBarActivity {
 			try {
 				stairs.put(pref.getString("FBid", ""), collaboration.getMy_stairs());
 				collab_parse.put("stairs", stairs);
-				if (percentage >= 1.00) {
-					System.out.println("elimino collab");
+				if (percentage >= 1.00 || current_win) {
 					collab_parse.put("completed", true);
-					collaboration.setCompleted(true);
+					System.out.println("completato online");
 				}
 				// collab_parse.saveEventually();
 				ParseUtils.saveCollaboration(collab_parse, collaboration);
@@ -2085,10 +2078,10 @@ public class ClimbActivity extends ActionBarActivity {
 			}
 			// collaboration.setSaved(true);
 		}
-		if (collaboration.isCompleted())
-			ClimbApplication.collaborationDao.delete(collaboration);
-		else
-			ClimbApplication.collaborationDao.update(collaboration);
+//		if (collaboration.isCompleted())
+//			ClimbApplication.collaborationDao.delete(collaboration);
+//		else
+//			ClimbApplication.collaborationDao.update(collaboration);
 
 	}
 
@@ -2240,8 +2233,8 @@ public class ClimbActivity extends ActionBarActivity {
 		Editor editor = paused.edit();
 		editor.putBoolean("paused", true);
 		editor.commit();
-		if (samplingEnabled)
-			saveBeforeQuit();
+		//if (samplingEnabled)
+			//saveBeforeQuit(); TODO
 		// this.finish();
 	}
 
@@ -2316,8 +2309,8 @@ public class ClimbActivity extends ActionBarActivity {
 			else if (mode == GameModeType.TEAM_VS_TEAM && teamDuel != null)
 				saveTeamDuelData();
 
-			updatePoints(false);
-			saveBadges();
+			updatePoints(false, false);
+			saveBadges(true);
 		}
 	}
 
@@ -2437,9 +2430,9 @@ public class ClimbActivity extends ActionBarActivity {
 		supportInvalidateOptionsMenu();
 	}
 
-	private void endCompetition() {
+	private void endCompetition(boolean saveOnline) {
 		Log.d("END COMPETITION", "fineeee");
-		updatePoints(false);
+		updatePoints(false, saveOnline);
 		if (soloClimb != null) {
 			System.out.println("non scalato per la prima volta " + climbing.getId_mode());
 			System.out.println("soloclimb: " + soloClimb.getId_mode());
@@ -2467,8 +2460,8 @@ public class ClimbActivity extends ActionBarActivity {
 		if(microgoal != null) deleteMicrogoalInParse(microgoal);
 	}
 
-	private void endTeamCompetition(boolean penalty) {
-		updatePoints(penalty);
+	private void endTeamCompetition(boolean penalty, boolean saveOnline) {
+		updatePoints(penalty, saveOnline);
 		if (soloClimb != null) {
 			deleteClimbingInParse(climbing);
 			soloClimb.setGame_mode(0);
@@ -2567,7 +2560,10 @@ public class ClimbActivity extends ActionBarActivity {
 							group_steps.get(0).setBackgroundColor(Color.parseColor("#adeead"));
 							group_members.get(1).setBackgroundColor(Color.parseColor("#ef9d9d"));
 							group_steps.get(1).setBackgroundColor(Color.parseColor("#ef9d9d"));
-							seekbarIndicator.setProgress(myTeamScore());
+							int new_seekbar_progress = myTeamScore();
+							seekbarIndicator.setProgress(new_seekbar_progress);
+							double progress = (  ((double)(new_seekbar_progress + (microgoal.getTot_steps() - microgoal.getDone_steps())) * (double) 100) / (double) building.getSteps());
+							seekbarIndicator.nextStar((int) Math.round(progress));
 							secondSeekbar.setProgress(ModelsUtil.sum(otherTeam));
 
 							if (myGroupScore >= building.getSteps()) {
@@ -2583,9 +2579,9 @@ public class ClimbActivity extends ActionBarActivity {
 									apply_win();
 								}
 								
-								endTeamCompetition(penalty);
+								endTeamCompetition(penalty, false);
 
-								saveBadges();
+								saveBadges(true);
 							} else if (otherGroupScore >= building.getSteps()) {
 								showMessage(getString(R.string.other_team_won));
 								current_win = true;
@@ -2595,7 +2591,7 @@ public class ClimbActivity extends ActionBarActivity {
 									socialTeamPenality();
 									penalty = true;
 								}
-								endTeamCompetition(penalty);
+								endTeamCompetition(penalty, true);
 
 							}
 
@@ -2717,15 +2713,15 @@ public class ClimbActivity extends ActionBarActivity {
 										if (steps >= building.getSteps()) {
 											percentage = 1.0;
 											current_win = true;
-											endCompetition();
-											saveBadges();
+											endCompetition(false);
+											saveBadges(true);
 											showMessage( getString(R.string.competition_win));
 											//Toast.makeText(getApplicationContext(), getString(R.string.competition_win), Toast.LENGTH_SHORT).show();
 										}
 									} else {
 										if (steps >= building.getSteps()) {
 											current_win = true;
-											endCompetition();
+											endCompetition(true);
 											showMessage( getString(R.string.competition_lose, name));
 											//Toast.makeText(getApplicationContext(), getString(R.string.competition_lose, name), Toast.LENGTH_SHORT).show();
 										}
@@ -2830,7 +2826,7 @@ public class ClimbActivity extends ActionBarActivity {
 
 	}
 
-	private void updatePoints(boolean penalty) {
+	private void updatePoints(boolean penalty, boolean saveOnline) {
 		System.out.println("update points");
 		if (difficulty == 0) {
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -2855,7 +2851,7 @@ public class ClimbActivity extends ActionBarActivity {
 																					// total
 			int extra = (20 * building.getSteps()) / 100;
 			newXP += extra;
-			Toast.makeText(getApplicationContext(), getString(R.string.bonus_collaboration, extra), Toast.LENGTH_SHORT).show();
+			showMessage(getString(R.string.bonus_collaboration, extra));
 		}
 		if (mode == GameModeType.SOCIAL_CHALLENGE && percentage >= 1.00) {// 20%
 																			// over
@@ -2863,7 +2859,7 @@ public class ClimbActivity extends ActionBarActivity {
 																			// total
 			int extra = (20 * building.getSteps()) / 100;
 			newXP += extra;
-			Toast.makeText(getApplicationContext(), getString(R.string.bonus_competition, extra), Toast.LENGTH_SHORT).show();
+			showMessage( getString(R.string.bonus_competition, extra));
 		}
 		if (mode == GameModeType.TEAM_VS_TEAM && percentage >= 1.00 && !penalty) {// 20%
 																					// over
@@ -2871,14 +2867,14 @@ public class ClimbActivity extends ActionBarActivity {
 																					// total
 			int extra = (20 * building.getSteps()) / 100;
 			newXP += extra;
-			Toast.makeText(getApplicationContext(), getString(R.string.bonus_team_duel, extra), Toast.LENGTH_SHORT).show();
+			showMessage(getString(R.string.bonus_team_duel, extra));
 		}
 		final User me = currentUser;
 		int newLevel = ClimbApplication.levelUp(me.getXP() + newXP, me.getLevel());
 		me.setXP(me.getXP() + newXP);
 		if (newLevel != me.getLevel()){
 			me.setLevel(newLevel);
-			Toast.makeText(getApplicationContext(), getString(R.string.new_level), Toast.LENGTH_SHORT).show();
+			showMessage(getString(R.string.new_level));
 		}
 		ClimbApplication.userDao.update(me);
 		if (ParseUser.getCurrentUser() != null) {
@@ -2886,7 +2882,7 @@ public class ClimbActivity extends ActionBarActivity {
 			currentUser.put("XP", me.getXP());
 			currentUser.put("level", me.getLevel());
 			// currentUser.saveEventually();
-			ParseUtils.saveUserInParse(currentUser);
+			if(saveOnline) ParseUtils.saveUserInParse(currentUser);
 		}
 		/*
 		 * ParseQuery<ParseUser> query = ParseUser.getQuery();
@@ -2955,16 +2951,16 @@ public class ClimbActivity extends ActionBarActivity {
 				ub.setPercentage(percentage);
 				ub.setSaved(false);
 				ClimbApplication.userBadgeDao.update(ub);
+				if(percentage >= 1.00) showMessage(getString(R.string.new_badge, tour.getTitle()));
 
 			}
 			ris.add(ub);
-			if(percentage >= 1.00) showMessage(getString(R.string.new_badge, tour.getTitle()));
 
 		}
 		return ris;
 	}
 
-	private void saveBadges() {
+	private void saveBadges(final boolean saveOnline) {
 		System.out.println("save badges");
 
 		User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
@@ -2974,48 +2970,75 @@ public class ClimbActivity extends ActionBarActivity {
 		
 		if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty")){
 		
-		ParseQuery<ParseUser> query = ParseUser.getQuery();
-		query.whereEqualTo("FBid", pref.getString("FBid", ""));
-		query.getFirstInBackground(new GetCallback<ParseUser>() {
-
-			@Override
-			public void done(ParseUser user, ParseException e) {
-				if (e == null) {
-					
-					for (final UserBadge ub : updateUb) {
-						JSONObject newBadge = new JSONObject();
-						try {
-							JSONArray bs = user.getJSONArray("badges");
-							int currentBadge = ClimbApplication.lookForBadge(ub.getBadge().get_id(), ub.getObj_id(), bs);
-							if (currentBadge != -1) {
-								bs = ModelsUtil.removeFromJSONArray(bs, currentBadge);
-							}
-
-							newBadge.put("badge_id", ub.getBadge().get_id());
-							newBadge.put("obj_id", ub.getObj_id());
-							newBadge.put("percentage", ub.getPercentage());
-							bs.put(newBadge);
-							user.put("badges", bs);
-							// user.saveEventually();
-							ub.setSaved(true);
-							ClimbApplication.userBadgeDao.update(ub);
-						} catch (JSONException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-					}
-					ParseUtils.saveUserInParse(user);
-
-					
-				} else {
-					// Toast.makeText(getApplicationContext(),
-					// getString(R.string.connection_problem2),
-					// Toast.LENGTH_SHORT).show();
-					Log.e("saveBadges", e.getMessage());
-				}
-			}
-		});
+//		ParseQuery<ParseUser> query = ParseUser.getQuery();
+//		query.whereEqualTo("FBid", pref.getString("FBid", ""));
+//		query.getFirstInBackground(new GetCallback<ParseUser>() {
+//
+//			@Override
+//			public void done(ParseUser user, ParseException e) {
+//				if (e == null) {
+//					
+//					for (final UserBadge ub : updateUb) {
+//						JSONObject newBadge = new JSONObject();
+//						try {
+//							JSONArray bs = user.getJSONArray("badges");
+//							int currentBadge = ClimbApplication.lookForBadge(ub.getBadge().get_id(), ub.getObj_id(), bs);
+//							if (currentBadge != -1) {
+//								bs = ModelsUtil.removeFromJSONArray(bs, currentBadge);
+//							}
+//
+//							newBadge.put("badge_id", ub.getBadge().get_id());
+//							newBadge.put("obj_id", ub.getObj_id());
+//							newBadge.put("percentage", ub.getPercentage());
+//							bs.put(newBadge);
+//							user.put("badges", bs);
+//							// user.saveEventually();
+//							ub.setSaved(true);
+//							ClimbApplication.userBadgeDao.update(ub);
+//						} catch (JSONException e1) {
+//							// TODO Auto-generated catch block
+//							e1.printStackTrace();
+//						}
+//					}
+//					if(saveOnline) ParseUtils.saveUserInParse(user);
+//
+//					
+//				} else {
+//					// Toast.makeText(getApplicationContext(),
+//					// getString(R.string.connection_problem2),
+//					// Toast.LENGTH_SHORT).show();
+//					Log.e("saveBadges", e.getMessage());
+//				}
+//			}
+//		});
 		
+		//TEST
+			if (ParseUser.getCurrentUser() != null) {
+		ParseUser user = ParseUser.getCurrentUser();
+		for (final UserBadge ub : updateUb) {
+			JSONObject newBadge = new JSONObject();
+			try {
+				JSONArray bs = user.getJSONArray("badges");
+				int currentBadge = ClimbApplication.lookForBadge(ub.getBadge().get_id(), ub.getObj_id(), bs);
+				if (currentBadge != -1) {
+					bs = ModelsUtil.removeFromJSONArray(bs, currentBadge);
+				}
+
+				newBadge.put("badge_id", ub.getBadge().get_id());
+				newBadge.put("obj_id", ub.getObj_id());
+				newBadge.put("percentage", ub.getPercentage());
+				bs.put(newBadge);
+				user.put("badges", bs);
+				// user.saveEventually();
+				ub.setSaved(true);
+				ClimbApplication.userBadgeDao.update(ub);
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+		if(saveOnline) ParseUtils.saveUserInParse(user);
+			}
 	}
 
 		ClimbApplication.refreshUserBadge();

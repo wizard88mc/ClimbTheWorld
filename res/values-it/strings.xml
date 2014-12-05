@@ -76,10 +76,13 @@
     <!-- Facebook Requests -->
     <string name="request_sent">Richiesta inviata</string>
     <string name="request_cancelled">Richiesta annullata</string>
-    <string name="network_error">Errore di rete</string>
+    <string name="network_error">Errore di rete: connessione assente</string>
     <string name="not_logged">Non hai fatto il login a Facebook</string>
     <string name="request_arrived">Richiesta arrivata</string>
     <string name="request_deleted">Richiesta eliminata</string>
+    
+    <string name="post_published">Post pubblicato</string>
+    
     
     
     <!-- AsyncTask -->

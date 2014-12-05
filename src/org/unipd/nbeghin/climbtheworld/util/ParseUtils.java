@@ -81,21 +81,29 @@ public class ParseUtils {
 		});
 	}
 	
-	public static void saveUserInParse(ParseUser user){
-		System.out.println("save user in parse");
-		user.saveInBackground(new SaveCallback() {
+	public static void saveUserInParse(final ParseUser user){
+		new Runnable() {
 			
 			@Override
-			public void done(ParseException e) {
-				if(e == null){
-					Log.i(getClass().getName(), "User correctly saved in Parse");
-				}else{
-					//Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
-					//ClimbApplication.showConnectionProblemsToast();
-					Log.e(getClass().getName(), e.getMessage());
-				}
+			public void run() {
+				System.out.println("save user in parse");
+				user.saveInBackground(new SaveCallback() {
+					
+					@Override
+					public void done(ParseException e) {
+						if(e == null){
+							Log.i(getClass().getName(), "User correctly saved in Parse");
+						}else{
+							//Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
+							//ClimbApplication.showConnectionProblemsToast();
+							Log.e(getClass().getName(), e.getMessage());
+						}
+					}
+				});
+				
 			}
-		});
+		}.run();
+		
 	}
 	
 	public static void saveCollaboration(ParseObject p_collaboration, final Collaboration l_collaboration){
@@ -106,7 +114,7 @@ public class ParseUtils {
 				if(ex == null){
 					//no problems
 					Log.i(getClass().getName(), "Collaboration correctly saved in Parse");
-					if(l_collaboration.isLeaved())
+					if(l_collaboration.isLeaved() || l_collaboration.isCompleted())
 						ClimbApplication.collaborationDao.delete(l_collaboration);
 					else{
 						l_collaboration.setSaved(true);

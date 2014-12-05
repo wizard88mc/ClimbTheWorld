@@ -36,8 +36,9 @@ import com.parse.ParseUser;
 
 /**
  * Class called during login in asynchronus threads, to let user wait for his game progress and other data to be downloaded ad saved locally.
+ * 
  * @author Silvia
- *
+ * 
  */
 public class MyAsync {
 
@@ -49,45 +50,42 @@ public class MyAsync {
 	private ProgressDialog PD;
 	private User me;
 	private boolean inside;
-	
-	MyAsync(/*ParseUser user, */Activity activity, ProgressDialog PD, boolean inside) {
+
+	MyAsync(/* ParseUser user, */Activity activity, ProgressDialog PD, boolean inside) {
 		// session = session;
-		//this.user = user;
+		// this.user = user;
 		this.inside = inside;
 		this.activity = activity;
 		this.PD = PD;
 		me = ClimbApplication.getUserById(activity.getSharedPreferences("UserSession", 0).getInt("local_id", -1));
 	}
 
-
-
 	protected Void execute() {
 		ClimbApplication.BUSY = true;
-		//PD.setMessage("load friends");
+		// PD.setMessage("load friends");
 		RequestBatch requestBatch = ClimbApplication.loadFriendsFromFacebook();
 		// Execute the batch of requests asynchronously
-		if(inside) requestBatch.executeAsync();
-		else requestBatch.executeAndWait();
+		if (inside)
+			requestBatch.executeAsync();
+		else
+			requestBatch.executeAndWait();
 		ParseUtils.updateCurrentUserData();
-		//NetworkRequestAsyncTask.setMessage("load badge");
+		// NetworkRequestAsyncTask.setMessage("load badge");
 		saveBadges();
-		//NetworkRequestAsyncTask.setMessage("load microgoal");
+		// NetworkRequestAsyncTask.setMessage("load microgoal");
 		loadMicrogoalFromParse();
-		//NetworkRequestAsyncTask.setMessage("load progress");
+		// NetworkRequestAsyncTask.setMessage("load progress");
 		loadProgressFromParse();
-		
 
 		// updateFacebookSession(session, session.getState());
 		return null;
 	}
 
-	
-	
 	/**
 	 * Saved user's badges locally
 	 */
 	private void saveBadges() {
-    	Log.d("SettingsActivity", "saveBadges");
+		Log.d("SettingsActivity", "saveBadges");
 		ParseQuery<ParseUser> query = ParseUser.getQuery();
 		query.whereEqualTo("FBid", pref.getString("FBid", ""));
 		query.getFirstInBackground(new GetCallback<ParseUser>() {
@@ -96,35 +94,35 @@ public class MyAsync {
 			public void done(ParseUser user, ParseException e) {
 				if (e == null) {
 					JSONArray badges = user.getJSONArray("badges");
-					if(badges != null){
-					for (int i = 0; i < badges.length(); i++) {
-						try {
-							JSONObject badge = badges.getJSONObject(i);
-							int badge_id = badge.getInt("badge_id");
-							int obj_id = badge.getInt("obj_id");
-							int user_id = pref.getInt("local_id", -1);
-							UserBadge userBadge = ClimbApplication.getUserBadgeForUserAndBadge(badge_id, obj_id, user_id);
-							if (userBadge == null) {
-								UserBadge ub = new UserBadge();
-								ub.setBadge(ClimbApplication.getBadgeById(badge_id));
-								ub.setObj_id(obj_id);
-								ub.setUser(ClimbApplication.getUserById(user_id));
-								ub.setPercentage(badge.getDouble("percentage"));
-								ClimbApplication.userBadgeDao.create(ub);
-							} else {
-								userBadge.setPercentage(badge.getDouble("percentage"));
-								ClimbApplication.userBadgeDao.update(userBadge);
+					if (badges != null && badges.length() > 0) {
+						for (int i = 0; i < badges.length(); i++) {
+							try {
+								JSONObject badge = badges.getJSONObject(i);
+								int badge_id = badge.getInt("badge_id");
+								int obj_id = badge.getInt("obj_id");
+								int user_id = pref.getInt("local_id", -1);
+								UserBadge userBadge = ClimbApplication.getUserBadgeForUserAndBadge(badge_id, obj_id, user_id);
+								if (userBadge == null) {
+									UserBadge ub = new UserBadge();
+									ub.setBadge(ClimbApplication.getBadgeById(badge_id));
+									ub.setObj_id(obj_id);
+									ub.setUser(ClimbApplication.getUserById(user_id));
+									ub.setPercentage(badge.getDouble("percentage"));
+									ClimbApplication.userBadgeDao.create(ub);
+								} else {
+									userBadge.setPercentage(badge.getDouble("percentage"));
+									ClimbApplication.userBadgeDao.update(userBadge);
+								}
+							} catch (JSONException ex) {
+								// TODO Auto-generated catch block
+								ex.printStackTrace();
 							}
-						} catch (JSONException ex) {
-							// TODO Auto-generated catch block
-							ex.printStackTrace();
 						}
-					}
-					ClimbApplication.refreshUserBadge();
-					}else{
+						ClimbApplication.refreshUserBadge();
+					} else {
 						badges = new JSONArray();
 						user.put("badges", badges);
-						//user.saveEventually();
+						// user.saveEventually();
 						ParseUtils.saveUserInParse(user);
 					}
 				} else {
@@ -134,9 +132,8 @@ public class MyAsync {
 
 			}
 		});
-		
+
 	}
-	
 
 	/**
 	 * Saves user's microgoal progress locally
@@ -149,9 +146,9 @@ public class MyAsync {
 			@Override
 			public void done(List<ParseObject> microgoals, ParseException e) {
 				if (e == null) {
-					//System.out.println("microgoal :" + microgoals.size());
+					// System.out.println("microgoal :" + microgoals.size());
 					for (ParseObject microgoal : microgoals) {
-						//System.out.println("cerco microgoal per building " + microgoal.getInt("building"));
+						// System.out.println("cerco microgoal per building " + microgoal.getInt("building"));
 						Microgoal current_microgoal = ClimbApplication.getMicrogoalByUserAndBuilding(pref.getInt("local_id", -1), microgoal.getInt("building"));
 						if (current_microgoal == null) {
 							Building building = ClimbApplication.getBuildingById(microgoal.getInt("building"));
@@ -208,15 +205,14 @@ public class MyAsync {
 						boolean pausedExists = false;
 						List<Climbing> climbs = ClimbApplication.getClimbingListForBuildingAndUser(climb.getInt("building"), pref.getInt("local_id", -1));
 						if (climbs.size() > 0) {
-							for(Climbing climbing : climbs){
-								if (climbing.getGame_mode()== climb.getInt("game_mode"))
+							for (Climbing climbing : climbs) {
+								if (climbing.getGame_mode() == climb.getInt("game_mode"))
 									localClimb = climbing;
 							}
-							
-						if(climbs.size() >= 2)
-							pausedExists = true;
-								
-							
+
+							if (climbs.size() >= 2)
+								pausedExists = true;
+
 						}
 						if (localClimb == null) {
 							// save new climbing locally
@@ -234,7 +230,7 @@ public class MyAsync {
 							c.setGame_mode(climb.getInt("game_mode"));
 							c.setId_online(climb.getObjectId());
 							ClimbApplication.climbingDao.create(c);
-					
+
 							switch (c.getGame_mode()) {
 							case 1:
 								loadCollaborationsFromParse(c.getId_mode(), last);
@@ -273,7 +269,7 @@ public class MyAsync {
 								loadCompetitionsFromParse(localClimb.getId_mode(), last);
 								break;
 							case 3:
-								
+
 								loadTeamDuelsFromParse(localClimb.getId_mode(), last, localClimb, climb, pausedExists);
 								break;
 							default:
@@ -298,6 +294,14 @@ public class MyAsync {
 					Log.e("loadProgressFromParse", e.getMessage());
 				}
 
+				if (climbings.size() == 0) {
+					synchronized (ClimbApplication.lock) {
+						ClimbApplication.lock.notify();
+						ClimbApplication.BUSY = false;
+					}
+
+				}
+
 			}
 		});
 
@@ -319,8 +323,11 @@ public class MyAsync {
 
 	/**
 	 * Downloads the team duel with the given id and saves it locally
-	 * @param id the id of the team duel object to download
-	 * @param last true if this is the last operation of the asynctask, false otherwise
+	 * 
+	 * @param id
+	 *            the id of the team duel object to download
+	 * @param last
+	 *            true if this is the last operation of the asynctask, false otherwise
 	 */
 	private void loadTeamDuelsFromParse(final String id, final boolean last, final Climbing c, final ParseObject climb, final boolean pausedExists) {
 		final SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
@@ -332,8 +339,8 @@ public class MyAsync {
 			public void done(List<ParseObject> duels, ParseException e) {
 				if (e == null) {
 					boolean created = false;
-					if(duels.size() == 0){
-						if(!pausedExists){
+					if (duels.size() == 0) {
+						if (!pausedExists) {
 							TeamDuel local_duel = ClimbApplication.getTeamDuelById(id);
 							ClimbApplication.teamDuelDao.delete(local_duel);
 							c.setId_mode("");
@@ -342,68 +349,34 @@ public class MyAsync {
 							climb.put("id_mode", "");
 							climb.put("game_mode", 0);
 							ParseUtils.saveClimbing(climb, c);
-						}else{
+						} else {
 							TeamDuel local_duel = ClimbApplication.getTeamDuelById(id);
 							ClimbApplication.teamDuelDao.delete(local_duel);
 							ParseUtils.deleteClimbing(climb, c);
 							ClimbApplication.climbingDao.delete(c);
-							
+
 						}
-					}else{
-					ParseObject duel = duels.get(0);
-					TeamDuel local_duel = ClimbApplication.getTeamDuelById(duel.getObjectId());
-					if (local_duel == null) {
-						local_duel = new TeamDuel();
-						created = true;
-					}
-					User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
-					local_duel.setId_online(duel.getObjectId());
-					local_duel.setBuilding(ClimbApplication.getBuildingById(duel.getInt("building")));
-					local_duel.setUser(me);
-					local_duel.setDeleted(false);
-					local_duel.setCompleted(duel.getBoolean("completed"));
-					JSONObject challenger = duel.getJSONObject("challenger");
-					JSONObject creator = duel.getJSONObject("creator");
-					JSONObject creator_stairs = duel.getJSONObject("creator_stairs");
-					JSONObject challenger_stairs = duel.getJSONObject("challenger_stairs");
-					try {
-						Iterator<String> it;
-						if (creator.has(pref.getString("FBid", ""))) {
-							local_duel.setCreator(true);
-							local_duel.setMygroup(Group.CREATOR);
-							local_duel.setSteps_my_group(ModelsUtil.sum(creator_stairs));
-							local_duel.setSteps_other_group(ModelsUtil.sum(challenger_stairs));
-							if (challenger.length() > 0) {
-								it = challenger.keys();
-								if (it.hasNext())
-									local_duel.setChallenger_name(challenger.getString(it.next()));
-								else
-									local_duel.setChallenger_name("");
-							}
-							local_duel.setChallenger(false);
-							local_duel.setCreator_name(me.getName());
-							local_duel.setMy_steps(creator_stairs.getInt(me.getFBid()));
-
-						} else if (challenger.has(pref.getString("FBid", ""))) {
-							local_duel.setCreator(false);
-							local_duel.setChallenger_name(me.getName());
-							local_duel.setChallenger(true);
-							if (creator.length() > 0) {
-								it = creator.keys();
-								if (it.hasNext())
-									local_duel.setCreator_name(creator.getString(it.next()));
-								else
-									local_duel.setCreator_name("");
-							}
-							local_duel.setMygroup(Group.CHALLENGER);
-							local_duel.setSteps_my_group(ModelsUtil.sum(challenger_stairs));
-							local_duel.setSteps_my_group(ModelsUtil.sum(creator_stairs));
-							local_duel.setMy_steps(challenger_stairs.getInt(me.getFBid()));
-							local_duel.setChallenger_name(me.getName());
-
-						} else {
-							if (creator_stairs.has(pref.getString("FBid", ""))) {
-								local_duel.setCreator(false);
+					} else {
+						ParseObject duel = duels.get(0);
+						TeamDuel local_duel = ClimbApplication.getTeamDuelById(duel.getObjectId());
+						if (local_duel == null) {
+							local_duel = new TeamDuel();
+							created = true;
+						}
+						User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
+						local_duel.setId_online(duel.getObjectId());
+						local_duel.setBuilding(ClimbApplication.getBuildingById(duel.getInt("building")));
+						local_duel.setUser(me);
+						local_duel.setDeleted(false);
+						local_duel.setCompleted(duel.getBoolean("completed"));
+						JSONObject challenger = duel.getJSONObject("challenger");
+						JSONObject creator = duel.getJSONObject("creator");
+						JSONObject creator_stairs = duel.getJSONObject("creator_stairs");
+						JSONObject challenger_stairs = duel.getJSONObject("challenger_stairs");
+						try {
+							Iterator<String> it;
+							if (creator.has(pref.getString("FBid", ""))) {
+								local_duel.setCreator(true);
 								local_duel.setMygroup(Group.CREATOR);
 								local_duel.setSteps_my_group(ModelsUtil.sum(creator_stairs));
 								local_duel.setSteps_other_group(ModelsUtil.sum(challenger_stairs));
@@ -415,25 +388,13 @@ public class MyAsync {
 										local_duel.setChallenger_name("");
 								}
 								local_duel.setChallenger(false);
-
-								if (creator.length() > 0) {
-									it = creator.keys();
-									if (it.hasNext())
-										local_duel.setCreator_name(creator.getString(it.next()));
-									else
-										local_duel.setCreator_name("");
-								}
+								local_duel.setCreator_name(me.getName());
 								local_duel.setMy_steps(creator_stairs.getInt(me.getFBid()));
-							} else {
+
+							} else if (challenger.has(pref.getString("FBid", ""))) {
 								local_duel.setCreator(false);
-								if (challenger.length() > 0) {
-									it = challenger.keys();
-									if (it.hasNext())
-										local_duel.setChallenger_name(challenger.getString(it.next()));
-									else
-										local_duel.setChallenger_name("");
-								}
-								local_duel.setChallenger(false);
+								local_duel.setChallenger_name(me.getName());
+								local_duel.setChallenger(true);
 								if (creator.length() > 0) {
 									it = creator.keys();
 									if (it.hasNext())
@@ -445,21 +406,67 @@ public class MyAsync {
 								local_duel.setSteps_my_group(ModelsUtil.sum(challenger_stairs));
 								local_duel.setSteps_my_group(ModelsUtil.sum(creator_stairs));
 								local_duel.setMy_steps(challenger_stairs.getInt(me.getFBid()));
+								local_duel.setChallenger_name(me.getName());
+
+							} else {
+								if (creator_stairs.has(pref.getString("FBid", ""))) {
+									local_duel.setCreator(false);
+									local_duel.setMygroup(Group.CREATOR);
+									local_duel.setSteps_my_group(ModelsUtil.sum(creator_stairs));
+									local_duel.setSteps_other_group(ModelsUtil.sum(challenger_stairs));
+									if (challenger.length() > 0) {
+										it = challenger.keys();
+										if (it.hasNext())
+											local_duel.setChallenger_name(challenger.getString(it.next()));
+										else
+											local_duel.setChallenger_name("");
+									}
+									local_duel.setChallenger(false);
+
+									if (creator.length() > 0) {
+										it = creator.keys();
+										if (it.hasNext())
+											local_duel.setCreator_name(creator.getString(it.next()));
+										else
+											local_duel.setCreator_name("");
+									}
+									local_duel.setMy_steps(creator_stairs.getInt(me.getFBid()));
+								} else {
+									local_duel.setCreator(false);
+									if (challenger.length() > 0) {
+										it = challenger.keys();
+										if (it.hasNext())
+											local_duel.setChallenger_name(challenger.getString(it.next()));
+										else
+											local_duel.setChallenger_name("");
+									}
+									local_duel.setChallenger(false);
+									if (creator.length() > 0) {
+										it = creator.keys();
+										if (it.hasNext())
+											local_duel.setCreator_name(creator.getString(it.next()));
+										else
+											local_duel.setCreator_name("");
+									}
+									local_duel.setMygroup(Group.CHALLENGER);
+									local_duel.setSteps_my_group(ModelsUtil.sum(challenger_stairs));
+									local_duel.setSteps_my_group(ModelsUtil.sum(creator_stairs));
+									local_duel.setMy_steps(challenger_stairs.getInt(me.getFBid()));
+								}
 							}
+						} catch (JSONException ex) {
+							ex.printStackTrace();
 						}
-					} catch (JSONException ex) {
-						ex.printStackTrace();
+						if (challenger_stairs.length() == ClimbApplication.N_MEMBERS_PER_GROUP && creator_stairs.length() == ClimbApplication.N_MEMBERS_PER_GROUP)
+							local_duel.setReadyToPlay(true);
+						else
+							local_duel.setReadyToPlay(false);
+						local_duel.setSaved(true);
+						if (created)
+							ClimbApplication.teamDuelDao.create(local_duel);
+						else
+							ClimbApplication.teamDuelDao.update(local_duel);
 					}
-					if (challenger_stairs.length() == ClimbApplication.N_MEMBERS_PER_GROUP && creator_stairs.length() == ClimbApplication.N_MEMBERS_PER_GROUP)
-						local_duel.setReadyToPlay(true);
-					else
-						local_duel.setReadyToPlay(false);
-					local_duel.setSaved(true);
-					if (created)
-						ClimbApplication.teamDuelDao.create(local_duel);
-					else
-						ClimbApplication.teamDuelDao.update(local_duel);
-				}
 				} else {
 					Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 					Log.e("loadTeamDuelsFromParse", e.getMessage());
@@ -478,14 +485,17 @@ public class MyAsync {
 
 	/**
 	 * Downloads the collaboration with the given id and saves it locally
-	 * @param id the id of the collaboration object to download
-	 * @param last true if this is the last operation of the asynctask, false otherwise
+	 * 
+	 * @param id
+	 *            the id of the collaboration object to download
+	 * @param last
+	 *            true if this is the last operation of the asynctask, false otherwise
 	 */
 	private void loadCollaborationsFromParse(String id, final boolean last) {
 		final SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("Collaboration");
 		query.whereEqualTo("objectId", id);
-		//System.out.println("loadCollabortion: " + id);
+		// System.out.println("loadCollabortion: " + id);
 		query.findInBackground(new FindCallback<ParseObject>() {
 
 			@Override
@@ -507,7 +517,7 @@ public class MyAsync {
 						coll.setSaved(true);
 						coll.setUser(me);
 						JSONObject creator = collaboration.getJSONObject("creator");
-						if(creator.has(me.getFBid()))
+						if (creator.has(me.getFBid()))
 							coll.setAmICreator(true);
 						else
 							coll.setAmICreator(false);
@@ -541,8 +551,11 @@ public class MyAsync {
 
 	/**
 	 * Downloads the competition with the given id and saves it locally
-	 * @param id the id of the competition object to download
-	 * @param last true if this is the last operation of the asynctask, false otherwise
+	 * 
+	 * @param id
+	 *            the id of the competition object to download
+	 * @param last
+	 *            true if this is the last operation of the asynctask, false otherwise
 	 */
 	private void loadCompetitionsFromParse(String id, final boolean last) {
 		final SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
@@ -570,7 +583,7 @@ public class MyAsync {
 						comp.setSaved(true);
 						comp.setUser(me);
 						JSONObject creator = competition.getJSONObject("creator");
-						if(creator.has(me.getFBid()))
+						if (creator.has(me.getFBid()))
 							comp.setAmICreator(true);
 						else
 							comp.setAmICreator(false);

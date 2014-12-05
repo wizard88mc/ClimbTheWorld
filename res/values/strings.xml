@@ -83,6 +83,8 @@
     <string name="not_logged">You\'re not currently logged to Facebook</string>
     <string name="request_arrived">Request arrived</string>
     <string name="request_deleted">Request deleted</string>
+    <string name="post_published">Post published</string>
+    
     
     <!-- AsyncTask -->
     <string name="wait">Please Wait...</string>

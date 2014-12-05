@@ -65,16 +65,13 @@ public class VerticalSeekBar extends SeekBar {
 		RelativeLayout parent = (RelativeLayout) this.getParent();
 		line = parent.findViewById(R.id.redLine);
 		line.setLayoutParams(new LayoutParams(width/2, 2));
-		//line.setPadding(0, (int) starHeight, 0, 0);
 		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)line.getLayoutParams();
 		params.setMargins(0,  height - ((int) starHeight) - 30, 0, 0); //substitute parameters for left, top, right, bottom
 		line.setLayoutParams(params);
-		//System.out.println("onDraw " + starHeight);
 		line.setBackgroundColor(getResources().getColor(R.color.red));
 		
 		System.out.println("starheight " + starHeight);
 		c.drawBitmap(thumb1, (float)starHeight , 40,null);
-		//c.drawBitmap(thumb2, 1000 , 20,null);
         
         
 		super.onDraw(c);

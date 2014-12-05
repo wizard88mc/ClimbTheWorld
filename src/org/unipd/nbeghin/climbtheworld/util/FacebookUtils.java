@@ -3,6 +3,7 @@ package org.unipd.nbeghin.climbtheworld.util;
 import java.util.Collection;
 
 import org.unipd.nbeghin.climbtheworld.MainActivity;
+import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.exceptions.NoFBSession;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 
@@ -134,17 +135,17 @@ public class FacebookUtils {
 				if (error == null) {
 					final String postId = values.getString("post_id");
 					if (postId != null) {
-						Toast.makeText(context, "Posted successfully", Toast.LENGTH_SHORT).show();
+						Toast.makeText(context, context.getString(R.string.post_published), Toast.LENGTH_SHORT).show();
 					} else {
 						// User clicked the Cancel button
-						Toast.makeText(context.getApplicationContext(), "Publish cancelled", Toast.LENGTH_SHORT).show();
+						Toast.makeText(context.getApplicationContext(), context.getString(R.string.request_cancelled), Toast.LENGTH_SHORT).show();
 					}
 				} else if (error instanceof FacebookOperationCanceledException) {
 					// User clicked the "x" button
-					Toast.makeText(context.getApplicationContext(), "Publish cancelled", Toast.LENGTH_SHORT).show();
+					Toast.makeText(context.getApplicationContext(), context.getString(R.string.request_cancelled), Toast.LENGTH_SHORT).show();
 				} else {
 					// Generic, ex: network error
-					Toast.makeText(context.getApplicationContext(), "Error posting story", Toast.LENGTH_SHORT).show();
+					Toast.makeText(context.getApplicationContext(), context.getString(R.string.network_error), Toast.LENGTH_SHORT).show();
 				}
 			}
 		}).build();

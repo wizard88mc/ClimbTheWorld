@@ -149,9 +149,14 @@ public class UpdateService extends IntentService {
 		Log.d("updateService", "Climbings: " + climbings.size());
 		for (final Climbing climbing : climbings) {
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
-			query.whereEqualTo("building", climbing.getBuilding().get_id());
-			query.whereEqualTo("users_id", climbing.getUser().getFBid());
-			query.whereEqualTo("game_mode", mode);
+			
+			if(climbing.getId_online() != null && !climbing.getId_online().equalsIgnoreCase(""))
+				query.whereEqualTo("objectId", climbing.getId_online());
+			else{
+				query.whereEqualTo("building", climbing.getBuilding().get_id());
+				query.whereEqualTo("users_id", climbing.getUser().getFBid());
+				query.whereEqualTo("game_mode", mode);
+			}
 			/*
 			 * if(climbing.getGame_mode() == 3) query.whereEqualTo("game_mode",
 			 * 3);
@@ -198,7 +203,7 @@ public class UpdateService extends IntentService {
 									ClimbApplication.climbingDao.update(climbing);
 								}
 							}
-							if (climbing.getGame_mode() != 0)
+							if(climbing.getId_mode() != null)//if (climbing.getGame_mode() != 0)
 								climbOnline.put("id_mode", climbing.getId_mode());
 							climbOnline.saveInBackground(new SaveCallback() {
 
