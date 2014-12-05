@@ -329,7 +329,7 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests {
 			if (ClimbApplication.notifications.isEmpty())
 				Toast.makeText(MainActivity.this, MainActivity.this.getString(R.string.no_notification), Toast.LENGTH_SHORT).show();
 			else {
-				Toast.makeText(MainActivity.this, MainActivity.this.getResources().getQuantityString(R.plurals.n_notification, ClimbApplication.notifications.size()), Toast.LENGTH_SHORT).show();
+				Toast.makeText(MainActivity.this, MainActivity.this.getResources().getQuantityString(R.plurals.n_notification, ClimbApplication.notifications.size(), ClimbApplication.notifications.size()), Toast.LENGTH_SHORT).show();
 				mPager.getAdapter().notifyDataSetChanged(); //update UI with new data
 			}
 		}

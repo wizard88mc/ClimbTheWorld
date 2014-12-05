@@ -3,6 +3,7 @@ package org.unipd.nbeghin.climbtheworld.services;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,11 +13,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.unipd.nbeghin.climbtheworld.ClimbApplication;
+import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.db.PreExistingDbLoader;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.Competition;
+import org.unipd.nbeghin.climbtheworld.models.GameModeType;
 import org.unipd.nbeghin.climbtheworld.models.Group;
 import org.unipd.nbeghin.climbtheworld.models.Microgoal;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
@@ -949,5 +952,5 @@ public class UpdateService extends IntentService {
 		}
 
 	}
-
+	
 }

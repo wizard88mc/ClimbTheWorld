@@ -311,7 +311,7 @@ public class ClimbActivity extends ActionBarActivity {
 					}
 					updateStats(); // update the view of current stats
 					if (win && !isCounterMode) {
-						new SaveProgressTask(true).execute(); //stopClassify(); // stop classifier service service
+						new SaveProgressTask(true, true).execute(); //stopClassify(); // stop classifier service service
 						((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.av_play); // set
 						 findViewById(R.id.progressBarClimbing).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_fade_out)); // hide
 							// progress
@@ -1828,7 +1828,7 @@ public class ClimbActivity extends ActionBarActivity {
 				boolean changes = false;
 				if (new_steps != 0)
 					changes = true;
-					new SaveProgressTask(changes).execute(); //stopClassify();	
+					new SaveProgressTask(changes, true).execute(); //stopClassify();	
 
 				 ((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.av_play); // set
 				 findViewById(R.id.progressBarClimbing).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_fade_out)); // hide
@@ -1889,9 +1889,9 @@ public class ClimbActivity extends ActionBarActivity {
 	/**
 	 * Stop background classifier service
 	 */
-	public void stopClassify(boolean changes) {
+	public void stopClassify(boolean changes, boolean stopServices) {
 		Log.i("ClimbActivity", "stopClassify");
-		if (samplingEnabled) {
+		if (samplingEnabled && stopServices) {
 			stopService(backgroundClassifySampler); // stop background service
 			samplingEnabled = false;
 			unregisterReceiver(classifierReceiver); // unregister listener
@@ -1950,9 +1950,7 @@ public class ClimbActivity extends ActionBarActivity {
 
 			Log.i(MainActivity.AppName, "Updated climbing #" + climbing.get_id());
 
-			System.out.println("entra????");
-			System.out.println(collaboration != null);
-			System.out.println(mode == GameModeType.SOCIAL_CLIMB);
+		
 			if (mode == GameModeType.SOCIAL_CLIMB && collaboration != null)
 				saveCollaborationData();
 			else if (mode == GameModeType.SOCIAL_CHALLENGE && competition != null)
@@ -1984,14 +1982,16 @@ public class ClimbActivity extends ActionBarActivity {
 	     }
 
 	     boolean changes;
+	     boolean stopServices;
 	     
-	     public SaveProgressTask(boolean changes){
+	     public SaveProgressTask(boolean changes, boolean stopServices){
 	    	 this.changes = changes;
+	    	 this.stopServices = stopServices;
 	     }
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			stopClassify(changes);
+			stopClassify(changes, stopServices);
 			return null;
 		}
 	 }
@@ -2235,16 +2235,18 @@ public class ClimbActivity extends ActionBarActivity {
 		Editor editor = paused.edit();
 		editor.putBoolean("paused", true);
 		editor.commit();
-		//if (samplingEnabled)
-			//saveBeforeQuit(); TODO
-		// this.finish();
+		if (samplingEnabled)
+			new SaveProgressTask(true, false).execute();		// this.finish();
 	}
 
-	private void saveBeforeQuit() {
-		if (!isCounterMode) {
-			System.out.println("save before quit");
+	private void saveBeforeQuit(boolean changes) {
+		if(isCounterMode) updateUserStats(true);
+		else updateUserStats(false);
+		if (!isCounterMode && changes) {
 			// update db
-			updateMicrogoalInParse();
+			if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty"))
+				updateMicrogoalInParse();
+			
 			climbing.setModified(new Date().getTime()); // update climbing last
 														// edit
 														// date
@@ -2321,8 +2323,9 @@ public class ClimbActivity extends ActionBarActivity {
 		Log.i(MainActivity.AppName, "ClimbActivity onDestroy");
 		stopAllServices(); // make sure to stop all background services
 		super.onDestroy();
-		if (samplingEnabled)
-			saveBeforeQuit();
+		if (samplingEnabled){
+			new SaveProgressTask(true, false).execute();
+		}
 	}
 
 	@Override
