@@ -2057,6 +2057,7 @@ public class ClimbActivity extends ActionBarActivity {
 		if (collab_parse == null) {
 			collaboration.setSaved(false);
 			ClimbApplication.collaborationDao.update(collaboration);
+			System.out.println("collab parse null");
 			// Toast.makeText(getApplicationContext(),
 			// getString(R.string.connection_problem2), Toast.LENGTH_SHORT)
 			// .show();
@@ -2064,6 +2065,7 @@ public class ClimbActivity extends ActionBarActivity {
 			SharedPreferences pref = getSharedPreferences("UserSession", 0);
 			JSONObject stairs = collab_parse.getJSONObject("stairs");
 			try {
+				System.out.println("save stairs");
 				stairs.put(pref.getString("FBid", ""), collaboration.getMy_stairs());
 				collab_parse.put("stairs", stairs);
 				if (percentage >= 1.00 || current_win) {

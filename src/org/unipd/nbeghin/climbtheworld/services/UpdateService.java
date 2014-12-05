@@ -285,7 +285,7 @@ public class UpdateService extends IntentService {
 										break;
 									}
 								} else {
-									if (climbing.getGame_mode() != 0)
+									if(climbing.getId_mode() != null)//if (climbing.getGame_mode() != 0)
 										climbOnline.put("id_mode", climbing.getId_mode());
 								}
 								// climbOnline.saveEventually();
@@ -317,7 +317,7 @@ public class UpdateService extends IntentService {
 			if (collaboration.getId() == null || collaboration.getId().equals("")) {
 				query.whereEqualTo("collaborators." + collaboration.getUser().getFBid(), collaboration.getUser().getName());
 				query.whereEqualTo("building", collaboration.getBuilding().get_id());
-				query.whereEqualTo("completed", false);
+				//query.whereEqualTo("completed", false);
 			} else
 				query.whereEqualTo("objectId", collaboration.getId());
 			query.findInBackground(new FindCallback<ParseObject>() {
