@@ -10,7 +10,6 @@ import java.util.SimpleTimeZone;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.unipd.nbeghin.climbtheworld.ClimbApplication;
-import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.models.AskCollaborationNotification;
 import org.unipd.nbeghin.climbtheworld.models.AskCompetitionNotification;
@@ -29,11 +28,11 @@ import org.unipd.nbeghin.climbtheworld.util.ParseUtils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,8 +40,6 @@ import com.facebook.HttpMethod;
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
-import com.fima.cardsui.SwipeDismissTouchListener;
-import com.fima.cardsui.SwipeDismissTouchListener.OnDismissCallback;
 import com.fima.cardsui.objects.Card;
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -57,6 +54,7 @@ public class NotificationCard extends Card {
 	ImageButton acceptBtn;
 	ImageButton cancelBtn;
 	TextView text;
+	ProgressBar progressBar;
 	boolean enabled;
 
 	public NotificationCard(Notification notification, boolean enabled) {
@@ -89,7 +87,9 @@ public class NotificationCard extends Card {
 		cancelBtn = ((ImageButton) view.findViewById(R.id.cancelButton));
 		acceptBtn = (ImageButton) view.findViewById(R.id.acceptButton);
 		text = ((TextView) view.findViewById(R.id.text));
-		 
+		progressBar = (ProgressBar) view.findViewById(R.id.progressBarNotf);
+		progressBar.setIndeterminate(true);
+		
 		text.setText(setMessage());
 		/*if (enabled){
 			acceptBtn.setVisibility(View.VISIBLE);
@@ -109,8 +109,12 @@ public class NotificationCard extends Card {
 
 			@Override
 			public void onClick(View arg0) {
+				
 				boolean busy = ClimbApplication.BUSY;
 				if (FacebookUtils.isOnline(context) && !busy) {
+					acceptBtn.setVisibility(View.GONE);
+					cancelBtn.setVisibility(View.GONE);
+					progressBar.setVisibility(View.VISIBLE);
 					ClimbApplication.BUSY = true;
 					NotificationType type = notification.getType();
 					switch (type) {
@@ -150,6 +154,8 @@ public class NotificationCard extends Card {
 
 								}
 								ClimbApplication.BUSY = false;
+								progressBar.setVisibility(View.GONE);
+
 							}
 
 						});
@@ -181,6 +187,8 @@ public class NotificationCard extends Card {
 											acceptBtn.setEnabled(false);
 											notification.setRead(true);
 											ClimbApplication.BUSY = false;
+											progressBar.setVisibility(View.GONE);
+
 										} else {
 											//collaboration object found in parse
 											final ParseObject collaborationParse = collabs.get(0);
@@ -333,11 +341,15 @@ public class NotificationCard extends Card {
 																acceptBtn.setEnabled(false);
 																notification.setRead(true);
 																ClimbApplication.BUSY = false;
+																progressBar.setVisibility(View.GONE);
+
 
 															}else{
 																Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 																Log.d("Connection problem", "Error: " + e.getMessage());
 																ClimbApplication.BUSY = false;
+																progressBar.setVisibility(View.GONE);
+
 															}
 														}
 													});
@@ -352,6 +364,8 @@ public class NotificationCard extends Card {
 													acceptBtn.setEnabled(false);
 													notification.setRead(true);
 													ClimbApplication.BUSY = false;
+													progressBar.setVisibility(View.GONE);
+
 
 												}
 											} else {
@@ -362,6 +376,8 @@ public class NotificationCard extends Card {
 												acceptBtn.setEnabled(false);
 												notification.setRead(true);
 												ClimbApplication.BUSY = false;
+												progressBar.setVisibility(View.GONE);
+
 
 											}
 
@@ -376,6 +392,8 @@ public class NotificationCard extends Card {
 										Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 										Log.d("Connection problem", "Error: " + e.getMessage());
 										ClimbApplication.BUSY = false;
+										progressBar.setVisibility(View.GONE);
+
 									}
 								}
 							});
@@ -389,6 +407,8 @@ public class NotificationCard extends Card {
 							acceptBtn.setEnabled(false);
 							notification.setRead(true);
 							ClimbApplication.BUSY = false;
+							progressBar.setVisibility(View.GONE);
+
 
 						}
 						break;
@@ -416,6 +436,8 @@ public class NotificationCard extends Card {
 											acceptBtn.setEnabled(false);
 											notification.setRead(true);
 											ClimbApplication.BUSY = false;
+											progressBar.setVisibility(View.GONE);
+
 
 										} else {
 											// se c'è la competizione
@@ -561,6 +583,8 @@ public class NotificationCard extends Card {
 																acceptBtn.setEnabled(false);
 																notification.setRead(true);
 																ClimbApplication.BUSY = false;
+																progressBar.setVisibility(View.GONE);
+
 
 															}else{
 																Competition competitionLocal = new Competition();
@@ -573,6 +597,8 @@ public class NotificationCard extends Card {
 																Toast.makeText(context, ClimbApplication.getContext().getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 																Log.e("2 Connection Problem adding me in competition", "Error: " + e.getMessage());
 																ClimbApplication.BUSY = false;
+																progressBar.setVisibility(View.GONE);
+
 
 															}
 														}
@@ -593,6 +619,8 @@ public class NotificationCard extends Card {
 													acceptBtn.setEnabled(false);
 													notification.setRead(true);
 													ClimbApplication.BUSY = false;
+													progressBar.setVisibility(View.GONE);
+
 
 												}
 											} else {
@@ -603,6 +631,8 @@ public class NotificationCard extends Card {
 												acceptBtn.setEnabled(false);
 												notification.setRead(true);
 												ClimbApplication.BUSY = false;
+												progressBar.setVisibility(View.GONE);
+
 											}
 
 										}
@@ -610,6 +640,8 @@ public class NotificationCard extends Card {
 										Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 										Log.d("Connection problem", "Error: " + e.getMessage());
 										ClimbApplication.BUSY = false;
+										progressBar.setVisibility(View.GONE);
+
 
 									}
 
@@ -624,6 +656,8 @@ public class NotificationCard extends Card {
 							acceptBtn.setEnabled(false);
 							notification.setRead(true);
 							ClimbApplication.BUSY = false;
+							progressBar.setVisibility(View.GONE);
+
 
 						}
 						break;
@@ -651,6 +685,8 @@ public class NotificationCard extends Card {
 											acceptBtn.setEnabled(false);
 											notification.setRead(true);
 											ClimbApplication.BUSY = false;
+											progressBar.setVisibility(View.GONE);
+
 
 										} else {
 											// if team duel exists
@@ -781,6 +817,8 @@ public class NotificationCard extends Card {
 																acceptBtn.setEnabled(false);
 																notification.setRead(true);
 																ClimbApplication.BUSY = false;
+																progressBar.setVisibility(View.GONE);
+
 
 															}else{
 																TeamDuel teamDuelLocal = new TeamDuel();
@@ -793,6 +831,8 @@ public class NotificationCard extends Card {
 																Toast.makeText(context, ClimbApplication.getContext().getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 																Log.e("2 Connection Problem adding me in team duel", "Error: " + e.getMessage());
 																ClimbApplication.BUSY = false;
+																progressBar.setVisibility(View.GONE);
+
 															}
 														}
 															
@@ -812,6 +852,8 @@ public class NotificationCard extends Card {
 													acceptBtn.setEnabled(false);
 													notification.setRead(true);
 													ClimbApplication.BUSY = false;
+													progressBar.setVisibility(View.GONE);
+
 
 												}
 											} else {
@@ -822,6 +864,8 @@ public class NotificationCard extends Card {
 												acceptBtn.setEnabled(false);
 												notification.setRead(true);
 												ClimbApplication.BUSY = false;
+												progressBar.setVisibility(View.GONE);
+
 
 											}
 
@@ -830,6 +874,8 @@ public class NotificationCard extends Card {
 										Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 										Log.d("Connection problem", "Error: " + e.getMessage());
 										ClimbApplication.BUSY = false;
+										progressBar.setVisibility(View.GONE);
+
 									}
 
 								}
@@ -843,6 +889,8 @@ public class NotificationCard extends Card {
 							acceptBtn.setEnabled(false);
 							notification.setRead(true);
 							ClimbApplication.BUSY = false;
+							progressBar.setVisibility(View.GONE);
+
 
 						}
 						break;
@@ -870,6 +918,8 @@ public class NotificationCard extends Card {
 											acceptBtn.setEnabled(false);
 											notification.setRead(true);
 											ClimbApplication.BUSY = false;
+											progressBar.setVisibility(View.GONE);
+
 
 										} else {
 											// if team duel exists
@@ -1027,6 +1077,8 @@ public class NotificationCard extends Card {
 																acceptBtn.setEnabled(false);
 																notification.setRead(true);
 																ClimbApplication.BUSY = false;
+																progressBar.setVisibility(View.GONE);
+
 
 															}else{
 																TeamDuel teamDuelLocal = new TeamDuel();
@@ -1058,6 +1110,8 @@ public class NotificationCard extends Card {
 													acceptBtn.setEnabled(false);
 													notification.setRead(true);
 													ClimbApplication.BUSY = false;
+													progressBar.setVisibility(View.GONE);
+
 
 												}
 											} else {
@@ -1068,6 +1122,7 @@ public class NotificationCard extends Card {
 												acceptBtn.setEnabled(false);
 												notification.setRead(true);
 												ClimbApplication.BUSY = false;
+												progressBar.setVisibility(View.GONE);
 
 											}
 
@@ -1076,6 +1131,8 @@ public class NotificationCard extends Card {
 										Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 										Log.d("Connection problem", "Error: " + e.getMessage());
 										ClimbApplication.BUSY = false;
+										progressBar.setVisibility(View.GONE);
+
 									}
 
 								}
@@ -1089,6 +1146,7 @@ public class NotificationCard extends Card {
 							acceptBtn.setEnabled(false);
 							notification.setRead(true);
 							ClimbApplication.BUSY = false;
+							progressBar.setVisibility(View.GONE);
 
 						}
 						break;
@@ -1106,8 +1164,12 @@ public class NotificationCard extends Card {
 
 			@Override
 			public void onClick(View arg0) {
+				
 				boolean busy = ClimbApplication.BUSY;
-				if (FacebookUtils.isOnline(context) && !busy) {									
+				if (FacebookUtils.isOnline(context) && !busy) {	
+					acceptBtn.setVisibility(View.GONE);
+					cancelBtn.setVisibility(View.GONE);
+					progressBar.setVisibility(View.VISIBLE);
 					ClimbApplication.BUSY = true;
 
 					deleteRequest(String.valueOf(notification.getId()));
@@ -1116,6 +1178,8 @@ public class NotificationCard extends Card {
 					acceptBtn.setEnabled(false);
 					notification.setRead(true);
 					ClimbApplication.BUSY = false;
+					progressBar.setVisibility(View.GONE);
+
 
 				}if(busy){
 					Toast.makeText(context, ClimbApplication.getContext().getString(R.string.wait_notification), Toast.LENGTH_SHORT).show();
