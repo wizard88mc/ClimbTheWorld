@@ -24,6 +24,10 @@ import com.parse.SaveCallback;
 /**
  * Class containing methods to be used when saving object in Parse
  * DO NOT USE PARSE METHOD saveEventually/deleteEventually
+ * 
+ * ParseCommandCache.runLoop() is the thread that processes any items from previous calls to saveEventually that haven't yet been saved to Parse's servers. 
+ * If you haven't been calling saveEventually, then this thread will be asleep, and will only be awakened when you do call it.
+ * This thread causes UI to block.
  * @author Silvia
  *
  */
@@ -140,7 +144,7 @@ public class ParseUtils {
 				if(ex == null){
 					//no problems
 					Log.i(getClass().getName(), "Competition correctly saved in Parse");
-					if(l_competition.isLeaved())
+					if(l_competition.isLeaved() || l_competition.isCompleted())
 						ClimbApplication.competitionDao.delete(l_competition);
 					else{
 						l_competition.setSaved(true);
@@ -257,6 +261,26 @@ public class ParseUtils {
 					ClimbApplication.teamDuelDao.update(l_teamDuel);
 					//Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
 					//ClimbApplication.showConnectionProblemsToast();
+					Log.e(getClass().getName(), e.getMessage());
+
+				}
+				
+			}
+		});
+	}
+	
+	public static void deleteMicrogoal(ParseObject p_microgoal, final Microgoal microgoal){
+		p_microgoal.deleteInBackground(new DeleteCallback() {
+			
+			@Override
+			public void done(ParseException e) {
+				if(e == null){
+					Log.i(getClass().getName(), "Microgoal correctly deleted in Parse");
+					ClimbApplication.microgoalDao.delete(microgoal);
+				}else{
+					microgoal.setDeleted(true);
+					microgoal.setSaved(false);
+					ClimbApplication.microgoalDao.update(microgoal);
 					Log.e(getClass().getName(), e.getMessage());
 
 				}

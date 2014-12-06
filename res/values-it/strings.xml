@@ -157,7 +157,7 @@
     <string name="microgoal_terminated2">Goal completato!\n + %d XP extra</string>
     
     <string name="successfull_climb">Hai fatto i %1$d scalini (%2$d m) dell\'edificio %3$s !</string>
-    <string name="kicked_out">Sei stato cacciato!</string>
+    <string name="kicked_out">Sei stato cacciato! Ora sei in modalità Solo Climb</string>
     <string name="new_level">Grande! Hai raggiunto un nuovo livello!</string>
     <string name="new_badge">Hai vinto un nuovo trofeo: %s</string>
     <string name="no_microgoal">Nessun altro goal disponibile per questo edificio</string>

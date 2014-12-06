@@ -645,8 +645,9 @@ public class BuildingCard extends Card {
 			public void done(List<ParseObject> climbs, ParseException e) {
 				if (e == null) {
 					if (climbs.size() != 0) {
-						climbs.get(0).deleteEventually();
-						ClimbApplication.climbingDao.delete(climb);
+						ParseUtils.deleteClimbing(climbs.get(0), climb);
+						//climbs.get(0).deleteEventually();
+						//ClimbApplication.climbingDao.delete(climb);
 
 					}
 				} else {
@@ -1284,8 +1285,9 @@ public class BuildingCard extends Card {
 	private void rollback(int type) {
 		switch (type) {
 		case 1:
-			collabParse.deleteEventually();
-			ClimbApplication.collaborationDao.delete(collab);
+			ParseUtils.deleteCollaboration(collabParse, collab);
+			//collabParse.deleteEventually();
+			//ClimbApplication.collaborationDao.delete(collab);
 
 			climbing.setGame_mode(0);
 			climbing.setId_mode("");
@@ -1299,8 +1301,8 @@ public class BuildingCard extends Card {
 
 		case 2:
 			if (competParse.getJSONObject("competitors") != null) {
-				System.out.println("delete eventually");
-				competParse.deleteEventually();
+				//competParse.deleteEventually();
+				ParseUtils.deleteCompetition(competParse, compet);
 			}
 			if (compet.getBuilding() != null) {
 				System.out.println("delete local");

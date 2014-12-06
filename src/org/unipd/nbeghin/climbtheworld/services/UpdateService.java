@@ -296,8 +296,9 @@ public class UpdateService extends IntentService {
 								// climbingDao.update(climbing);
 								ParseUtils.saveClimbing(climbOnline, climbing);
 							} else {
-								climbs.get(0).deleteEventually();
-								ClimbApplication.climbingDao.delete(climbing);
+								ParseUtils.deleteClimbing(climbs.get(0), climbing);
+								//climbs.get(0).deleteEventually();
+								//ClimbApplication.climbingDao.delete(climbing);
 							}
 						}
 					} else {
@@ -453,7 +454,7 @@ public class UpdateService extends IntentService {
 			if (competition.getId_online() == null || competition.getId_online().equals("")) {
 				query.whereEqualTo("competitors." + competition.getUser().getFBid(), competition.getUser().getName());
 				query.whereEqualTo("building", competition.getBuilding().get_id());
-				query.whereEqualTo("completed", false);
+				//query.whereEqualTo("completed", false);
 			} else
 				query.whereEqualTo("objectId", competition.getId_online());
 			query.findInBackground(new FindCallback<ParseObject>() {
@@ -688,8 +689,9 @@ public class UpdateService extends IntentService {
 							ParseObject duelParse = duelsParse.get(0);
 							if (duel.isDeleted()) {
 								// elimina
-								duelParse.deleteEventually();
-								ClimbApplication.teamDuelDao.delete(duel);
+								ParseUtils.deleteTeamDuel(duelParse, duel);
+								//duelParse.deleteEventually();
+								//ClimbApplication.teamDuelDao.delete(duel);
 							} else {
 								// aggiorna
 								JSONObject creator = duelParse.getJSONObject("creator");//new JSONObject();
@@ -868,7 +870,7 @@ public class UpdateService extends IntentService {
 		for (final Microgoal microgoal : microgoals) {
 			System.out.println("Microgoals " + microgoals.size());
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("Microgoal");
-			query.whereEqualTo("FBid", microgoal.getUser().getFBid());
+			query.whereEqualTo("user_id", microgoal.getUser().getFBid());
 			query.whereEqualTo("building", microgoal.getBuilding().get_id());
 			query.getFirstInBackground(new GetCallback<ParseObject>() {
 
@@ -877,10 +879,12 @@ public class UpdateService extends IntentService {
 					if (e == null) {
 						if (microgoal.getDeleted()) {
 							if (mg != null)
-								mg.deleteEventually();
-							ClimbApplication.microgoalDao.delete(microgoal);
+								//mg.deleteEventually();
+								ParseUtils.deleteMicrogoal(mg, microgoal);
+							//ClimbApplication.microgoalDao.delete(microgoal);
 						} else if (!microgoal.getDeleted()) {
 							if (mg == null) {
+								System.out.println("mg null");
 								mg = new ParseObject("Microgoal");
 								mg.put("story_id", microgoal.getStory_id());
 								mg.put("building", microgoal.getBuilding().get_id());
@@ -888,6 +892,7 @@ public class UpdateService extends IntentService {
 								mg.put("tot_steps", microgoal.getTot_steps());
 								mg.put("user_id", microgoal.getUser().getFBid());
 							} else {
+								System.out.println("update");
 								mg.put("done_steps", microgoal.getDone_steps());
 								mg.put("tot_steps", microgoal.getTot_steps());
 							}
@@ -901,6 +906,7 @@ public class UpdateService extends IntentService {
 							if (microgoal.getDone_steps() == microgoal.getTot_steps())
 								ClimbApplication.microgoalDao.delete(microgoal);
 							else {
+								System.out.println("mg not found");
 								mg = new ParseObject("Microgoal");
 								mg.put("story_id", microgoal.getStory_id());
 								mg.put("building", microgoal.getBuilding().get_id());
