@@ -1067,7 +1067,7 @@ public class ClimbActivity extends ActionBarActivity {
 			}
 		} else {
 			competition.setMy_stairs(climbing.getCompleted_steps());
-			updateChart(false);
+			updateChart(false, true);
 		}
 	}
 
@@ -1228,7 +1228,7 @@ public class ClimbActivity extends ActionBarActivity {
 									updatePoints(false, false);
 									saveBadges(true);
 									if(microgoal != null) deleteMicrogoalInParse(microgoal);
-									saveCollaborationData();
+									if(isUpdate) saveCollaborationData();
 
 								}
 
@@ -1337,7 +1337,7 @@ public class ClimbActivity extends ActionBarActivity {
 	}
 
 	private void deleteClimbingInParse(final Climbing climbing) {
-		if (FacebookUtils.isOnline(this)) {
+		//if (FacebookUtils.isOnline(this)) {
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("Climbing");
 			query.whereEqualTo("users_id", climbing.getUser().getFBid());
 			query.whereEqualTo("building", climbing.getBuilding().get_id());
@@ -1363,7 +1363,7 @@ public class ClimbActivity extends ActionBarActivity {
 				}
 
 			});
-		}
+		//}
 	}
 
 	/**
@@ -1623,11 +1623,13 @@ public class ClimbActivity extends ActionBarActivity {
 			if(percentage < 1.00 && !current_win) createMicrogoal();
 
 		} else {
+			num_steps = climbing.getCompleted_steps();
+			percentage = climbing.getPercentage();
+			if(percentage >= 1.00) current_win = true;
 			microgoal = ClimbApplication.getMicrogoalByUserAndBuilding(pref.getInt("local_id", -1), building.get_id());
 			if (microgoal == null && percentage < 1.00 && !current_win)
 				createMicrogoal();
-			num_steps = climbing.getCompleted_steps();
-			percentage = climbing.getPercentage();
+			
 			Log.i(MainActivity.AppName, "Loaded existing climbing (#" + climbing.get_id() + ")");
 		}
 		threshold = building.getSteps() / ClimbApplication.N_MEMBERS_PER_GROUP;
@@ -1928,7 +1930,7 @@ public class ClimbActivity extends ActionBarActivity {
 				climbing.setCompleted(new Date().getTime());
 			if (percentage >= 1.00) {
 				switch (mode) {
-				case SOCIAL_CLIMB: // come back in Solo Climb
+				case SOCIAL_CLIMB: 
 					updateOthers(false);
 					climbing.setGame_mode(0);
 					climbing.setId_mode("");
@@ -1937,7 +1939,9 @@ public class ClimbActivity extends ActionBarActivity {
 						updateClimbingInParse(climbing, false);
 					break;
 				case SOCIAL_CHALLENGE:
-					updateChart(false);
+					updateChart(false, false);
+					System.out.println("end 1");
+					endCompetition(false);
 					break;
 				case TEAM_VS_TEAM:
 					updateTeams(false);
@@ -1963,19 +1967,23 @@ public class ClimbActivity extends ActionBarActivity {
 					climbing.setSaved(true);
 					ClimbApplication.climbingDao.update(climbing);
 				}
+				
+				
 			}
+			
+			if (mode == GameModeType.SOCIAL_CLIMB && collaboration != null)
+				saveCollaborationData();
+			else if (mode == GameModeType.SOCIAL_CHALLENGE && competition != null){
+				if(!competition.isCompleted())
+					saveCompetitionData();
+				}
+			else if (mode == GameModeType.TEAM_VS_TEAM && teamDuel != null)
+				saveTeamDuelData();
 
 			Log.i(MainActivity.AppName, "Updated climbing #" + climbing.get_id());
 
-			System.out.println("entra????");
-			System.out.println(mode == GameModeType.SOCIAL_CHALLENGE);
-			System.out.println(competition != null);
-			if (mode == GameModeType.SOCIAL_CLIMB && collaboration != null)
-				saveCollaborationData();
-//			else if (mode == GameModeType.SOCIAL_CHALLENGE && competition != null)
-//				saveCompetitionData();
-			else if (mode == GameModeType.TEAM_VS_TEAM && teamDuel != null)
-				saveTeamDuelData();
+			
+			
 
 			updatePoints(false,false);
 			saveBadges(true);
@@ -2292,7 +2300,7 @@ public class ClimbActivity extends ActionBarActivity {
 						updateClimbingInParse(climbing, false);
 					break;
 				case SOCIAL_CHALLENGE:
-					updateChart(false);
+					updateChart(false, false);
 					break;
 				case TEAM_VS_TEAM:
 					updateTeams(false);
@@ -2435,7 +2443,7 @@ public class ClimbActivity extends ActionBarActivity {
 			updateOthers(true);
 			break;
 		case 2:
-			updateChart(true);
+			updateChart(true, false);
 			break;
 		case 3:
 			updateTeams(true);
@@ -2661,7 +2669,7 @@ public class ClimbActivity extends ActionBarActivity {
 
 	}
 
-	private void updateChart(final boolean isUpdate) {
+	private void updateChart(final boolean isUpdate, final boolean isOpening) {
 		System.out.println("update chart");
 		if (!(mode == GameModeType.SOLO_CLIMB) && FacebookUtils.isOnline(this)) {
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("Competition");
@@ -2727,10 +2735,14 @@ public class ClimbActivity extends ActionBarActivity {
 										group_minus.get(i).setOnClickListener(new OnClickListener() {
 											@Override
 											public void onClick(View arg0) {
+												if(FacebookUtils.isOnline(getApplicationContext())){
 												removeFromCompetition(entry);
 												currentName.setVisibility(View.GONE);
 												currentSteps.setVisibility(View.GONE);
 												currentMinus.setVisibility(View.GONE);
+												}else{
+													showMessage(getString(R.string.connection_problem));
+												}
 											}
 										});
 
@@ -2745,7 +2757,7 @@ public class ClimbActivity extends ActionBarActivity {
 										if (steps >= building.getSteps()) {
 											percentage = 1.0;
 											current_win = true;
-											endCompetition(false);
+											if(isUpdate || isOpening) endCompetition(false);
 											saveBadges(true);
 											showMessage( getString(R.string.competition_win));
 											//Toast.makeText(getApplicationContext(), getString(R.string.competition_win), Toast.LENGTH_SHORT).show();
@@ -2753,7 +2765,7 @@ public class ClimbActivity extends ActionBarActivity {
 									} else {
 										if (steps >= building.getSteps()) {
 											current_win = true;
-											endCompetition(true);
+											if(isUpdate || isOpening) endCompetition(true);
 											showMessage( getString(R.string.competition_lose, name));
 											//Toast.makeText(getApplicationContext(), getString(R.string.competition_lose, name), Toast.LENGTH_SHORT).show();
 										}

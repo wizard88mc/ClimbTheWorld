@@ -477,7 +477,7 @@ public class UpdateService extends IntentService {
 							comp.put("competitors", competitors);
 							comp.put("stairs", stairs);
 							comp.put("building", competition.getBuilding().get_id());
-							comp.put("completed", false);
+							comp.put("completed", competition.isCompleted());
 							JSONObject creator = new JSONObject();
 
 							if (competition.getAmICreator()) {
@@ -534,6 +534,7 @@ public class UpdateService extends IntentService {
 									if (stairs.has(competition.getUser().getFBid())) {
 										stairs.put(competition.getUser().getFBid(), competition.getMy_stairs());
 										collabParse.put("stairs", stairs);
+										collabParse.put("completed", competition.isCompleted());
 										// collabParse.saveEventually();
 										ParseUtils.saveCompetition(collabParse, competition);
 										competition.setId_online(collabParse.getObjectId());

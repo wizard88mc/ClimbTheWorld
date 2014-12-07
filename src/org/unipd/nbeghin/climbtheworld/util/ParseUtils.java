@@ -34,10 +34,8 @@ import com.parse.SaveCallback;
 public class ParseUtils {
 
 	public static void saveClimbing(final ParseObject p_climbing, final Climbing l_climbing){
-		new Runnable() {
+		
 			
-			@Override
-			public void run() {
 				p_climbing.saveInBackground(new SaveCallback() {
 					
 					@Override
@@ -58,8 +56,8 @@ public class ParseUtils {
 					}
 				});
 				
-			}
-		}.run();
+			
+	
 		
 	}
 	
@@ -86,10 +84,8 @@ public class ParseUtils {
 	}
 	
 	public static void saveUserInParse(final ParseUser user){
-		new Runnable() {
-			
-			@Override
-			public void run() {
+	
+		
 				System.out.println("save user in parse");
 				user.saveInBackground(new SaveCallback() {
 					
@@ -105,8 +101,8 @@ public class ParseUtils {
 					}
 				});
 				
-			}
-		}.run();
+			
+	
 		
 	}
 	
