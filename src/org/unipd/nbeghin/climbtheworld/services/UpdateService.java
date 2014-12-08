@@ -830,7 +830,7 @@ public class UpdateService extends IntentService {
 
 	private void saveUsers(final Context context) {
 		Map<String, Object> conditions = new HashMap<String, Object>();
-		final List<User> users = ClimbApplication.userDao.queryForFieldValuesArgs(conditions);
+		final List<User> users = ClimbApplication.getUsers();//userDao.queryForFieldValuesArgs(conditions);
 		for (final User user : users) {
 			ParseQuery<ParseUser> query = ParseUser.getQuery();
 			query.whereEqualTo("FBid", user.getFBid());
@@ -839,7 +839,7 @@ public class UpdateService extends IntentService {
 				@Override
 				public void done(ParseUser parseUser, ParseException e) {
 					if (e == null) {
-						parseUser.put("XP", user.getXP());
+						parseUser.put("XP", user.getXP()); System.out.println(user.getXP());
 						parseUser.put("level", user.getLevel());
 						parseUser.put("height", user.getHeight());
 						JSONObject stats = parseUser.getJSONObject("mean_daily_steps");

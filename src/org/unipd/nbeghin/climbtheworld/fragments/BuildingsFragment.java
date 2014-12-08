@@ -49,6 +49,7 @@ public class BuildingsFragment extends Fragment implements Updater {
 
 	@Override
 	public void refresh() {
+		Log.i("BuildingsFragment", "refresh");
 		buildingCards.clearCards();
 		Collections.sort(ClimbApplication.buildingTexts, new BuildingTextComparator());
 		for (final BuildingText building : ClimbApplication.buildingTexts) {

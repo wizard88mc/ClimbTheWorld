@@ -1017,7 +1017,7 @@ public class ClimbActivity extends ActionBarActivity {
 
 		} else {
 			collaboration.setMy_stairs(climbing.getCompleted_steps());
-			updateOthers(false);
+			updateOthers(false, true);
 		}
 
 	}
@@ -1037,7 +1037,7 @@ public class ClimbActivity extends ActionBarActivity {
 		} else {
 			teamDuel.setMy_steps(climbing.getCompleted_steps());
 			teamDuel.setSteps_my_group(teamDuel.getSteps_my_group() + climbing.getCompleted_steps());
-			updateTeams(false);
+			updateTeams(false, true);
 		}
 	}
 
@@ -1074,7 +1074,8 @@ public class ClimbActivity extends ActionBarActivity {
 	/**
 	 * Update graphics to let user see the latest update about my friends' steps
 	 */
-	private void updateOthers(final boolean isUpdate) {
+	private void updateOthers(final boolean isUpdate,final boolean isOpening) {
+		Log.i("ClimbActivity", "updateothers");
 		if (!(mode == GameModeType.SOLO_CLIMB) && FacebookUtils.isOnline(this)) { // If is online
 			// look for current collaboration in Parse
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("Collaboration");
@@ -1222,13 +1223,16 @@ public class ClimbActivity extends ActionBarActivity {
 									socialPenalty();
 									if(microgoal != null) deleteMicrogoalInParse(microgoal);
 									
-								} else if ((num_steps + sumOthersStep() >= building.getSteps()) && (num_steps < threshold)) {
+								} else if ((num_steps + sumOthersStep() >= building.getSteps()) && (num_steps > threshold)) {
 									percentage = 1.0;
 									current_win = true;
-									updatePoints(false, false);
-									saveBadges(true);
+									
 									if(microgoal != null) deleteMicrogoalInParse(microgoal);
-									if(isUpdate) saveCollaborationData();
+									if(isUpdate || isOpening){ 
+										updatePoints(false, false);
+										saveBadges(true);
+										saveCollaborationData();
+									}
 
 								}
 
@@ -1931,7 +1935,7 @@ public class ClimbActivity extends ActionBarActivity {
 			if (percentage >= 1.00) {
 				switch (mode) {
 				case SOCIAL_CLIMB: 
-					updateOthers(false);
+					updateOthers(false, false);
 					climbing.setGame_mode(0);
 					climbing.setId_mode("");
 					ClimbApplication.climbingDao.update(climbing); // save to db
@@ -1940,11 +1944,11 @@ public class ClimbActivity extends ActionBarActivity {
 					break;
 				case SOCIAL_CHALLENGE:
 					updateChart(false, false);
-					System.out.println("end 1");
 					endCompetition(false);
 					break;
 				case TEAM_VS_TEAM:
-					updateTeams(false);
+					updateTeams(false, false);
+					endTeamCompetition(false);
 					break;
 				case SOLO_CLIMB:
 					ClimbApplication.climbingDao.update(climbing); // save to db
@@ -1977,9 +1981,10 @@ public class ClimbActivity extends ActionBarActivity {
 				if(!competition.isCompleted())
 					saveCompetitionData();
 				}
-			else if (mode == GameModeType.TEAM_VS_TEAM && teamDuel != null)
-				saveTeamDuelData();
-
+			else if (mode == GameModeType.TEAM_VS_TEAM && teamDuel != null){
+				if(!teamDuel.isCompleted())
+					saveTeamDuelData();
+			}
 			Log.i(MainActivity.AppName, "Updated climbing #" + climbing.get_id());
 
 			
@@ -2118,7 +2123,6 @@ public class ClimbActivity extends ActionBarActivity {
 		Log.i("ClimbActivity", "saveCompetitionData");
 		competition.setMy_stairs(climbing.getCompleted_steps());
 		if (current_win) {
-			System.out.println("completato");
 			competition.setCompleted(true);
 		}
 		ClimbApplication.competitionDao.update(competition);
@@ -2154,11 +2158,14 @@ public class ClimbActivity extends ActionBarActivity {
 
 	private void saveTeamDuelData() {
 		teamDuel.setMy_steps(climbing.getCompleted_steps());
+		if(current_win){
+			teamDuel.setCompleted(true);
+		}
+		ClimbApplication.teamDuelDao.update(teamDuel);
+		
 		if (teamDuel_parse == null) {
 			teamDuel.setSaved(false);
-			// Toast.makeText(getApplicationContext(),
-			// getString(R.string.connection_problem2), Toast.LENGTH_SHORT)
-			// .show();
+			ClimbApplication.teamDuelDao.update(teamDuel);
 		} else {
 			SharedPreferences pref = getSharedPreferences("UserSession", 0);
 			JSONObject myteam;
@@ -2181,10 +2188,10 @@ public class ClimbActivity extends ActionBarActivity {
 			}
 			// teamDuel.setSaved(true);
 		}
-		if (teamDuel.isCompleted())
-			ClimbApplication.teamDuelDao.delete(teamDuel);
-		else
-			ClimbApplication.teamDuelDao.update(teamDuel);
+//		if (teamDuel.isCompleted())
+//			ClimbApplication.teamDuelDao.delete(teamDuel);
+//		else
+//			ClimbApplication.teamDuelDao.update(teamDuel);
 	}
 
 	/**
@@ -2271,6 +2278,7 @@ public class ClimbActivity extends ActionBarActivity {
 			new SaveProgressTask(true, false).execute();		// this.finish();
 	}
 
+	
 	private void saveBeforeQuit(boolean changes) {
 		if(isCounterMode) updateUserStats(true);
 		else updateUserStats(false);
@@ -2292,7 +2300,7 @@ public class ClimbActivity extends ActionBarActivity {
 			if (percentage >= 1.00) {
 				switch (mode) {
 				case SOCIAL_CLIMB: // come back in Solo Climb
-					updateOthers(false);
+					updateOthers(false, false);
 					climbing.setGame_mode(0);
 					climbing.setId_mode("");
 					ClimbApplication.climbingDao.update(climbing); // save to db
@@ -2303,7 +2311,7 @@ public class ClimbActivity extends ActionBarActivity {
 					updateChart(false, false);
 					break;
 				case TEAM_VS_TEAM:
-					updateTeams(false);
+					updateTeams(false, false);
 					break;
 				case SOLO_CLIMB:
 					if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty")) {
@@ -2424,7 +2432,10 @@ public class ClimbActivity extends ActionBarActivity {
 		if (!isCounterMode && mode.equals(GameModeType.SOLO_CLIMB))
 			menu.getItem(0).setVisible(false); // hide update
 		
-		supportInvalidateOptionsMenu();
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+			supportInvalidateOptionsMenu();
+		else
+			onPrepareOptionsMenu(menu);
 
 		return true;
 	}
@@ -2440,13 +2451,13 @@ public class ClimbActivity extends ActionBarActivity {
 			resetUpdating();
 			break;
 		case 1:
-			updateOthers(true);
+			updateOthers(true, false);
 			break;
 		case 2:
 			updateChart(true, false);
 			break;
 		case 3:
-			updateTeams(true);
+			updateTeams(true, false);
 			break;
 
 		}
@@ -2499,8 +2510,9 @@ public class ClimbActivity extends ActionBarActivity {
 
 	}
 
-	private void endTeamCompetition(boolean penalty, boolean saveOnline) {
-		updatePoints(penalty, saveOnline);
+	private void endTeamCompetition(/*boolean penalty, */boolean saveOnline) {
+		//updatePoints(penalty, saveOnline);
+		saveTeamDuelData();
 		if (soloClimb != null) {
 			deleteClimbingInParse(climbing);
 			soloClimb.setGame_mode(0);
@@ -2520,10 +2532,11 @@ public class ClimbActivity extends ActionBarActivity {
 
 	// non ho superato la threshold
 	private void socialTeamPenality() {
-		Toast.makeText(this.getApplicationContext(), getString(R.string.social_penalty), Toast.LENGTH_SHORT).show();
+		//Toast.makeText(this.getApplicationContext(), getString(R.string.social_penalty), Toast.LENGTH_SHORT).show();
+		showMessage(getString(R.string.social_penalty));
 	}
 
-	private void updateTeams(final boolean isUpdate) {
+	private void updateTeams(final boolean isUpdate, final boolean isOpening) {
 		if (!(mode == GameModeType.SOLO_CLIMB) && FacebookUtils.isOnline(this)) {
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("TeamDuel");
 			query.whereEqualTo("objectId", teamDuel.getId_online());
@@ -2617,10 +2630,13 @@ public class ClimbActivity extends ActionBarActivity {
 								}else{
 									apply_win();
 								}
-								
-								endTeamCompetition(penalty, false);
+								if(isUpdate || isOpening){
+									updatePoints(penalty, false);
+									endTeamCompetition(false);
+									saveBadges(true);
+								}
 
-								saveBadges(true);
+								
 							} else if (otherGroupScore >= building.getSteps()) {
 								showMessage(getString(R.string.other_team_won));
 								current_win = true;
@@ -2630,7 +2646,10 @@ public class ClimbActivity extends ActionBarActivity {
 									socialTeamPenality();
 									penalty = true;
 								}
-								endTeamCompetition(penalty, true);
+								if(isUpdate || isOpening){
+									updatePoints(penalty, true);
+									endTeamCompetition(false);
+								}
 
 							}
 
@@ -2757,8 +2776,10 @@ public class ClimbActivity extends ActionBarActivity {
 										if (steps >= building.getSteps()) {
 											percentage = 1.0;
 											current_win = true;
-											if(isUpdate || isOpening) endCompetition(false);
-											saveBadges(true);
+											if(isUpdate || isOpening){
+												endCompetition(false);
+												saveBadges(true);
+											}
 											showMessage( getString(R.string.competition_win));
 											//Toast.makeText(getApplicationContext(), getString(R.string.competition_win), Toast.LENGTH_SHORT).show();
 										}
@@ -3000,10 +3021,11 @@ public class ClimbActivity extends ActionBarActivity {
 				double percentage = ((double) tour.getDoneSteps(new_steps, building.get_id()) / (double) tour.getTotalSteps());
 				// double percentage = ((double) (num_steps) / (double)
 				// tour.getTotalSteps());
+				double old_percentage_tour = ub.getPercentage();
 				ub.setPercentage(percentage);
 				ub.setSaved(false);
 				ClimbApplication.userBadgeDao.update(ub);
-				if(percentage >= 1.00) showMessage(getString(R.string.new_badge, tour.getTitle()));
+				if(percentage >= 1.00 && old_percentage_tour < 1.00) showMessage(getString(R.string.new_badge, tour.getTitle()));
 
 			}
 			ris.add(ub);

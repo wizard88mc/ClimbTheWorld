@@ -11,6 +11,7 @@ import org.unipd.nbeghin.climbtheworld.models.Group;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.User;
+import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 import org.unipd.nbeghin.climbtheworld.util.ParseUtils;
 
 import android.content.Context;
@@ -57,7 +58,7 @@ public class TeamPreparationActivity extends ActionBarActivity {
 	List<TextView> theirMembers = new ArrayList<TextView>();
 	TextView challengerName;
 	TextView creatorName;
-
+	TextView offline;
 	TeamDuel duel;
 
 	int building_id = 0;
@@ -78,6 +79,7 @@ public class TeamPreparationActivity extends ActionBarActivity {
 		addChallengerTeamBtn = (ImageButton) findViewById(R.id.addChallengerTeam);
 		challengerName = (TextView) findViewById(R.id.textChallenger);
 		creatorName = (TextView) findViewById(R.id.textCreator);
+		offline = (TextView) findViewById(R.id.textOffline);
 
 		startPlay.setOnClickListener(new OnClickListener() {
 
@@ -114,6 +116,11 @@ public class TeamPreparationActivity extends ActionBarActivity {
 		addMyMembersBtn.setEnabled(false);
 		addChallengerBtn.setEnabled(false);
 		startPlay.setEnabled(false);
+		
+		if(!FacebookUtils.isOnline(getApplicationContext()))
+			exitTeam.setEnabled(false);
+		else
+			exitTeam.setEnabled(true);
 
 		for (int i = 0; i < ClimbApplication.N_MEMBERS_PER_GROUP - 1; i++) {
 			int id = getResources().getIdentifier("textMyMember" + (i + 1), "id", getPackageName());
@@ -194,6 +201,9 @@ public class TeamPreparationActivity extends ActionBarActivity {
 	 * @param isUpdate
 	 */
 	private void getTeams(final boolean isUpdate) {
+		if(FacebookUtils.isOnline(getApplicationContext())){
+			offline.setVisibility(View.INVISIBLE);
+			exitTeam.setEnabled(true);
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("TeamDuel");
 		query.getInBackground(duel.getId_online(), new GetCallback<ParseObject>() {
 
@@ -306,10 +316,13 @@ public class TeamPreparationActivity extends ActionBarActivity {
 										ClimbApplication.climbingDao.update(l_climbing);
 
 									}
+									
 
 									// Toast.makeText(ClimbApplication.getContext(),
 									// ClimbApplication.getContext().getString(R.string.connection_problem2),
 									// Toast.LENGTH_SHORT).show();
+									offline.setVisibility(View.VISIBLE);
+									exitTeam.setEnabled(false);
 									Log.e(getClass().getName(), ex.getMessage());
 								}
 
@@ -320,15 +333,26 @@ public class TeamPreparationActivity extends ActionBarActivity {
 					
 					finish();
 					}else{
+						offline.setVisibility(View.VISIBLE);
+						exitTeam.setEnabled(false);
 						Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 					}
 					Log.e("onUpdate", e.getCode() + e.getMessage());
+					if (isUpdate)
+						// Change the menu back
+						resetUpdating();
 				}
 
 			}
 		});
+	}else{
+		offline.setVisibility(View.VISIBLE);
+		exitTeam.setEnabled(false);
+		if (isUpdate)
+			// Change the menu back
+			resetUpdating();
 	}
-
+	}
 	/**
 	 * Shows teams to user
 	 * 
@@ -363,12 +387,18 @@ public class TeamPreparationActivity extends ActionBarActivity {
 
 		showTeam(myTeam, myMembers);
 		showTeam(challengerTeam, theirMembers);
-
+		exitTeam.setEnabled(true);
 		exitTeam.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				backToSoloClimb(duelParse);
+				if(FacebookUtils.isOnline(getApplicationContext())){
+					offline.setVisibility(View.INVISIBLE);
+					backToSoloClimb(duelParse);
+				}else{
+					offline.setVisibility(View.VISIBLE);
+					Toast.makeText(getApplicationContext(), getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
+				}
 			}
 		});
 
@@ -378,7 +408,7 @@ public class TeamPreparationActivity extends ActionBarActivity {
 			else
 				addMyMembersBtn.setEnabled(false);
 		} else if (duel.isChallenger()) {
-			if (myTeam.length() < 5)
+			if (challengerTeam.length() < 5)
 				addChallengerTeamBtn.setEnabled(true);
 			else
 				addChallengerTeamBtn.setEnabled(false);
@@ -662,6 +692,7 @@ public class TeamPreparationActivity extends ActionBarActivity {
 		}
 
 		finish();
+	
 	}
 
 	@Override

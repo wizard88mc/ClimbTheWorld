@@ -647,6 +647,7 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests {
 		Log.i(MainActivity.AppName, "MainActivity onResume");
 		super.onResume();
 		ClimbApplication.refresh();
+		mPager.getAdapter().notifyDataSetChanged();
 		Session session = Session.getActiveSession();
 		if (session != null && (session.isOpened() || session.isClosed())) {
 			onSessionStateChange(session, session.getState(), null);

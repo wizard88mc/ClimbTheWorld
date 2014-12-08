@@ -5,22 +5,18 @@
     android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/textMyTeam"
+        android:id="@+id/textOffline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:paddingTop="10dp"
-        android:text="@string/team_one"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <ImageButton
-        android:id="@+id/addMyTeamBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginRight="10dp"
-        android:src="@drawable/ic_action_add_group" />
+        android:background="@color/teal"
+        android:gravity="center"
+        android:padding="5dp"
+        android:text="@string/offline_team"
+        android:textColor="@color/white" 
+        android:visibility="invisible"
+        />
 
     <TableLayout
         android:id="@+id/tableLayout1"
@@ -42,7 +38,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:paddingTop="10dp"
-                android:text="Member" />
+                android:text="-" />
 
             <TextView
                 android:id="@+id/textMyMember2"
@@ -50,7 +46,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:paddingTop="10dp"
-                android:text="Member" />
+                android:text="-" />
         </TableRow>
 
         <TableRow
@@ -64,7 +60,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:paddingTop="10dp"
-                android:text="Member" />
+                android:text="-" />
 
             <TextView
                 android:id="@+id/textMyMember4"
@@ -72,7 +68,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:paddingTop="10dp"
-                android:text="Member" />
+                android:text="-" />
         </TableRow>
 
         <TableRow
@@ -87,7 +83,7 @@
                 android:layout_weight="1"
                 android:paddingBottom="10dp"
                 android:paddingTop="10dp"
-                android:text="Member" />
+                android:text="-" />
         </TableRow>
     </TableLayout>
 
@@ -161,7 +157,7 @@
                   android:layout_height="wrap_content"
                   android:layout_weight="1"
                   android:paddingTop="10dp"
-                  android:text="Member" />
+                  android:text="-" />
 
               <TextView
                   android:id="@+id/textOtherMember2"
@@ -169,7 +165,7 @@
                   android:layout_height="wrap_content"
                   android:layout_weight="1"
                   android:paddingTop="10dp"
-                  android:text="Member" />
+                  android:text="-" />
           </TableRow>
 
           <TableRow
@@ -183,7 +179,7 @@
                   android:layout_height="wrap_content"
                   android:layout_weight="1"
                   android:paddingTop="10dp"
-                  android:text="Member" />
+                  android:text="-" />
 
               <TextView
                   android:id="@+id/textOtherMember4"
@@ -191,7 +187,7 @@
                   android:layout_height="wrap_content"
                   android:layout_weight="1"
                   android:paddingTop="10dp"
-                  android:text="Member" />
+                  android:text="-" />
           </TableRow>
 
           <TableRow
@@ -206,7 +202,7 @@
                   android:layout_weight="1"
                   android:paddingBottom="10dp"
                   android:paddingTop="10dp"
-                  android:text="Member" />
+                  android:text="-" />
           </TableRow>
       </TableLayout>
 
@@ -246,5 +242,23 @@
           
           
       </LinearLayout>
+
+      <ImageButton
+          android:id="@+id/addMyTeamBtn"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignRight="@+id/tableLayout1"
+          android:layout_alignTop="@+id/textMyTeam"
+          android:src="@drawable/ic_action_add_group" />
+
+      <TextView
+          android:id="@+id/textMyTeam"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignRight="@+id/textOtherTeam"
+          android:layout_below="@+id/textOffline"
+          android:paddingTop="10dp"
+          android:text="@string/team_one"
+          android:textAppearance="?android:attr/textAppearanceLarge" />
       
 </RelativeLayout>

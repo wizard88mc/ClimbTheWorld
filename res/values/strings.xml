@@ -174,8 +174,10 @@
     <!-- TeamPreparationActivity -->
     <string name="team_one">Team One</string>
     <string name="team_two">Team Two</string>
-    <string name="creator">Creator: </string>
-        
+    <string name="creator">Leader: </string>
+    <string name="offline_team">Go online and press Update to see the current teams or to retire</string>
+    <string name="current_position">Chart</string>
+    
     <!-- string activity setting -->
     <string name="easy">Easy</string>
     <string name="normal">Normal</string>

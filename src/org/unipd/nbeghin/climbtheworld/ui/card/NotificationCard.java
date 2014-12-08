@@ -804,6 +804,7 @@ public class NotificationCard extends Card {
 																teamDuelLocal.setMygroup(Group.CHALLENGER);
 																teamDuelLocal.setCompleted(false);
 																teamDuelLocal.setCreator(false);
+																teamDuelLocal.setChallenger(true);
 																teamDuelLocal.setDeleted(false);
 																teamDuelLocal.setReadyToPlay(false);
 																teamDuelLocal.setSteps_my_group(0);
@@ -947,7 +948,7 @@ public class NotificationCard extends Card {
 													
 												final User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
 												final Building building = ClimbApplication.getBuildingById(current3.getBuilding_id());
-												final Climbing climb = ClimbApplication.getClimbingForBuilding(building.get_id());
+												final Climbing climb = ClimbApplication.getClimbingForBuildingAndUser(building.get_id(), me.get_id());//ClimbApplication.getClimbingForBuilding(building.get_id());
 
 												if(climb != null && (climb.getGame_mode() != 0 /*|| climb.getId_mode().equalsIgnoreCase("paused")*/)){
 													Toast.makeText(context, ClimbApplication.getContext().getString(R.string.building_occupied), Toast.LENGTH_SHORT).show();
@@ -1060,6 +1061,7 @@ public class NotificationCard extends Card {
 																teamDuelLocal.setCreator_name(creator_name);
 																teamDuelLocal.setChallenger_name(challenger_name);
 																teamDuelLocal.setCreator(false);
+																teamDuelLocal.setChallenger(false);
 																if(current3.isSenderCreator())
 																	teamDuelLocal.setMygroup(Group.CREATOR);
 																else

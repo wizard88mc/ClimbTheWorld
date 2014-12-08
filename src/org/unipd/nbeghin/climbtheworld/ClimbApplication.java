@@ -463,6 +463,19 @@ public class ClimbApplication extends Application {
 	 * Queries
 	 */
 
+	public static List<User> getUsers(){
+		QueryBuilder<User, Integer> query = userDao.queryBuilder();
+		try {
+			PreparedQuery<User> preparedQuery = query.prepare();
+			return userDao.query(preparedQuery);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+
+	}
+	
 	public static Collaboration getCollaborationByBuildingAndUser(int building_id, int user_id) {
 		SharedPreferences pref = sContext.getSharedPreferences("UserSession", 0);
 		QueryBuilder<Collaboration, Integer> query = collaborationDao.queryBuilder();

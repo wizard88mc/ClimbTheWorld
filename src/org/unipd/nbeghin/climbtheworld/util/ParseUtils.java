@@ -166,13 +166,16 @@ public class ParseUtils {
 				if(ex == null){
 					//no problems
 					Log.i(getClass().getName(), "Team Duel correctly saved in Parse");
-					l_teamduel.setSaved(true);
-					ClimbApplication.teamDuelDao.update(l_teamduel);
+					if(l_teamduel.isCompleted())
+						ClimbApplication.teamDuelDao.delete(l_teamduel);
+					else{
+						l_teamduel.setSaved(true);
+						ClimbApplication.teamDuelDao.update(l_teamduel);
+					}
+					
 				}else{
 					l_teamduel.setSaved(false);
 					ClimbApplication.teamDuelDao.update(l_teamduel);
-					//Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
-					//ClimbApplication.showConnectionProblemsToast();
 					Log.e(getClass().getName(), ex.getMessage());
 				}
 				

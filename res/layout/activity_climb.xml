@@ -215,7 +215,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="60dp"
                 android:background="@color/black_overlay"
-                android:text="currentPosition"
+                android:text="@string/current_position"
                 android:layout_gravity="center"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="#fff" />

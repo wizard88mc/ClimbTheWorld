@@ -161,11 +161,14 @@
     <string name="new_level">Grande! Hai raggiunto un nuovo livello!</string>
     <string name="new_badge">Hai vinto un nuovo trofeo: %s</string>
     <string name="no_microgoal">Nessun altro goal disponibile per questo edificio</string>
+    <string name="current_position">Classifica</string>
     
     <!-- TeamPreparationActivity -->
     <string name="team_one">Team n1</string>
     <string name="team_two">Team n2</string>
-    <string name="creator">Creatore: </string>
+    <string name="creator">Leader: </string>
+    <string name="offline_team">Vai online e premi Aggiorna per vedere i team attuali o per ritirarti</string>
+    
   
     <!-- SettingsActivity -->
     <string name="settings_title">Impostazioni</string>
