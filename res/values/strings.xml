@@ -290,7 +290,7 @@
 	
 	<string name="offline">You are offline: keep playing, your progresses will be automatically saved during next reconnection</string>
 	
-	<!-- demo -->
+	<!-- demo 
 	<string name="title_1">How it works (also offline)</string>
 	<string name="text_1_1">1. Choose a building to climb</string>
 	<string name="text_1_2">2. Press p1 \nPick your phone with you \nMake stairs</string>
@@ -311,6 +311,37 @@
 	<string name="text_4_1">See your profile in p2 and statistic to monitor yourself</string>
 	<string name="text_4_2">In p2 there is also a step counter if you want to get fit</string>
 	<string name="text_4_3">In settings you can choose the right climb difficulty for your climbings</string>
+	-->
+		
+	<string name="demo1_welcome">Welcome to \nClimb The World</string>
+	<string name="demo1_title">How to play</string>
+	<string name="demo1_slide0">Climb the world\'s peacks simply making stairs!</string>
+	<string name="demo1_slide1">Choose a building from "Buildings" o "Tours" \nWhich kind of climb you want?</string>
+	<string name="demo1_slide2">Changed idea? \nYou can come back to Solo Climb whenever you want</string>
+	<string name="demo1_slide3">Check your improvements \nIf you want to get fitter, try the step counter!</string>
+	
+	<string name="demo2_title">How to play in %s mode</string>
+	
+	<string name="demo2_slide00">Press play and make stairs</string>
+	<string name="demo2_slide01">You can pause the climb whenever you want</string>
+	<string name="demo2_slide02">Reach the stars to complete missions and earn bonus</string>
+	<string name="demo2_slide03">Reach the top to win the trophy!</string>
+	
+	<string name="demo2_slide10">Ask for help to 5 Facebook friends at most \nYour steps will be summed up to your friends\'</string>
+	<string name="demo2_slide11">Make stairs and exceed the partecipation treshold.\nReach the stars to complete missions e and earn bonus </string>
+	<string name="demo2_slide12">Press Update to see your friends\' progresses</string>
+	<string name="demo2_slide13">Reach the top with your friends and win the trophy together!</string>
+	
+	<string name="demo2_slide20">Challenge 5 Facebook friends at most \nIf you reach the top first, you change the challenge!</string>
+	<string name="demo2_slide21">Reach the stars to complete missions and earn bonus</string>
+	<string name="demo2_slide22">Press Update to see who is winning</string>
+	<string name="demo2_slide23">Reach the top to win the challenge and win the victory bonus</string>
+	
+	<string name="demo2_slide30">Challenge a friend and create a team with 5 Facebook friends \nYour steps will be summed up to your friends\'
+	    \nThe team who reach the top first wins</string>
+	<string name="demo2_slide31">When both teams are completed, the challenge can begin</string>
+	<string name="demo2_slide32">Make stairs and reach the stars to complete missions and earn bonus \nPress Update to see which team is winning</string>
+	<string name="demo2_slide33">Reach the top to make your team win!</string>
 	
 	<!-- onboarding -->
 	<string name="onboarding_1">Welcome! \n Are you ready to start this new adventure? \nPress on Mushrooms</string>

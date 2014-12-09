@@ -171,6 +171,16 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.unipd.nbeghin.climbtheworld.MainActivity" />
         </activity>
+         <activity
+            android:name=".InnerWalkthroughActivity"
+            android:label="Demo" 
+            android:parentActivityName=".WalkthroughActivity"
+            android:screenOrientation="portrait"
+            >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.unipd.nbeghin.climbtheworld.WalkthroughActivity" />
+        </activity>
         <activity
             android:name=".OnBoardingActivity"
             android:label="OnBoarding" 

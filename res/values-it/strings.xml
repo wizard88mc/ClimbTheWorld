@@ -298,13 +298,12 @@
 	
 	<string name="offline">Sei offline: gioca tranquillamente, i tuoi progressi saranno automaticamente salvati alla prossima riconnessione</string>
 
-	<!-- demo -->
+	<!-- demo 
 	<string name="title_1">Come giocare (anche offline)</string>
 	<string name="text_1_1">1. Scegli un edificio da scalare</string>
 	<string name="text_1_2">2. Premi p1 \nTieni il telefono con te \nSali le scale</string>
 	<string name="text_1_3">3. Completa i goal raggiungendo le stelle \nGuadagna punti \nVinci trofei e \nScala il mondo!!!!</string>
-	<!-- 	<string name="text_1_3">3. Completa i goal \nGuadagna punti \nVinci trofei e \nScala il mondo!!!!</string>
-	 -->
+	
 	<string name="title_2">Connettiti con Facebook</string>
 	<string name="intro_2">Porta i tuoi progressi sempre con te \nGioca con i tuoi amici</string>
 	<string name="text_2_1">Social Climb: \nchiedi aiuto fino a 5 amici per scalare un edificio più velocemente</string>
@@ -320,6 +319,37 @@
 	<string name="text_4_1">Guarda il tuo profilo e le tue statistiche in p2 per osservare la tua evoluzione</string>
 	<string name="text_4_2">In p2 c\'è anche uno step counter per mantenerti in forma</string>
 	<string name="text_4_3">In Impostazioni puoi scegliere la giusta difficoltà per le tue scalate</string>
+	-->
+	
+	<string name="demo1_welcome">Benvenuto in \nClimb The World</string>
+	<string name="demo1_title">Come si gioca</string>
+	<string name="demo1_slide0">Scala le vette del mondo semplicemente facendo le scale!</string>
+	<string name="demo1_slide1">Scegli un edificio da "Edifici" o "Tour" \nIn quale modalità vuoi fare la scalata?</string>
+	<string name="demo1_slide2">Hai cambiato idea? \nPuoi tornare alla modalità Solo Climb quando vuoi</string>
+	<string name="demo1_slide3">Controlla i tuoi miglioramenti \nPer rimanere in forma puoi provare lo step counter!</string>
+	
+	<string name="demo2_title">Come giocare in modalità %s</string>
+	
+	<string name="demo2_slide00">Premi play e sali le scale</string>
+	<string name="demo2_slide01">Puoi mettere la scalata in pausa quando vuoi</string>
+	<string name="demo2_slide02">Raggiungi le stelle per completare le missioni e guadagnare punti bonus</string>
+	<string name="demo2_slide03">Raggiungi la vetta per vincere il trofeo!</string>
+	
+	<string name="demo2_slide10">Chiedi aiuto a massimo 5 amici di Facebook \nI tuoi scalini saranno sommati a quelli fatti dai tuoi amici</string>
+	<string name="demo2_slide11">Fai le scale e supera la soglia di partecipazione.\nRaggiungi le stelle per completare le missioni e guadagnare punti bonus </string>
+	<string name="demo2_slide12">Premi Aggiorna per vedere i progressi dei tuoi amici</string>
+	<string name="demo2_slide13">Raggiungi la cima insieme agli amici e vincete il trofeo!</string>
+	
+	<string name="demo2_slide20">Sfida fino a 5 tuoi amici su Facebook \n Se raggiungi la cima per primo, hai vinto la sfida!</string>
+	<string name="demo2_slide21">Raggiungi le stelle per completare le missioni e guadagnare punti bonus</string>
+	<string name="demo2_slide22">Premi Aggiorna per vedere chi sta vincendo</string>
+	<string name="demo2_slide23">Raggiungi la cima per vincere la sfida e il bonus vittoria</string>
+	
+	<string name="demo2_slide30">Sfida un amico e crea un tuo team di 5 amici di Facebook \nI tuoi passi saranno sommati a quelli dei tuoi amici.
+	    \nVince il team che raggiunge per primo la cima</string>
+	<string name="demo2_slide31">Quando i due team sono completi, inizia la sfida</string>
+	<string name="demo2_slide32">Sali le scale e raggiungi le stelle per guadagnare punti bonus \nPremi Aggiorna per vedere quale team sta vincendo</string>
+	<string name="demo2_slide33">Raggiungi la cima per far vincere il tuo team!</string>
 	
 	<!-- onboarding -->
 	<string name="onboarding_1">Benvenuto! \n Sei pronto per iniziare una nuova avventura? \nPremi Funghi</string>
