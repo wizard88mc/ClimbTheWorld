@@ -4,7 +4,9 @@ import org.unipd.nbeghin.climbtheworld.adapters.RectangleShapeAdapter;
 import org.unipd.nbeghin.climbtheworld.util.AlarmUtils;
 import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
 import org.unipd.nbeghin.climbtheworldAlgorithm.R;
+
 import com.etsy.android.grid.StaggeredGridView;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -20,6 +22,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.DisplayMetrics;
 import android.util.SparseIntArray;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -173,13 +176,13 @@ public class AlgorithmConfigFragment extends Fragment {
     	gridView = (StaggeredGridView) getActivity().findViewById(R.id.alg_conf_gridview);
     	ListView lstV = new ListView(getActivity());
     	
-    	Button config_btt = new Button(getActivity());
+    	Button config_btt = (Button) getActivity().getLayoutInflater().inflate(R.layout.gridview_config_button, null);
     	config_btt.setText(R.string.config_button_text);
     	config_btt.setId(R.string.config_button_id);
-    	config_btt.setBackgroundResource(R.drawable.blue_button_style);
+    	//config_btt.setBackgroundResource(R.drawable.blue_button_style);
     	config_btt.setCompoundDrawablesWithIntrinsicBounds( R.drawable.ic_action_settings, 0, 0, 0);
-    	config_btt.setTextColor(Color.WHITE);	
-    	config_btt.setTypeface(Typeface.SERIF);	
+    	//config_btt.setTextSize(TypedValue.COMPLEX_UNIT_SP, getResources().getDimension(R.dimen.card_small_text));
+    	//config_btt.setTypeface(Typeface.SERIF);	
     	
     	config_btt.setOnClickListener(new OnClickListener() {
     	@Override
@@ -390,7 +393,7 @@ public class AlgorithmConfigFragment extends Fragment {
         	  
         	  View view = inflater.inflate(R.layout.fragment_algorithm_config_task, container);
         	          	  
-              getDialog().setTitle(R.string.lab_configdialog_title);
+              getDialog().setTitle(R.string.lab_configdialog_title);              
               
               progress_bar=(HoloCircleSeekBar) view.findViewById(R.id.config_task_progressbar);
 

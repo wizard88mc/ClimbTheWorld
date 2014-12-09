@@ -5,14 +5,14 @@
     xmlns:staggered="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"    
-    android:background="#FFFFFF">
+    android:background="@color/white">
     
     <com.etsy.android.grid.StaggeredGridView
         android:id="@+id/alg_conf_gridview"
    	    android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/green_picker"
-        android:background="#FFFFFF"
+        android:background="@color/white"
         android:gravity="center"
         android:stretchMode="columnWidth"        
         staggered:column_count="4"
@@ -41,8 +41,8 @@
         android:text="@string/choose_color"
         android:layout_marginBottom="10dp"
         android:gravity="center_horizontal"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:typeface="serif"/>
+        android:textSize="@dimen/card_medium_text"
+        android:textColor="@color/card_text" />
     
     
     <TextView

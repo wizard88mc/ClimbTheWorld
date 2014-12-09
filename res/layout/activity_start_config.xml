@@ -2,7 +2,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"   
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" 
-    android:fillViewport="true" > 
+    android:fillViewport="true" 
+    android:background="@color/white" > 
 
 	<RelativeLayout
    	 android:layout_width="fill_parent"
@@ -16,8 +17,8 @@
         android:text="@string/lab_first_config"
         android:layout_marginBottom="10dp"
         android:gravity="center_horizontal"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:typeface="serif"/>
+		android:textSize="@dimen/card_medium_text"
+        android:textColor="@color/card_text"/>
 
  <Button
         android:id="@+id/btt_google_play_action"
@@ -31,12 +32,13 @@
         android:gravity="center"        
         android:drawableLeft="@drawable/ic_content_import_export"
         android:onClick="selectAction"
-        style="@style/customBttStyle"
+        style="@style/btnStyleCard"
+        android:textSize="@dimen/card_medium_text"
         android:visibility="invisible"/>
 
     <Button
         android:id="@+id/btt_cancel_config"
-        style="@style/customBttStyle"
+        style="@style/btnStyleCard"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -46,11 +48,12 @@
         android:drawableLeft="@drawable/ic_navigation_cancel"
         android:gravity="center"
         android:onClick="selectAction"
-        android:text="@string/btt_cancel" />
+        android:text="@string/btt_cancel" 
+        android:textSize="@dimen/card_medium_text"/>
 
     <Button
         android:id="@+id/btt_next_config"
-        style="@style/customBttStyle"
+        style="@style/btnStyleCard"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -61,7 +64,8 @@
         android:drawableLeft="@drawable/ic_navigation_forward"
         android:gravity="center"
         android:onClick="selectAction"
-        android:text="@string/btt_next" />
+        android:text="@string/btt_next" 
+        android:textSize="@dimen/card_medium_text"/>
  
 </RelativeLayout>
 </ScrollView>

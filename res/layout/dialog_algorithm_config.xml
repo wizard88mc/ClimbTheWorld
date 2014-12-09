@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
+    android:background="@color/white"
     android:id="@+id/dialog_config_layout">
     
     <TextView
@@ -15,12 +15,12 @@
         android:layout_marginBottom="10dp"
         android:gravity="center"
         android:text="@string/lab_dialog_config"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:typeface="serif" />
+        android:textSize="@dimen/card_medium_text"
+        android:textColor="@color/card_text"/>
 
     <Button
         android:id="@+id/dialog_config_btt_cancel"
-        style="@style/customBttStyle"
+        style="@style/btnStyleCard"
         android:layout_width="125dp"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/dialog_config_btt_ok"
@@ -29,11 +29,12 @@
         android:gravity="center"
         android:onClick="selectAction"
         android:text="@string/btt_cancel_dialog_config"
-        android:drawableTop="@drawable/ic_navigation_cancel" />
+        android:drawableTop="@drawable/ic_navigation_cancel"
+        android:textSize="@dimen/card_medium_text" />
 
     <Button
         android:id="@+id/dialog_config_btt_ok"
-        style="@style/customBttStyle"
+        style="@style/btnStyleCard"
         android:layout_width="125dp"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -43,6 +44,7 @@
         android:drawableTop="@drawable/ic_action_accept"
         android:gravity="center"
         android:onClick="selectAction"
-        android:text="@string/btt_ok" />
+        android:text="@string/btt_ok"
+        android:textSize="@dimen/card_medium_text" />
     
 </RelativeLayout>
