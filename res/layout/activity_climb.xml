@@ -13,6 +13,7 @@
         android:contentDescription="Building photo"
         android:scaleType="fitXY"
         android:src="@drawable/tour_eiffel" />
+    
 
     <ImageView
         android:id="@+id/imgRocket"

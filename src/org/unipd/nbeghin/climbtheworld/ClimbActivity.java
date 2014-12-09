@@ -111,6 +111,8 @@ import com.parse.SaveCallback;
  */
 public class ClimbActivity extends ActionBarActivity {
 	
+	private static boolean setInitialStar = false;
+	
 	public static final String SAMPLING_TYPE = "ACTION_SAMPLING"; // intent's
 																	// action
 	public static final String SAMPLING_TYPE_NON_STAIR = "NON_STAIR"; // classifier's
@@ -711,7 +713,8 @@ public class ClimbActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_climb);
 		setupActionBar();
-		
+		setInitialStar = false;
+
 //		if (ClimbApplication.DEBUG) {
 //	         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
 //	                 .detectDiskReads()
@@ -1670,9 +1673,13 @@ public class ClimbActivity extends ActionBarActivity {
 	
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
-		if(microgoal != null){
-			double progress = ((double) ((microgoal.getTot_steps() - microgoal.getDone_steps())+ climbing.getCompleted_steps()) * (double) 100) / (double) building.getSteps();
-			seekbarIndicator.nextStar((int) Math.round(progress));
+		if(!setInitialStar){
+			seekbarIndicator.setTotalHeight();
+			if(microgoal != null){
+				double progress = ((double) ((microgoal.getTot_steps() - microgoal.getDone_steps())+ climbing.getCompleted_steps()) * (double) 100) / (double) building.getSteps();
+				seekbarIndicator.nextStar((int) Math.round(progress));
+			}
+			setInitialStar = true;
 		}
 	    super.onWindowFocusChanged(hasFocus);
 	}
@@ -1993,6 +2000,7 @@ public class ClimbActivity extends ActionBarActivity {
 			updatePoints(false,false);
 			saveBadges(true);
 			System.out.println("END");
+			
 		}
 		
 //		ClimbActivity.this.runOnUiThread(new Runnable() {

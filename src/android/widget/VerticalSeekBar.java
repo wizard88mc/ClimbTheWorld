@@ -12,7 +12,7 @@ import android.view.View;
 import android.widget.RelativeLayout.LayoutParams;
 
 /**
- * Custom android widget: vertical seekbar
+ * Custom android widget: vertical seekbar customized by Silvia Segato
  * 
  * @url https://github.com/AndroSelva/Vertical-SeekBar-Android/
  * 
@@ -22,8 +22,9 @@ public class VerticalSeekBar extends SeekBar {
 	 private Bitmap thumb1 = BitmapFactory.decodeResource(getResources(), R.drawable.star);
 
 	 private static double starHeight = 0;
-	 private int height;
-	 private int width;
+	 private static int totalHeight = 0;
+	 private int height = 0;
+	 private int width = 0;
 	 private View line;
      
 	public VerticalSeekBar(Context context) {
@@ -49,12 +50,11 @@ public class VerticalSeekBar extends SeekBar {
 	}
 
 	@Override
-	protected synchronized void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+	protected synchronized void onMeasure(int widthMeasureSpec, int heightMeasureSpec) { 
 		super.onMeasure(heightMeasureSpec, widthMeasureSpec);
 		setMeasuredDimension(getMeasuredHeight(), getMeasuredWidth());
-		height = MeasureSpec.getSize(heightMeasureSpec);
-		width = MeasureSpec.getSize(widthMeasureSpec);
-		
+			height = MeasureSpec.getSize(heightMeasureSpec);
+			width = MeasureSpec.getSize(widthMeasureSpec);	
 	}
 	
 	
@@ -66,7 +66,7 @@ public class VerticalSeekBar extends SeekBar {
 		line = parent.findViewById(R.id.redLine);
 		line.setLayoutParams(new LayoutParams(width/2, 2));
 		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)line.getLayoutParams();
-		params.setMargins(0,  height - ((int) starHeight) - 30, 0, 0); //substitute parameters for left, top, right, bottom
+		params.setMargins(0,  totalHeight - ((int) starHeight) - 30, 0, 0); //substitute parameters for left, top, right, bottom
 		line.setLayoutParams(params);
 		line.setBackgroundColor(getResources().getColor(R.color.red));
 		
@@ -88,7 +88,9 @@ public class VerticalSeekBar extends SeekBar {
 		
 	}
 	
-	
+	public void setTotalHeight(){
+		totalHeight = height;
+	}
 	
 	public void goldStar(){
 //		thumb1 = BitmapFactory.decodeResource(getResources(), R.drawable.gold_star);
