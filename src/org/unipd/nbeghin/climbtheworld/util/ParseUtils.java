@@ -72,11 +72,44 @@ public class ParseUtils {
 					l_microgoal.setSaved(true);
 					ClimbApplication.microgoalDao.update(l_microgoal);
 				}else{
-					l_microgoal.setSaved(false);
-					ClimbApplication.microgoalDao.update(l_microgoal);
-					//Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
-					//ClimbApplication.showConnectionProblemsToast();
-					Log.e(getClass().getName(), ex.getMessage());
+					
+					
+					if (ex.getCode() == ParseException.OBJECT_NOT_FOUND) {
+						if (l_microgoal.getDone_steps() == l_microgoal.getTot_steps())
+							ClimbApplication.microgoalDao.delete(l_microgoal);
+						else {
+							System.out.println("mg not found");
+							ParseObject mg = new ParseObject("Microgoal");
+							mg.put("story_id", l_microgoal.getStory_id());
+							mg.put("building", l_microgoal.getBuilding().get_id());
+							mg.put("done_steps", l_microgoal.getDone_steps());
+							mg.put("tot_steps", l_microgoal.getTot_steps());
+							mg.put("user_id", l_microgoal.getUser().getFBid());
+							mg.saveInBackground(new SaveCallback() {
+								
+								@Override
+								public void done(ParseException e) {
+									if(e == null){
+										Log.i(getClass().getName(), "Microgoal correctly saved in Parse");
+										l_microgoal.setSaved(true);
+										ClimbApplication.microgoalDao.update(l_microgoal);
+									}else{
+										l_microgoal.setSaved(false);
+										ClimbApplication.microgoalDao.update(l_microgoal);
+										Log.e(getClass().getName(), e.getMessage());
+									}
+									
+								}
+							});
+						}
+					} else {
+						l_microgoal.setSaved(false);
+						ClimbApplication.microgoalDao.update(l_microgoal);
+						Log.e(getClass().getName(), ex.getMessage());
+					}
+					
+					
+					
 				}
 				
 			}

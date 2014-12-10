@@ -1224,14 +1224,14 @@ public class ClimbActivity extends ActionBarActivity {
 									// threshold
 									current_win = true;
 									socialPenalty();
-									if(microgoal != null) deleteMicrogoalInParse(microgoal);
+									if(microgoal != null && (isUpdate || isOpening)) deleteMicrogoalInParse(microgoal);
 									
-								} else if ((num_steps + sumOthersStep() >= building.getSteps()) && (num_steps > threshold)) {
+								} else if ((num_steps + sumOthersStep() >= building.getSteps()) && (num_steps >= threshold)) {
 									percentage = 1.0;
 									current_win = true;
-									
-									if(microgoal != null) deleteMicrogoalInParse(microgoal);
+									System.out.println("ho vinto");
 									if(isUpdate || isOpening){ 
+										if(microgoal != null) deleteMicrogoalInParse(microgoal);
 										updatePoints(false, false);
 										saveBadges(true);
 										saveCollaborationData();
@@ -1946,8 +1946,10 @@ public class ClimbActivity extends ActionBarActivity {
 					climbing.setGame_mode(0);
 					climbing.setId_mode("");
 					ClimbApplication.climbingDao.update(climbing); // save to db
-					if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty"))
+					if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty")){
 						updateClimbingInParse(climbing, false);
+						if(microgoal != null) deleteMicrogoalInParse(microgoal);
+					}
 					break;
 				case SOCIAL_CHALLENGE:
 					updateChart(false, false);
@@ -1959,11 +1961,16 @@ public class ClimbActivity extends ActionBarActivity {
 					break;
 				case SOLO_CLIMB:
 					ClimbApplication.climbingDao.update(climbing); // save to db
-					if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty"))
+					if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty")){
 						updateClimbingInParse(climbing, false);
+						if(microgoal != null){
+							deleteMicrogoalInParse(microgoal);
+						}
+					}
 					else {
 						climbing.setSaved(true);
 						ClimbApplication.climbingDao.update(climbing);
+						ClimbApplication.microgoalDao.delete(microgoal);
 					}
 					break;
 				}
