@@ -23,7 +23,7 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 /**
  * Class containing methods to be used when saving object in Parse
- * DO NOT USE PARSE METHOD saveEventually/deleteEventually
+ * DO NOT USE PARSE METHOD saveEventually/deleteEventually:
  * 
  * ParseCommandCache.runLoop() is the thread that processes any items from previous calls to saveEventually that haven't yet been saved to Parse's servers. 
  * If you haven't been calling saveEventually, then this thread will be asleep, and will only be awakened when you do call it.
@@ -78,7 +78,7 @@ public class ParseUtils {
 						if (l_microgoal.getDone_steps() == l_microgoal.getTot_steps())
 							ClimbApplication.microgoalDao.delete(l_microgoal);
 						else {
-							System.out.println("mg not found");
+							System.out.println("mg not found utils");
 							ParseObject mg = new ParseObject("Microgoal");
 							mg.put("story_id", l_microgoal.getStory_id());
 							mg.put("building", l_microgoal.getBuilding().get_id());

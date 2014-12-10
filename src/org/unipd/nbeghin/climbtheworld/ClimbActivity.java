@@ -1931,8 +1931,7 @@ public class ClimbActivity extends ActionBarActivity {
 
 		if (!isCounterMode && changes) {
 			// update db
-			if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty"))
-				updateMicrogoalInParse();
+			
 			climbing.setModified(new Date().getTime()); // update climbing last/ edit date
 			climbing.setCompleted_steps(num_steps); // update completed steps
 			climbing.setPercentage(percentage); // update progress percentage
@@ -1978,9 +1977,12 @@ public class ClimbActivity extends ActionBarActivity {
 				 * climbing.setGame_mode(0); climbing.setId_mode("");
 				 */
 			} else {
+								
 				if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty")) {
 					ClimbApplication.climbingDao.update(climbing); // save to db
 					updateClimbingInParse(climbing, false);
+					updateMicrogoalInParse();
+
 				} else {
 					climbing.setSaved(true);
 					ClimbApplication.climbingDao.update(climbing);
