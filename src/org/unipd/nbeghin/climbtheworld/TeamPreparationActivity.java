@@ -116,6 +116,7 @@ public class TeamPreparationActivity extends ActionBarActivity {
 		addMyMembersBtn.setEnabled(false);
 		addChallengerBtn.setEnabled(false);
 		startPlay.setEnabled(false);
+		exitTeam.setEnabled(false);
 		
 		if(!FacebookUtils.isOnline(getApplicationContext()))
 			exitTeam.setEnabled(false);
@@ -151,6 +152,7 @@ public class TeamPreparationActivity extends ActionBarActivity {
 			addMyMembersBtn.setVisibility(View.GONE);
 		}
 
+		
 		getTeams(false);
 
 	}

@@ -3,7 +3,8 @@ package org.unipd.nbeghin.climbtheworld.services;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,13 +14,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.unipd.nbeghin.climbtheworld.ClimbApplication;
-import org.unipd.nbeghin.climbtheworld.MainActivity;
-import org.unipd.nbeghin.climbtheworld.db.DbHelper;
-import org.unipd.nbeghin.climbtheworld.db.PreExistingDbLoader;
+import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.Competition;
-import org.unipd.nbeghin.climbtheworld.models.GameModeType;
 import org.unipd.nbeghin.climbtheworld.models.Group;
 import org.unipd.nbeghin.climbtheworld.models.Microgoal;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
@@ -27,18 +25,15 @@ import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.models.UserBadge;
 import org.unipd.nbeghin.climbtheworld.util.ModelsUtil;
 import org.unipd.nbeghin.climbtheworld.util.ParseUtils;
-import org.unipd.nbeghin.climbtheworld.R;
 
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.Where;
@@ -864,12 +859,24 @@ public class UpdateService extends IntentService {
 		}
 	}
 
-	private void saveMicrogoals(final Context context) {
-		Map<String, Object> conditions = new HashMap<String, Object>();
-		conditions.put("saved", 0);
-		final List<Microgoal> microgoals = ClimbApplication.microgoalDao.queryForFieldValuesArgs(conditions);
+	private void saveMicrogoals(final Context context, final int deleted) throws SQLException {
+//		Map<String, Object> conditions = new HashMap<String, Object>();
+//		conditions.put("saved", 0);
+//		conditions.put("deleted", deleted);
+		QueryBuilder<Microgoal, Integer> queryLocal = ClimbApplication.microgoalDao.queryBuilder();
+		Where<Microgoal, Integer> where = queryLocal.where();
+	
+			where.eq("saved", 0);
+			// and
+			where.and();
+			where.eq("deleted", deleted);
+			PreparedQuery<Microgoal> preparedQuery = queryLocal.prepare();
+			final List<Microgoal> microgoals = ClimbApplication.microgoalDao.query(preparedQuery);
+		//final List<Microgoal> microgoals = ClimbApplication.microgoalDao.queryForFieldValuesArgs(conditions);
+		
+		
 		for (final Microgoal microgoal : microgoals) {
-			System.out.println("Microgoals " + microgoals.size());
+			System.out.println(deleted + " Microgoals " + microgoals.size());
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("Microgoal");
 			query.whereEqualTo("user_id", microgoal.getUser().getFBid());
 			query.whereEqualTo("building", microgoal.getBuilding().get_id());
@@ -904,7 +911,7 @@ public class UpdateService extends IntentService {
 						}
 					} else {
 						if (e.getCode() == ParseException.OBJECT_NOT_FOUND) {
-							if (microgoal.getDone_steps() == microgoal.getTot_steps())
+							if (microgoal.getDone_steps() == microgoal.getTot_steps() || microgoal.getDeleted())
 								ClimbApplication.microgoalDao.delete(microgoal);
 							else {
 								System.out.println("mg not found");
@@ -921,10 +928,22 @@ public class UpdateService extends IntentService {
 							Log.e("UpdateService - save microgoals", e.getMessage());
 						}
 					}
+					
+					if(microgoals.indexOf(microgoal) == microgoals.size() -1 && deleted == 1){
+						try {
+							saveMicrogoals(context, 0);
+						} catch (SQLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
 
 				}
 
 			});
+		}
+		if(microgoals.size() == 0 && deleted == 1){
+			saveMicrogoals(context, 0);		
 		}
 	}
 
@@ -948,7 +967,12 @@ public class UpdateService extends IntentService {
 			saveCollaborations(this);
 			saveCompetitions(this);
 			saveTeamDuels(this);
-			saveMicrogoals(this);
+			try {
+				saveMicrogoals(this, 1);
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			saveUsers(this);
 			try {
 				saveClimbings(this, 0);

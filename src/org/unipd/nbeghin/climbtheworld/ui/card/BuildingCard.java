@@ -478,27 +478,13 @@ public class BuildingCard extends Card {
 								switch (mode) {
 								case SOLO_CLIMB:
 									if (climbing != null) {
-										// if there is an existing Climbing
-										// object with
-										// game mode as 0
-										// then 'pause' it and create a new
-										// Climbing
-										// object with game mode as 2
-										// when the social challenge has
-										// finished,
-										// delete the last Climbing object and
-										// 'resume'
-										// the first one in solo climb
-										// climbing.setId_mode("paused");
-										// climbing.setSaved(false);
-										// ClimbApplication.climbingDao.update(climbing);
-										// updateClimbingInParse(climbing,
-										// false);
+										// if there is an existing Climbing object with game mode as 0 then 'pause' it and create a new Climbing
+										// object with game mode as 2 when the social challenge has
+										// finished, delete the last Climbing object and 'resume' the first one in solo climb
+							
 										soloClimbing = climbing;
 									}
-									// otherwise create a new Climbing object
-									// with game
-									// mode as 2
+									// otherwise create a new Climbing object with game mode as 2
 									climbing = new Climbing();
 									climbing.setBuilding(building);
 									climbing.setCompleted(0);
@@ -1104,6 +1090,19 @@ public class BuildingCard extends Card {
 						c.put("collaborators", collaborators);
 						c.put("stairs", stairs);
 						collab.setLeaved(true);
+						if(collab.getAmICreator() && collaborators.length() > 0){
+							Iterator<String> it = collaborators.keys();
+							try {
+								JSONObject creator = c.getJSONObject("creator");
+								creator.remove(pref.getString("FBid", ""));
+								String new_creator_key = it.next();
+								creator.put(new_creator_key, collaborators.get(new_creator_key));
+							} catch (JSONException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+							
+						}
 						if (collaborators.length() == 0)
 							ParseUtils.deleteCollaboration(c, collab);
 						// c.deleteEventually();
@@ -1165,6 +1164,19 @@ public class BuildingCard extends Card {
 						c.put("competitors", collaborators);
 						c.put("stairs", stairs);
 						competit.setLeaved(true);
+						if(competit.getAmICreator() && collaborators.length() > 0){
+							Iterator<String> it = collaborators.keys();
+							try {
+								JSONObject creator = c.getJSONObject("creator");
+								creator.remove(pref.getString("FBid", ""));
+								String new_creator_key = it.next();
+								creator.put(new_creator_key, collaborators.get(new_creator_key));
+							} catch (JSONException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+							
+						}
 						if (collaborators.length() == 0)
 							// c.deleteEventually();
 							ParseUtils.deleteCompetition(c, competit);

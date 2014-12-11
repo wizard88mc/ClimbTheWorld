@@ -249,8 +249,7 @@ public class ClimbActivity extends ActionBarActivity {
 			}
 
 			if (finalClassification > 0) {
-				System.out.println(percentage);
-				System.out.println(climbedYesterday);
+		
 				if (climbedYesterday && percentage > 0.25f && percentage < 0.50f && used_bonus == false && building.get_id() != 6) { // bonus
 					// at
 					// 25%
@@ -1097,6 +1096,21 @@ public class ClimbActivity extends ActionBarActivity {
 							// collaboration found
 							SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
 							collab_parse = collabs.get(0);
+							
+							JSONObject creator = collab_parse.getJSONObject("creator");
+							Iterator<String> it_creator = creator.keys();
+							String creator_fbid = it_creator.next();
+							if(creator_fbid.equalsIgnoreCase(pref.getString("FBid", ""))){
+								if(!collaboration.getAmICreator()){
+									collaboration.setAmICreator(true);
+									ClimbApplication.collaborationDao.update(collaboration);
+								}
+							}else{
+								if(collaboration.getAmICreator()){
+									collaboration.setAmICreator(false);
+									ClimbApplication.collaborationDao.update(collaboration);
+								}
+							}
 
 							JSONObject others = collab_parse.getJSONObject("stairs");
 							JSONObject othersName = collab_parse.getJSONObject("collaborators");
@@ -2723,6 +2737,22 @@ public class ClimbActivity extends ActionBarActivity {
 						} else {
 							SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
 							compet_parse = compets.get(0);
+							
+							JSONObject creator = compet_parse.getJSONObject("creator");
+							Iterator<String> it_creator = creator.keys();
+							String creator_fbid = it_creator.next();
+							if(creator_fbid.equalsIgnoreCase(pref.getString("FBid", ""))){
+								if(!competition.getAmICreator()){
+									competition.setAmICreator(true);
+									ClimbApplication.competitionDao.update(competition);
+								}
+							}else{
+								if(competition.getAmICreator()){
+									competition.setAmICreator(false);
+									ClimbApplication.competitionDao.update(competition);
+								}
+							}
+							
 							JSONObject others = compet_parse.getJSONObject("stairs");
 							JSONObject othersName = compet_parse.getJSONObject("competitors");
 

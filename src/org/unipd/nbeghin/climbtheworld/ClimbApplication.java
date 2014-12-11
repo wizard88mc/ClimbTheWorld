@@ -241,8 +241,8 @@ public class ClimbApplication extends Application {
 		if (precLevel < 20) {
 			newLevel = XPtoLevel(xp);
 		} else {
-			if (xp == 9500)
-				newLevel = precLevel++;
+			if (xp >= 9500)
+				newLevel = precLevel + 1;
 			else
 				newLevel = precLevel;
 		}
@@ -1262,5 +1262,9 @@ public class ClimbApplication extends Application {
 			// connection_toast.show();
 		}
 	}
+	
+	
+	
+	
 
 }

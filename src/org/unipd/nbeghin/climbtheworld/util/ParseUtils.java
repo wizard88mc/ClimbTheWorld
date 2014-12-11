@@ -61,7 +61,7 @@ public class ParseUtils {
 		
 	}
 	
-	public static void saveMicrogoal(ParseObject p_microgoal, final Microgoal l_microgoal){
+	public static void saveMicrogoal(ParseObject p_microgoal, final Microgoal l_microgoal){ System.out.println("save " + p_microgoal.getObjectId());
 		p_microgoal.saveInBackground(new SaveCallback() {
 			
 			@Override
@@ -301,7 +301,7 @@ public class ParseUtils {
 		});
 	}
 	
-	public static void deleteMicrogoal(ParseObject p_microgoal, final Microgoal microgoal){
+	public static void deleteMicrogoal(ParseObject p_microgoal, final Microgoal microgoal){ System.out.println("delete " + p_microgoal.getObjectId());
 		p_microgoal.deleteInBackground(new DeleteCallback() {
 			
 			@Override
