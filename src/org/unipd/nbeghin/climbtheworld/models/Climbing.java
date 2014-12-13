@@ -35,6 +35,8 @@ public class Climbing {
 	private int deleted;
 	@DatabaseField
 	private String id_online;
+	@DatabaseField
+	private int checked;
 	
 
 	public String getId_mode() {
@@ -182,5 +184,18 @@ public class Climbing {
 		this.id_online = id_online;
 	}
 	
+	public void setChecked(boolean checked){
+		if(checked){
+			this.checked = 1;
+		}else{
+			this.checked = 0;
+		}
+	}
 	
+	public boolean isChecked(){
+		if(checked == 1)
+			return true;
+		else
+			return false;
+	}
 }

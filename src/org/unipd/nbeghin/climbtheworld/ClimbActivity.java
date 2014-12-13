@@ -354,13 +354,9 @@ public class ClimbActivity extends ActionBarActivity {
 
 	private void apply_win() {
 		Log.i(MainActivity.AppName, "Succesfully climbed building #" + building.get_id());
-		//Toast.makeText(getApplicationContext(), getString(R.string.successfull_climb, building.getSteps(), building.getHeight(), building.getName()), Toast.LENGTH_LONG).show(); // show
-																																													// completion
-																																													// text
-		findViewById(R.id.lblWin).setVisibility(View.VISIBLE); // load and
-																// animate
-																// completed
-																// climbing test
+		//Toast.makeText(getApplicationContext(), getString(R.string.successfull_climb, building.getSteps(), building.getHeight(), building.getName()), Toast.LENGTH_LONG).show(); 
+		// show completion text
+		findViewById(R.id.lblWin).setVisibility(View.VISIBLE); // load and animate completed climbing test
 		findViewById(R.id.lblWin).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.blink));
 		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.social_share);
 		findViewById(R.id.btnAccessPhotoGallery).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_fade_in));
@@ -2152,9 +2148,13 @@ public class ClimbActivity extends ActionBarActivity {
 	private void saveCompetitionData() {
 		Log.i("ClimbActivity", "saveCompetitionData");
 		competition.setMy_stairs(climbing.getCompleted_steps());
-		if (current_win) {
-			competition.setCompleted(true);
-		}
+		
+		
+//		if (current_win) {
+//			competition.setCompleted(true);
+//		}
+		
+		
 		ClimbApplication.competitionDao.update(competition);
 		
 		if (compet_parse == null) {
@@ -2168,10 +2168,14 @@ public class ClimbActivity extends ActionBarActivity {
 				stairs.put(pref.getString("FBid", ""), competition.getMy_stairs());
 				compet_parse.put("stairs", stairs);
 				System.out.println("salvo scalini");
-				if (percentage >= 1.00) {
-					compet_parse.put("completed", true);
-					System.out.println("completo online");
-				}
+				
+				
+//				if (percentage >= 1.00) {
+//					compet_parse.put("completed", true);
+//					System.out.println("completo online");
+//				}
+				
+				
 				// compet_parse.saveEventually();
 				ParseUtils.saveCompetition(compet_parse, competition);
 			} catch (JSONException e) {
@@ -2205,11 +2209,14 @@ public class ClimbActivity extends ActionBarActivity {
 				myteam = teamDuel_parse.getJSONObject("creator_stairs");
 			try {
 				myteam.put(pref.getString("FBid", ""), teamDuel.getMy_steps());
-				if (percentage >= 1.00) {
-					System.out.println("elimino team duel");
-					teamDuel_parse.put("completed", true);
-					teamDuel.setCompleted(true);
-				}
+				
+//				if (percentage >= 1.00) {
+//					System.out.println("elimino team duel");
+//					teamDuel_parse.put("completed", true);
+//					teamDuel.setCompleted(true);
+//				}
+				
+				
 				// teamDuel_parse.saveEventually();
 				ParseUtils.saveTeamDuel(teamDuel_parse, teamDuel);
 			} catch (JSONException e) {
@@ -2585,10 +2592,13 @@ public class ClimbActivity extends ActionBarActivity {
 							JSONObject myTeam;
 							JSONObject otherTeam;
 							boolean completed = teamDuel_parse.getBoolean("completed");
+							Date victory_time = teamDuel_parse.getDate("victory_time");
+							Date last_update = teamDuel_parse.getUpdatedAt();
+							
 							if (teamDuel.getMygroup() == Group.CHALLENGER) {
 								myTeam = teamDuel_parse.getJSONObject("challenger_stairs");
 								otherTeam = teamDuel_parse.getJSONObject("creator_stairs");
-								if(!completed){
+								//if(!completed){
 								try {
 									myTeam.put(pref.getString("FBid", ""), num_steps);
 								} catch (JSONException e1) {
@@ -2597,12 +2607,12 @@ public class ClimbActivity extends ActionBarActivity {
 								}
 								teamDuel_parse.put("challenger_stairs", myTeam);
 								// teamDuel_parse.saveEventually();
-								ParseUtils.saveTeamDuel(teamDuel_parse, teamDuel);
-								}
+								//ParseUtils.saveTeamDuel(teamDuel_parse, teamDuel);
+								//}
 							} else {
 								myTeam = teamDuel_parse.getJSONObject("creator_stairs");
 								otherTeam = teamDuel_parse.getJSONObject("challenger_stairs");
-								if(!completed){ 
+								//if(!completed){ 
 								try {
 									myTeam.put(pref.getString("FBid", ""), num_steps);
 								} catch (JSONException e1) {
@@ -2611,9 +2621,39 @@ public class ClimbActivity extends ActionBarActivity {
 								}
 								teamDuel_parse.put("creator_stairs", myTeam);
 								// teamDuel_parse.saveEventually();
-								ParseUtils.saveTeamDuel(teamDuel_parse, teamDuel);
-								}
+								//ParseUtils.saveTeamDuel(teamDuel_parse, teamDuel);
+								//}
 							}
+							int myGroupScore = ModelsUtil.sum(myTeam);
+							int otherGroupScore = ModelsUtil.sum(otherTeam);
+							DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+							if(myGroupScore >= building.getSteps() && !climbing.isChecked()){ // !victory_time.after(new Date(victory_time.getTime() - 5 * 24 * 3600 * 1000 )
+								try {
+									if(victory_time.getTime() == 0 || victory_time.after(df.parse(df.format(climbing.getModified())))){
+										teamDuel.setVictory_time(climbing.getModified());
+										teamDuel.setWinner_id(new Integer((teamDuel.getMygroup()).ordinal()).toString());
+									}
+								} catch (java.text.ParseException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+								
+								if(teamDuel.getChecks() >= (teamDuel_parse.getJSONObject("challenger_stairs").length() + teamDuel_parse.getJSONObject("creator_stairs").length()) || last_update.after(new Date(victory_time.getTime() - 5 * 24 * 3600 * 1000 )))
+										teamDuel.setCompleted(true);
+								teamDuel.setChecks(teamDuel.getChecks() + 1);											
+								teamDuel_parse.put("victory_time", teamDuel.getVictory_time());
+									teamDuel_parse.put("winner_id", teamDuel.getWinner_id());
+									teamDuel_parse.put("checks", teamDuel.getChecks());
+									teamDuel_parse.put("completed", teamDuel.isCompleted());
+									climbing.setChecked(true);
+									saveClimbingToParse(climbing);
+								
+							}
+							
+							ParseUtils.saveTeamDuel(teamDuel_parse, teamDuel);
+
+							
 							Iterator<String> keys = myTeam.keys();
 							while (keys.hasNext()) {
 								String key = keys.next();
@@ -2626,8 +2666,7 @@ public class ClimbActivity extends ActionBarActivity {
 									}
 								}
 							}
-							int myGroupScore = ModelsUtil.sum(myTeam);
-							int otherGroupScore = ModelsUtil.sum(otherTeam);
+							
 							teamDuel.setSteps_my_group(myGroupScore);
 							teamDuel.setSteps_other_group(otherGroupScore);
 							teamDuel.setMy_steps(num_steps);
@@ -2653,7 +2692,7 @@ public class ClimbActivity extends ActionBarActivity {
 							seekbarIndicator.nextStar((int) Math.round(progress));
 							secondSeekbar.setProgress(ModelsUtil.sum(otherTeam));
 
-							if (myGroupScore >= building.getSteps()) {
+							if (/*myGroupScore >= building.getSteps()*/teamDuel.isCompleted() && Integer.valueOf(teamDuel.getWinner_id()) == teamDuel.getMygroup().ordinal()) {
 								showMessage(getString(R.string.your_team_won));
 								current_win = true;
 								//Toast.makeText(getApplicationContext(), getString(R.string.your_team_won), Toast.LENGTH_SHORT).show();
@@ -2672,7 +2711,7 @@ public class ClimbActivity extends ActionBarActivity {
 								}
 
 								
-							} else if (otherGroupScore >= building.getSteps()) {
+							} else if (/*otherGroupScore >= building.getSteps()*/teamDuel.isCompleted() && Integer.valueOf(teamDuel.getWinner_id()) != teamDuel.getMygroup().ordinal()) {
 								showMessage(getString(R.string.other_team_won));
 								current_win = true;
 								//Toast.makeText(getApplicationContext(), getString(R.string.other_team_won), Toast.LENGTH_SHORT).show();
@@ -2759,9 +2798,15 @@ public class ClimbActivity extends ActionBarActivity {
 							
 							JSONObject others = compet_parse.getJSONObject("stairs");
 							JSONObject othersName = compet_parse.getJSONObject("competitors");
-							boolean completed = compet_parse.getBoolean("completed");
+							//tirare giu data vittoria, checks e vincitore
+							Date victory_time = compet_parse.getDate("victory_time");
+							String winner_id = compet_parse.getString("winner_id");
+							int checks = compet_parse.getInt("checks");
+							Date last_update = compet_parse.getUpdatedAt();
+							
+							
+							
 							if (othersName.has(currentUser.getFBid())) {
-								if(!completed){	
 
 								try {
 									others.put(pref.getString("FBid", ""), num_steps);
@@ -2771,10 +2816,41 @@ public class ClimbActivity extends ActionBarActivity {
 								}
 								compet_parse.put("stairs", others);
 								competition.setMy_stairs(num_steps);
+								
+								if(percentage >= 1.00)
+									current_win = true;
+								
+								DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+								if(num_steps >= building.getSteps() && !climbing.isChecked()){
+									try {
+										if(victory_time.getTime() == 0 || victory_time.after(df.parse(df.format(climbing.getModified())))){
+											competition.setVictory_time(climbing.getModified());
+											competition.setWinner_id(pref.getString("FBid", ""));
+											
+										}
+									} catch (java.text.ParseException e1) {
+										// TODO Auto-generated catch block
+										e1.printStackTrace();
+									}
+									
+									competition.setChecks(teamDuel.getChecks() + 1);
+										if(competition.getChecks() >= othersName.length() || last_update.after(new Date(victory_time.getTime() - 5 * 24 * 3600 * 1000 )))
+											competition.setCompleted(true);
+										compet_parse.put("victory_time", competition.getVictory_time());
+										compet_parse.put("winner_id", competition.getWinner_id());
+										compet_parse.put("checks", competition.getChecks());
+										compet_parse.put("completed", competition.isCompleted());
+										climbing.setChecked(true);
+										saveClimbingToParse(climbing);
+									
+								}
 								// compet_parse.saveEventually();
 								ParseUtils.saveCompetition(compet_parse, competition);
 								
-							}
+							
+								
+								
 								Iterator members = others.keys();
 								int i = 0;
 								chart = ModelsUtil.fromJsonToChart(others);
@@ -2827,7 +2903,7 @@ public class ClimbActivity extends ActionBarActivity {
 										group_members.get(i).setBackgroundColor(Color.parseColor("#f7fe2e"));
 										group_steps.get(i).setBackgroundColor(Color.parseColor("#f7fe2e"));
 										group_minus.get(i).setVisibility(View.INVISIBLE);
-										if (steps >= building.getSteps()) {
+										if(competition.isCompleted() && winner_id.equalsIgnoreCase(pref.getString("FBid", ""))){//if (steps >= building.getSteps()) {
 											percentage = 1.0;
 											current_win = true;
 											if(isUpdate || isOpening){
@@ -2838,7 +2914,7 @@ public class ClimbActivity extends ActionBarActivity {
 											//Toast.makeText(getApplicationContext(), getString(R.string.competition_win), Toast.LENGTH_SHORT).show();
 										}
 									} else {
-										if (steps >= building.getSteps()) {
+										if (competition.isCompleted() && winner_id.equalsIgnoreCase(key)/*steps >= building.getSteps()*/) {
 											current_win = true;
 											if(isUpdate || isOpening) endCompetition(true);
 											showMessage( getString(R.string.competition_lose, name));

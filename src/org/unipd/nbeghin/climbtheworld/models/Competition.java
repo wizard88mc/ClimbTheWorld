@@ -26,7 +26,12 @@ public class Competition {
 	private int completed;
 	@DatabaseField
 	private int amICreator;
-
+	@DatabaseField
+	private int checks;
+	@DatabaseField
+	private long victory_time;
+	@DatabaseField
+	private String winner_id;
 
 	public Competition(){}
 
@@ -149,6 +154,36 @@ public class Competition {
 			this.amICreator = 1;
 		else
 			this.amICreator = 0;
+	}
+
+
+	public int getChecks() {
+		return checks;
+	}
+
+
+	public void setChecks(int checks) {
+		this.checks = checks;
+	}
+
+
+	public long getVictory_time() {
+		return victory_time;
+	}
+
+
+	public void setVictory_time(long victory_time) {
+		this.victory_time = victory_time;
+	}
+
+
+	public String getWinner_id() {
+		return winner_id;
+	}
+
+
+	public void setWinner_id(String winner_id) {
+		this.winner_id = winner_id;
 	}
 	
 	

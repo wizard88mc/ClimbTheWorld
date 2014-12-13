@@ -38,6 +38,12 @@ public class TeamDuel {
 	private int completed;
 	@DatabaseField
 	private int ready_to_play;
+	@DatabaseField
+	private int checks;
+	@DatabaseField
+	private long victory_time;
+	@DatabaseField
+	private String winner_id;
 	
 	public TeamDuel(){}
 	
@@ -205,6 +211,30 @@ public class TeamDuel {
 			return true;
 		else
 			return false;
+	}
+
+	public int getChecks() {
+		return checks;
+	}
+
+	public void setChecks(int checks) {
+		this.checks = checks;
+	}
+
+	public long getVictory_time() {
+		return victory_time;
+	}
+
+	public void setVictory_time(long victory_time) {
+		this.victory_time = victory_time;
+	}
+
+	public String getWinner_id() {
+		return winner_id;
+	}
+
+	public void setWinner_id(String winner_id) {
+		this.winner_id = winner_id;
 	}
 	
 	
