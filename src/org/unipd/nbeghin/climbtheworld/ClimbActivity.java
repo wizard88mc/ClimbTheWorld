@@ -106,7 +106,7 @@ import com.parse.SaveCallback;
 /**
  * Climbing activity: shows a given building and starts classifier. At start it
  * calculates the sampling rate of the device it's run from (only once, after
- * that it just saves the value in standard Android preferences)
+ * that it just saves the value in standard Android preferences).
  * 
  */
 public class ClimbActivity extends ActionBarActivity {
@@ -221,8 +221,7 @@ public class ClimbActivity extends ActionBarActivity {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			// String result =
-			// intent.getExtras().getString(ClassifierCircularBuffer.CLASSIFIER_NOTIFICATION_STATUS);
+			// String result = intent.getExtras().getString(ClassifierCircularBuffer.CLASSIFIER_NOTIFICATION_STATUS);
 			Double result = intent.getExtras().getDouble(ClassifierCircularBuffer.CLASSIFIER_NOTIFICATION_STATUS);
 
 			double correction = 0.0;
@@ -2585,9 +2584,11 @@ public class ClimbActivity extends ActionBarActivity {
 							teamDuel_parse = tds.get(0);
 							JSONObject myTeam;
 							JSONObject otherTeam;
+							boolean completed = teamDuel_parse.getBoolean("completed");
 							if (teamDuel.getMygroup() == Group.CHALLENGER) {
 								myTeam = teamDuel_parse.getJSONObject("challenger_stairs");
 								otherTeam = teamDuel_parse.getJSONObject("creator_stairs");
+								if(!completed){
 								try {
 									myTeam.put(pref.getString("FBid", ""), num_steps);
 								} catch (JSONException e1) {
@@ -2597,9 +2598,11 @@ public class ClimbActivity extends ActionBarActivity {
 								teamDuel_parse.put("challenger_stairs", myTeam);
 								// teamDuel_parse.saveEventually();
 								ParseUtils.saveTeamDuel(teamDuel_parse, teamDuel);
+								}
 							} else {
 								myTeam = teamDuel_parse.getJSONObject("creator_stairs");
 								otherTeam = teamDuel_parse.getJSONObject("challenger_stairs");
+								if(!completed){ 
 								try {
 									myTeam.put(pref.getString("FBid", ""), num_steps);
 								} catch (JSONException e1) {
@@ -2609,6 +2612,7 @@ public class ClimbActivity extends ActionBarActivity {
 								teamDuel_parse.put("creator_stairs", myTeam);
 								// teamDuel_parse.saveEventually();
 								ParseUtils.saveTeamDuel(teamDuel_parse, teamDuel);
+								}
 							}
 							Iterator<String> keys = myTeam.keys();
 							while (keys.hasNext()) {
@@ -2755,8 +2759,9 @@ public class ClimbActivity extends ActionBarActivity {
 							
 							JSONObject others = compet_parse.getJSONObject("stairs");
 							JSONObject othersName = compet_parse.getJSONObject("competitors");
-
+							boolean completed = compet_parse.getBoolean("completed");
 							if (othersName.has(currentUser.getFBid())) {
+								if(!completed){	
 
 								try {
 									others.put(pref.getString("FBid", ""), num_steps);
@@ -2768,6 +2773,8 @@ public class ClimbActivity extends ActionBarActivity {
 								competition.setMy_stairs(num_steps);
 								// compet_parse.saveEventually();
 								ParseUtils.saveCompetition(compet_parse, competition);
+								
+							}
 								Iterator members = others.keys();
 								int i = 0;
 								chart = ModelsUtil.fromJsonToChart(others);

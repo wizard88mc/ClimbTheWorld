@@ -22,7 +22,7 @@ import com.facebook.model.GraphUser;
 import com.facebook.widget.FacebookDialog;
 import com.facebook.widget.ProfilePictureView;
 /**
- * UNUSED
+ * UNUSED (non usata)
  *
  */
 public class BaseFBActivity extends ActionBarActivity {
