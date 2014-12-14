@@ -757,6 +757,7 @@ public class BuildingCard extends Card {
 		climb.put("percentage", String.valueOf(climbing.getPercentage()));
 		climb.put("users_id", climbing.getUser().getFBid());
 		climb.put("game_mode", climbing.getGame_mode());
+		climb.put("checked", climbing.isChecked());
 		if (climbing.getId_mode() != null)
 			climb.put("id_mode", climbing.getId_mode());
 		else
@@ -913,6 +914,8 @@ public class BuildingCard extends Card {
 		});
 
 	}
+	
+	
 
 	/**
 	 * Saves the Competition object both locally and in Parse. If the operation
@@ -947,14 +950,26 @@ public class BuildingCard extends Card {
 		compet.setUser(me);
 		compet.setCompleted(false);
 		compet.setAmICreator(true);
+		compet.setChecks(0);
+		compet.setWinner_id("0");
+		compet.setVictory_time(0);
 		ClimbApplication.competitionDao.create(compet);
-
+		
 		competParse = new ParseObject("Competition");
 		competParse.put("building", building.get_id());
 		competParse.put("stairs", stairs);
 		competParse.put("competitors", collaborators);
 		competParse.put("completed", false);
 		competParse.put("creator", creator);
+		competParse.put("checks", compet.getChecks());
+		competParse.put("winner_id", compet.getWinner_id());
+		try {
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+			competParse.put("victory_time", df.parse(df.format(compet.getVictory_time())));
+		} catch (java.text.ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		competParse.saveInBackground(new SaveCallback() {
 
 			@Override
@@ -1006,6 +1021,9 @@ public class BuildingCard extends Card {
 		duel.setDeleted(false);
 		duel.setCreator_name(me.getName());
 		duel.setReadyToPlay(false);
+		duel.setVictory_time(0);
+		duel.setChecks(0);
+		duel.setWinner_id("0");
 		ClimbApplication.teamDuelDao.create(duel);
 
 		JSONObject creator_stairs = new JSONObject();
@@ -1034,6 +1052,17 @@ public class BuildingCard extends Card {
 		teamDuelParse.put("creator_team", creator_team);
 		teamDuelParse.put("challenger_team", challenger_team);
 		teamDuelParse.put("challenger_stairs", challenger_stairs);
+		teamDuelParse.put("winner_id", duel.getWinner_id());
+		teamDuelParse.put("checks", duel.getChecks());
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+		try {
+			teamDuelParse.put("victory_time", df.parse(df.format(compet.getVictory_time())));
+		} catch (java.text.ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 		teamDuelParse.saveInBackground(new SaveCallback() {
 
 			@Override

@@ -522,6 +522,7 @@ public class NotificationCard extends Card {
 																climbing.setUser(me);
 																climbing.setSaved(true);
 																climbing.setId_mode(collaborationParse.getObjectId());
+				
 																ClimbApplication.climbingDao.create(climbing);
 
 																final ParseObject climbingParse = new ParseObject("Climbing");
@@ -543,6 +544,7 @@ public class NotificationCard extends Card {
 																climbingParse.put("users_id", climbing.getUser().getFBid());
 																climbingParse.put("game_mode", climbing.getGame_mode());
 																climbingParse.put("id_mode", climbing.getId_mode());
+																climbingParse.put("checked", climbing.isChecked());
 																climbingParse.saveInBackground(new SaveCallback() {
 																	
 																	@Override
@@ -574,6 +576,9 @@ public class NotificationCard extends Card {
 																competitionLocal.setUser(me);
 																competitionLocal.setCompleted(false);
 																competitionLocal.setAmICreator(false);
+																competitionLocal.setVictory_time(collaborationParse.getDate("victory_time").getTime());
+																competitionLocal.setChecks(collaborationParse.getInt("checks"));
+																competitionLocal.setWinner_id(collaborationParse.getString("winner_id"));
 																ClimbApplication.competitionDao.create(competitionLocal);
 
 																text.setText(ClimbApplication.getContext().getString(R.string.accept_req));
@@ -593,6 +598,9 @@ public class NotificationCard extends Card {
 																competitionLocal.setLeaved(true);
 																competitionLocal.setUser(me);
 																competitionLocal.setCompleted(false);
+																competitionLocal.setVictory_time(0);
+																competitionLocal.setChecks(0);
+																competitionLocal.setWinner_id("0");
 																ClimbApplication.competitionDao.create(competitionLocal);
 																Toast.makeText(context, ClimbApplication.getContext().getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 																Log.e("2 Connection Problem adding me in competition", "Error: " + e.getMessage());
@@ -744,6 +752,7 @@ public class NotificationCard extends Card {
 																climbing.setUser(me);
 																climbing.setSaved(true);
 																climbing.setId_mode(teamDuelParse.getObjectId());
+																
 																ClimbApplication.climbingDao.create(climbing);
 
 																final ParseObject climbingParse = new ParseObject("Climbing");
@@ -765,6 +774,7 @@ public class NotificationCard extends Card {
 																climbingParse.put("users_id", climbing.getUser().getFBid());
 																climbingParse.put("game_mode", climbing.getGame_mode());
 																climbingParse.put("id_mode", climbing.getId_mode());
+																climbingParse.put("checked", climbing.isChecked());
 																climbingParse.saveInBackground(new SaveCallback() {
 																	
 																	@Override
@@ -809,6 +819,9 @@ public class NotificationCard extends Card {
 																teamDuelLocal.setReadyToPlay(false);
 																teamDuelLocal.setSteps_my_group(0);
 																teamDuelLocal.setSteps_other_group(0);
+																teamDuelLocal.setVictory_time(teamDuelParse.getDate("victory_time").getTime());
+																teamDuelLocal.setChecks(teamDuelParse.getInt("checks"));
+																teamDuelLocal.setWinner_id(teamDuelParse.getString("winner_id"));
 																ClimbApplication.teamDuelDao.create(teamDuelLocal);
 
 																text.setText(ClimbApplication.getContext().getString(R.string.accept_req));
@@ -1013,6 +1026,8 @@ public class NotificationCard extends Card {
 																climbingParse.put("users_id", climbing.getUser().getFBid());
 																climbingParse.put("game_mode", climbing.getGame_mode());
 																climbingParse.put("id_mode", climbing.getId_mode());
+																climbingParse.put("checked", climbing.isChecked());
+
 																climbingParse.saveInBackground(new SaveCallback() {
 																	
 																	@Override
@@ -1070,6 +1085,9 @@ public class NotificationCard extends Card {
 																teamDuelLocal.setDeleted(false);
 																teamDuelLocal.setSteps_my_group(0);
 																teamDuelLocal.setSteps_other_group(0);
+																teamDuelLocal.setVictory_time(teamDuelParse.getDate("victory_time").getTime());
+																teamDuelLocal.setChecks(teamDuelParse.getInt("checks"));
+																teamDuelLocal.setWinner_id(teamDuelParse.getString("winner_id"));
 																ClimbApplication.teamDuelDao.create(teamDuelLocal);
 
 																text.setText(ClimbApplication.getContext().getString(R.string.accept_req));

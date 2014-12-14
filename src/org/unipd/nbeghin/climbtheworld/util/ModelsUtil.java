@@ -129,4 +129,19 @@ public class ModelsUtil {
 		}
 		return null;
 	}
+	
+	public static boolean hasSomeoneWon(List<ChartMember> chart, int total_steps){
+		for(ChartMember member: chart){
+			if(member.getScore() == total_steps)
+				return true;
+		}
+		return false;
+	}
+	
+	public static boolean hasSomeoneWon(int team1, int team2, int total_steps){
+		if(team1 == total_steps || team2 == total_steps)
+				return true;
+		else
+			return false;
+	}
 }
