@@ -392,6 +392,103 @@ public class LogUtils {
 		}
     }
     
+    
+    
+    public static void initLogFile(Context context, List<Alarm> alarms){
+    	    	
+    	String log_file_name="";
+    	int log_file_id = PreferenceManager.getDefaultSharedPreferences(context).getInt("log_file_id", -1);
+    	    	
+    	if(log_file_id==-1){
+    		log_file_name="algorithm_log";
+    	}
+    	else{
+    		log_file_name="algorithm_log_"+log_file_id;
+    	}    	
+    	
+    	final File logFile = new File(context.getDir("climbTheWorld_dir", Context.MODE_PRIVATE), log_file_name);
+    	
+    	
+    	try {    	
+    		if(!logFile.exists()){    	    			
+    			Log.e(MainActivity.AppName, "Log file not exists");
+				logFile.createNewFile();
+    		}
+    	    	
+    		//'true' per aggiungere il testo al file esistente
+    		BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true));
+    		    		
+    		buf.append("ALGORITMO");
+    		buf.newLine();
+    		buf.newLine();
+    		
+    		for(int i=0; i<GeneralUtils.daysOfWeek; i++){ //i<7 con settimana normale
+    			
+    			buf.append("Indice giorno: " + i);
+    			buf.newLine();
+    			
+    			for(int j=0; j<alarms.size(); j=j+2){
+    				
+    				Alarm start = alarms.get(j);
+    				Alarm stop = alarms.get(j+1);
+    				    				
+    				buf.append(i + " - Intervallo "+start.get_hour()+":"+
+    						start.get_minute()+":"+start.get_second()+" - "+
+    						stop.get_hour()+":"+stop.get_minute()+":"+
+    						stop.get_second()+" : ");
+    				buf.newLine();
+    			}
+    		}
+    		
+    		buf.close();
+    	} catch (IOException e) {
+			e.printStackTrace();
+		}
+    	
+    	
+    }
+    
+    
+    
+    public static void writeIntervalStatus(Context context, int day_index, Alarm start, Alarm stop, String text){
+    	
+    	
+    	String intervalString = "Intervallo "+start.get_hour()+":"+start.get_minute()+":"+
+    			start.get_second()+" - "+stop.get_hour()+":"+stop.get_minute()+":"+stop.get_second();
+    	
+    	
+    	String log_file_name="";
+    	int log_file_id = PreferenceManager.getDefaultSharedPreferences(context).getInt("log_file_id", -1);
+    	    	
+    	if(log_file_id==-1){
+    		log_file_name="algorithm_log";
+    	}
+    	else{
+    		log_file_name="algorithm_log_"+log_file_id;
+    	}    	
+    	
+    	final File logFile = new File(context.getDir("climbTheWorld_dir", Context.MODE_PRIVATE), log_file_name);
+    	
+    	
+    	try {    	   		   	    	
+    		
+    		BufferedReader buf = new BufferedReader(new FileReader(logFile)); 
+    		String line;
+    		
+            while ((line = buf.readLine()) != null) {
+            	            	
+            	if((line.substring(0, line.indexOf(" :"))).equals(day_index+" - "+intervalString)){
+            		
+            		line.replace(line, line+text);
+            	}
+            }
+    		
+    		buf.close();
+    	} catch (IOException e) {
+			e.printStackTrace();
+		}
+    }
+    
 	
 	
 }
