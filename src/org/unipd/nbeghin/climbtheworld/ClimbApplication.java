@@ -87,7 +87,7 @@ import com.parse.SignUpCallback;
 public class ClimbApplication extends Application {
 	public static final boolean DEBUG = true;
 
-	public static final int N_MEMBERS_PER_GROUP = 6; // 5 friends + me
+	public static final int N_MEMBERS_PER_GROUP = 6;  // 5 friends + me
 	public static boolean BUSY = false;
 	public static Object lock = new Object();
 

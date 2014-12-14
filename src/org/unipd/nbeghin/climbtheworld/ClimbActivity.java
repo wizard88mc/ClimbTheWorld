@@ -108,6 +108,7 @@ import com.parse.SaveCallback;
  * calculates the sampling rate of the device it's run from (only once, after
  * that it just saves the value in standard Android preferences).
  * 
+ * classe
  */
 public class ClimbActivity extends ActionBarActivity {
 	
@@ -409,15 +410,11 @@ public class ClimbActivity extends ActionBarActivity {
 		anim.setAnimationListener(new AnimationListener() {
 			
 			@Override
-			public void onAnimationStart(Animation animation) {
-				// TODO Auto-generated method stub
-				
+			public void onAnimationStart(Animation animation) {				
 			}
 			
 			@Override
-			public void onAnimationRepeat(Animation animation) {
-				// TODO Auto-generated method stub
-				
+			public void onAnimationRepeat(Animation animation) {				
 			}
 			
 			@Override
@@ -1069,9 +1066,9 @@ public class ClimbActivity extends ActionBarActivity {
 	}
 
 	/**
-	 * Update graphics to let user see the latest update about my friends' steps
+	 * Update graphics to let user see the latest update about my friends' steps.
 	 */
-	private void updateOthers(final boolean isUpdate,final boolean isOpening) {
+	private void updateOthers(final boolean isUpdate,final boolean isOpening) { 
 		Log.i("ClimbActivity", "updateothers");
 		if (!(mode == GameModeType.SOLO_CLIMB) && FacebookUtils.isOnline(this)) { // If is online
 			// look for current collaboration in Parse
@@ -2623,13 +2620,10 @@ public class ClimbActivity extends ActionBarActivity {
 									if(myTeam.getInt(pref.getString("FBid", "")) < num_steps)
 										myTeam.put(pref.getString("FBid", ""), num_steps);
 								} catch (JSONException e1) {
-									// TODO Auto-generated catch block
 									e1.printStackTrace();
 								}
 								teamDuel_parse.put("creator_stairs", myTeam);
-								// teamDuel_parse.saveEventually();
-								//ParseUtils.saveTeamDuel(teamDuel_parse, teamDuel);
-								//}
+								
 							}
 							int myGroupScore = ModelsUtil.sum(myTeam);
 							int otherGroupScore = ModelsUtil.sum(otherTeam);
@@ -2643,6 +2637,7 @@ public class ClimbActivity extends ActionBarActivity {
 
 							if(ModelsUtil.hasSomeoneWon(myGroupScore, otherGroupScore, building.getSteps()) && !climbing.isChecked()){ // !victory_time.after(new Date(victory_time.getTime() - 5 * 24 * 3600 * 1000 )
 								current_win = true;
+								
 								try {
 									if(myGroupScore >= building.getSteps() && (victory_time.getTime() == 0 || victory_time.after(df.parse(df.format(climbing.getModified()))))){
 										teamDuel.setVictory_time(climbing.getModified());
@@ -2655,10 +2650,17 @@ public class ClimbActivity extends ActionBarActivity {
 								
 								teamDuel.setChecks(teamDuel.getChecks() + 1);	
 								
-								System.out.println("ub " + (teamDuel_parse.getJSONObject("challenger_stairs").length() + teamDuel_parse.getJSONObject("creator_stairs").length()));
-								System.out.println( last_update.after(new Date(last_update.getTime() - 5 * 24 * 3600 * 1000 )));
-								if(teamDuel.getChecks() >= (teamDuel_parse.getJSONObject("challenger_stairs").length() + teamDuel_parse.getJSONObject("creator_stairs").length()) || last_update.after(new Date(last_update.getTime() + 5 * 24 * 3600 * 1000 )))
+								if(teamDuel.getChecks() >= (teamDuel_parse.getJSONObject("challenger_stairs").length() + teamDuel_parse.getJSONObject("creator_stairs").length()) || last_update.after(new Date(last_update.getTime() + 5 * 24 * 3600 * 1000 ))){
 										teamDuel.setCompleted(true);
+										if(last_update.after(new Date(last_update.getTime() + 5 * 24 * 3600 * 1000 ))){
+											//the higher score wins, no badge and no points
+											if(myGroupScore > otherGroupScore){
+												teamDuel.setWinner_id(String.valueOf(teamDuel.getMygroup().ordinal()));
+											}else if(myGroupScore < otherGroupScore)
+												teamDuel.setWinner_id(String.valueOf((1 - teamDuel.getMygroup().ordinal())));
+												
+										}
+								}
 								try {
 									teamDuel_parse.put("victory_time", df.parse(df.format(teamDuel.getVictory_time())));
 								} catch (java.text.ParseException e1) {
@@ -2870,8 +2872,11 @@ public class ClimbActivity extends ActionBarActivity {
 									}
 									
 									competition.setChecks(competition.getChecks() + 1);
-										if(competition.getChecks() >= others.length() || last_update.after(new Date(last_update.getTime() + 5 * 24 * 3600 * 1000 )))
+										if(competition.getChecks() >= others.length() || last_update.after(new Date(last_update.getTime() + 5 * 24 * 3600 * 1000 ))){
 											competition.setCompleted(true);
+											if( last_update.after(new Date(last_update.getTime() + 5 * 24 * 3600 * 1000 )))
+												competition.setWinner_id(chart.get(0).getId());
+										}
 										try {
 											compet_parse.put("victory_time", df.parse(df.format(competition.getVictory_time())));
 										} catch (java.text.ParseException e1) {
