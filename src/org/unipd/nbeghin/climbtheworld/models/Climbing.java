@@ -2,6 +2,9 @@ package org.unipd.nbeghin.climbtheworld.models;
 
 import java.util.concurrent.TimeUnit;
 
+import org.unipd.nbeghin.climbtheworld.ClimbApplication;
+import org.unipd.nbeghin.climbtheworld.R;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -90,8 +93,36 @@ public class Climbing {
 		return this.completed > 0;
 	}
 
-	public String getFBStatusMessage() {
-		return "I just climbed " + building.getName() + " (" + building.getHeight() + "mt, " + building.getSteps() + " steps) in " + totalTime();
+	public String getFBStatusMessage(String building_name) {
+		switch (game_mode) {
+		case 0:
+				return ClimbApplication.getContext().getString(R.string.solo_climb_win_post, building_name, totalTime());
+		case 1:
+				return ClimbApplication.getContext().getString(R.string.social_climb_win_post, building_name);
+		case 2:
+				return ClimbApplication.getContext().getString(R.string.social_challenge_win_post, building_name);
+		case 3:
+				return ClimbApplication.getContext().getString(R.string.team_vs_team_win_post, building_name);
+		default:
+				return "";
+
+		}
+	}
+	
+	public String getUpdateMessage(int newSteps, String building_name){
+		switch (game_mode) {
+		case 0:
+				return ClimbApplication.getContext().getString(R.string.solo_climb_improve_post, building_name, newSteps);
+		case 1:
+				return ClimbApplication.getContext().getString(R.string.social_climb_improve_post, building_name, newSteps);
+		case 2:
+				return ClimbApplication.getContext().getString(R.string.social_challenge_improve_post, building_name, newSteps);
+		case 3:
+				return ClimbApplication.getContext().getString(R.string.team_vs_team_improve_post, building_name, newSteps);
+		default:
+				return "";
+
+		}
 	}
 
 	public String totalTime() {

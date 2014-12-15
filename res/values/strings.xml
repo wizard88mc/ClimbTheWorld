@@ -350,4 +350,27 @@
 	<string name="onboarding_btn_1">Yes, let\'s start!</string>
 	<string name="onboarding_btn_2">Ok, I can do it!</string>
 	<string name="onboarding_btn_3">Yeah, let\'s start the game!</string>
+	
+	<!-- facebook post -->
+	<string name="solo_climb_win_post">I\'ve reached the top of %1$s in %2$s</string>
+	<string name="solo_climb_improve_post">I\'m climbing %1$s and I\'ve made %2$d new steps toward the top</string>
+	
+	<string name="social_climb_win_post">I\'ve reached the top of %s with my friends</string>
+	<string name="social_climb_improve_post">I\'m climbing %1$s with my friends and I\'ve made %2$d new steps</string>
+	
+	<string name="social_challenge_win_post">I\'ve won the challenged and reached the top of %s first</string>
+	<string name="social_challenge_improve_post">I\'m climbing %1$s to win the challenge and I\'ve made %2$d more steps</string>
+	
+	<string name="team_vs_team_win_post">My team arrived to %s\'s top first</string>
+	<string name="team_vs_team_improve_post">I\'m climbing %1$s with my team to win the challenge and I\'ve made %1$d more steps</string>
+
+	<string name="solo_climb_win_opengraph_title">I\'m on top of %s</string>
+	<string name="solo_climb_win_opengraph_descr">I\'ve made %d steps to win</string>	
+	<string name="solo_climb_improve_opengraph_title">Step by steps, the top gets closer</string>
+	<string name="solo_climb_improve_opengraph_descr">I\'ve made %1$d more steps to reach the top of %2$s</string>
+	
+	<string name="social_climb_win_opengraph_title">United we stand, divided we fall</string>
+	<string name="social_climb_win_opengraph_descr">Together we reached the top of %s</string>
+	<string name="social_climb_improve_opengraph_title">We can do it</string>
+	<string name="social_climb_improve_opengraph_descr">With my new %1$d steps we\'re closer to the %2$s\'s top</string>
 </resources>

@@ -1,14 +1,21 @@
 package org.unipd.nbeghin.climbtheworld.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
+import org.json.JSONObject;
+import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.exceptions.NoFBSession;
+import org.unipd.nbeghin.climbtheworld.models.ChartMember;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -25,7 +32,10 @@ import android.widget.Toast;
 import com.facebook.FacebookException;
 import com.facebook.FacebookOperationCanceledException;
 import com.facebook.Session;
+import com.facebook.model.GraphObject;
 import com.facebook.model.GraphUser;
+import com.facebook.model.OpenGraphAction;
+import com.facebook.model.OpenGraphObject;
 import com.facebook.widget.WebDialog;
 import com.facebook.widget.WebDialog.OnCompleteListener;
 
@@ -81,26 +91,28 @@ public class FacebookUtils {
 		if (session == null || !session.isOpened()) throw new NoFBSession();
 	}
 
-	public void postToWall(Climbing climbing) throws NoFBSession {
+	public void postToWall(Climbing climbing, String building_name) throws NoFBSession {
 		Log.i(MainActivity.AppName, "Posting on FB wall");
 		Bundle params = new Bundle();
 		params.putString("name", "ClimbTheWorld");
 		params.putString("caption", "Climb the world: a serious game to promote physical activity");
-		params.putString("description", climbing.getFBStatusMessage());
+		params.putString("description", climbing.getFBStatusMessage(building_name));
 		params.putString("link", "https://developers.facebook.com/android");
 		params.putString("picture", /*climbing.getBuilding().getPhoto()*/ "http://2.bp.blogspot.com/-aO8ILLDFKv4/UQb08_I2JkI/AAAAAAAAPEU/RvEo5lNHDvs/s1600/Victory.jpg");
 		publishFeedDialog(params);
 	}
 	
-	public void postUpdateToWall(Climbing climbing, int newSteps) throws NoFBSession{
+	public void postUpdateToWall(Climbing climbing, int newSteps, String building_name, String fb_id) throws NoFBSession{
 		Log.i(MainActivity.AppName, "Posting on FB wall - update");
 		Bundle params = new Bundle();
 		params.putString("name", "ClimbTheWorld");
 		params.putString("caption", "Climb the world: a serious game to promote physical activity");
-		params.putString("description", "I'm climbing " + climbing.getBuilding().getName() + " and I've made " + (newSteps) + " more steps!!!!");
+		params.putString("description", climbing.getUpdateMessage(newSteps, building_name));
 		params.putString("link", "https://developers.facebook.com/android");
 		params.putString("picture", /*climbing.getBuilding().getPhoto()*/ "http://images.nationalgeographic.com/wpf/media-live/photos/000/234/cache/gunks-new-york-climb_23497_600x450.jpg");
 		//params.putString("picture", "https://raw.github.com/fbsamples/ios-3.x-howtos/master/Images/iossdk_logo.png");
+		String id = "{'tag_uid':'"+ "1382835532010134" +"'} ,";
+		params.putString("tags","["+id+"]");
 		publishFeedDialog(params);
 	}
 	
@@ -125,6 +137,7 @@ public class FacebookUtils {
 		params.putString("link", "https://developers.facebook.com/android");
 		params.putString("picture", "https://raw.github.com/fbsamples/ios-3.x-howtos/master/Images/iossdk_logo.png");
 		publishFeedDialog(params);
+		
 	}
 
 	public void publishFeedDialog(Bundle params) throws NoFBSession {
@@ -150,6 +163,90 @@ public class FacebookUtils {
 			}
 		}).build();
 		feedDialog.show();
+	}
+	
+	public static OpenGraphAction publishOpenGraphStory_SoloClimb(boolean win, int steps, String building_name){
+		OpenGraphObject setObj = OpenGraphObject.Factory.createForPost("unipdclimb:building");
+		OpenGraphAction action = GraphObject.Factory.create(OpenGraphAction.class);
+        action.setType("unipdclimb:climb");
+    	setObj.setProperty("url", "http://climbtheworld.parseapp.com/building.com");
+        
+        if(win){
+        	setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.solo_climb_win_opengraph_title, building_name));
+        	setObj.setProperty("description", ClimbApplication.getContext().getString(R.string.solo_climb_win_opengraph_descr, steps));
+        }else{
+        	setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.solo_climb_improve_opengraph_title));
+        	setObj.setProperty("description", ClimbApplication.getContext().getString(R.string.solo_climb_improve_opengraph_descr, steps, building_name));
+        }
+        
+        action.setProperty("building", setObj);
+        return action;
+	}
+	
+	public static OpenGraphAction publishOpenGraphStory_SocialClimb(JSONObject collaborators, boolean win, int steps, String building_name){
+		OpenGraphObject setObj = OpenGraphObject.Factory.createForPost("unipdclimb:building");
+		OpenGraphAction action = GraphObject.Factory.create(OpenGraphAction.class);
+    	List<GraphUser> tags = new ArrayList<GraphUser>();
+
+        action.setType("unipdclimb:climb");
+    	setObj.setProperty("url", "http://climbtheworld.parseapp.com/building.com");
+        
+        if(win){
+        	setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.social_climb_win_opengraph_title));
+        	setObj.setProperty("description", ClimbApplication.getContext().getString(R.string.social_climb_win_opengraph_descr, building_name));
+        }else{
+        	setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.social_climb_improve_opengraph_title));
+        	setObj.setProperty("description", ClimbApplication.getContext().getString(R.string.social_climb_improve_opengraph_descr, steps, building_name));
+        }
+        
+        Iterator<String> it = collaborators.keys();
+        while(it.hasNext()){
+        	GraphUser user = GraphObject.Factory.create(GraphUser.class);
+        	user.setId("{" + it.next() + "}");
+        	tags.add(user);
+        }
+        
+    	action.setTags(tags);
+        action.setProperty("building", setObj);
+        return action;
+	}
+	
+	public static OpenGraphAction publishOpenGraphStory_SocialChallenge(List<ChartMember> chart, boolean win, int steps, String building_name, int old_position){
+		SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
+		OpenGraphObject setObj = OpenGraphObject.Factory.createForPost("unipdclimb:building");
+		OpenGraphAction action = GraphObject.Factory.create(OpenGraphAction.class);
+    	List<GraphUser> tags = new ArrayList<GraphUser>();
+
+        action.setType("unipdclimb:climb");
+    	setObj.setProperty("url", "http://climbtheworld.parseapp.com/building.com");
+    	String my_fb_id = pref.getString("FBid", "");
+    	int current_position = ModelsUtil.chartPosition(my_fb_id, chart);
+        
+        if(win){
+        	setObj.setProperty("title", ClimbApplication.getContext().getString());
+        	setObj.setProperty("description", ClimbApplication.getContext().getString(R.string., building_name));
+        }else{
+        	if(current_position < old_position){
+        		setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.));
+        		setObj.setProperty("description", ClimbApplication.getContext().getString(R.string., steps, building_name));
+        	}else{
+        		setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.));
+        		setObj.setProperty("description", ClimbApplication.getContext().getString(R.string., steps, building_name));
+        	}
+        }
+        
+      
+        for(ChartMember member : chart){
+        	if(member.getId().equalsIgnoreCase(my_fb_id)){
+        		GraphUser user = GraphObject.Factory.create(GraphUser.class);
+        		user.setId("{" + member.getId() + "}");
+        		tags.add(user);
+        	}
+        }
+        
+    	action.setTags(tags);
+        action.setProperty("building", setObj);
+        return action;
 	}
 	
 	 public static Bitmap getRoundedBitmap(Bitmap bitmap) {

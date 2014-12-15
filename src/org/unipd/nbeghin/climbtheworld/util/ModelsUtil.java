@@ -54,6 +54,14 @@ public class ModelsUtil {
 		return chart;
 	}
 	
+	public static int chartPosition(String id, List<ChartMember> chart){
+		for(int i = 0; i < chart.size(); i++){
+			if(chart.get(i).getId().equalsIgnoreCase(id))
+				return i;
+		}
+		return -1;
+	}
+	
 	public static SortedMap<Integer, String> fromJsonToSortedMap(JSONObject json){
 		Iterator keys = json.keys();
 		SortedMap<Integer, String> map = new TreeMap<Integer, String>();

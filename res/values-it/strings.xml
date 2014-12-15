@@ -358,4 +358,27 @@
 	<string name="onboarding_btn_1">Si, cominciamo!</string>
 	<string name="onboarding_btn_2">Ok, posso farlo!</string>
 	<string name="onboarding_btn_3">Yeah, iniziamo il gioco!</string>
+	
+	<!-- facebook post -->
+	<string name="solo_climb_win_post">Sono arrivato in cima a %1$s in %2$s</string>
+	<string name="solo_climb_improve_post">Sto scalando %1$s e ho fatto altri %2$d scalini verso la cima</string>
+	
+	<string name="social_climb_win_post">Ho raggiunto la cima di %s insieme ai miei amici</string>
+	<string name="social_climb_improve_post">Sto scalando con i miei amici %1$s e ho fatto nuovi %1$d scalini</string>
+	
+	<string name="social_challenge_win_post">Ho vinto la sfida e raggiunto la cima di %s per primo</string>
+	<string name="social_challenge_improve_post">Sto scalando %1$s per battere i miei amici e ho fatto %2$d scalini in più</string>
+	
+	<string name="team_vs_team_win_post">Il mio team è arrivato per primo alla cima di %s</string>
+	<string name="team_vs_team_improve_post">Sto scalando %1$s con il mio team per vincere la sfida e ho fatto %2$d scalini in più</string>
+
+	<string name="solo_climb_win_opengraph_title">Sono sulla cima di %s</string>
+	<string name="solo_climb_win_opengraph_descr">Ho fatto %d scalini per vincere</string>
+	<string name="solo_climb_improve_opengraph_title">Passo dopo passo, la cima s\'avvicina</string>
+	<string name="solo_climb_improve_opengraph_descr">Ho fatto altri %1$d scalini per raggiungere la cima di %2$s</string>
+	
+	<string name="social_climb_win_opengraph_title">L\'unione fa la forza</string>
+	<string name="social_climb_win_opengraph_descr">Con l\'aiuto dei miei amici ho raggiunto la cima di %s</string>
+	<string name="social_climb_improve_opengraph_title">Possiamo farcela</string>
+	<string name="social_climb_improve_opengraph_descr">Con i miei %1$d nuovi scalini siamo più vicini alla cima di %2$s</string>
 </resources>
