@@ -56,7 +56,7 @@ public class FacebookUtils {
 //			Log.e(MainActivity.AppName, "Unable to post on Facebook wall: " + error.getErrorMessage());
 //			Toast.makeText(context, "Unable to post on your wall: " + error.getErrorMessage(), Toast.LENGTH_LONG).show();
 //		}
-//	}
+//	}   
 
 	public static boolean isOnline(Activity activity) {
 	    ConnectivityManager cm =
@@ -100,7 +100,21 @@ public class FacebookUtils {
 		params.putString("caption", "Climb the world: a serious game to promote physical activity");
 		params.putString("description", climbing.getFBStatusMessage(building_name));
 		params.putString("link", "https://developers.facebook.com/android");
-		params.putString("picture", /*climbing.getBuilding().getPhoto()*/ "http://2.bp.blogspot.com/-aO8ILLDFKv4/UQb08_I2JkI/AAAAAAAAPEU/RvEo5lNHDvs/s1600/Victory.jpg");
+		switch(climbing.getGame_mode()){
+		case 0:
+			params.putString("picture", "http://climbtheworld.parseapp.com/img/win_solo_climb.jpeg");
+			break;
+		case 1:
+			params.putString("picture", "http://climbtheworld.parseapp.com/img/win_social_climb.jpeg");
+			break;
+		case 2:
+			params.putString("picture", "http://climbtheworld.parseapp.com/img/win_social_challenge.jpeg");	
+			break;
+		case 3:
+			params.putString("picture", "http://climbtheworld.parseapp.com/img/win_team_vs_team.jpeg");
+			break;
+	}
+		//params.putString("picture", /*climbing.getBuilding().getPhoto()*/ "http://2.bp.blogspot.com/-aO8ILLDFKv4/UQb08_I2JkI/AAAAAAAAPEU/RvEo5lNHDvs/s1600/Victory.jpg");
 		publishFeedDialog(params);
 	}
 	
@@ -109,9 +123,25 @@ public class FacebookUtils {
 		Bundle params = new Bundle();
 		params.putString("name", "ClimbTheWorld");
 		params.putString("caption", "Climb the world: a serious game to promote physical activity");
+		
+		switch(climbing.getGame_mode()){
+			case 0:
+				params.putString("picture", "http://climbtheworld.parseapp.com/img/improve_solo_climb.png");
+				break;
+			case 1:
+				params.putString("picture", "http://climbtheworld.parseapp.com/img/social_climb_improve.png");
+				break;
+			case 2:
+				params.putString("picture", "http://climbtheworld.parseapp.com/img/social_climb_improve.png");	
+				break;
+			case 3:
+				params.putString("picture", "http://climbtheworld.parseapp.com/img/social_climb_improve.png");
+				break;
+		}
+		
 		params.putString("description", climbing.getUpdateMessage(newSteps, building_name));
 		params.putString("link", "https://developers.facebook.com/android");
-		params.putString("picture", /*climbing.getBuilding().getPhoto()*/ "http://images.nationalgeographic.com/wpf/media-live/photos/000/234/cache/gunks-new-york-climb_23497_600x450.jpg");
+		//params.putString("picture", /*climbing.getBuilding().getPhoto()*/ "http://images.nationalgeographic.com/wpf/media-live/photos/000/234/cache/gunks-new-york-climb_23497_600x450.jpg");
 		//params.putString("picture", "https://raw.github.com/fbsamples/ios-3.x-howtos/master/Images/iossdk_logo.png");
 		String id = "{'tag_uid':'"+ "1382835532010134" +"'} ,";
 		params.putString("tags","["+id+"]");
@@ -203,10 +233,13 @@ public class FacebookUtils {
             action.setType("unipdclimb:climb");
         	setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.social_climb_win_opengraph_title));
         	setObj.setProperty("description", ClimbApplication.getContext().getString(R.string.social_climb_win_opengraph_descr, building_name));
+        	setObj.setProperty("image", "http://climbtheworld.parseapp.com/img/win_social_climb.jpeg");
         }else{
         	action.setType("unipdclimb:help_to_climb");
         	setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.social_climb_improve_opengraph_title));
         	setObj.setProperty("description", ClimbApplication.getContext().getString(R.string.social_climb_improve_opengraph_descr, steps, building_name));
+        	setObj.setProperty("image", "http://climbtheworld.parseapp.com/img/social_climb_improve.png");
+
         }
         
         Iterator<String> it = collaborators.keys();
@@ -238,10 +271,9 @@ public class FacebookUtils {
             action.setType("unipdclimb:win");
             setObj = OpenGraphObject.Factory.createForPost("unipdclimb:challenge");
         	setObj.setProperty("url", "http://climbtheworld.parseapp.com/challenge.com");
-
         	setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.social_challenge_win_opengraph_title));
         	setObj.setProperty("description", ClimbApplication.getContext().getString(R.string.social_challenge_win_opengraph_descr, building_name));
-        	
+        	setObj.setProperty("image", "http://climbtheworld.parseapp.com/img/win_social_challenge.png");	
         	for(ChartMember member : chart){
             	if(!member.getId().equalsIgnoreCase(my_fb_id)){
             		GraphUser user = GraphObject.Factory.create(GraphUser.class);
@@ -257,9 +289,10 @@ public class FacebookUtils {
         		action.setType("unipdclimb:is_making");
                 setObj = OpenGraphObject.Factory.createForPost("unipdclimb:overtake");
             	setObj.setProperty("url", "http://climbtheworld.parseapp.com/overtake.com");
-            	
         		setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.social_challenge_overtake_opengraph_title));
         		setObj.setProperty("description", ClimbApplication.getContext().getString(R.string.social_challenge_overtake_opengraph_descr, steps, building_name));
+            	setObj.setProperty("image", "http://climbtheworld.parseapp.com/img/overtake.png");	
+
         		//taggo chi ho superato
         		for(int i = old_position; i < current_position; i--){
         			GraphUser user = GraphObject.Factory.create(GraphUser.class);
@@ -272,10 +305,11 @@ public class FacebookUtils {
         	}else{
         		action.setType("unipdclimb:is_closing");
                 setObj = OpenGraphObject.Factory.createForPost("unipdclimb:the_gap");
-            	setObj.setProperty("url", "http://climbtheworld.parseapp.com/gap.com");
-            	
+            	setObj.setProperty("url", "http://climbtheworld.parseapp.com/gap.com");	
         		setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.social_challenge_improve_opengraph_title));
         		setObj.setProperty("description", ClimbApplication.getContext().getString(R.string.social_challenge_improve_opengraph_descr, steps, building_name));
+            	setObj.setProperty("image", "http://climbtheworld.parseapp.com/img/social_climb_improve.png");	
+
         		if(current_position != 0){//se non sono primo, taggo chi sto per raggiungere
         			GraphUser user = GraphObject.Factory.create(GraphUser.class);
         			user.setId("{" + chart.get(current_position - 1).getId() + "}");
@@ -319,6 +353,7 @@ public class FacebookUtils {
         	setObj.setProperty("url", "http://climbtheworld.parseapp.com/team_challenge.com");
         	setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.team_vs_team_win_opengraph_title));
         	setObj.setProperty("description", ClimbApplication.getContext().getString(R.string.team_vs_team_win_opengraph_descr, building_name));
+        	setObj.setProperty("image", "http://climbtheworld.parseapp.com/img/win_team_vs_team.jpeg");	
         	//taggo i miei compagni di gruppo per celebrare la vittoria
         	if(myTeam == Group.CHALLENGER)
         		it = challengers.keys();
@@ -342,6 +377,8 @@ public class FacebookUtils {
             	setObj.setProperty("url", "http://climbtheworld.parseapp.com/pole.com");
         		setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.team_vs_team_overtake_opengraph_title));
         		setObj.setProperty("description", ClimbApplication.getContext().getString(R.string.team_vs_team_overtake_opengraph_descr, steps, building_name));
+            	setObj.setProperty("image", "http://climbtheworld.parseapp.com/img/overtake.png");	
+
         		//taggo il team che ho superato
             	if(myTeam == Group.CHALLENGER)
             		it = creators.keys();
@@ -363,6 +400,8 @@ public class FacebookUtils {
             	setObj.setProperty("url", "http://climbtheworld.parseapp.com/gap.com");
         		setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.team_vs_team_improve_opengraph_title));
         		setObj.setProperty("description", ClimbApplication.getContext().getString(R.string.team_vs_team_improve_opengraph_descr, steps, building_name));
+            	setObj.setProperty("image", "http://climbtheworld.parseapp.com/img/social_climb_improve.png");	
+
         		if(new_position != 0){
         			//se non sono primo, taggo il team che sto per raggiungere
                 	if(myTeam == Group.CHALLENGER)

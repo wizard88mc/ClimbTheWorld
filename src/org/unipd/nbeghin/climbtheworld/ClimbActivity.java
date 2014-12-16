@@ -620,7 +620,7 @@ public class ClimbActivity extends ActionBarActivity {
 				// RequestBatch requestBatch = new RequestBatch();
 				// requestBatch.add(request);
 				//
-				// requestBatch.executeAsync();
+				// requestBatch.executeAsync();   
 
 				FacebookDialog shareDialog = null;
 				boolean win = percentage >= 1.00 ? true : false;
