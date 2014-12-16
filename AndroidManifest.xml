@@ -192,6 +192,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.unipd.nbeghin.climbtheworld.MainActivity" />
         </activity>
+        <provider android:authorities="com.facebook.app.NativeAppCallContentProvider712697618765840"
+          android:name="com.facebook.NativeAppCallContentProvider" 
+          android:exported="true" />
        
     </application>
 

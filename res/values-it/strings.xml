@@ -13,6 +13,8 @@
     <string name="title_activity_gallery">Galleria</string>
     <string name="title_activity_photo_pager_activity">Galleria</string>
     <string name="app_id">712697618765840</string> <!-- old app id 1444608782432270 -->
+    <string name="application_id">e9wlYQPdpXlFX3XQc9Lq0GJFecuYrDSzwVNSovvd</string>
+    <string name="client_id">QVII1Qhy8pXrjAZiL07qaTKbaWpkB87zc88UMWv2</string>
     <!--
      <string name="app_name">ClimbTheWorld</string>
      <string name="app_id">370546396320150</string>
@@ -381,4 +383,18 @@
 	<string name="social_climb_win_opengraph_descr">Con l\'aiuto dei miei amici ho raggiunto la cima di %s</string>
 	<string name="social_climb_improve_opengraph_title">Possiamo farcela</string>
 	<string name="social_climb_improve_opengraph_descr">Con i miei %1$d nuovi scalini siamo più vicini alla cima di %2$s</string>
+	
+	<string name="social_challenge_win_opengraph_title">Ho vinto!</string>
+	<string name="social_challenge_win_opengraph_descr">Ho raggiunto la cima di %s per primo</string>
+	<string name="social_challenge_improve_opengraph_title">Mi sto avvicinando</string>
+	<string name="social_challenge_improve_opengraph_descr">Ho fatto %1$d nuovi scalini e sono più vicino alla cima di %2$s</string>
+	<string name="social_challenge_overtake_opengraph_title">Ti ho superato!</string>
+	<string name="social_challenge_overtake_opengraph_descr">Ho fatto %1$d nuovi scalini in %2$s e ho guadagnato una posizione!</string>
+	
+	<string name="team_vs_team_win_opengraph_title">Siamo i campioni!</string>
+	<string name="team_vs_team_win_opengraph_descr">Con il mio team abbiamo raggiunto la cima di %s per primi</string>
+	<string name="team_vs_team_improve_opengraph_title">Ci stiamo avvicinando</string>
+	<string name="team_vs_team_improve_opengraph_descr">Ho fatto %1$d nuovi scalini e ora siamo più vicini alla cima di %2$s</string>
+	<string name="team_vs_team_overtake_opengraph_title">Siamo in pole position!</string>
+	<string name="team_vs_team_overtake_opengraph_descr">Ho fatto %1$d nuovi scalini in %2$s e ora siamo in testa!</string>
 </resources>

@@ -562,7 +562,6 @@ public class ClimbActivity extends ActionBarActivity {
 
 	private static final List<String> PERMISSIONS = Arrays.asList("publish_actions");
 
-	
 	public void accessPhotoGallery(View v) {
 		if (percentage >= 1.0) {
 			Log.i(MainActivity.AppName, "Accessing gallery for building " + building.get_id());
@@ -573,78 +572,82 @@ public class ClimbActivity extends ActionBarActivity {
 		} else {
 
 			if (FacebookDialog.canPresentOpenGraphActionDialog(getApplicationContext(), FacebookDialog.OpenGraphActionDialogFeature.OG_ACTION_DIALOG)) {
-//				OpenGraphObject object = OpenGraphObject.Factory.createForPost("unipdclimb:building");
-//				object.setTitle(buildingText.getName());
-//				List<String> list = new ArrayList<String>();
-//				list.add("http://thumb1.shutterstock.com/display_pic_with_logo/711913/218203954/stock-vector-trophy-hand-holding-trophy-vector-218203954.jpg");
-//				object.setImageUrls(list);
-//				object.setType("unipdclimb:building");
-//				object.setTitle("titolo");
-//				object.setUrl("http://climbtheworld.parseapp.com/building.html");
-//				
-//				OpenGraphAction action = OpenGraphAction.Factory.createForPost("unipdclimb:climb");
-//				action.setProperty("building", object);
-//				action.setType("unipdclimb:climb");
-//				
-//				 List<String> permissions = Session.getActiveSession().getPermissions();
-//				 
-//			        if (!new HashSet<String>(permissions).containsAll(PERMISSIONS)) {
-//			            Session.NewPermissionsRequest newPermissionsRequest = new Session.NewPermissionsRequest(
-//			                    this, PERMISSIONS);
-//			            Session.getActiveSession().requestNewPublishPermissions(newPermissionsRequest);
-//			            Log.w("FBShare", "has permission");
-//			            return;
-//			        }
-//				
-//				Request request = Request.newPostOpenGraphActionRequest(Session.getActiveSession(), action, new Request.Callback() {
-//
-//		            @Override
-//		            public void onCompleted(Response response) {
-//		            	System.out.println("completed");
-//		                FacebookRequestError error = response.getError();
-//		                if (error != null){
-//		                    Log.e("FacebookRequestError", "Error 1: "+error.getErrorMessage());
-//		                } else {
-//		                    String actionId = null;
-//		                    try {
-//		                        JSONObject graphResponse = response
-//		                                .getGraphObject().getInnerJSONObject();
-//		                        actionId = graphResponse.getString("id");
-//		                    } catch (JSONException e) {
-//		                    }
-//		                    Log.e("done", actionId);
-//		                    
-//		                }
-//		            }
-//		        });
-//				
-//				RequestBatch requestBatch = new RequestBatch();
-//				requestBatch.add(request);
-//
-//			    requestBatch.executeAsync();
-				
-				OpenGraphAction action = null;
-				boolean win = percentage >=1.00 ? true : false;
+				// OpenGraphObject object = OpenGraphObject.Factory.createForPost("unipdclimb:building");
+				// object.setTitle(buildingText.getName());
+				// List<String> list = new ArrayList<String>();
+				// list.add("http://thumb1.shutterstock.com/display_pic_with_logo/711913/218203954/stock-vector-trophy-hand-holding-trophy-vector-218203954.jpg");
+				// object.setImageUrls(list);
+				// object.setType("unipdclimb:building");
+				// object.setTitle("titolo");
+				// object.setUrl("http://climbtheworld.parseapp.com/building.html");
+				//
+				// OpenGraphAction action = OpenGraphAction.Factory.createForPost("unipdclimb:climb");
+				// action.setProperty("building", object);
+				// action.setType("unipdclimb:climb");
+				//
+				// List<String> permissions = Session.getActiveSession().getPermissions();
+				//
+				// if (!new HashSet<String>(permissions).containsAll(PERMISSIONS)) {
+				// Session.NewPermissionsRequest newPermissionsRequest = new Session.NewPermissionsRequest(
+				// this, PERMISSIONS);
+				// Session.getActiveSession().requestNewPublishPermissions(newPermissionsRequest);
+				// Log.w("FBShare", "has permission");
+				// return;
+				// }
+				//
+				// Request request = Request.newPostOpenGraphActionRequest(Session.getActiveSession(), action, new Request.Callback() {
+				//
+				// @Override
+				// public void onCompleted(Response response) {
+				// System.out.println("completed");
+				// FacebookRequestError error = response.getError();
+				// if (error != null){
+				// Log.e("FacebookRequestError", "Error 1: "+error.getErrorMessage());
+				// } else {
+				// String actionId = null;
+				// try {
+				// JSONObject graphResponse = response
+				// .getGraphObject().getInnerJSONObject();
+				// actionId = graphResponse.getString("id");
+				// } catch (JSONException e) {
+				// }
+				// Log.e("done", actionId);
+				//
+				// }
+				// }
+				// });
+				//
+				// RequestBatch requestBatch = new RequestBatch();
+				// requestBatch.add(request);
+				//
+				// requestBatch.executeAsync();
 
-				switch(mode){
+				FacebookDialog shareDialog = null;
+				boolean win = percentage >= 1.00 ? true : false;
+
+				switch (mode) {
 				case SOLO_CLIMB:
-					action = FacebookUtils.publishOpenGraphStory_SoloClimb(win, new_steps, buildingText.getName());
+					shareDialog = FacebookUtils.publishOpenGraphStory_SoloClimb(this, win, new_steps, buildingText.getName(), building.getSteps());
 					break;
 				case SOCIAL_CLIMB:
-					action = FacebookUtils.publishOpenGraphStory_SocialClimb( collab_parse.getJSONObject("collaborators"), win, new_steps, buildingText.getName());
+					shareDialog = FacebookUtils.publishOpenGraphStory_SocialClimb(this, collab_parse.getJSONObject("collaborators"), win, new_steps, buildingText.getName());
 					break;
-					
+
 				case SOCIAL_CHALLENGE:
-					
+					shareDialog = FacebookUtils.publishOpenGraphStory_SocialChallenge(this, chart, win, new_steps, buildingText.getName(), old_chart_position);
 					break;
-						
+
 				case TEAM_VS_TEAM:
-					
+					int new_position = 0;
+					if (teamDuel.getSteps_my_group() >= teamDuel.getSteps_other_group())
+						new_position = 0;
+					else
+						new_position = 1;
+					shareDialog = FacebookUtils.publishOpenGraphStory_TeamVsTeam(this, teamDuel.getMygroup(), teamDuel_parse.getJSONObject("creator_stairs"), teamDuel_parse.getJSONObject("challenger_stairs"), win, new_steps, buildingText.getName(), old_chart_position, new_position);
 					break;
 				}
 
-		        FacebookDialog shareDialog = new FacebookDialog.OpenGraphActionDialogBuilder(this, action, "building").build();
-		        uiHelper.trackPendingDialogCall(shareDialog.present());
+				uiHelper.trackPendingDialogCall(shareDialog.present());
 
 			} else {
 
@@ -1943,14 +1946,48 @@ public class ClimbActivity extends ActionBarActivity {
 	public void onBtnStartClimbing(View v) {
 
 		if (percentage >= 1.00 || (current_win && percentage < 1.00)) { // already win
-			FacebookUtils fb = new FacebookUtils(this);
-			try {
-				fb.postToWall(climbing, buildingText.getName());
-			} catch (NoFBSession e) {
-				Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
-				intent.putExtra("need_help", true);
-				startActivity(intent);
+
+			if (FacebookDialog.canPresentOpenGraphActionDialog(getApplicationContext(), FacebookDialog.OpenGraphActionDialogFeature.OG_ACTION_DIALOG)) {
+
+				FacebookDialog shareDialog = null;
+				boolean win = percentage >= 1.00 ? true : false;
+
+				switch (mode) {
+				case SOLO_CLIMB:
+					shareDialog = FacebookUtils.publishOpenGraphStory_SoloClimb(this, win, new_steps, buildingText.getName(), building.getSteps());
+					break;
+				case SOCIAL_CLIMB:
+					shareDialog = FacebookUtils.publishOpenGraphStory_SocialClimb(this, collab_parse.getJSONObject("collaborators"), win, new_steps, buildingText.getName());
+					break;
+
+				case SOCIAL_CHALLENGE:
+					shareDialog = FacebookUtils.publishOpenGraphStory_SocialChallenge(this, chart, win, new_steps, buildingText.getName(), old_chart_position);
+					break;
+
+				case TEAM_VS_TEAM:
+					int new_position = 0;
+					if (teamDuel.getSteps_my_group() >= teamDuel.getSteps_other_group())
+						new_position = 0;
+					else
+						new_position = 1;
+					shareDialog = FacebookUtils.publishOpenGraphStory_TeamVsTeam(this, teamDuel.getMygroup(), teamDuel_parse.getJSONObject("creator_stairs"), teamDuel_parse.getJSONObject("challenger_stairs"), win, new_steps, buildingText.getName(), old_chart_position, new_position);
+					break;
+				}
+
+				uiHelper.trackPendingDialogCall(shareDialog.present());
+
+			} else {
+				FacebookUtils fb = new FacebookUtils(this);
+				try {
+					fb.postToWall(climbing, buildingText.getName());
+				} catch (NoFBSession e) {
+					Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+					intent.putExtra("need_help", true);
+					startActivity(intent);
+				}
+
 			}
+
 		} else {
 			if (samplingEnabled) { // if sampling is enabled stop the classifier
 
@@ -2672,6 +2709,11 @@ public class ClimbActivity extends ActionBarActivity {
 							boolean completed = teamDuel_parse.getBoolean("completed");
 							Date victory_time = teamDuel_parse.getDate("victory_time");
 							Date last_update = teamDuel_parse.getUpdatedAt();
+
+							if (teamDuel.getSteps_my_group() >= teamDuel.getSteps_other_group())
+								old_chart_position = 0;
+							else
+								old_chart_position = 1;
 
 							if (teamDuel.getMygroup() == Group.CHALLENGER) {
 								myTeam = teamDuel_parse.getJSONObject("challenger_stairs");

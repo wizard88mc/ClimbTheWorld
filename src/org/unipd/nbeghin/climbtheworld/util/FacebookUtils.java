@@ -12,6 +12,7 @@ import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.exceptions.NoFBSession;
 import org.unipd.nbeghin.climbtheworld.models.ChartMember;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
+import org.unipd.nbeghin.climbtheworld.models.Group;
 
 import android.app.Activity;
 import android.content.Context;
@@ -36,6 +37,7 @@ import com.facebook.model.GraphObject;
 import com.facebook.model.GraphUser;
 import com.facebook.model.OpenGraphAction;
 import com.facebook.model.OpenGraphObject;
+import com.facebook.widget.FacebookDialog;
 import com.facebook.widget.WebDialog;
 import com.facebook.widget.WebDialog.OnCompleteListener;
 
@@ -165,36 +167,44 @@ public class FacebookUtils {
 		feedDialog.show();
 	}
 	
-	public static OpenGraphAction publishOpenGraphStory_SoloClimb(boolean win, int steps, String building_name){
+	public static FacebookDialog publishOpenGraphStory_SoloClimb(Activity activity, boolean win, int steps, String building_name, int tot_steps){
 		OpenGraphObject setObj = OpenGraphObject.Factory.createForPost("unipdclimb:building");
 		OpenGraphAction action = GraphObject.Factory.create(OpenGraphAction.class);
-        action.setType("unipdclimb:climb");
     	setObj.setProperty("url", "http://climbtheworld.parseapp.com/building.com");
+    	
+    	
         
         if(win){
         	setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.solo_climb_win_opengraph_title, building_name));
-        	setObj.setProperty("description", ClimbApplication.getContext().getString(R.string.solo_climb_win_opengraph_descr, steps));
+        	setObj.setProperty("description", ClimbApplication.getContext().getString(R.string.solo_climb_win_opengraph_descr, tot_steps));
+        	setObj.setProperty("image", "http://climbtheworld.parseapp.com/img/win_solo_climb.jpeg");
+        	action.setType("unipdclimb:climb");
         }else{
         	setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.solo_climb_improve_opengraph_title));
         	setObj.setProperty("description", ClimbApplication.getContext().getString(R.string.solo_climb_improve_opengraph_descr, steps, building_name));
+        	setObj.setProperty("image", "http://climbtheworld.parseapp.com/img/improve_solo_climb.png");
+            action.setType("unipdclimb:keep_climbing");
+
         }
         
         action.setProperty("building", setObj);
-        return action;
+        FacebookDialog shareDialog = new FacebookDialog.OpenGraphActionDialogBuilder(activity, action, "building").build();
+        return shareDialog;
 	}
 	
-	public static OpenGraphAction publishOpenGraphStory_SocialClimb(JSONObject collaborators, boolean win, int steps, String building_name){
+	public static FacebookDialog publishOpenGraphStory_SocialClimb(Activity activity, JSONObject collaborators, boolean win, int steps, String building_name){
 		OpenGraphObject setObj = OpenGraphObject.Factory.createForPost("unipdclimb:building");
 		OpenGraphAction action = GraphObject.Factory.create(OpenGraphAction.class);
     	List<GraphUser> tags = new ArrayList<GraphUser>();
 
-        action.setType("unipdclimb:climb");
     	setObj.setProperty("url", "http://climbtheworld.parseapp.com/building.com");
         
         if(win){
+            action.setType("unipdclimb:climb");
         	setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.social_climb_win_opengraph_title));
         	setObj.setProperty("description", ClimbApplication.getContext().getString(R.string.social_climb_win_opengraph_descr, building_name));
         }else{
+        	action.setType("unipdclimb:help_to_climb");
         	setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.social_climb_improve_opengraph_title));
         	setObj.setProperty("description", ClimbApplication.getContext().getString(R.string.social_climb_improve_opengraph_descr, steps, building_name));
         }
@@ -208,45 +218,182 @@ public class FacebookUtils {
         
     	action.setTags(tags);
         action.setProperty("building", setObj);
-        return action;
+        FacebookDialog shareDialog = new FacebookDialog.OpenGraphActionDialogBuilder(activity, action, "building").build();
+        return shareDialog;
 	}
 	
-	public static OpenGraphAction publishOpenGraphStory_SocialChallenge(List<ChartMember> chart, boolean win, int steps, String building_name, int old_position){
+	public static FacebookDialog publishOpenGraphStory_SocialChallenge(Activity activity, List<ChartMember> chart, boolean win, int steps, String building_name, int old_position){
 		SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
-		OpenGraphObject setObj = OpenGraphObject.Factory.createForPost("unipdclimb:building");
+		
+		OpenGraphObject setObj = null;//OpenGraphObject.Factory.createForPost("unipdclimb:building");
 		OpenGraphAction action = GraphObject.Factory.create(OpenGraphAction.class);
     	List<GraphUser> tags = new ArrayList<GraphUser>();
+        FacebookDialog shareDialog = null;//new FacebookDialog.OpenGraphActionDialogBuilder(activity, action, "building").build();
 
-        action.setType("unipdclimb:climb");
-    	setObj.setProperty("url", "http://climbtheworld.parseapp.com/building.com");
+
     	String my_fb_id = pref.getString("FBid", "");
     	int current_position = ModelsUtil.chartPosition(my_fb_id, chart);
         
         if(win){
-        	setObj.setProperty("title", ClimbApplication.getContext().getString());
-        	setObj.setProperty("description", ClimbApplication.getContext().getString(R.string., building_name));
+            action.setType("unipdclimb:win");
+            setObj = OpenGraphObject.Factory.createForPost("unipdclimb:challenge");
+        	setObj.setProperty("url", "http://climbtheworld.parseapp.com/challenge.com");
+
+        	setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.social_challenge_win_opengraph_title));
+        	setObj.setProperty("description", ClimbApplication.getContext().getString(R.string.social_challenge_win_opengraph_descr, building_name));
+        	
+        	for(ChartMember member : chart){
+            	if(!member.getId().equalsIgnoreCase(my_fb_id)){
+            		GraphUser user = GraphObject.Factory.create(GraphUser.class);
+            		user.setId("{" + member.getId() + "}");
+            		tags.add(user);
+            	}
+            }
+        	action.setTags(tags);
+            action.setProperty("challenge", setObj);
+        	shareDialog = new FacebookDialog.OpenGraphActionDialogBuilder(activity, action, "challenge").build();
         }else{
         	if(current_position < old_position){
-        		setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.));
-        		setObj.setProperty("description", ClimbApplication.getContext().getString(R.string., steps, building_name));
+        		action.setType("unipdclimb:is_making");
+                setObj = OpenGraphObject.Factory.createForPost("unipdclimb:overtake");
+            	setObj.setProperty("url", "http://climbtheworld.parseapp.com/overtake.com");
+            	
+        		setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.social_challenge_overtake_opengraph_title));
+        		setObj.setProperty("description", ClimbApplication.getContext().getString(R.string.social_challenge_overtake_opengraph_descr, steps, building_name));
+        		//taggo chi ho superato
+        		for(int i = old_position; i < current_position; i--){
+        			GraphUser user = GraphObject.Factory.create(GraphUser.class);
+        			user.setId("{" + chart.get(i).getId() + "}");
+        			tags.add(user);
+        		}
+        		action.setTags(tags);
+                action.setProperty("overtake", setObj);
+            	shareDialog = new FacebookDialog.OpenGraphActionDialogBuilder(activity, action, "overtake").build();
         	}else{
-        		setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.));
-        		setObj.setProperty("description", ClimbApplication.getContext().getString(R.string., steps, building_name));
+        		action.setType("unipdclimb:is_closing");
+                setObj = OpenGraphObject.Factory.createForPost("unipdclimb:the_gap");
+            	setObj.setProperty("url", "http://climbtheworld.parseapp.com/gap.com");
+            	
+        		setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.social_challenge_improve_opengraph_title));
+        		setObj.setProperty("description", ClimbApplication.getContext().getString(R.string.social_challenge_improve_opengraph_descr, steps, building_name));
+        		if(current_position != 0){//se non sono primo, taggo chi sto per raggiungere
+        			GraphUser user = GraphObject.Factory.create(GraphUser.class);
+        			user.setId("{" + chart.get(current_position - 1).getId() + "}");
+        			tags.add(user);
+        		}else{
+        			//se sono primo, taggo tutti per far vedere che sono pi vicino alla vetta
+        			for(ChartMember member : chart){
+                    	if(!member.getId().equalsIgnoreCase(my_fb_id)){
+                    		GraphUser user = GraphObject.Factory.create(GraphUser.class);
+                    		user.setId("{" + member.getId() + "}");
+                    		tags.add(user);
+                    	}
+                    }
+        		}
+        		action.setTags(tags);
+                action.setProperty("the_gap", setObj);
+            	shareDialog = new FacebookDialog.OpenGraphActionDialogBuilder(activity, action, "the_gap").build();
         	}
         }
         
       
-        for(ChartMember member : chart){
-        	if(member.getId().equalsIgnoreCase(my_fb_id)){
-        		GraphUser user = GraphObject.Factory.create(GraphUser.class);
-        		user.setId("{" + member.getId() + "}");
-        		tags.add(user);
+        
+        
+    	
+        return shareDialog;
+	}
+	
+	
+	public static FacebookDialog publishOpenGraphStory_TeamVsTeam(Activity activity, Group myTeam, JSONObject creators, JSONObject challengers, boolean win, int steps, String building_name, int old_position, int new_position){
+		SharedPreferences pref = ClimbApplication.getContext().getSharedPreferences("UserSession", 0);
+		OpenGraphObject setObj = null;// OpenGraphObject.Factory.createForPost("unipdclimb:building");
+		OpenGraphAction action = GraphObject.Factory.create(OpenGraphAction.class);
+    	List<GraphUser> tags = new ArrayList<GraphUser>();
+        FacebookDialog shareDialog = null;//new FacebookDialog.OpenGraphActionDialogBuilder(activity, action, "building").build();
+
+      	Iterator<String> it = null;
+
+        if(win){
+        	setObj =  OpenGraphObject.Factory.createForPost("unipdclimb:team_challenge");
+        	action.setType("unipdclimb:win");
+        	setObj.setProperty("url", "http://climbtheworld.parseapp.com/team_challenge.com");
+        	setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.team_vs_team_win_opengraph_title));
+        	setObj.setProperty("description", ClimbApplication.getContext().getString(R.string.team_vs_team_win_opengraph_descr, building_name));
+        	//taggo i miei compagni di gruppo per celebrare la vittoria
+        	if(myTeam == Group.CHALLENGER)
+        		it = challengers.keys();
+        	else
+        		it = creators.keys();
+        	 while(it.hasNext()){
+         		String key = it.next();        			
+         		GraphUser user = GraphObject.Factory.create(GraphUser.class);
+     			user.setId("{" + key + "}");
+     			tags.add(user);
+     		}
+         	action.setTags(tags);
+            action.setProperty("team_challenge", setObj);
+            shareDialog = new FacebookDialog.OpenGraphActionDialogBuilder(activity, action, "team_challenge").build();
+
+        	
+        }else{
+        	if(new_position < old_position){
+        		setObj =  OpenGraphObject.Factory.createForPost("unipdclimb:pole_position");
+            	action.setType("unipdclimb:help_to_gain");
+            	setObj.setProperty("url", "http://climbtheworld.parseapp.com/pole.com");
+        		setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.team_vs_team_overtake_opengraph_title));
+        		setObj.setProperty("description", ClimbApplication.getContext().getString(R.string.team_vs_team_overtake_opengraph_descr, steps, building_name));
+        		//taggo il team che ho superato
+            	if(myTeam == Group.CHALLENGER)
+            		it = creators.keys();
+            	else
+            		it = challengers.keys();
+            	while(it.hasNext()){
+             		String key = it.next();        			
+             		GraphUser user = GraphObject.Factory.create(GraphUser.class);
+         			user.setId("{" + key + "}");
+         			tags.add(user);
+         		}
+             	action.setTags(tags);
+                action.setProperty("pole_position", setObj);
+                shareDialog = new FacebookDialog.OpenGraphActionDialogBuilder(activity, action, "pole_position").build();
+            	
+        	}else{
+        		setObj =  OpenGraphObject.Factory.createForPost("unipdclimb:the_gap");
+            	action.setType("unipdclimb:help_to_close");
+            	setObj.setProperty("url", "http://climbtheworld.parseapp.com/gap.com");
+        		setObj.setProperty("title", ClimbApplication.getContext().getString(R.string.team_vs_team_improve_opengraph_title));
+        		setObj.setProperty("description", ClimbApplication.getContext().getString(R.string.team_vs_team_improve_opengraph_descr, steps, building_name));
+        		if(new_position != 0){
+        			//se non sono primo, taggo il team che sto per raggiungere
+                	if(myTeam == Group.CHALLENGER)
+                		it = creators.keys();
+                	else
+                		it = challengers.keys();
+                	
+        		}else{
+        			//se sono primo, taggo il mio team per motivarlo
+                	if(myTeam == Group.CHALLENGER)
+                		it = challengers.keys();
+                	else
+                		it = creators.keys();
+                	
+        		}
+        		
+        		while(it.hasNext()){
+             		String key = it.next();        			
+             		GraphUser user = GraphObject.Factory.create(GraphUser.class);
+         			user.setId("{" + key + "}");
+         			tags.add(user);
+         		}
+             	action.setTags(tags);
+                action.setProperty("the_gap", setObj);
+                shareDialog = new FacebookDialog.OpenGraphActionDialogBuilder(activity, action, "the_gap").build();
         	}
         }
         
-    	action.setTags(tags);
-        action.setProperty("building", setObj);
-        return action;
+      
+       
+        return shareDialog;
 	}
 	
 	 public static Bitmap getRoundedBitmap(Bitmap bitmap) {

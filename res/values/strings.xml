@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">Climb The World</string>
     <string name="language">en_US</string>
     <string name="action_settings">Settings</string>
@@ -13,6 +12,10 @@
     <string name="title_activity_gallery">Gallery</string>
     <string name="title_activity_photo_pager_activity">Gallery</string>
     <string name="app_id">712697618765840</string> <!-- old app id 1444608782432270 -->
+    <string name="application_id">e9wlYQPdpXlFX3XQc9Lq0GJFecuYrDSzwVNSovvd</string>
+    <string name="client_id">QVII1Qhy8pXrjAZiL07qaTKbaWpkB87zc88UMWv2</string>
+    
+   
     <!--
      <string name="app_name">ClimbTheWorld</string>
      <string name="app_id">370546396320150</string>
@@ -70,6 +73,7 @@
     <string name="wait_notification">Wait for your choice to be saved</string>
     <string name="delete_req">Request Deleted</string>
     <string name="no_notifications">No notifications \n Press b1 or b2 -> "FB Notification" to download Facebook notification</string>
+    <string name="team_duel_already_part">Fai già parte di questo team</string>
     
     <!-- UserBadge -->
     <string name="steps_badge">Make %d steps</string>
@@ -373,4 +377,18 @@
 	<string name="social_climb_win_opengraph_descr">Together we reached the top of %s</string>
 	<string name="social_climb_improve_opengraph_title">We can do it</string>
 	<string name="social_climb_improve_opengraph_descr">With my new %1$d steps we\'re closer to the %2$s\'s top</string>
+	
+	<string name="social_challenge_win_opengraph_title">And the winner is...me!</string>
+	<string name="social_challenge_win_opengraph_descr">I\'ve reached the top of %s first</string>
+	<string name="social_challenge_improve_opengraph_title">I\'m getting closer...get ready!</string>
+	<string name="social_challenge_improve_opengraph_descr">I\'ve made %1$d new steps and I\'m closer to %2$s\'s top</string>
+	<string name="social_challenge_overtake_opengraph_title">Overtaken dude!</string>
+	<string name="social_challenge_overtake_opengraph_descr">I\'ve made %1$d new steps in %2$s and I\'ve gained a position!</string>
+	
+	<string name="team_vs_team_win_opengraph_title">We are the champions!</string>
+	<string name="team_vs_team_win_opengraph_descr">Me and my team have reached the top of %s for first</string>
+	<string name="team_vs_team_improve_opengraph_title">We\'re getting closer</string>
+	<string name="team_vs_team_improve_opengraph_descr">I\'ve made %1$d new steps and now we are closer to the top of %2$s</string>
+	<string name="team_vs_team_overtake_opengraph_title">We\'re in pole position!</string>
+	<string name="team_vs_team_overtake_opengraph_descr">I\'ve made %1$d new steps in %2$s and now we are in pole!</string>
 </resources>
