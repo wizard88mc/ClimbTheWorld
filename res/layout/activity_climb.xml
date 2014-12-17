@@ -221,6 +221,23 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="#fff" />
 
+            <TextView
+                android:id="@+id/textHelp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="35dp"
+                android:layout_marginRight="35dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp"
+                android:gravity="center"
+                android:text="@string/help_chart"
+                android:textColor="@color/white" 
+                android:background="@color/teal"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:paddingLeft="0.5dp"
+                android:paddingRight="0.5dp"/>
+
             <TableLayout
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"

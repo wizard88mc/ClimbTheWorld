@@ -96,7 +96,7 @@ public class Climbing {
 	public String getFBStatusMessage(String building_name) {
 		switch (game_mode) {
 		case 0:
-				return ClimbApplication.getContext().getString(R.string.solo_climb_win_post, building_name, totalTime());
+				return ClimbApplication.getContext().getString(R.string.solo_climb_win_post, building_name, completed_steps);
 		case 1:
 				return ClimbApplication.getContext().getString(R.string.social_climb_win_post, building_name);
 		case 2:

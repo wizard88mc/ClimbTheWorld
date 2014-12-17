@@ -7,9 +7,9 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.unipd.nbeghin.climbtheworld.models.Building;
+import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Group;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
-import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 import org.unipd.nbeghin.climbtheworld.util.ParseUtils;
@@ -30,6 +30,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,7 +39,6 @@ import com.facebook.FacebookOperationCanceledException;
 import com.facebook.Session;
 import com.facebook.widget.WebDialog;
 import com.facebook.widget.WebDialog.OnCompleteListener;
-import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -54,6 +54,7 @@ public class TeamPreparationActivity extends ActionBarActivity {
 	ImageButton startPlay;
 	ImageButton addChallengerTeamBtn;
 	ImageButton exitTeam;
+	ProgressBar progressbar;
 	List<TextView> myMembers = new ArrayList<TextView>();
 	List<TextView> theirMembers = new ArrayList<TextView>();
 	TextView challengerName;
@@ -80,7 +81,9 @@ public class TeamPreparationActivity extends ActionBarActivity {
 		challengerName = (TextView) findViewById(R.id.textChallenger);
 		creatorName = (TextView) findViewById(R.id.textCreator);
 		offline = (TextView) findViewById(R.id.textOffline);
-
+		progressbar = (ProgressBar) findViewById(R.id.progressBarTeams);
+		progressbar.setIndeterminate(true);
+		progressbar.setVisibility(View.VISIBLE);
 		startPlay.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -118,10 +121,10 @@ public class TeamPreparationActivity extends ActionBarActivity {
 		startPlay.setEnabled(false);
 		exitTeam.setEnabled(false);
 		
-		if(!FacebookUtils.isOnline(getApplicationContext()))
-			exitTeam.setEnabled(false);
-		else
-			exitTeam.setEnabled(true);
+//		if(!FacebookUtils.isOnline(getApplicationContext()))
+//			exitTeam.setEnabled(false);
+//		else
+//			exitTeam.setEnabled(true);
 
 		for (int i = 0; i < ClimbApplication.N_MEMBERS_PER_GROUP - 1; i++) {
 			int id = getResources().getIdentifier("textMyMember" + (i + 1), "id", getPackageName());
@@ -204,8 +207,7 @@ public class TeamPreparationActivity extends ActionBarActivity {
 	 */
 	private void getTeams(final boolean isUpdate) {
 		if(FacebookUtils.isOnline(getApplicationContext())){
-			offline.setVisibility(View.INVISIBLE);
-			exitTeam.setEnabled(true);
+			
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("TeamDuel");
 		query.getInBackground(duel.getId_online(), new GetCallback<ParseObject>() {
 
@@ -344,7 +346,9 @@ public class TeamPreparationActivity extends ActionBarActivity {
 						// Change the menu back
 						resetUpdating();
 				}
-
+				progressbar.setVisibility(View.GONE);
+				offline.setVisibility(View.INVISIBLE);
+				exitTeam.setEnabled(true);
 			}
 		});
 	}else{

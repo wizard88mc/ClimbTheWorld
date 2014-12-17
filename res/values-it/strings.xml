@@ -362,7 +362,7 @@
 	<string name="onboarding_btn_3">Yeah, iniziamo il gioco!</string>
 	
 	<!-- facebook post -->
-	<string name="solo_climb_win_post">Sono arrivato in cima a %1$s in %2$s</string>
+	<string name="solo_climb_win_post">Sono arrivato in cima a %1$s con %2$d</string>
 	<string name="solo_climb_improve_post">Sto scalando %1$s e ho fatto altri %2$d scalini verso la cima</string>
 	
 	<string name="social_climb_win_post">Ho raggiunto la cima di %s insieme ai miei amici</string>
@@ -397,4 +397,6 @@
 	<string name="team_vs_team_improve_opengraph_descr">Ho fatto %1$d nuovi scalini e ora siamo più vicini alla cima di %2$s</string>
 	<string name="team_vs_team_overtake_opengraph_title">Siamo in pole position!</string>
 	<string name="team_vs_team_overtake_opengraph_descr">Ho fatto %1$d nuovi scalini in %2$s e ora siamo in testa!</string>
+
+	<string name="help_chart">Premi aggiorna per scoprire il vincitore\n %d amici devono caricare il proprio risultato.</string>
 </resources>

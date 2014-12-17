@@ -156,6 +156,7 @@ public class ClimbActivity extends ActionBarActivity {
 	private int new_steps = 0;
 	private int difficulty;
 	private int old_chart_position;
+	private GameModeType old_game_mode;
 
 	SharedPreferences pref;
 
@@ -186,6 +187,7 @@ public class ClimbActivity extends ActionBarActivity {
 	private boolean isCounterMode; // true if the game is on, false otherwise
 
 	private Menu mymenu;
+	private TextView chartHelpText;
 
 	// number of virtual step for each real step
 	/**
@@ -625,7 +627,7 @@ public class ClimbActivity extends ActionBarActivity {
 				FacebookDialog shareDialog = null;
 				boolean win = percentage >= 1.00 ? true : false;
 
-				switch (mode) {
+				switch (old_game_mode) {
 				case SOLO_CLIMB:
 					shareDialog = FacebookUtils.publishOpenGraphStory_SoloClimb(this, win, new_steps, buildingText.getName(), building.getSteps());
 					break;
@@ -901,35 +903,21 @@ public class ClimbActivity extends ActionBarActivity {
 		// operations to prevent the jarring behavior of controls going away
 		// while interacting with the UI.
 		// findViewById(R.id.btnStartClimbing).setOnTouchListener(mDelayHideTouchListener);
+		
 		// app-specific logic
-		seekbarIndicator = (VerticalSeekBar) findViewById(R.id.seekBarPosition); // get
-																					// reference
-																					// to
-																					// vertical
-																					// seekbar
-																					// (only
-																					// once
-																					// for
-																					// performance-related
-																					// reasons)
-		seekbarIndicator.setOnTouchListener(new OnTouchListener() { // disable
-																	// user-driven
-																	// seekbar
-																	// changes
+		seekbarIndicator = (VerticalSeekBar) findViewById(R.id.seekBarPosition); // get reference to vertical seekbar (only once for performance-related reasons)
+		seekbarIndicator.setOnTouchListener(new OnTouchListener() { // disable user-driven seekbar changes
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				return false;
 			}
 		});
 		checkUserStats(); // user's stats about average daily steps
+		chartHelpText = (TextView) findViewById(R.id.textHelp);
+		chartHelpText.setVisibility(View.GONE);
 		isCounterMode = getIntent().getBooleanExtra(ClimbApplication.counter_mode, false);
 		if (!isCounterMode) { // game mode on
-			int building_id = getIntent().getIntExtra(ClimbApplication.building_text_intent_object, 0); // get
-			// building
-			// id
-			// from
-			// received
-			// intent
+			int building_id = getIntent().getIntExtra(ClimbApplication.building_text_intent_object, 0); // get building id from received intent
 			try {
 				// get building text ID from intent
 				if (building_id == 0)
@@ -1018,8 +1006,8 @@ public class ClimbActivity extends ActionBarActivity {
 																											// (in
 																											// mt)
 		loadPreviousClimbing(); // get previous climbing for this building
-		mode = GameModeType.values()[climbing.getGame_mode()]; // setup game
-																// mode
+		mode = GameModeType.values()[climbing.getGame_mode()]; // setup game mode
+		old_game_mode = mode;
 		// loadSocialMode();
 		new LoadSocialModeTask().execute();
 
@@ -1952,7 +1940,7 @@ public class ClimbActivity extends ActionBarActivity {
 				FacebookDialog shareDialog = null;
 				boolean win = percentage >= 1.00 ? true : false;
 
-				switch (mode) {
+				switch (old_game_mode) {
 				case SOLO_CLIMB:
 					shareDialog = FacebookUtils.publishOpenGraphStory_SoloClimb(this, win, new_steps, buildingText.getName(), building.getSteps());
 					break;
@@ -2075,6 +2063,7 @@ public class ClimbActivity extends ActionBarActivity {
 			if (percentage >= 1.00) {
 				switch (mode) {
 				case SOCIAL_CLIMB:
+					old_game_mode = mode;
 					updateOthers(false, false);
 					climbing.setGame_mode(0);
 					climbing.setId_mode("");
@@ -2094,6 +2083,7 @@ public class ClimbActivity extends ActionBarActivity {
 					// if(teamDuel.isCompleted()) endTeamCompetition(false);
 					break;
 				case SOLO_CLIMB:
+					old_game_mode = mode;
 					ClimbApplication.climbingDao.update(climbing); // save to db
 					if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty")) {
 						updateClimbingInParse(climbing, false);
@@ -2655,6 +2645,7 @@ public class ClimbActivity extends ActionBarActivity {
 		if (microgoal != null)
 			deleteMicrogoalInParse(microgoal);
 		((ImageButton) findViewById(R.id.btnStartClimbing)).setImageResource(R.drawable.social_share);
+		old_game_mode = mode;
 		mode = GameModeType.SOLO_CLIMB;
 
 	}
@@ -2678,6 +2669,7 @@ public class ClimbActivity extends ActionBarActivity {
 		}
 		if (microgoal != null)
 			deleteMicrogoalInParse(microgoal);
+		old_game_mode = mode;
 		mode = GameModeType.SOLO_CLIMB;
 
 	}
@@ -2747,12 +2739,17 @@ public class ClimbActivity extends ActionBarActivity {
 							int otherGroupScore = ModelsUtil.sum(otherTeam);
 							DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
+							teamDuel.setChecks(teamDuel_parse.getInt("checks"));
 							teamDuel.setCompleted(teamDuel_parse.getBoolean("completed"));
 							teamDuel.setVictory_time(victory_time.getTime());
 							teamDuel.setWinner_id(teamDuel_parse.getString("winner_id"));
 							ClimbApplication.teamDuelDao.update(teamDuel);
+							
+							boolean foundWinner = ModelsUtil.hasSomeoneWon(myGroupScore, otherGroupScore, building.getSteps());
 
-							if (ModelsUtil.hasSomeoneWon(myGroupScore, otherGroupScore, building.getSteps()) && !climbing.isChecked()) { // !victory_time.after(new Date(victory_time.getTime() - 5 * 24 * 3600 * 1000 )
+							System.out.println(foundWinner);
+							
+							if (foundWinner && !climbing.isChecked()) { // !victory_time.after(new Date(victory_time.getTime() - 5 * 24 * 3600 * 1000 )
 								current_win = true;
 
 								try {
@@ -2764,12 +2761,17 @@ public class ClimbActivity extends ActionBarActivity {
 									// TODO Auto-generated catch block
 									e1.printStackTrace();
 								}
-
+								
 								teamDuel.setChecks(teamDuel.getChecks() + 1);
+								System.out.println("local checks " + teamDuel.getChecks());
+								climbing.setChecked(true);
+								updateClimbingInParse(climbing, true);
+							}
 
 								if (teamDuel.getChecks() >= (teamDuel_parse.getJSONObject("challenger_stairs").length() + teamDuel_parse.getJSONObject("creator_stairs").length())
 										|| last_update.after(new Date(last_update.getTime() + 5 * 24 * 3600 * 1000))) {
 									teamDuel.setCompleted(true);
+									chartHelpText.setVisibility(View.GONE);
 									if (last_update.after(new Date(last_update.getTime() + 5 * 24 * 3600 * 1000))) {
 										// the higher score wins, no badge and no points
 										if (myGroupScore > otherGroupScore) {
@@ -2778,7 +2780,12 @@ public class ClimbActivity extends ActionBarActivity {
 											teamDuel.setWinner_id(String.valueOf((1 - teamDuel.getMygroup().ordinal())));
 
 									}
+								}else if(foundWinner){
+									chartHelpText.setVisibility(View.VISIBLE);
+									chartHelpText.setText(getString(R.string.help_chart, (((teamDuel_parse.getJSONObject("challenger_stairs").length() + teamDuel_parse.getJSONObject("creator_stairs").length())  - teamDuel.getChecks()))));
 								}
+								
+								
 								try {
 									teamDuel_parse.put("victory_time", df.parse(df.format(teamDuel.getVictory_time())));
 								} catch (java.text.ParseException e1) {
@@ -2788,10 +2795,9 @@ public class ClimbActivity extends ActionBarActivity {
 								teamDuel_parse.put("winner_id", teamDuel.getWinner_id());
 								teamDuel_parse.put("checks", teamDuel.getChecks());
 								teamDuel_parse.put("completed", teamDuel.isCompleted());
-								climbing.setChecked(true);
-								updateClimbingInParse(climbing, true);
+								
 
-							}
+							
 
 							ParseUtils.saveTeamDuel(teamDuel_parse, teamDuel);
 
@@ -2969,8 +2975,10 @@ public class ClimbActivity extends ActionBarActivity {
 								competition.setVictory_time(victory_time.getTime());
 								competition.setWinner_id(winner_id);
 								ClimbApplication.competitionDao.update(competition);
+								
+								boolean foundWinner = ModelsUtil.hasSomeoneWon(chart, building.getSteps());
 
-								if (ModelsUtil.hasSomeoneWon(chart, building.getSteps()) && !climbing.isChecked()) {
+								if (foundWinner && !climbing.isChecked()) {
 									current_win = true;
 									try {
 										if (num_steps >= building.getSteps() && (victory_time.getTime() == 0 || victory_time.after(df.parse(df.format(climbing.getModified()))))) {
@@ -2984,10 +2992,19 @@ public class ClimbActivity extends ActionBarActivity {
 									}
 
 									competition.setChecks(competition.getChecks() + 1);
+									
+									climbing.setChecked(true);
+									updateClimbingInParse(climbing, true);
+
+								}
 									if (competition.getChecks() >= others.length() || last_update.after(new Date(last_update.getTime() + 5 * 24 * 3600 * 1000))) {
 										competition.setCompleted(true);
+										chartHelpText.setVisibility(View.GONE);
 										if (last_update.after(new Date(last_update.getTime() + 5 * 24 * 3600 * 1000)))
 											competition.setWinner_id(chart.get(0).getId());
+									}else if(foundWinner){
+										chartHelpText.setVisibility(View.VISIBLE);
+										chartHelpText.setText(getString(R.string.help_chart, (others.length() - competition.getChecks())));
 									}
 									try {
 										compet_parse.put("victory_time", df.parse(df.format(competition.getVictory_time())));
@@ -2998,10 +3015,7 @@ public class ClimbActivity extends ActionBarActivity {
 									compet_parse.put("winner_id", competition.getWinner_id());
 									compet_parse.put("checks", competition.getChecks());
 									compet_parse.put("completed", competition.isCompleted());
-									climbing.setChecked(true);
-									updateClimbingInParse(climbing, true);
-
-								}
+								
 								// compet_parse.saveEventually();
 								ParseUtils.saveCompetition(compet_parse, competition);
 
