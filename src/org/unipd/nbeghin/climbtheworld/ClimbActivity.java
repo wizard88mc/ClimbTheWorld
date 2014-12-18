@@ -629,14 +629,14 @@ public class ClimbActivity extends ActionBarActivity {
 
 				switch (old_game_mode) {
 				case SOLO_CLIMB:
-					shareDialog = FacebookUtils.publishOpenGraphStory_SoloClimb(this, win, new_steps, buildingText.getName(), building.getSteps());
+					shareDialog = FacebookUtils.publishOpenGraphStory_SoloClimb(this, win, previous_progress, buildingText.getName(), building.getSteps());
 					break;
 				case SOCIAL_CLIMB:
-					shareDialog = FacebookUtils.publishOpenGraphStory_SocialClimb(this, collab_parse.getJSONObject("collaborators"), win, new_steps, buildingText.getName());
+					shareDialog = FacebookUtils.publishOpenGraphStory_SocialClimb(this, collab_parse.getJSONObject("collaborators"), win, previous_progress, buildingText.getName());
 					break;
 
 				case SOCIAL_CHALLENGE:
-					shareDialog = FacebookUtils.publishOpenGraphStory_SocialChallenge(this, chart, win, new_steps, buildingText.getName(), old_chart_position);
+					shareDialog = FacebookUtils.publishOpenGraphStory_SocialChallenge(this, chart, win, previous_progress, buildingText.getName(), old_chart_position);
 					break;
 
 				case TEAM_VS_TEAM:
@@ -645,7 +645,7 @@ public class ClimbActivity extends ActionBarActivity {
 						new_position = 0;
 					else
 						new_position = 1;
-					shareDialog = FacebookUtils.publishOpenGraphStory_TeamVsTeam(this, teamDuel.getMygroup(), teamDuel_parse.getJSONObject("creator_stairs"), teamDuel_parse.getJSONObject("challenger_stairs"), win, new_steps, buildingText.getName(), old_chart_position, new_position);
+					shareDialog = FacebookUtils.publishOpenGraphStory_TeamVsTeam(this, teamDuel.getMygroup(), teamDuel_parse.getJSONObject("creator_stairs"), teamDuel_parse.getJSONObject("challenger_stairs"), win, previous_progress, buildingText.getName(), old_chart_position, new_position);
 					break;
 				}
 
@@ -795,7 +795,8 @@ public class ClimbActivity extends ActionBarActivity {
 		uiHelper.onActivityResult(requestCode, resultCode, data, new FacebookDialog.Callback() {
 			@Override
 			public void onError(FacebookDialog.PendingCall pendingCall, Exception error, Bundle data) {
-				Log.e("Activity", String.format("Error: %s", error.toString()));
+				Log.e("Activity", "Error: " + error.toString() + "\n" + error.getLocalizedMessage());
+				error.printStackTrace();
 			}
 
 			@Override
@@ -1942,14 +1943,14 @@ public class ClimbActivity extends ActionBarActivity {
 
 				switch (old_game_mode) {
 				case SOLO_CLIMB:
-					shareDialog = FacebookUtils.publishOpenGraphStory_SoloClimb(this, win, new_steps, buildingText.getName(), building.getSteps());
+					shareDialog = FacebookUtils.publishOpenGraphStory_SoloClimb(this, win, previous_progress, buildingText.getName(), building.getSteps());
 					break;
 				case SOCIAL_CLIMB:
-					shareDialog = FacebookUtils.publishOpenGraphStory_SocialClimb(this, collab_parse.getJSONObject("collaborators"), win, new_steps, buildingText.getName());
+					shareDialog = FacebookUtils.publishOpenGraphStory_SocialClimb(this, collab_parse.getJSONObject("collaborators"), win, previous_progress, buildingText.getName());
 					break;
 
 				case SOCIAL_CHALLENGE:
-					shareDialog = FacebookUtils.publishOpenGraphStory_SocialChallenge(this, chart, win, new_steps, buildingText.getName(), old_chart_position);
+					shareDialog = FacebookUtils.publishOpenGraphStory_SocialChallenge(this, chart, win, previous_progress, buildingText.getName(), old_chart_position);
 					break;
 
 				case TEAM_VS_TEAM:
@@ -1958,7 +1959,7 @@ public class ClimbActivity extends ActionBarActivity {
 						new_position = 0;
 					else
 						new_position = 1;
-					shareDialog = FacebookUtils.publishOpenGraphStory_TeamVsTeam(this, teamDuel.getMygroup(), teamDuel_parse.getJSONObject("creator_stairs"), teamDuel_parse.getJSONObject("challenger_stairs"), win, new_steps, buildingText.getName(), old_chart_position, new_position);
+					shareDialog = FacebookUtils.publishOpenGraphStory_TeamVsTeam(this, teamDuel.getMygroup(), teamDuel_parse.getJSONObject("creator_stairs"), teamDuel_parse.getJSONObject("challenger_stairs"), win, previous_progress, buildingText.getName(), old_chart_position, new_position);
 					break;
 				}
 
@@ -2075,10 +2076,14 @@ public class ClimbActivity extends ActionBarActivity {
 					}
 					break;
 				case SOCIAL_CHALLENGE:
+					if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty")) 
+						updateClimbingInParse(climbing, false);
 					updateChart(false, false);
 					// if(competition.isCompleted()) endCompetition(false);
 					break;
 				case TEAM_VS_TEAM:
+					if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty")) 
+						updateClimbingInParse(climbing, false);
 					updateTeams(false, false);
 					// if(teamDuel.isCompleted()) endTeamCompetition(false);
 					break;
@@ -2833,6 +2838,10 @@ public class ClimbActivity extends ActionBarActivity {
 							group_steps.get(0).setBackgroundColor(Color.parseColor("#adeead"));
 							group_members.get(1).setBackgroundColor(Color.parseColor("#ef9d9d"));
 							group_steps.get(1).setBackgroundColor(Color.parseColor("#ef9d9d"));
+							group_members.get(0).setVisibility(View.VISIBLE);
+							group_members.get(1).setVisibility(View.VISIBLE);
+							group_steps.get(0).setVisibility(View.VISIBLE);
+							group_steps.get(1).setVisibility(View.VISIBLE);
 							int new_seekbar_progress = myTeamScore();
 							seekbarIndicator.setProgress(new_seekbar_progress);
 							double progress = (((double) (new_seekbar_progress + (microgoal.getTot_steps() - microgoal.getDone_steps())) * (double) 100) / (double) building.getSteps());
@@ -2984,6 +2993,8 @@ public class ClimbActivity extends ActionBarActivity {
 										if (num_steps >= building.getSteps() && (victory_time.getTime() == 0 || victory_time.after(df.parse(df.format(climbing.getModified()))))) {
 											competition.setVictory_time(climbing.getModified());
 											competition.setWinner_id(pref.getString("FBid", ""));
+											winner_id = competition.getWinner_id();
+											victory_time = df.parse(df.format(competition.getVictory_time()));
 
 										}
 									} catch (java.text.ParseException e1) {
@@ -3070,6 +3081,9 @@ public class ClimbActivity extends ActionBarActivity {
 										group_members.get(i).setBackgroundColor(Color.parseColor("#f7fe2e"));
 										group_steps.get(i).setBackgroundColor(Color.parseColor("#f7fe2e"));
 										group_minus.get(i).setVisibility(View.INVISIBLE);
+										System.out.println("TEST");
+										System.out.println(competition.isCompleted());
+										
 										if (competition.isCompleted() && winner_id.equalsIgnoreCase(pref.getString("FBid", ""))) {// if (steps >= building.getSteps()) {
 											percentage = 1.0;
 											current_win = true;
@@ -3085,7 +3099,7 @@ public class ClimbActivity extends ActionBarActivity {
 									} else {
 										group_members.get(i).setBackgroundColor(Color.parseColor("#dcdcdc"));
 										group_steps.get(i).setBackgroundColor(Color.parseColor("#dcdcdc"));
-										group_minus.get(i).setVisibility(View.VISIBLE);
+										if (competition.getAmICreator()) group_minus.get(i).setVisibility(View.VISIBLE);
 
 										if (competition.isCompleted() && winner_id.equalsIgnoreCase(key)/* steps >= building.getSteps() */) {
 											current_win = true;
