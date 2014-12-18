@@ -176,7 +176,7 @@ public class TeamPreparationActivity extends ActionBarActivity {
 		switch (item.getItemId()) {
 		case R.id.itemUpdate:
 			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			ImageView iv = (ImageView) inflater.inflate(R.layout.refresh, null);
+			ImageView iv = (ImageView) inflater.inflate(R.layout.refresh_dark, null);
 			Animation rotation = AnimationUtils.loadAnimation(this, R.anim.rotate_refresh);
 			rotation.setRepeatCount(Animation.INFINITE);
 			iv.startAnimation(rotation);

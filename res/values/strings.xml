@@ -73,7 +73,9 @@
     <string name="wait_notification">Wait for your choice to be saved</string>
     <string name="delete_req">Request Deleted</string>
     <string name="no_notifications">No notifications \n Press b1 or b2 -> "FB Notification" to download Facebook notification</string>
-    <string name="team_duel_already_part">Fai già parte di questo team</string>
+    <string name="team_duel_already_part">You are already part of this team</string>
+    <string name="competition_end">Competition already ended</string>
+    <string name="no_base_level">You have to reach level %1$d to unlock %1$s</string>
     
     <!-- UserBadge -->
     <string name="steps_badge">Make %d steps</string>

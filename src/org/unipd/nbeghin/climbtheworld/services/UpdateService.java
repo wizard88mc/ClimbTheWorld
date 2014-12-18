@@ -834,7 +834,7 @@ public class UpdateService extends IntentService {
 				@Override
 				public void done(ParseUser parseUser, ParseException e) {
 					if (e == null) {
-						parseUser.put("XP", user.getXP()); System.out.println(user.getXP());
+						parseUser.put("XP", user.getXP());
 						parseUser.put("level", user.getLevel());
 						parseUser.put("height", user.getHeight());
 						JSONObject stats = parseUser.getJSONObject("mean_daily_steps");

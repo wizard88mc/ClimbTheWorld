@@ -69,6 +69,9 @@
     <string name="team_duel_already_part">Fai già parte di questo team</string>
     <string name="delete_req">Richiesta eliminata</string>
     <string name="no_notifications">Nessuna notifica \n Premi b1 o b2 -> "Notifiche FB" per vedere le nuove notifiche</string>
+    <string name="competition_end">Competizione già terminata</string>
+    <string name="no_base_level">Devi raggiungere il livello %1$d per sbloccare %2$s</string>
+    
     
      <!-- UserBadge -->
     <string name="steps_badge">Fai %d passi</string>

@@ -256,17 +256,15 @@ public class ClimbActivity extends ActionBarActivity {
 
 			if (finalClassification > 0) {
 
-				if (climbedYesterday && percentage > 0.25f && percentage < 0.50f && used_bonus == false && building.get_id() != 6) { // bonus
-					// at
-					// 25%
+				if (climbedYesterday && percentage > 0.25f && percentage < 0.50f && used_bonus == false && building.get_id() != 6) { 
+					// bonus at 25%
 					apply_percentage_bonus();
 				} else { // standard, no bonus
 					num_steps += vstep_for_rstep; // increase the number of
 													// steps
 					new_steps += vstep_for_rstep;
-					if (!isCounterMode) { // increase the seekbar progress and
-											// update the microgoal progress
-											// only if game mode is on
+					previous_progress = new_steps;
+					if (!isCounterMode) { // increase the seekbar progress and update the microgoal progress only if game mode is on
 						microgoal.setDone_steps(microgoal.getDone_steps() + vstep_for_rstep);
 						// ClimbApplication.microgoalDao.update(microgoal);
 
@@ -2177,7 +2175,9 @@ public class ClimbActivity extends ActionBarActivity {
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()); // get
 			difficulty = Integer.parseInt(settings.getString("difficulty", "10"));
 		}
-		int real_steps = new_steps / difficulty;
+		if(isCounterMode)
+			difficulty = 1;
+		int real_steps = previous_progress / difficulty;
 
 		ParseUser user = ParseUser.getCurrentUser();
 		if (ClimbApplication.are24hPassed(currentUser.getBegin_date())) {
@@ -2188,7 +2188,7 @@ public class ClimbActivity extends ActionBarActivity {
 			currentUser.setBegin_date(String.valueOf(new Date().getTime()));
 			// ClimbApplication.userDao.update(currentUser);
 		} else {
-			System.out.println("update current value");
+			System.out.println("update current value with " + real_steps);
 
 			currentUser.setCurrent_steps_value(currentUser.getCurrent_steps_value() + real_steps);
 		}
