@@ -17,6 +17,7 @@ import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.BuildingText;
 import org.unipd.nbeghin.climbtheworld.models.ChartMember;
 import org.unipd.nbeghin.climbtheworld.models.MicrogoalText;
+import org.unipd.nbeghin.climbtheworld.models.TourText;
 
 public class ModelsUtil {
 
@@ -133,6 +134,14 @@ public class ModelsUtil {
 	public static BuildingText getBuildingTextFromBuildingId(int id){
 		for(BuildingText text : ClimbApplication.buildingTexts){
 			if(text.getBuilding().get_id() == id)
+				return text;
+		}
+		return null;
+	}
+	
+	public static TourText getTourTextFromBuildingId(int id){
+		for(TourText text : ClimbApplication.tourTexts){
+			if(text.getTour().get_id() == id)
 				return text;
 		}
 		return null;

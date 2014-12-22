@@ -95,8 +95,9 @@ public class UserBadge {
 			BuildingText text = ModelsUtil.getBuildingTextFromBuildingId(obj_id);
 			return ClimbApplication.getContext().getString(R.string.complete_building, text.getName());
 		case TOUR_COMPLETED:
-			Tour tour = ClimbApplication.getTourById(obj_id);
-			return ClimbApplication.getContext().getString(R.string.complete_tour, tour.getTitle());
+			//Tour tour = ClimbApplication.getTourById(obj_id);
+			TourText text_tour = ModelsUtil.getTourTextFromBuildingId(obj_id);
+			return ClimbApplication.getContext().getString(R.string.complete_tour, text_tour.getTitle());
 		case STEPS_COMPLETED:
 			return  ClimbApplication.getContext().getString(R.string.steps_badge, badge.getN_steps());
 		default:

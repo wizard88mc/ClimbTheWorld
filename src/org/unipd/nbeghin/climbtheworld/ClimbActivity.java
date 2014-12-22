@@ -1341,8 +1341,8 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 									if (isUpdate || isOpening) {
 										if (microgoal != null)
 											deleteMicrogoalInParse(microgoal);
-										updatePoints(false, false);
-										saveBadges(true);
+										updatePoints(false, true);
+										//saveBadges(true);
 										saveCollaborationData();
 									}
 
@@ -2140,8 +2140,8 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			Log.i(MainActivity.AppName, "Updated climbing #" + climbing.get_id());
 
 			if (mode == GameModeType.SOCIAL_CLIMB || mode == GameModeType.SOLO_CLIMB) {
-				updatePoints(false, false);
-				saveBadges(true);
+				updatePoints(false, true);
+				//saveBadges(true);
 			}
 			System.out.println("END");
 
@@ -2513,8 +2513,8 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			else if (mode == GameModeType.TEAM_VS_TEAM && teamDuel != null)
 				saveTeamDuelData();
 
-			updatePoints(false, false);
-			saveBadges(true);
+			updatePoints(false, true);
+			//saveBadges(true);
 		}
 	}
 
@@ -2874,8 +2874,8 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 								endTeamCompetition(false);
 
 								// if(isUpdate || isOpening){
-								updatePoints(penalty, false);
-								saveBadges(true);
+								updatePoints(penalty, true);
+								//saveBadges(true);
 								// }
 
 							} else if (/* otherGroupScore >= building.getSteps() */teamDuel.isCompleted() && Integer.valueOf(teamDuel.getWinner_id()) != teamDuel.getMygroup().ordinal()) {
@@ -3101,8 +3101,8 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 											endCompetition(false);
 
 											// if(isUpdate || isOpening){
-											updatePoints(false, false);
-											saveBadges(true);
+											updatePoints(false, true);
+											//saveBadges(true);
 											// }
 											showMessage(getString(R.string.competition_win));
 											// Toast.makeText(getApplicationContext(), getString(R.string.competition_win), Toast.LENGTH_SHORT).show();
