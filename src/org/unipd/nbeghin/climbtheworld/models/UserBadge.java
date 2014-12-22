@@ -104,5 +104,7 @@ public class UserBadge {
 		}
 	}
 	
-	
+	public String toJSON(){
+		return "{\"badge_id\": " + getBadge().get_id() + ", \"obj_id\": " + obj_id +", \"percentage\":" + percentage + "}";
+	}
 }

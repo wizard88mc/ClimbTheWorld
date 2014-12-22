@@ -1,6 +1,7 @@
 package org.unipd.nbeghin.climbtheworld.models;
 
 import java.io.Serializable;
+import java.util.Observable;
 
 import org.unipd.nbeghin.climbtheworld.ClimbApplication;
 import org.unipd.nbeghin.climbtheworld.R;
@@ -15,7 +16,7 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 @DatabaseTable(tableName = "users")
-public class User implements Serializable{
+public class User extends Observable implements Serializable{
 	
 	/**
 	 * 
@@ -139,6 +140,10 @@ public class User implements Serializable{
 		this.height = height;
 	}
 
-	
+	//to be used to create new achievements
+	private void changedState(Object obj){
+		setChanged();
+		notifyObservers(obj);
+	}
 	
 }

@@ -1,5 +1,6 @@
 package org.unipd.nbeghin.climbtheworld;
 
+import java.lang.reflect.Type;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -8,9 +9,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Set;
 import java.util.SimpleTimeZone;
 
@@ -95,12 +99,19 @@ import com.facebook.FacebookOperationCanceledException;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
-import com.facebook.model.GraphObject;
-import com.facebook.model.OpenGraphAction;
-import com.facebook.model.OpenGraphObject;
 import com.facebook.widget.FacebookDialog;
 import com.facebook.widget.WebDialog;
 import com.facebook.widget.WebDialog.OnCompleteListener;
+import com.google.common.collect.HashBasedTable;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -110,18 +121,17 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 /**
- * Climbing activity: shows a given building and starts classifier. At start it calculates the sampling rate of the device it's run from (only once, after that it just saves the value in standard Android preferences).
+ * Climbing activity: shows a given building and starts classifier. 
+ * At start it calculates the sampling rate of the device it's run from 
+ * (only once, after that it just saves the value in standard Android preferences).
  * 
- * classe
  */
-public class ClimbActivity extends ActionBarActivity {
+public class ClimbActivity extends ActionBarActivity implements Observer {
 
 	private static boolean setInitialStar = false;
 
-	public static final String SAMPLING_TYPE = "ACTION_SAMPLING"; // intent's
-																	// action
-	public static final String SAMPLING_TYPE_NON_STAIR = "NON_STAIR"; // classifier's
-																		// output
+	public static final String SAMPLING_TYPE = "ACTION_SAMPLING"; // intent's action
+	public static final String SAMPLING_TYPE_NON_STAIR = "NON_STAIR"; // classifier's output
 	public static final String SAMPLING_DELAY = "DELAY"; // intent's action
 
 	public boolean current_win = false;
@@ -228,7 +238,6 @@ public class ClimbActivity extends ActionBarActivity {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			// String result = intent.getExtras().getString(ClassifierCircularBuffer.CLASSIFIER_NOTIFICATION_STATUS);
 			Double result = intent.getExtras().getDouble(ClassifierCircularBuffer.CLASSIFIER_NOTIFICATION_STATUS);
 
 			double correction = 0.0;
@@ -621,6 +630,15 @@ public class ClimbActivity extends ActionBarActivity {
 				// requestBatch.add(request);
 				//
 				// requestBatch.executeAsync();   
+				
+				 List<String> permissions = Session.getActiveSession().getPermissions();
+				
+				 if (!new HashSet<String>(permissions).containsAll(PERMISSIONS)) {
+					 Session.NewPermissionsRequest newPermissionsRequest = new Session.NewPermissionsRequest(
+							 this, PERMISSIONS);
+					 Session.getActiveSession().requestNewPublishPermissions(newPermissionsRequest);
+					 Log.w("FBShare", "has permission");
+				 }
 
 				FacebookDialog shareDialog = null;
 				boolean win = percentage >= 1.00 ? true : false;
@@ -1666,14 +1684,6 @@ public class ClimbActivity extends ActionBarActivity {
 	 */
 	private void loadPreviousClimbing() {
 		SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
-		// climbing =
-		// MainActivity.getClimbingForBuildingAndUserNotPaused(building.get_id(),
-		// pref.getInt("local_id", -1));
-		// System.out.println(climbing.getId_mode());
-		// soloClimb =
-		// MainActivity.getClimbingForBuildingAndUserPaused(building.get_id(),
-		// pref.getInt("local_id", -1));
-		// System.out.println(soloClimb.getId_mode());
 
 		List<Climbing> climbs = ClimbApplication.getClimbingListForBuildingAndUser(building.get_id(), pref.getInt("local_id", -1));
 		if (climbs.size() == 1) {
@@ -1731,6 +1741,7 @@ public class ClimbActivity extends ActionBarActivity {
 
 			Log.i(MainActivity.AppName, "Loaded existing climbing (#" + climbing.get_id() + ")");
 		}
+		climbing.addObserver(this);
 		threshold = building.getSteps() / ClimbApplication.N_MEMBERS_PER_GROUP;
 		seekbarIndicator.setMax(building.getSteps());
 		if (mode == GameModeType.SOCIAL_CLIMB)
@@ -2178,7 +2189,7 @@ public class ClimbActivity extends ActionBarActivity {
 		if(isCounterMode)
 			difficulty = 1;
 		int real_steps = previous_progress / difficulty;
-
+		currentUser.addObserver(this);
 		ParseUser user = ParseUser.getCurrentUser();
 		if (ClimbApplication.are24hPassed(currentUser.getBegin_date())) {
 			System.out.println("new mean");
@@ -3263,6 +3274,7 @@ public class ClimbActivity extends ActionBarActivity {
 			showMessage(getString(R.string.bonus_team_duel, extra));
 		}
 		final User me = currentUser;
+		me.addObserver(this);
 		int newLevel = ClimbApplication.levelUp(me.getXP() + newXP, me.getLevel());
 		me.setXP(me.getXP() + newXP);
 		if (newLevel != me.getLevel()) {
@@ -3299,7 +3311,8 @@ public class ClimbActivity extends ActionBarActivity {
 			userbadge.setSaved(false);
 			ClimbApplication.userBadgeDao.create(userbadge);
 			if (percentage >= 1.00)
-				Toast.makeText(getApplicationContext(), getString(R.string.new_badge, buildingText.getName()), Toast.LENGTH_SHORT).show();
+				showMessage(getString(R.string.new_badge, buildingText.getName()));
+				//Toast.makeText(getApplicationContext(), , Toast.LENGTH_SHORT).show();
 
 		} else {
 			double old_percentage = userbadge.getPercentage();
@@ -3364,49 +3377,6 @@ public class ClimbActivity extends ActionBarActivity {
 
 		if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty")) {
 
-			// ParseQuery<ParseUser> query = ParseUser.getQuery();
-			// query.whereEqualTo("FBid", pref.getString("FBid", ""));
-			// query.getFirstInBackground(new GetCallback<ParseUser>() {
-			//
-			// @Override
-			// public void done(ParseUser user, ParseException e) {
-			// if (e == null) {
-			//
-			// for (final UserBadge ub : updateUb) {
-			// JSONObject newBadge = new JSONObject();
-			// try {
-			// JSONArray bs = user.getJSONArray("badges");
-			// int currentBadge = ClimbApplication.lookForBadge(ub.getBadge().get_id(), ub.getObj_id(), bs);
-			// if (currentBadge != -1) {
-			// bs = ModelsUtil.removeFromJSONArray(bs, currentBadge);
-			// }
-			//
-			// newBadge.put("badge_id", ub.getBadge().get_id());
-			// newBadge.put("obj_id", ub.getObj_id());
-			// newBadge.put("percentage", ub.getPercentage());
-			// bs.put(newBadge);
-			// user.put("badges", bs);
-			// // user.saveEventually();
-			// ub.setSaved(true);
-			// ClimbApplication.userBadgeDao.update(ub);
-			// } catch (JSONException e1) {
-			// // TODO Auto-generated catch block
-			// e1.printStackTrace();
-			// }
-			// }
-			// if(saveOnline) ParseUtils.saveUserInParse(user);
-			//
-			//
-			// } else {
-			// // Toast.makeText(getApplicationContext(),
-			// // getString(R.string.connection_problem2),
-			// // Toast.LENGTH_SHORT).show();
-			// Log.e("saveBadges", e.getMessage());
-			// }
-			// }
-			// });
-
-			// TEST
 			if (ParseUser.getCurrentUser() != null) {
 				ParseUser user = ParseUser.getCurrentUser();
 				for (final UserBadge ub : updateUb) {
@@ -3664,5 +3634,168 @@ public class ClimbActivity extends ActionBarActivity {
 	public void onRestart() {
 		super.onRestart();
 		Log.i("ClimnActivity", "onRestart");
+	}
+
+	@Override
+	public void update(Observable observable, Object data) {
+		JSONArray modified_badges = new JSONArray();
+		List<UserBadge> ubs = new  ArrayList<UserBadge>();
+		if(data instanceof Climbing){
+			//check building
+			Badge badge = ClimbApplication.getBadgeByCategory(0);
+			UserBadge userbadge = ClimbApplication.getUserBadgeForUserAndBadge(badge.get_id(), building.get_id(), currentUser.get_id());
+			saveBuildingBadge(userbadge, badge, (Climbing) data);//saves locally
+			ubs.add(userbadge);
+			try {
+				modified_badges.put(new JSONObject(userbadge.toJSON()));
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			//check tour
+			badge = ClimbApplication.getBadgeByCategory(1);
+			List<Tour> tours = ClimbApplication.getToursByBuilding(building.get_id());
+			
+			for (Tour tour : tours) {
+				UserBadge ub = ClimbApplication.getUserBadgeForUserAndBadge(badge.get_id(), tour.get_id(), currentUser.get_id());
+				saveTourBadge(ub, badge, tour, (Climbing) data);
+				ubs.add(ub);
+				try {
+					modified_badges.put(new JSONObject(userbadge.toJSON()));
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+			
+			
+		}
+		else if(data instanceof User){
+			System.out.println("instance of user");
+			//da usare per creare badge legati ad utente
+		}else if(data instanceof String){
+			try {
+				updateTrophies(ubs, modified_badges);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	/**
+	 * Saves the given badge progress locally
+	 * @param userbadge the userbadge object to update
+	 * @param badge the badge category
+	 * @param climbing the climbing data to use to update the badge
+	 */
+	void saveBuildingBadge(UserBadge userbadge, Badge badge, Climbing climbing){
+		if (userbadge == null) {//se prima non c'era lo creo
+			userbadge = new UserBadge();
+			userbadge.setBadge(badge);
+			userbadge.setObj_id(climbing.getBuilding().get_id());
+			userbadge.setPercentage(climbing.getPercentage());
+			userbadge.setUser(climbing.getUser());
+			userbadge.setSaved(false);
+			ClimbApplication.userBadgeDao.create(userbadge);
+			if (percentage >= 1.00)
+				showMessage(getString(R.string.new_badge, buildingText.getName()));
+
+		} else {//altrimenti aggiorno quello giˆ presente
+			double old_percentage = userbadge.getPercentage();
+			if (userbadge.getPercentage() < climbing.getPercentage()) {
+				userbadge.setPercentage(climbing.getPercentage());
+				userbadge.setSaved(false);
+				ClimbApplication.userBadgeDao.update(userbadge);
+			}
+			if (old_percentage < 1.00 && percentage >= 1.00)
+				showMessage(getString(R.string.new_badge, buildingText.getName()));
+		}
+	}
+	
+	/**
+	 * Saves the given badge progress locally
+	 * @param ub the userbadge object to update
+	 * @param badge the badge category
+	 * @param tour the tour data to use to update the badge
+	 * @param climbing the climbing data to use to update the badge
+	 */
+	void saveTourBadge(UserBadge ub, Badge badge, Tour tour, Climbing climbing){
+		if (ub == null) {
+			ub = new UserBadge();
+			ub.setBadge(badge);
+			ub.setObj_id(tour.get_id());
+			if (percentage >= 1.00)
+				num_steps = building.getSteps();
+			double percentage = ((double) tour.getDoneSteps(new_steps, building.get_id()) / (double) tour.getTotalSteps());
+			// double percentage = ((double) (num_steps) / (double)
+			// tour.getTotalSteps());
+			ub.setPercentage(climbing.getPercentage());
+			ub.setUser(climbing.getUser());
+			ub.setSaved(false);
+			ClimbApplication.userBadgeDao.create(ub);
+
+		} else {
+			if (percentage >= 1.00)
+				num_steps = building.getSteps();
+			double percentage = ((double) tour.getDoneSteps(new_steps, building.get_id()) / (double) tour.getTotalSteps());
+			// double percentage = ((double) (num_steps) / (double)
+			// tour.getTotalSteps());
+			double old_percentage_tour = ub.getPercentage();
+			ub.setPercentage(climbing.getPercentage());
+			ub.setSaved(false);
+			ClimbApplication.userBadgeDao.update(ub);
+			if (percentage >= 1.00 && old_percentage_tour < 1.00)
+				showMessage(getString(R.string.new_badge, tour.getTitle()));
+
+		}
+	}
+	
+	void updateTrophies(List<UserBadge> ubs, JSONArray arrayToSave) throws JSONException{
+		if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty")) {
+
+			if (ParseUser.getCurrentUser() != null) {
+				ParseUser user = ParseUser.getCurrentUser();
+				JSONArray bs = user.getJSONArray("badges");
+				
+				Gson gson = new GsonBuilder().registerTypeAdapter(HashBasedTable.class, new JsonDeserializer<HashBasedTable>() {
+					 
+		            @SuppressWarnings({ "unchecked", "rawtypes" })
+		            @Override
+		            public HashBasedTable deserialize(JsonElement json,Type type, JsonDeserializationContext context) throws JsonParseException {
+		                HashBasedTable<Integer, Integer, Double> table = HashBasedTable.create();
+		                JsonArray array = json.getAsJsonArray();
+		                for(int i = 0; i < array.size(); i++){
+		                	JsonObject object = array.get(i).getAsJsonObject();
+		                	JsonElement element1 = object.get("badge_id");
+		                    int badge_id = element1.getAsInt();
+		                    JsonElement element2 = object.get("obj_id");
+		                    int obj_id = element2.getAsInt();
+		                    JsonElement element3 = object.get("percentage");
+		                    double percentage = element3.getAsDouble();
+		                    table.put(badge_id, obj_id, percentage);
+		                }
+		                return table;
+		            }
+		        })
+		        
+		        .setPrettyPrinting()
+		        .create();
+				HashBasedTable<Integer, Integer, Double> bs_editable = gson.fromJson(bs.toString(), HashBasedTable.class);
+
+				for(int i = 0; i < arrayToSave.length(); i++ ){
+					JSONObject obj = arrayToSave.getJSONObject(i);
+					bs_editable.put(obj.getInt("badge_id"), obj.getInt("obj_id"), obj.getDouble("percentage"));
+				}
+				
+				bs = new JSONArray(gson.toJson(bs_editable));
+				user.put("badges", bs);
+				ParseUtils.saveBadgesInParse(user, ubs);
+			}
+		}
+		
+		ClimbApplication.refreshUserBadge();
 	}
 }

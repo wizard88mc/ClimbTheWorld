@@ -395,5 +395,6 @@
 	<string name="team_vs_team_overtake_opengraph_descr">I\'ve made %1$d new steps in %2$s and now we are in pole!</string>
 
 	<string name="help_chart">Press Update to find out the winner\n %d friends still have to upload their result.</string>
+	<string name="creating_mode">Changing game mode...</string>
 	
 </resources>

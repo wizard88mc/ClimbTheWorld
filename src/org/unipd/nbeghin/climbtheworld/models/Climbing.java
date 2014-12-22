@@ -1,5 +1,6 @@
 package org.unipd.nbeghin.climbtheworld.models;
 
+import java.util.Observable;
 import java.util.concurrent.TimeUnit;
 
 import org.unipd.nbeghin.climbtheworld.ClimbApplication;
@@ -9,7 +10,7 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "climbings")
-public class Climbing {
+public class Climbing extends Observable{
 	@DatabaseField(generatedId = true)
 	private int			_id;
 	@DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true, columnName = "building_id")
@@ -143,6 +144,8 @@ public class Climbing {
 
 	public void setPercentage(double percentage2) {
 		this.percentage = percentage2;
+		if(completed == 0)
+			changedState(this);
 	}
 
 	public long getCreated() {
@@ -228,5 +231,10 @@ public class Climbing {
 			return true;
 		else
 			return false;
+	}
+	
+	private void changedState(Object obj){
+		setChanged();
+		notifyObservers(obj);
 	}
 }

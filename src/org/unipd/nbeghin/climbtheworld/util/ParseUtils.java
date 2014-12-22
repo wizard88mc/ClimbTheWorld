@@ -1,19 +1,20 @@
 package org.unipd.nbeghin.climbtheworld.util;
 
+import java.util.List;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.unipd.nbeghin.climbtheworld.ClimbApplication;
-import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.Competition;
 import org.unipd.nbeghin.climbtheworld.models.Microgoal;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 import org.unipd.nbeghin.climbtheworld.models.User;
+import org.unipd.nbeghin.climbtheworld.models.UserBadge;
 
 import android.content.SharedPreferences;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.parse.DeleteCallback;
 import com.parse.GetCallback;
@@ -133,11 +134,33 @@ public class ParseUtils {
 						}
 					}
 				});
-				
-			
-	
-		
+
 	}
+	
+	public static void saveBadgesInParse(final ParseUser user, final List<UserBadge> userbadges){
+		
+		
+		user.saveInBackground(new SaveCallback() {
+			
+			@Override
+			public void done(ParseException e) {
+				if(e == null){
+					Log.i(getClass().getName(), "Badge correctly saved in Parse");
+					for(UserBadge userbadge : userbadges){
+						userbadge.setSaved(true);
+						ClimbApplication.userBadgeDao.update(userbadge);
+					}
+				}else{
+					for(UserBadge userbadge : userbadges){
+						userbadge.setSaved(true);
+						ClimbApplication.userBadgeDao.update(userbadge);
+					}
+					Log.e(getClass().getName(), e.getMessage());
+				}
+			}
+		});
+
+}
 	
 	public static void saveCollaboration(ParseObject p_collaboration, final Collaboration l_collaboration){
 		p_collaboration.saveInBackground(new SaveCallback() {

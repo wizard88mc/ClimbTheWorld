@@ -232,8 +232,8 @@ public class TeamPreparationActivity extends ActionBarActivity {
 							} else if (duel.getChallenger_name() == null || duel.getChallenger_name().equals("")) {
 								addChallengerBtn.setEnabled(true);
 							}
-						} else {
-							if(duel.getChallenger_name() != null || !duel.getChallenger_name().equals("")){
+						} else {System.out.println(duel.getChallenger_name() != null );
+							if(duel.getChallenger_name() == null || !duel.getChallenger_name().equals("")){
 								duel.setChallenger_name("");
 								ClimbApplication.teamDuelDao.update(duel);
 							}
@@ -256,7 +256,7 @@ public class TeamPreparationActivity extends ActionBarActivity {
 								
 								}
 							}else{
-								if(duel.getCreator_name() != null || !duel.getCreator_name().equals("")){
+								if(duel.getCreator_name() == null || !duel.getCreator_name().equals("")){
 									duel.setCreator_name("");
 									ClimbApplication.teamDuelDao.update(duel);
 								}

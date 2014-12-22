@@ -53,15 +53,7 @@ public class UpdateService extends IntentService {
 		super("UpdateService");
 	}
 
-	//
-	// private DbHelper dbHelper;
-	// public RuntimeExceptionDao<Collaboration, Integer> collaborationDao;
-	// public RuntimeExceptionDao<Competition, Integer> competitionDao;
-	// public RuntimeExceptionDao<Climbing, Integer> climbingDao;
-	// public RuntimeExceptionDao<TeamDuel, Integer> teamDuelDao;
-	// public RuntimeExceptionDao<User, Integer> userDao;
-	// public RuntimeExceptionDao<UserBadge, Integer> userBadgesDao;
-	// public RuntimeExceptionDao<Microgoal, Integer> microgoalDao;
+
 
 	public boolean isOnline(Context context) {
 		ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);

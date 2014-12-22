@@ -47,6 +47,8 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.facebook.FacebookRequestError;
@@ -91,6 +93,8 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests {
 			onSessionStateChange(session, state, exception);
 		}
 	};
+	
+	public static RelativeLayout waitLayout;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +124,8 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests {
 		//
 		// }
 
+		waitLayout = (RelativeLayout) findViewById(R.id.waitLayout);
+		
 		ClimbApplication.notifications = new ArrayList<Notification>();
 		sContext = getApplicationContext();
 
@@ -132,7 +138,18 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests {
 		mPagerAdapter = new PagerAdapter(super.getSupportFragmentManager(), fragments);
 		mPager = (ViewPager) super.findViewById(R.id.pager);
 		mPager.setAdapter(this.mPagerAdapter);
+		
 
+	}
+	
+	public static void showWaitLayout(){
+		Log.i("MAIN", "VISIBLE");
+		waitLayout.setVisibility(ViewPager.VISIBLE);
+	}
+	
+	public static void hideWaitLayout(){
+		Log.i("MAIN", "HIDE");
+		waitLayout.setVisibility(View.GONE);
 	}
 
 	@Override
