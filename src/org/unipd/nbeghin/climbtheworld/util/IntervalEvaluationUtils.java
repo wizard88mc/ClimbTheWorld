@@ -43,25 +43,32 @@ public class IntervalEvaluationUtils {
 
 		////////////////////////////
 		//LOG
-		Calendar now = Calendar.getInstance();
+		/*Calendar now = Calendar.getInstance();
 		if(stop_alarm_id-1==1){
     		int month = now.get(Calendar.MONTH)+1;
     		LogUtils.writeLogFile(context,"Indice giorno: "+current_day_index+" - "+now.get(Calendar.DATE)+"/"+month+"/"+now.get(Calendar.YEAR));
-    	}
+    	}*/
 		
 		
 		String log_string="";
-		String status=" attivo";
+		//String status=" attivo";
+		String status=",1";
 		
 		if(PreferenceManager.getDefaultSharedPreferences(context).getBoolean("next_alarm_mutated", false)){
 			//questo intervallo è stato mutato, da non attivo ad attivo
 			
-			status=status+" dopo mutazione";
+			//status=status+" dopo mutazione";
+			status=status+";M";
+		}
+		else{ //se l'intervallo non è stato mutato ed è ora valutato, significa che in
+			  //precedenza era già attivo
+			status=status+";-";
 		}
 		
+		/*
 		status = status +": "+ previous_start_alarm.get_hour()+":"+previous_start_alarm.get_minute()+":"
 				+previous_start_alarm.get_second()+" - "+this_stop_alarm.get_hour()+":"
-				+this_stop_alarm.get_minute()+":"+this_stop_alarm.get_second()+" | ";
+				+this_stop_alarm.get_minute()+":"+this_stop_alarm.get_second()+" | ";*/
 		////////////////////////////
 		
 				
@@ -78,7 +85,8 @@ public class IntervalEvaluationUtils {
 			
 			////////////////////////////
 			//LOG
-			log_string="Intervallo con scalini"+status;
+			//log_string="Intervallo con scalini"+status;
+			log_string="S"+status;
 			////////////////////////////
 			
 			Log.d(MainActivity.AppName,"EVALUATION - It is a 'interval with steps'");
@@ -97,13 +105,16 @@ public class IntervalEvaluationUtils {
 				////////////////////////////
 				//LOG
 				if(steps_number==1){
-					log_string=log_string+"Valutazione: 1 (1 scalino) ";
+					//log_string=log_string+"Valutazione: 1 (1 scalino) ";
+					log_string=log_string+";1(1)";
 				}
 				else{
-					log_string=log_string+"Valutazione: 1 (" + steps_number +" scalini) ";
+					//log_string=log_string+"Valutazione: 1 (" + steps_number +" scalini) ";
+					log_string=log_string+";1(" + steps_number +")";
 				}
 				
-				log_string=log_string+"| Rimane un intervallo con scalini, ATTIVO la prossima settimana";
+				//log_string=log_string+"| Rimane un intervallo con scalini, ATTIVO la prossima settimana";
+				log_string=log_string+";S,1";
 				////////////////////////////
 			}
 			else{ 
@@ -121,7 +132,8 @@ public class IntervalEvaluationUtils {
 				
 				////////////////////////////
 				//LOG
-				log_string=log_string+"Valutazione 0 (0 scalini) | Ritorna ad essere un intervallo di esplorazione, ATTIVO la prossima settimana";
+				//log_string=log_string+"Valutazione 0 (0 scalini) | Ritorna ad essere un intervallo di esplorazione, ATTIVO la prossima settimana";
+				log_string=log_string+";0(0);E,1";
 				////////////////////////////
 			}			
 			
@@ -131,7 +143,8 @@ public class IntervalEvaluationUtils {
 			
 			////////////////////////////
 			//LOG
-			log_string="Intervallo di esplorazione"+status;
+			//log_string="Intervallo di esplorazione"+status;
+			log_string="E,"+status;
 			////////////////////////////
 			
 			Log.d(MainActivity.AppName,"EVALUATION - It is a 'exploration interval'");
@@ -151,7 +164,8 @@ public class IntervalEvaluationUtils {
 				
 				////////////////////////////
 				//LOG
-				log_string=log_string+"Valutazione: 1 (>=1 scalino) | Diventa un intervallo con scalini, ATTIVO la prossima settimana";
+				//log_string=log_string+"Valutazione: 1 (>=1 scalino) | Diventa un intervallo con scalini, ATTIVO la prossima settimana";
+				log_string=log_string+";1;S,1";
 				////////////////////////////
 			}
 			else{
@@ -175,7 +189,8 @@ public class IntervalEvaluationUtils {
 				
 				////////////////////////////
 				//LOG
-				log_string=log_string+"Valutazione: "+evaluation+" | ";
+				//log_string=log_string+"Valutazione: "+evaluation+" | ";
+				log_string=log_string+";"+evaluation;
 				////////////////////////////
 			}
 			
@@ -195,7 +210,8 @@ public class IntervalEvaluationUtils {
 		 
 		////////////////////////////
 		//LOG
-		String str_eval="Rimane un intervallo di esplorazione, ";
+		//String str_eval="Rimane un intervallo di esplorazione, ";
+		String str_eval="E,";
 		////////////////////////////
 		
 		if(evaluation>=eval_threshold){	
@@ -206,7 +222,8 @@ public class IntervalEvaluationUtils {
 			
 			////////////////////////////
 			//LOG
-			str_eval=str_eval+"ATTIVO la prossima settimana";
+			//str_eval=str_eval+"ATTIVO la prossima settimana";
+			str_eval=str_eval+"1";
 			////////////////////////////
 		}
 		else{
@@ -216,7 +233,8 @@ public class IntervalEvaluationUtils {
 			
 			////////////////////////////
 			//LOG
-			str_eval=str_eval+"NON ATTIVO la prossima settimana";
+			//str_eval=str_eval+"NON ATTIVO la prossima settimana";
+			str_eval=str_eval+"0";
 			////////////////////////////
 		}
 			
@@ -246,7 +264,11 @@ public class IntervalEvaluationUtils {
 		}
 		
 		//si scrive sul file di log la valutazione dell'intervallo	
-		LogUtils.writeLogFile(context, log_string);
+		//LogUtils.writeLogFile(context, log_string);
+		LogUtils.writeIntervalStatus(context, current_day_index, previous_start_alarm.get_hour()
+				+":"+previous_start_alarm.get_minute()+":"+previous_start_alarm.get_second()
+				+"-"+this_stop_alarm.get_hour()+":"+this_stop_alarm.get_minute()+":"
+				+this_stop_alarm.get_second(), log_string);
 		////////////////////////////
 	}
 	

@@ -3,6 +3,7 @@ package org.unipd.nbeghin.climbtheworld.util;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -121,14 +122,16 @@ public class LogUtils {
     		dd=time_before.get(Calendar.DATE);
     		mm=time_before.get(Calendar.MONTH);
     		yyyy=time_before.get(Calendar.YEAR);  
-    		not_evaluated_cause="Non considerato perche' algoritmo non ancora configurato";
+    		//not_evaluated_cause="Non considerato perche' algoritmo non ancora configurato";
+    		not_evaluated_cause="NC";
     	}
     	else{    	
     		lastDayIndex=pref.getInt("alarm_artificial_day_index", 0); //normalmente, indice ottenuto dalla data dell'alarm
     		dd=pref.getInt("alarm_date", -1);
     		mm=pref.getInt("alarm_month", -1);
     		yyyy=pref.getInt("alarm_year", -1);		
-    		not_evaluated_cause="Non considerato perche' device spento";
+    		//not_evaluated_cause="Non considerato perche' device spento";
+    		not_evaluated_cause="DS";
     	}    	
 
 		time_before.set(Calendar.DATE,dd);
@@ -167,7 +170,7 @@ public class LogUtils {
 			"  "+time_before.get(Calendar.DATE)+"/"+month+"/"+time_before.get(Calendar.YEAR));		
 		}		
 				
-		//si imposta l'orario dell'alarm di stop delprimo intervallo (utile per capire se si
+		//si imposta l'orario dell'alarm di stop del primo intervallo (utile per capire se si
 		//tratta del primo intervallo e se questo è già finito: in tal caso si scrive l'indice
 		//del giorno nel file di log)
 		time_before.set(Calendar.HOUR_OF_DAY, first_stop_alarm.get_hour());
@@ -180,11 +183,11 @@ public class LogUtils {
     	if( (alarm_id==1 || alarm_id==2) && time_before.before(time_now)){       		
     		Log.d(MainActivity.AppName, "Intervals tracking - day index: " + lastDayIndex);    		
     		mm=mm+1;
-    		writeLogFile(context,"Indice giorno: "+lastDayIndex+" - "+dd+"/"+mm+"/"+yyyy);
+    		//writeLogFile(context,"Indice giorno: "+lastDayIndex+" - "+dd+"/"+mm+"/"+yyyy);
     	}
 		
     	//stringa per scrivere l'orario di un alarm di start nel file di log
-    	String previous_start_time="";   	
+    	String previous_start_time=""; 
     	//se il primo alarm considerato è di stop, si inizializza questa stringa con
     	//l'orario del precedente alarm di start
     	if(alarm_id>1){    		
@@ -223,27 +226,42 @@ public class LogUtils {
 					String after_mutation_string="";
 					
 					if(e.isStepsInterval(lastDayIndex)){
-						status="Intervallo con scalini";
+						//status="Intervallo con scalini";
+						status="S";
 					}
 					else{
-						status="Intervallo di esplorazione";
+						//status="Intervallo di esplorazione";
+						status="E";
 					}
 					
 					if(e.getRepeatingDay(lastDayIndex)){
-						status=status+" attivo";
+						//status=status+" attivo";
+						status=status+",1";
 						
 						if(pref.getBoolean("next_alarm_mutated", false)){
-							after_mutation_string=" dopo mutazione";							
+							//after_mutation_string=" dopo mutazione";
+							after_mutation_string="M";
 							pref.edit().putBoolean("next_alarm_mutated", false).commit();
-						}						
+						}
+						else{
+							after_mutation_string="-";
+						}
 					}
 					else{
-						status=status+" non attivo";
+						//status=status+" non attivo";
+						status=status+",0";
+						after_mutation_string="-";
 					}					
 					
+					/*
 					writeLogFile(context,status+after_mutation_string+": " + previous_start_time+" - "+e.get_hour()+":"
 							+e.get_minute()+":"+e.get_second()+" | "+not_evaluated_cause+" | "+
 							status+" la prossima settimana");
+					*/
+					writeIntervalStatus(context, lastDayIndex, previous_start_time+"-"+e.get_hour()+":"
+							+e.get_minute()+":"+e.get_second(), "|"+status+";"+after_mutation_string+";-("
+							+not_evaluated_cause+");"+status);
+					
 				}
 				else{
 					previous_start_time=e.get_hour()+":"+e.get_minute()+":"+e.get_second();
@@ -294,7 +312,7 @@ public class LogUtils {
 		    		dd=time_before.get(Calendar.DATE);
 		    		mm=time_before.get(Calendar.MONTH)+1;
 		    		yyyy=time_before.get(Calendar.YEAR);  		    				
-		    		writeLogFile(context,"Indice giorno: "+ii+" - "+dd+"/"+mm+"/"+yyyy);
+		    		//writeLogFile(context,"Indice giorno: "+ii+" - "+dd+"/"+mm+"/"+yyyy);
 		    		
 		    		//se l'alarm di stop per il giorno considerato è passato, è passato anche
 		    		//il precedente alarm di start; quindi, si scrive l'intervallo nel log file 
@@ -304,30 +322,45 @@ public class LogUtils {
 		    		String after_mutation_string="";
 		    		
 					if(first_interval_stop.isStepsInterval(ii)){
-						status="Intervallo con scalini";
+						//status="Intervallo con scalini";
+						status="S";
 					}
 					else{
-						status="Intervallo di esplorazione";
+						//status="Intervallo di esplorazione";
+						status="E";
 					}
 					
 					if(first_interval_stop.getRepeatingDay(ii)){
-						status=status+" attivo";
+						//status=status+" attivo";
+						status=status+",1";
 						
 						if(pref.getBoolean("next_alarm_mutated", false)){
-							after_mutation_string=" dopo mutazione";						
+							//after_mutation_string=" dopo mutazione";			
+							after_mutation_string="M";
 							pref.edit().putBoolean("next_alarm_mutated", false).commit();
-						}		
+						}	
+						else{
+							after_mutation_string="-";
+						}
 					}
 					else{
-						status=status+" non attivo";
+						//status=status+" non attivo";
+						status=status+",0";
+						after_mutation_string="-";
 					}					
 										
-					
+					/*
 					writeLogFile(context,status+after_mutation_string+": " + first_interval_start.get_hour()+":"+
 							first_interval_start.get_minute()+":"+first_interval_start.get_second()+" - "+
 							first_interval_stop.get_hour()+":"+first_interval_stop.get_minute()+":"+
 							first_interval_stop.get_second()+" | "+not_evaluated_cause+" | "+
-							status+" la prossima settimana");		    		
+							status+" la prossima settimana");		    	
+					*/
+					writeIntervalStatus(context, ii, first_interval_start.get_hour()+":"+
+							first_interval_start.get_minute()+":"+first_interval_start.get_second()+"-"+
+							first_interval_stop.get_hour()+":"+first_interval_stop.get_minute()+":"+
+							first_interval_stop.get_second(), "|"+status+";"+after_mutation_string+";-("
+							+not_evaluated_cause+");"+status);
 		    	}
 				
 				//si resettano ora, minuti e secondi
@@ -354,27 +387,41 @@ public class LogUtils {
 							String after_mutation_string="";
 							
 							if(e.isStepsInterval(ii)){
-								status="Intervallo con scalini";
+								//status="Intervallo con scalini";
+								status="S";
 							}
 							else{
-								status="Intervallo di esplorazione";
+								//status="Intervallo di esplorazione";
+								status="E";
 							}
 							
 							if(e.getRepeatingDay(ii)){
-								status=status+" attivo";
+								//status=status+" attivo";
+								status=status+",1";
 								
 								if(pref.getBoolean("next_alarm_mutated", false)){
-									after_mutation_string=" dopo mutazione";						
+									//after_mutation_string=" dopo mutazione";
+									after_mutation_string="M";
 									pref.edit().putBoolean("next_alarm_mutated", false).commit();
-								}		
+								}
+								else{
+									after_mutation_string="-";
+								}
 							}
 							else{
-								status=status+" non attivo";
+								//status=status+" non attivo";
+								status=status+",0";
+								after_mutation_string="-";
 							}					
 							
+							/*
 							writeLogFile(context,status+after_mutation_string+": " + previous_start_time+" - "+e.get_hour()+":"
 									+e.get_minute()+":"+e.get_second()+" | "+not_evaluated_cause+" | "+
 									status+" la prossima settimana");
+							*/
+							writeIntervalStatus(context, ii, previous_start_time+"-"+e.get_hour()+":"
+									+e.get_minute()+":"+e.get_second(), "|"+status+";"+after_mutation_string+";-("
+									+not_evaluated_cause+");"+status);
 						
 						}
 						else{
@@ -418,7 +465,10 @@ public class LogUtils {
     		//'true' per aggiungere il testo al file esistente
     		BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true));
     		    		
-    		buf.append("ALGORITMO");
+    		buf.append("LOG ALGORITMO");
+    		/*buf.newLine();
+    		buf.append("Legenda: Intervallo di esplorazione (E) / con scalini (S), attivo (1) / non attivo (0); "
+    				+ "M: mutato; NM: non mutato; ");*/
     		buf.newLine();
     		buf.newLine();
     		
@@ -432,8 +482,8 @@ public class LogUtils {
     				Alarm start = alarms.get(j);
     				Alarm stop = alarms.get(j+1);
     				    				
-    				buf.append(i + " - Intervallo "+start.get_hour()+":"+
-    						start.get_minute()+":"+start.get_second()+" - "+
+    				buf.append(i + " - "+start.get_hour()+":"+
+    						start.get_minute()+":"+start.get_second()+"-"+
     						stop.get_hour()+":"+stop.get_minute()+":"+
     						stop.get_second()+" : ");
     				buf.newLine();
@@ -450,13 +500,8 @@ public class LogUtils {
     
     
     
-    public static void writeIntervalStatus(Context context, int day_index, Alarm start, Alarm stop, String text){
-    	
-    	
-    	String intervalString = "Intervallo "+start.get_hour()+":"+start.get_minute()+":"+
-    			start.get_second()+" - "+stop.get_hour()+":"+stop.get_minute()+":"+stop.get_second();
-    	
-    	
+    public static void writeIntervalStatus(Context context, int day_index, String interval, String text){
+    	    	
     	String log_file_name="";
     	int log_file_id = PreferenceManager.getDefaultSharedPreferences(context).getInt("log_file_id", -1);
     	    	
@@ -472,23 +517,29 @@ public class LogUtils {
     	
     	try {    	   		   	    	
     		
-    		BufferedReader buf = new BufferedReader(new FileReader(logFile)); 
+    		BufferedReader buf_r = new BufferedReader(new FileReader(logFile)); 
     		String line;
-    		
-            while ((line = buf.readLine()) != null) {
+    		String input="";
+            while ((line = buf_r.readLine()) != null) {
             	            	
-            	if((line.substring(0, line.indexOf(" :"))).equals(day_index+" - "+intervalString)){
+            	if((line.substring(0, line.indexOf(" :"))).equals(day_index+" - "+interval)){
             		
             		line.replace(line, line+text);
+            		input += line + System.getProperty("line.separator");
             	}
             }
     		
-    		buf.close();
+    		buf_r.close();
+    		
+    		//dopo la modifica, si sovrascrive il file
+    		BufferedWriter buf_w = new BufferedWriter(new FileWriter(logFile, true));    		
+    		buf_w.write(input);
+    		buf_w.close();
+    		
     	} catch (IOException e) {
 			e.printStackTrace();
 		}
     }
     
-	
 	
 }

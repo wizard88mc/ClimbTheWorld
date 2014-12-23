@@ -469,10 +469,12 @@ public class AlarmUtils {
 					//utile per scrivere il LOG					
 					String status="";							
 					if(nextAlarm.isStepsInterval(artificialIndex)){
-						status="Intervallo con scalini non attivo";
+						//status="Intervallo con scalini non attivo";
+						status="S,0";
 					}
 					else{
-						status="Intervallo di esplorazione non attivo";
+						//status="Intervallo di esplorazione non attivo";
+						status="E,0";
 					}			
 					
 					int id_this_alarm=nextAlarm.get_id();
@@ -491,18 +493,24 @@ public class AlarmUtils {
 							
 							////////////////////////////
 							//utile per scrivere il LOG	
-							if(id_this_alarm==1){
+							/*if(id_this_alarm==1){
 								int month = alarmTime.get(Calendar.MONTH)+1;
 								LogUtils.writeLogFile(context,"Indice giorno: "+artificialIndex+" - "+alarmTime.get(Calendar.DATE)+"/"+month+"/"+alarmTime.get(Calendar.YEAR));
-							}
+							}*/
 							
 							//si ottiene il relativo alarm di stop (esiste sicuramente)
 							Alarm next_stop= getAlarm(context, id_this_alarm+1); 							
 							
+							/*
 							LogUtils.writeLogFile(context,status+": " + nextAlarm.get_hour()+":"+nextAlarm.get_minute()+
 									":"+nextAlarm.get_second()+" - "+next_stop.get_hour()+":"+next_stop.get_minute()+
 									":"+next_stop.get_second()+ " | Non valutato perche' non mutato | "+
 									status+" la prossima settimana");
+							*/
+							LogUtils.writeIntervalStatus(context, artificialIndex, nextAlarm.get_hour()+":"+nextAlarm.get_minute()+
+									":"+nextAlarm.get_second()+"-"+next_stop.get_hour()+":"+next_stop.get_minute()+
+									":"+next_stop.get_second(), "|"+status+";NM;-;"+status);
+							
 							////////////////////////////
 							
 							nextAlarm=null;							
@@ -518,23 +526,30 @@ public class AlarmUtils {
 						
 						////////////////////////////
 						//utile per scrivere il LOG	
-						if(id_this_alarm==2){
+						/*if(id_this_alarm==2){
 							int month = alarmTime.get(Calendar.MONTH)+1;
 							LogUtils.writeLogFile(context,"Indice giorno: "+artificialIndex+" - "+alarmTime.get(Calendar.DATE)+"/"+month+"/"+alarmTime.get(Calendar.YEAR));
-						}
+						}*/
 						
 						//si ottiene il relativo alarm di start (esiste sicuramente)
 						Alarm prev_start= getAlarm(context, id_this_alarm-1); 
 						
-						String extra_str="a device spento)";
+						//String extra_str="a device spento)";
+						String extra_str="DS";
 						if(!prevAlarmNotAvailable){
-							extra_str="ad algoritmo non ancora configurato)";
+							//extra_str="ad algoritmo non ancora configurato)";
+							extra_str="NC";
 						}
-						
+						/*
 						LogUtils.writeLogFile(context,status+": " + prev_start.get_hour()+":"+prev_start.get_minute()+
 								":"+prev_start.get_second()+" - "+nextAlarm.get_hour()+":"+nextAlarm.get_minute()+
 								":"+nextAlarm.get_second()+ " | Non valutato (mutazione non tentata a causa di inizio intervallo "+
 								extra_str+ " | "+ status+" la prossima settimana");
+						*/
+						LogUtils.writeIntervalStatus(context, artificialIndex, prev_start.get_hour()+":"+prev_start.get_minute()+
+								":"+prev_start.get_second()+"-"+nextAlarm.get_hour()+":"+nextAlarm.get_minute()+
+								":"+nextAlarm.get_second(), "|"+status+";-("+extra_str+");-;"+status);
+						
 						////////////////////////////
 						
 						nextAlarm=null;
@@ -586,26 +601,32 @@ public class AlarmUtils {
 								//e, quindi, non viene valutato
 								String status="";							
 								if(e.isStepsInterval(artificialIndex)){
-									status="Intervallo con scalini non attivo";
+									//status="Intervallo con scalini non attivo";
+									status="S,0";
 								}
 								else{
-									status="Intervallo di esplorazione non attivo";
+									//status="Intervallo di esplorazione non attivo";
+									status="E,0";
 								}			
 								
 								int id_start=e.get_id();
 								
-								if(id_start==1){
+								/*if(id_start==1){
 									int month = alarmTime.get(Calendar.MONTH)+1;
 									LogUtils.writeLogFile(context,"Indice giorno: "+artificialIndex+" - "+alarmTime.get(Calendar.DATE)+"/"+month+"/"+alarmTime.get(Calendar.YEAR));
-								}
+								}*/
 								
 								//si ottiene il relativo alarm di stop (esiste sicuramente)
 								Alarm next_stop= getAlarm(context, id_start+1); 							
-								
+								/*
 								LogUtils.writeLogFile(context,status+": " + e.get_hour()+":"+e.get_minute()+
 										":"+e.get_second()+" - "+next_stop.get_hour()+":"+next_stop.get_minute()+
 										":"+next_stop.get_second()+ " | Non valutato perche' non mutato | "+
 										status+" la prossima settimana");
+								*/
+								LogUtils.writeIntervalStatus(context, artificialIndex, e.get_hour()+":"+e.get_minute()+
+										":"+e.get_second()+"-"+next_stop.get_hour()+":"+next_stop.get_minute()+
+										":"+next_stop.get_second(), "|"+status+";NM;-;"+status);								
 								
 							}
 							////////////////////////////
@@ -698,26 +719,32 @@ public class AlarmUtils {
 							  //e, quindi, non viene valutato
 							String status="";							
 							if(e.isStepsInterval(artificialIndex)){
-								status="Intervallo con scalini non attivo";
+								//status="Intervallo con scalini non attivo";
+								status="S,0";
 							}
 							else{
-								status="Intervallo di esplorazione non attivo";
+								//status="Intervallo di esplorazione non attivo";
+								status="E,0";
 							}			
 							
 							int id_start=e.get_id();
 							
-							if(id_start==1){
+							/*if(id_start==1){
 								int month = alarmTime.get(Calendar.MONTH)+1;
 								LogUtils.writeLogFile(context,"Indice giorno: "+artificialIndex+" - "+alarmTime.get(Calendar.DATE)+"/"+month+"/"+alarmTime.get(Calendar.YEAR));
-							}
+							}*/
 							
 							//si ottiene il relativo alarm di stop (esiste sicuramente)
 							Alarm next_stop= getAlarm(context, id_start+1); 							
-							
+							/*
 							LogUtils.writeLogFile(context,status+": " + e.get_hour()+":"+e.get_minute()+
 									":"+e.get_second()+" - "+next_stop.get_hour()+":"+next_stop.get_minute()+
 									":"+next_stop.get_second()+ " | Non valutato perche' non mutato | "+
 									status+" la prossima settimana");
+							*/
+							LogUtils.writeIntervalStatus(context, artificialIndex, e.get_hour()+":"+e.get_minute()+
+									":"+e.get_second()+"-"+next_stop.get_hour()+":"+next_stop.get_minute()+
+									":"+next_stop.get_second(), "|"+status+";NM;-;"+status);						
 							
 						}
 						////////////////////////////
@@ -806,26 +833,33 @@ public class AlarmUtils {
 								  //e, quindi, non viene valutato
 								String status="";							
 								if(e.isStepsInterval(currentIndex)){
-									status="Intervallo con scalini non attivo";
+									//status="Intervallo con scalini non attivo";
+									status="S,0";
 								}
 								else{
-									status="Intervallo di esplorazione non attivo";
+									//status="Intervallo di esplorazione non attivo";
+									status="E,0";
 								}			
 								
 								int id_start=e.get_id();
 								
-								if(id_start==1){
+								/*if(id_start==1){
 									int month = alarmTime.get(Calendar.MONTH)+1;
 									LogUtils.writeLogFile(context,"Indice giorno: "+currentIndex+" - "+alarmTime.get(Calendar.DATE)+"/"+month+"/"+alarmTime.get(Calendar.YEAR));
-								}
+								}*/
 								
 								//si ottiene il relativo alarm di stop (esiste sicuramente)
 								Alarm next_stop= getAlarm(context, id_start+1); 							
-								
+								/*
 								LogUtils.writeLogFile(context,status+": " + e.get_hour()+":"+e.get_minute()+
 										":"+e.get_second()+" - "+next_stop.get_hour()+":"+next_stop.get_minute()+
 										":"+next_stop.get_second()+ " | Non valutato perche' non mutato | "+
-										status+" la prossima settimana");								
+										status+" la prossima settimana");	
+								*/
+								LogUtils.writeIntervalStatus(context, currentIndex, e.get_hour()+":"+e.get_minute()+
+										":"+e.get_second()+"-"+next_stop.get_hour()+":"+next_stop.get_minute()+
+										":"+next_stop.get_second(), "|"+status+";NM;-;"+status);						
+								
 							}
 							////////////////////////////
 						}
