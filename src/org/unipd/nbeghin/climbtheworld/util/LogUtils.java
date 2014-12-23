@@ -464,30 +464,32 @@ public class LogUtils {
     	    	
     		//'true' per aggiungere il testo al file esistente
     		BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true));
-    		    		
-    		buf.append("LOG ALGORITMO");
-    		/*buf.newLine();
-    		buf.append("Legenda: Intervallo di esplorazione (E) / con scalini (S), attivo (1) / non attivo (0); "
-    				+ "M: mutato; NM: non mutato; ");*/
-    		buf.newLine();
-    		buf.newLine();
-    		
-    		for(int i=0; i<GeneralUtils.daysOfWeek; i++){ //i<7 con settimana normale
-    			
-    			buf.append("Indice giorno: " + i);
-    			buf.newLine();
-    			
-    			for(int j=0; j<alarms.size(); j=j+2){
-    				
-    				Alarm start = alarms.get(j);
-    				Alarm stop = alarms.get(j+1);
-    				    				
-    				buf.append(i + " - "+start.get_hour()+":"+
-    						start.get_minute()+":"+start.get_second()+"-"+
-    						stop.get_hour()+":"+stop.get_minute()+":"+
-    						stop.get_second()+" : ");
-    				buf.newLine();
-    			}
+    		    	    		
+    		if(alarms!=null){
+    			buf.append("LOG ALGORITMO");
+        		buf.newLine();
+        		buf.newLine();
+        		
+        		for(int i=0; i<GeneralUtils.daysOfWeek; i++){ //i<7 con settimana normale
+        			
+        			buf.append("Indice giorno: " + i);
+        			buf.newLine();
+        			
+        			for(int j=0; j<alarms.size(); j=j+2){
+        				
+        				Alarm start = alarms.get(j);
+        				Alarm stop = alarms.get(j+1);
+        				    				
+        				buf.append(i + " - "+start.get_hour()+":"+
+        						start.get_minute()+":"+start.get_second()+"-"+
+        						stop.get_hour()+":"+stop.get_minute()+":"+
+        						stop.get_second()+" : ");
+        				buf.newLine();
+        			}
+        		}
+    		}
+    		else{
+    			buf.append("NON FAI MAI ATTIVITA' FISICA/SCALINI: NON E' STATO CREATO ALCUN INTERVALLO");
     		}
     		
     		buf.close();

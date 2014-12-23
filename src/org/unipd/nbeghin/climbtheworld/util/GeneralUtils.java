@@ -188,15 +188,16 @@ public class GeneralUtils {
         	    	editor.putBoolean("next_alarm_mutated", false).commit();
         	    	////////////////////////////
         	    	    	
-        	    	LogUtils.writeLogFile(context, "ALGORITMO\n");
-        	    
+        	    	//LogUtils.writeLogFile(context, "ALGORITMO\n");
+        	    	LogUtils.initLogFile(context, alarms_created);
         	    	
         	    	LogUtils.offIntervalsTracking(context, prefs, -1);    			
         	    	//si imposta e si lancia il prossimo alarm
         	    	AlarmUtils.setNextAlarm(context,alarms_created,true,false,-1); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,1))  
     			}
     			else{
-    				LogUtils.writeLogFile(context, "NON FAI MAI ATTIVITA' FISICA/SCALINI: NON E' STATO CREATO ALCUN INTERVALLO");
+    				//LogUtils.writeLogFile(context, "NON FAI MAI ATTIVITA' FISICA/SCALINI: NON E' STATO CREATO ALCUN INTERVALLO");
+    				LogUtils.initLogFile(context, null);
     			}
     		}
     	};
