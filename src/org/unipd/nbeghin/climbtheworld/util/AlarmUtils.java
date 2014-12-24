@@ -507,9 +507,7 @@ public class AlarmUtils {
 									":"+next_stop.get_second()+ " | Non valutato perche' non mutato | "+
 									status+" la prossima settimana");
 							*/
-							LogUtils.writeIntervalStatus(context, artificialIndex, nextAlarm.get_hour()+":"+nextAlarm.get_minute()+
-									":"+nextAlarm.get_second()+"-"+next_stop.get_hour()+":"+next_stop.get_minute()+
-									":"+next_stop.get_second(), "|"+status+";NM;-;"+status);
+							LogUtils.writeIntervalStatus(context, artificialIndex, nextAlarm, next_stop, "|"+status+";NM;-;"+status);
 							
 							////////////////////////////
 							
@@ -546,9 +544,7 @@ public class AlarmUtils {
 								":"+nextAlarm.get_second()+ " | Non valutato (mutazione non tentata a causa di inizio intervallo "+
 								extra_str+ " | "+ status+" la prossima settimana");
 						*/
-						LogUtils.writeIntervalStatus(context, artificialIndex, prev_start.get_hour()+":"+prev_start.get_minute()+
-								":"+prev_start.get_second()+"-"+nextAlarm.get_hour()+":"+nextAlarm.get_minute()+
-								":"+nextAlarm.get_second(), "|"+status+";-("+extra_str+");-;"+status);
+						LogUtils.writeIntervalStatus(context, artificialIndex, prev_start, nextAlarm, "|"+status+";-("+extra_str+");-;"+status);
 						
 						////////////////////////////
 						
@@ -624,9 +620,7 @@ public class AlarmUtils {
 										":"+next_stop.get_second()+ " | Non valutato perche' non mutato | "+
 										status+" la prossima settimana");
 								*/
-								LogUtils.writeIntervalStatus(context, artificialIndex, e.get_hour()+":"+e.get_minute()+
-										":"+e.get_second()+"-"+next_stop.get_hour()+":"+next_stop.get_minute()+
-										":"+next_stop.get_second(), "|"+status+";NM;-;"+status);								
+								LogUtils.writeIntervalStatus(context, artificialIndex, e, next_stop, "|"+status+";NM;-;"+status);								
 								
 							}
 							////////////////////////////
@@ -742,9 +736,7 @@ public class AlarmUtils {
 									":"+next_stop.get_second()+ " | Non valutato perche' non mutato | "+
 									status+" la prossima settimana");
 							*/
-							LogUtils.writeIntervalStatus(context, artificialIndex, e.get_hour()+":"+e.get_minute()+
-									":"+e.get_second()+"-"+next_stop.get_hour()+":"+next_stop.get_minute()+
-									":"+next_stop.get_second(), "|"+status+";NM;-;"+status);						
+							LogUtils.writeIntervalStatus(context, artificialIndex, e, next_stop, "|"+status+";NM;-;"+status);						
 							
 						}
 						////////////////////////////
@@ -856,9 +848,7 @@ public class AlarmUtils {
 										":"+next_stop.get_second()+ " | Non valutato perche' non mutato | "+
 										status+" la prossima settimana");	
 								*/
-								LogUtils.writeIntervalStatus(context, currentIndex, e.get_hour()+":"+e.get_minute()+
-										":"+e.get_second()+"-"+next_stop.get_hour()+":"+next_stop.get_minute()+
-										":"+next_stop.get_second(), "|"+status+";NM;-;"+status);						
+								LogUtils.writeIntervalStatus(context, currentIndex, e, next_stop, "|"+status+";NM;-;"+status);						
 								
 							}
 							////////////////////////////

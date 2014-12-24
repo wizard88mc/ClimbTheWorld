@@ -86,7 +86,7 @@ public class IntervalEvaluationUtils {
 			////////////////////////////
 			//LOG
 			//log_string="Intervallo con scalini"+status;
-			log_string="S"+status;
+			log_string="|S"+status;
 			////////////////////////////
 			
 			Log.d(MainActivity.AppName,"EVALUATION - It is a 'interval with steps'");
@@ -144,7 +144,7 @@ public class IntervalEvaluationUtils {
 			////////////////////////////
 			//LOG
 			//log_string="Intervallo di esplorazione"+status;
-			log_string="E,"+status;
+			log_string="|E"+status;
 			////////////////////////////
 			
 			Log.d(MainActivity.AppName,"EVALUATION - It is a 'exploration interval'");
@@ -190,7 +190,7 @@ public class IntervalEvaluationUtils {
 				////////////////////////////
 				//LOG
 				//log_string=log_string+"Valutazione: "+evaluation+" | ";
-				log_string=log_string+";"+evaluation;
+				log_string=log_string+";"+evaluation+";";
 				////////////////////////////
 			}
 			
@@ -265,10 +265,7 @@ public class IntervalEvaluationUtils {
 		
 		//si scrive sul file di log la valutazione dell'intervallo	
 		//LogUtils.writeLogFile(context, log_string);
-		LogUtils.writeIntervalStatus(context, current_day_index, previous_start_alarm.get_hour()
-				+":"+previous_start_alarm.get_minute()+":"+previous_start_alarm.get_second()
-				+"-"+this_stop_alarm.get_hour()+":"+this_stop_alarm.get_minute()+":"
-				+this_stop_alarm.get_second(), log_string);
+		LogUtils.writeIntervalStatus(context, current_day_index, previous_start_alarm, this_stop_alarm, log_string);
 		////////////////////////////
 	}
 	

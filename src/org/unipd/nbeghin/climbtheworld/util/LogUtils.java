@@ -188,10 +188,11 @@ public class LogUtils {
 		
     	//stringa per scrivere l'orario di un alarm di start nel file di log
     	String previous_start_time=""; 
+    	Alarm previous = null;
     	//se il primo alarm considerato è di stop, si inizializza questa stringa con
     	//l'orario del precedente alarm di start
     	if(alarm_id>1){    		
-    		Alarm previous=AlarmUtils.getAlarm(context, alarm_id-1);    		
+    		previous=AlarmUtils.getAlarm(context, alarm_id-1);    		
     		//se il precedente alarm è di start si memorizza la stringa dell'orario
     		if(previous.get_actionType()){
     			previous_start_time=previous.get_hour()+":"+previous.get_minute()+
@@ -258,13 +259,13 @@ public class LogUtils {
 							+e.get_minute()+":"+e.get_second()+" | "+not_evaluated_cause+" | "+
 							status+" la prossima settimana");
 					*/
-					writeIntervalStatus(context, lastDayIndex, previous_start_time+"-"+e.get_hour()+":"
-							+e.get_minute()+":"+e.get_second(), "|"+status+";"+after_mutation_string+";-("
+					writeIntervalStatus(context, lastDayIndex, previous, e, "|"+status+";"+after_mutation_string+";-("
 							+not_evaluated_cause+");"+status);
 					
 				}
 				else{
 					previous_start_time=e.get_hour()+":"+e.get_minute()+":"+e.get_second();
+					previous=e;
 				}
 			}
 			else{ //l'alarm è valido, per cui l'intervallo potrà essere valutato
@@ -356,11 +357,8 @@ public class LogUtils {
 							first_interval_stop.get_second()+" | "+not_evaluated_cause+" | "+
 							status+" la prossima settimana");		    	
 					*/
-					writeIntervalStatus(context, ii, first_interval_start.get_hour()+":"+
-							first_interval_start.get_minute()+":"+first_interval_start.get_second()+"-"+
-							first_interval_stop.get_hour()+":"+first_interval_stop.get_minute()+":"+
-							first_interval_stop.get_second(), "|"+status+";"+after_mutation_string+";-("
-							+not_evaluated_cause+");"+status);
+					writeIntervalStatus(context, ii, first_interval_start, first_interval_stop,
+							"|"+status+";"+after_mutation_string+";-("+not_evaluated_cause+");"+status);
 		    	}
 				
 				//si resettano ora, minuti e secondi
@@ -419,13 +417,13 @@ public class LogUtils {
 									+e.get_minute()+":"+e.get_second()+" | "+not_evaluated_cause+" | "+
 									status+" la prossima settimana");
 							*/
-							writeIntervalStatus(context, ii, previous_start_time+"-"+e.get_hour()+":"
-									+e.get_minute()+":"+e.get_second(), "|"+status+";"+after_mutation_string+";-("
+							writeIntervalStatus(context, ii, previous, e, "|"+status+";"+after_mutation_string+";-("
 									+not_evaluated_cause+");"+status);
 						
 						}
 						else{
 							previous_start_time=e.get_hour()+":"+e.get_minute()+":"+e.get_second();
+							previous=e;
 						}
 					}
 					else{ //l'alarm è valido, per cui l'intervallo potrà essere valutato
@@ -480,10 +478,12 @@ public class LogUtils {
         				Alarm start = alarms.get(j);
         				Alarm stop = alarms.get(j+1);
         				    				
-        				buf.append(i + " - "+start.get_hour()+":"+
-        						start.get_minute()+":"+start.get_second()+"-"+
-        						stop.get_hour()+":"+stop.get_minute()+":"+
-        						stop.get_second()+" : ");
+        				buf.append(i + " - "+String.format("%02d", start.get_hour())+":"+
+        						String.format("%02d", start.get_minute())+":"+
+        						String.format("%02d", start.get_second())+"-"+
+        						String.format("%02d", stop.get_hour())+":"+
+        						String.format("%02d", stop.get_minute())+":"+
+        						String.format("%02d", stop.get_second())+" : ");
         				buf.newLine();
         			}
         		}
@@ -502,7 +502,7 @@ public class LogUtils {
     
     
     
-    public static void writeIntervalStatus(Context context, int day_index, String interval, String text){
+    public static void writeIntervalStatus(Context context, int day_index, Alarm start, Alarm stop, String text){
     	    	
     	String log_file_name="";
     	int log_file_id = PreferenceManager.getDefaultSharedPreferences(context).getInt("log_file_id", -1);
@@ -516,16 +516,20 @@ public class LogUtils {
     	
     	final File logFile = new File(context.getDir("climbTheWorld_dir", Context.MODE_PRIVATE), log_file_name);
     	    	
-    	try {    	   		   	    	
-    		
+    	String interval="";    	
+    	if(start!=null && stop!=null){
+    		interval = String.format("%02d", start.get_hour())+":"+String.format("%02d", start.get_minute())+
+    				":"+String.format("%02d", start.get_second())+"-"+String.format("%02d", stop.get_hour())+":"+
+    				String.format("%02d", stop.get_minute())+":"+String.format("%02d", stop.get_second());
+    	}
+    	
+    	try {
     		BufferedReader buf_r = new BufferedReader(new FileReader(logFile)); 
     		String line;
     		String input="";
             while ((line = buf_r.readLine()) != null) {
             	      
             	int charIndex=line.indexOf(" :");
-            	
-            	System.out.println("LINE= " +line + "    "+ charIndex);
             	
             	if(charIndex!=-1 && (line.substring(0, charIndex)).equals(day_index+" - "+interval)){
             		
