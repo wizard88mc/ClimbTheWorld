@@ -1,5 +1,7 @@
 package org.unipd.nbeghin.climbtheworld.util;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Calendar;
 
 import org.unipd.nbeghin.climbtheworld.MainActivity;
@@ -190,7 +192,7 @@ public class IntervalEvaluationUtils {
 				////////////////////////////
 				//LOG
 				//log_string=log_string+"Valutazione: "+evaluation+" | ";
-				log_string=log_string+";"+evaluation+";";
+				log_string=log_string+";"+new BigDecimal(evaluation).setScale(2, RoundingMode.HALF_UP).floatValue()+";";
 				////////////////////////////
 			}
 			
