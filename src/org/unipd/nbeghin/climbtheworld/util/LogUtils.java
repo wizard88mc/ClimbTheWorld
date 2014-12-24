@@ -515,26 +515,29 @@ public class LogUtils {
     	}    	
     	
     	final File logFile = new File(context.getDir("climbTheWorld_dir", Context.MODE_PRIVATE), log_file_name);
-    	
-    	
+    	    	
     	try {    	   		   	    	
     		
     		BufferedReader buf_r = new BufferedReader(new FileReader(logFile)); 
     		String line;
     		String input="";
             while ((line = buf_r.readLine()) != null) {
-            	            	
-            	if((line.substring(0, line.indexOf(" :"))).equals(day_index+" - "+interval)){
+            	      
+            	int charIndex=line.indexOf(" :");
+            	
+            	System.out.println("LINE= " +line + "    "+ charIndex);
+            	
+            	if(charIndex!=-1 && (line.substring(0, charIndex)).equals(day_index+" - "+interval)){
             		
-            		line.replace(line, line+text);
-            		input += line + System.getProperty("line.separator");
+            		line=line.replace(line, line+text);            		
             	}
+            	input += line + System.getProperty("line.separator");
             }
     		
     		buf_r.close();
     		
-    		//dopo la modifica, si sovrascrive il file
-    		BufferedWriter buf_w = new BufferedWriter(new FileWriter(logFile, true));    		
+    		//dopo la modifica, si sovrascrive il file (parametro 'append' messo a 'false')
+    		BufferedWriter buf_w = new BufferedWriter(new FileWriter(logFile, false));    		
     		buf_w.write(input);
     		buf_w.close();
     		
