@@ -40,7 +40,7 @@ public class ToursFragment extends Fragment implements Updater{
 	public void refresh() {
 		toursCards.clearCards();
 		for (final TourText tour : ClimbApplication.tourTexts) {
-			TourCard tourCard = new TourCard(tour);
+			TourCard tourCard = new TourCard(tour, getActivity());
 			tourCard.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -49,6 +49,7 @@ public class ToursFragment extends Fragment implements Updater{
 					startActivity(intent);
 				}
 			});
+			
 			toursCards.addCard(tourCard);
 		}
 		toursCards.refresh();

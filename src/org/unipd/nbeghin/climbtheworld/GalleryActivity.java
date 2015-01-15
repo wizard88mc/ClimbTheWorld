@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.unipd.nbeghin.climbtheworld.adapters.StaggeredPhotoAdapter;
 import org.unipd.nbeghin.climbtheworld.models.Photo;
+import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
@@ -17,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.TextView;
 
 import com.origamilabs.library.views.StaggeredGridView;
 import com.origamilabs.library.views.StaggeredGridView.OnItemClickListener;
@@ -38,22 +40,30 @@ public class GalleryActivity extends BaseImageLoaderActivity {
 			conditions.put("building_id", building_id); // filter for building ID
 			photos = ClimbApplication.photoDao.queryForFieldValuesArgs(conditions);
 			if (photos.isEmpty() == false) { // at least one photo exists for the given building
-				Log.i(MainActivity.AppName, "Photos found: " + photos.size());
-				StaggeredGridView gridView = (StaggeredGridView) this.findViewById(R.id.photoGallery);
-				int margin = getResources().getDimensionPixelSize(R.dimen.margin);
-				gridView.setItemMargin(margin); // set the GridView margin
-				gridView.setPadding(margin, 0, margin, 0); // have the margin on the sides as well
-				StaggeredPhotoAdapter adapter = new StaggeredPhotoAdapter(this, R.id.imgRocket, photos);
-				gridView.setAdapter(adapter);
-				gridView.setOnItemClickListener(new OnItemClickListener() {
-					@Override
-					public void onItemClick(StaggeredGridView parent, View view, int position, long id) {
-						startImagePagerActivity(position);
-					};
-				});
-				adapter.notifyDataSetChanged();
+				if(FacebookUtils.isOnline(this)){
+					((TextView) findViewById(R.id.textNoConnection)).setVisibility(View.GONE);
+					Log.i(MainActivity.AppName, "Photos found: " + photos.size());
+					StaggeredGridView gridView = (StaggeredGridView) this.findViewById(R.id.photoGallery);
+					int margin = getResources().getDimensionPixelSize(R.dimen.margin);
+					gridView.setItemMargin(margin); // set the GridView margin
+					gridView.setPadding(margin, 0, margin, 0); // have the margin on the sides as well
+					StaggeredPhotoAdapter adapter = new StaggeredPhotoAdapter(this, R.id.imgRocket, photos);
+					gridView.setAdapter(adapter);
+					gridView.setOnItemClickListener(new OnItemClickListener() {
+						@Override
+						public void onItemClick(StaggeredGridView parent, View view, int position, long id) {
+							startImagePagerActivity(position);
+						};
+					});
+					adapter.notifyDataSetChanged();
+				}else{
+					((TextView) findViewById(R.id.textNoConnection)).setVisibility(View.VISIBLE);
+					((TextView) findViewById(R.id.textNoConnection)).setText(getString(R.string.gallery_no_connection));
+				}
 			} else {
-				Log.w(MainActivity.AppName, "No photo for building id " + building_id);
+				Log.w(MainActivity.AppName, "No photo for building id " + building_id);					
+				((TextView) findViewById(R.id.textNoConnection)).setVisibility(View.VISIBLE);
+				((TextView) findViewById(R.id.textNoConnection)).setText(getString(R.string.gallery_empty));
 			}
 		} else {
 			Log.w(MainActivity.AppName, "No building id in received intent");

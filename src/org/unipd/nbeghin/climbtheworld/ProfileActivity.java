@@ -1,6 +1,7 @@
 package org.unipd.nbeghin.climbtheworld;
 
 import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,6 +108,9 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 	protected void onStart(){
 		super.onStart();
 	}
+	
+	private static final List<String> PERMISSIONS = Arrays.asList("publish_actions");
+
 
 	/**
 	 * Downloads Facebook profile picture asynchronously
@@ -115,6 +119,21 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 	 */
 	private void setProfilePicture(final Session session, SessionState state) {
 		if (state.isOpened()) {
+//			Session.NewPermissionsRequest newPermissionsRequest = new Session.NewPermissionsRequest(this, PERMISSIONS);
+//			 Session.getActiveSession().requestNewPublishPermissions(newPermissionsRequest);
+			
+			try
+            {
+                Session.OpenRequest request = new Session.OpenRequest(this);
+                request.setPermissions(Arrays.asList("publish_actions"));
+            }
+        catch (Exception e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+             
 			Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
 				@Override
 				public void onCompleted(GraphUser user, Response response) {

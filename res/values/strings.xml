@@ -396,5 +396,7 @@
 
 	<string name="help_chart">Press Update to find out the winner\n %d friends still have to upload their result.</string>
 	<string name="creating_mode">Changing game mode...</string>
+	<string name="gallery_no_connection">Connect to see the gallery</string>
+	<string name="gallery_empty">No photos available</string>
 	
 </resources>
