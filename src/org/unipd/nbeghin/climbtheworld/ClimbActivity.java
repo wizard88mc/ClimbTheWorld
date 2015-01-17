@@ -52,6 +52,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -59,6 +60,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
@@ -67,6 +69,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.util.DisplayMetrics;
@@ -111,7 +114,6 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -133,6 +135,8 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 	public static final String SAMPLING_TYPE = "ACTION_SAMPLING"; // intent's action
 	public static final String SAMPLING_TYPE_NON_STAIR = "NON_STAIR"; // classifier's output
 	public static final String SAMPLING_DELAY = "DELAY"; // intent's action
+	
+	public static final int BADGE_NOTIFICATION_ID = 1;
 
 	public boolean current_win = false;
 
@@ -3310,9 +3314,18 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			userbadge.setUser(me);
 			userbadge.setSaved(false);
 			ClimbApplication.userBadgeDao.create(userbadge);
-			if (percentage >= 1.00)
-				showMessage(getString(R.string.new_badge, buildingText.getName()));
+			if (percentage >= 1.00){
+				showMessage(getString(R.string.new_badge, buildingText.getName()) + " 3");
+				NotificationCompat.Builder mBuilder =
+				        new NotificationCompat.Builder(this)
+				        .setSmallIcon(R.drawable.unlock_win)
+				        .setContentTitle("Climb The World")
+				        .setContentText(getString(R.string.new_badge, buildingText.getName()));
+				NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+					// mId allows you to update the notification later on.
+					mNotificationManager.notify(BADGE_NOTIFICATION_ID, mBuilder.build());
 				//Toast.makeText(getApplicationContext(), , Toast.LENGTH_SHORT).show();
+			}
 
 		} else {
 			double old_percentage = userbadge.getPercentage();
@@ -3321,8 +3334,18 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 				userbadge.setSaved(false);
 				ClimbApplication.userBadgeDao.update(userbadge);
 			}
-			if (old_percentage < 1.00 && percentage >= 1.00)
-				Toast.makeText(getApplicationContext(), getString(R.string.new_badge, buildingText.getName()), Toast.LENGTH_SHORT).show();
+			if (old_percentage < 1.00 && percentage >= 1.00){
+				Toast.makeText(getApplicationContext(), getString(R.string.new_badge, buildingText.getName()) + " 4", Toast.LENGTH_SHORT).show();
+				System.out.println("notifico");
+				NotificationCompat.Builder mBuilder =
+				        new NotificationCompat.Builder(this)
+				        .setSmallIcon(R.drawable.unlock_win)
+				        .setContentTitle("Climb The World")
+				        .setContentText(getString(R.string.new_badge, buildingText.getName()));
+				NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+					// mId allows you to update the notification later on.
+					mNotificationManager.notify(BADGE_NOTIFICATION_ID, mBuilder.build());
+			}
 		}
 		return userbadge;
 	}
@@ -3614,6 +3637,30 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			}
 		});
 	}
+	
+	private void showNotification(final String message){
+		ClimbActivity.this.runOnUiThread(new Runnable() {
+			public void run() {
+				NotificationCompat.Builder mBuilder =
+				        new NotificationCompat.Builder(getApplicationContext())
+				        .setSmallIcon(R.drawable.ic_stat_unlock_win)
+				        .setLargeIcon(BitmapFactory.decodeResource(getResources(),
+                                R.drawable.ic_stat_unlock_win))
+				        .setContentTitle("Climb The World")
+				        .setContentText(message);
+				        //.setContentText(getString(R.string.new_badge, buildingText.getName()));
+				
+//				PendingIntent contentIntent = PendingIntent.getActivity(
+//					    getApplicationContext(),
+//					    0,
+//					    new Intent(), // add this
+//					    PendingIntent.FLAG_UPDATE_CURRENT);
+//				mBuilder.setContentIntent(contentIntent);
+				NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+					// mId allows you to update the notification later on.
+					mNotificationManager.notify(BADGE_NOTIFICATION_ID, mBuilder.build());			}
+		});
+	}
 
 	private void showOfflineSocialMember() {
 		ClimbActivity.this.runOnUiThread(new Runnable() {
@@ -3700,18 +3747,24 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			userbadge.setUser(climbing.getUser());
 			userbadge.setSaved(false);
 			ClimbApplication.userBadgeDao.create(userbadge);
-			if (percentage >= 1.00)
-				showMessage(getString(R.string.new_badge, buildingText.getName()));
-
+			if (percentage >= 1.00){
+				System.out.println("notifica");
+				showMessage(getString(R.string.new_badge, buildingText.getName()) + " 1");
+				showNotification(getString(R.string.new_badge, buildingText.getName()));
+			}
 		} else {//altrimenti aggiorno quello giˆ presente
+			System.out.println("notifica");
+
 			double old_percentage = userbadge.getPercentage();
 			if (userbadge.getPercentage() < climbing.getPercentage()) {
 				userbadge.setPercentage(climbing.getPercentage());
 				userbadge.setSaved(false);
 				ClimbApplication.userBadgeDao.update(userbadge);
 			}
-			if (old_percentage < 1.00 && percentage >= 1.00)
-				showMessage(getString(R.string.new_badge, buildingText.getName()));
+			if (old_percentage < 1.00 && percentage >= 1.00){
+				showMessage(getString(R.string.new_badge, buildingText.getName()) + " 2");
+				showNotification(getString(R.string.new_badge, buildingText.getName()));
+			}
 		}
 	}
 	
