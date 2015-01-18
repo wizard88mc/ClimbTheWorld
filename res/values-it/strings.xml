@@ -405,4 +405,5 @@
 	<string name="creating_mode">Sto cambiando la modalità di gioco...</string>
 	<string name="gallery_no_connection">Connettiti per vedere la galleria</string>
 	<string name="gallery_empty">Nessuna foto disponibile</string>
+	<string name="bonus_excluded">(bonus escluso)</string>
 </resources>

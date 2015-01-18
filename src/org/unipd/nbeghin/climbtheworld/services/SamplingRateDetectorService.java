@@ -51,7 +51,7 @@ public class SamplingRateDetectorService extends IntentService {
 	@SuppressWarnings("deprecation")
 	private void showNotification() {
 		CharSequence text = "Accelbench sampling rate detection enabled";
-		Notification notification = new Notification(R.drawable.ic_launcher, text, System.currentTimeMillis());
+		Notification notification = new Notification(R.drawable.icon, text, System.currentTimeMillis());
 		Intent notificationIntent = new Intent(this, MainActivity.class);
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 		notification.setLatestEventInfo(getApplicationContext(), "Accelbench sampling rate detection", text, contentIntent);

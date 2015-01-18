@@ -339,10 +339,10 @@ public class BuildingCard extends Card {
 							int randomNum1 = Integer.valueOf(climbs[0]) / 5;
 
 							if (checked_size == 1)
-								intro = String.format(texts.getIntro(), randomNum1);
+								intro = String.format(texts.getIntro(), randomNum1) + ClimbApplication.getContext().getString(R.string.bonus_excluded);
 							else if (checked_size == 2) {
 								int randomNum2 = Integer.valueOf(climbs[0] + climbs[1]) / 5;
-								intro = String.format(texts.getIntro(), randomNum1, randomNum2);
+								intro = String.format(texts.getIntro(), randomNum1, randomNum2) + ClimbApplication.getContext().getString(R.string.bonus_excluded);
 							}
 							// to set the message
 							TextView message = (TextView) dialog.findViewById(R.id.tvmessagedialogtext);

@@ -53,6 +53,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -135,8 +136,9 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 	public static final String SAMPLING_TYPE = "ACTION_SAMPLING"; // intent's action
 	public static final String SAMPLING_TYPE_NON_STAIR = "NON_STAIR"; // classifier's output
 	public static final String SAMPLING_DELAY = "DELAY"; // intent's action
+	public static final String NOTIFICATION_GROUP = "ClimbActivity_play";
 	
-	public static final int BADGE_NOTIFICATION_ID = 1;
+	public static int BADGE_NOTIFICATION_ID = 1;
 
 	public boolean current_win = false;
 
@@ -165,7 +167,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 	private VerticalSeekBar seekbarIndicator; // reference to vertical seekbar
 	private int vstep_for_rstep = 1;
 	private boolean used_bonus = false;
-	private double percentage_bonus = 0.50f;
+	private double percentage_bonus = 0.30f; //OLD: 0.50f
 	private boolean climbedYesterday = false;
 	private int new_steps = 0;
 	private int difficulty;
@@ -273,13 +275,11 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 					// bonus at 25%
 					apply_percentage_bonus();
 				} else { // standard, no bonus
-					num_steps += vstep_for_rstep; // increase the number of
-													// steps
+					num_steps += vstep_for_rstep; // increase the number of steps
 					new_steps += vstep_for_rstep;
 					previous_progress = new_steps;
 					if (!isCounterMode) { // increase the seekbar progress and update the microgoal progress only if game mode is on
 						microgoal.setDone_steps(microgoal.getDone_steps() + vstep_for_rstep);
-						// ClimbApplication.microgoalDao.update(microgoal);
 
 						// increase the seekbar progress
 						if (mode == GameModeType.SOCIAL_CLIMB) {
@@ -441,6 +441,11 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 		});
 
 		bonus_microgoal.startAnimation(anim);
+		
+		//int notification_icon = (Build.VERSION.SDK_INT < 11) ? R.drawable.ic_stat_star_dark : R.drawable.ic_stat_star_light;
+		int notification_icon = (Build.VERSION.SDK_INT < 11) ? R.drawable.ic_stat_cup_dark : R.drawable.ic_stat_cup_light;
+
+		showNotification(getString(R.string.microgoal_terminated2, bonus), notification_icon);
 	}
 
 	private void apply_win_microgoal() {
@@ -1647,8 +1652,9 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 		}
 		Microgoal old_microgoal = microgoal;
 		updateUserStats(true);
-		double newCurrentMean = ClimbApplication.calculateNewMean((long) currentUser.getMean(), currentUser.getN_measured_days(), (currentUser.getCurrent_steps_value()));
-		int tot_steps = ClimbApplication.generateStepsToDo(climbing.getRemaining_steps(), /* currentUser.getMean() */newCurrentMean, difficulty);
+		//double newCurrentMean = ClimbApplication.calculateNewMean((long) currentUser.getMean(), currentUser.getN_measured_days(), (currentUser.getCurrent_steps_value()));
+		//int tot_steps = ClimbApplication.generateStepsToDo(climbing.getRemaining_steps(), /* currentUser.getMean() */newCurrentMean, difficulty);
+		int tot_steps = ClimbApplication.generateStepsToDo(building.getSteps(), num_steps);
 		int story_id;
 		try {
 			User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
@@ -3315,7 +3321,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			userbadge.setSaved(false);
 			ClimbApplication.userBadgeDao.create(userbadge);
 			if (percentage >= 1.00){
-				showMessage(getString(R.string.new_badge, buildingText.getName()) + " 3");
+				showMessage(getString(R.string.new_badge, buildingText.getName()));
 				NotificationCompat.Builder mBuilder =
 				        new NotificationCompat.Builder(this)
 				        .setSmallIcon(R.drawable.unlock_win)
@@ -3335,7 +3341,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 				ClimbApplication.userBadgeDao.update(userbadge);
 			}
 			if (old_percentage < 1.00 && percentage >= 1.00){
-				Toast.makeText(getApplicationContext(), getString(R.string.new_badge, buildingText.getName()) + " 4", Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), getString(R.string.new_badge, buildingText.getName()), Toast.LENGTH_SHORT).show();
 				System.out.println("notifico");
 				NotificationCompat.Builder mBuilder =
 				        new NotificationCompat.Builder(this)
@@ -3440,18 +3446,8 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			if (microgoal != null) {
 				MicrogoalText texts = ModelsUtil.getMicrogoalTextByStory(microgoal.getStory_id());// ClimbApplication.getMicrogoalTextByStory(microgoal.getStory_id());
 
-				final Dialog dialog = new Dialog(this, R.style.FullHeightDialog); // this
-																					// is
-																					// a
-																					// reference
-																					// to
-																					// the
-																					// style
-																					// above
-				dialog.setContentView(R.layout.dialog_micro_goal); // I saved the
-																	// xml file
-																	// above as
-																	// yesnomessage.xml
+				final Dialog dialog = new Dialog(this, R.style.FullHeightDialog); 
+				dialog.setContentView(R.layout.dialog_micro_goal); 
 				dialog.setCancelable(true);
 				LayoutParams params = dialog.getWindow().getAttributes();
 				params.height = LayoutParams.WRAP_CONTENT;
@@ -3493,10 +3489,10 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 				int randomNum1 = Integer.valueOf(climbs[0]) / 5;
 
 				if (checked_size == 1)
-					intro = String.format(texts.getIntro(), randomNum1);
+					intro = String.format(texts.getIntro(), randomNum1) + getString(R.string.bonus_excluded);
 				else if (checked_size == 2) {
 					int randomNum2 = Integer.valueOf(climbs[0] + climbs[1]) / 5;
-					intro = String.format(texts.getIntro(), randomNum1, randomNum2);
+					intro = String.format(texts.getIntro(), randomNum1, randomNum2) + getString(R.string.bonus_excluded);
 				}
 
 				// to set the message
@@ -3638,27 +3634,40 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 		});
 	}
 	
-	private void showNotification(final String message){
+	private void showNotification(final String message, final int drawable){
 		ClimbActivity.this.runOnUiThread(new Runnable() {
 			public void run() {
+				 
+				boolean summary = (BADGE_NOTIFICATION_ID >=2) ? false : true;
+				System.out.println("summary " + summary);
 				NotificationCompat.Builder mBuilder =
 				        new NotificationCompat.Builder(getApplicationContext())
-				        .setSmallIcon(R.drawable.ic_stat_unlock_win)
+				        .setSmallIcon(drawable)
 				        .setLargeIcon(BitmapFactory.decodeResource(getResources(),
-                                R.drawable.ic_stat_unlock_win))
+				        		drawable))
 				        .setContentTitle("Climb The World")
+				        .setGroup(NOTIFICATION_GROUP)
+				        .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
+				         .setGroupSummary(summary)
 				        .setContentText(message);
+				
 				        //.setContentText(getString(R.string.new_badge, buildingText.getName()));
 				
-//				PendingIntent contentIntent = PendingIntent.getActivity(
-//					    getApplicationContext(),
-//					    0,
-//					    new Intent(), // add this
-//					    PendingIntent.FLAG_UPDATE_CURRENT);
-//				mBuilder.setContentIntent(contentIntent);
+				PendingIntent contentIntent = PendingIntent.getActivity(
+					    getApplicationContext(),
+					    0,
+					    new Intent(), // add this
+					    PendingIntent.FLAG_UPDATE_CURRENT);
+				mBuilder.setContentIntent(contentIntent);
+				
+				//NotificationManagerCompat mNotificationManager = NotificationManagerCompat.from(getApplicationContext());
+				
 				NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 					// mId allows you to update the notification later on.
-					mNotificationManager.notify(BADGE_NOTIFICATION_ID, mBuilder.build());			}
+					
+				mNotificationManager.notify(BADGE_NOTIFICATION_ID, mBuilder.build());		
+				BADGE_NOTIFICATION_ID++;
+			}
 		});
 	}
 
@@ -3739,6 +3748,8 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 	 * @param climbing the climbing data to use to update the badge
 	 */
 	void saveBuildingBadge(UserBadge userbadge, Badge badge, Climbing climbing){
+		int notification_icon = (Build.VERSION.SDK_INT < 11) ? R.drawable.ic_stat_cup_dark : R.drawable.ic_stat_cup_light;
+
 		if (userbadge == null) {//se prima non c'era lo creo
 			userbadge = new UserBadge();
 			userbadge.setBadge(badge);
@@ -3747,10 +3758,11 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			userbadge.setUser(climbing.getUser());
 			userbadge.setSaved(false);
 			ClimbApplication.userBadgeDao.create(userbadge);
+			
 			if (percentage >= 1.00){
 				System.out.println("notifica");
-				showMessage(getString(R.string.new_badge, buildingText.getName()) + " 1");
-				showNotification(getString(R.string.new_badge, buildingText.getName()));
+				showMessage(getString(R.string.new_badge, buildingText.getName()));
+				showNotification(getString(R.string.new_badge, buildingText.getName()), notification_icon);
 			}
 		} else {//altrimenti aggiorno quello giˆ presente
 			System.out.println("notifica");
@@ -3762,8 +3774,8 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 				ClimbApplication.userBadgeDao.update(userbadge);
 			}
 			if (old_percentage < 1.00 && percentage >= 1.00){
-				showMessage(getString(R.string.new_badge, buildingText.getName()) + " 2");
-				showNotification(getString(R.string.new_badge, buildingText.getName()));
+				showMessage(getString(R.string.new_badge, buildingText.getName()));
+				showNotification(getString(R.string.new_badge, buildingText.getName()), notification_icon);
 			}
 		}
 	}

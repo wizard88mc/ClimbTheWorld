@@ -88,6 +88,7 @@ public class ClimbApplication extends Application {
 	public static final boolean DEBUG = true;
 
 	public static final int N_MEMBERS_PER_GROUP = 6;  // 5 friends + me
+	public static int PERCENTAGE_MICROGOAL = 25;
 	public static boolean BUSY = false;
 	public static Object lock = new Object();
 
@@ -1037,6 +1038,7 @@ public class ClimbApplication extends Application {
 	}
 
 	/**
+	 * OLD VERSION - CURRENTLY UNUSED
 	 * Calculates the number of steps to be done in a microgoal
 	 * 
 	 * @param remainingSteps
@@ -1046,8 +1048,7 @@ public class ClimbApplication extends Application {
 	 * @return number of steps to be done in order to complete a microgoal
 	 */
 	public static int generateStepsToDo(int remainingSteps, double current_mean, int difficulty) {
-		System.out.println("remainingSteps " + remainingSteps);
-		System.out.println("current_mean " + current_mean);
+
 		if (current_mean >= remainingSteps)
 			return remainingSteps;
 		else {
@@ -1057,6 +1058,18 @@ public class ClimbApplication extends Application {
 			else
 				return stepsToDo;
 		}
+	}
+	
+	public static int generateStepsToDo(int tot_steps, int done_steps){
+		int remaining_steps = tot_steps - done_steps;
+		int remaining_perc =(int) (((double) remaining_steps / (double) tot_steps) * 100);
+		System.out.println("remaining steps " + remaining_steps);
+		System.out.println("remaining perc " + remaining_perc);
+
+		if(remaining_perc >= 35)
+			return (int) Math.ceil((double) (tot_steps*25)/ (double) 100);
+		else
+			return remaining_steps;
 	}
 
 	/**
