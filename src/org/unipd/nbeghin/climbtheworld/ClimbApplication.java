@@ -98,6 +98,8 @@ public class ClimbApplication extends Application {
 
 	// current application language
 	public static String language;
+	
+	public static int bonus_notification = 0;
 
 	public static List<Building> buildings;
 	public static List<Climbing> climbings; // list of loaded climbings
@@ -142,12 +144,7 @@ public class ClimbApplication extends Application {
 	public static final String settings_detected_sampling_rate = "samplingRate";
 
 	public static final String counter_mode = "couter_mode"; // intent
-	public static final String building_text_intent_object = "org.unipd.nbeghin.climbtheworld.intents.object.buildingText"; // intent
-	// key
-	// for
-	// sending
-	// building
-	// id
+	public static final String building_text_intent_object = "org.unipd.nbeghin.climbtheworld.intents.object.buildingText"; // intent key for sending building id
 	public static final String duel_intent_object = "org.unipd.nbeghin.climbtheworld.intents.object.teamDuel";
 
 	static DbHelper dbHelper;

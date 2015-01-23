@@ -40,6 +40,7 @@ import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.models.UserBadge;
+import org.unipd.nbeghin.climbtheworld.services.NotificationDeletedReceiver;
 import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 import org.unipd.nbeghin.climbtheworld.util.ModelsUtil;
@@ -138,7 +139,8 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 	public static final String SAMPLING_DELAY = "DELAY"; // intent's action
 	public static final String NOTIFICATION_GROUP = "ClimbActivity_play";
 	
-	public static int BADGE_NOTIFICATION_ID = 1;
+	public static int BADGE_NOTIFICATION_ID_BADGE = 1; // badge
+	public static int BADGE_NOTIFICATION_ID_BONUS= 2; // badge
 
 	public boolean current_win = false;
 
@@ -445,7 +447,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 		//int notification_icon = (Build.VERSION.SDK_INT < 11) ? R.drawable.ic_stat_star_dark : R.drawable.ic_stat_star_light;
 		int notification_icon = (Build.VERSION.SDK_INT < 11) ? R.drawable.ic_stat_cup_dark : R.drawable.ic_stat_cup_light;
 
-		showNotification(getString(R.string.microgoal_terminated2, bonus), notification_icon);
+		showNotification(String.valueOf(bonus), notification_icon, true); //getString(R.string.microgoal_terminated2, bonus)
 	}
 
 	private void apply_win_microgoal() {
@@ -3329,7 +3331,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 				        .setContentText(getString(R.string.new_badge, buildingText.getName()));
 				NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 					// mId allows you to update the notification later on.
-					mNotificationManager.notify(BADGE_NOTIFICATION_ID, mBuilder.build());
+					mNotificationManager.notify(BADGE_NOTIFICATION_ID_BADGE, mBuilder.build());
 				//Toast.makeText(getApplicationContext(), , Toast.LENGTH_SHORT).show();
 			}
 
@@ -3350,7 +3352,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 				        .setContentText(getString(R.string.new_badge, buildingText.getName()));
 				NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 					// mId allows you to update the notification later on.
-					mNotificationManager.notify(BADGE_NOTIFICATION_ID, mBuilder.build());
+					mNotificationManager.notify(BADGE_NOTIFICATION_ID_BADGE, mBuilder.build());
 			}
 		}
 		return userbadge;
@@ -3634,25 +3636,33 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 		});
 	}
 	
-	private void showNotification(final String message, final int drawable){
+	private void showNotification(final String message, final int drawable, final boolean bonus){
 		ClimbActivity.this.runOnUiThread(new Runnable() {
 			public void run() {
+				
+				int id = (bonus == true) ? BADGE_NOTIFICATION_ID_BONUS : BADGE_NOTIFICATION_ID_BADGE;
 				 
-				boolean summary = (BADGE_NOTIFICATION_ID >=2) ? false : true;
-				System.out.println("summary " + summary);
+				boolean summary = (id >=2) ? false : true;
 				NotificationCompat.Builder mBuilder =
 				        new NotificationCompat.Builder(getApplicationContext())
 				        .setSmallIcon(drawable)
 				        .setLargeIcon(BitmapFactory.decodeResource(getResources(),
 				        		drawable))
 				        .setContentTitle("Climb The World")
-				        .setGroup(NOTIFICATION_GROUP)
-				        .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
-				         .setGroupSummary(summary)
-				        .setContentText(message);
+				       // .setGroup(NOTIFICATION_GROUP)
+				        .setStyle(new NotificationCompat.BigTextStyle().bigText(message));
+				       //  .setGroupSummary(summary)
+				       // .setContentText(message);
 				
-				        //.setContentText(getString(R.string.new_badge, buildingText.getName()));
+				if(!bonus)
+					mBuilder.setContentText(message);
+					
+				else{
+					int bonus = Integer.valueOf(message);
+					ClimbApplication.bonus_notification += bonus;
+					mBuilder.setContentText(getString(R.string.notification_bonus) + ClimbApplication.bonus_notification);
 				
+				}
 				PendingIntent contentIntent = PendingIntent.getActivity(
 					    getApplicationContext(),
 					    0,
@@ -3660,13 +3670,16 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 					    PendingIntent.FLAG_UPDATE_CURRENT);
 				mBuilder.setContentIntent(contentIntent);
 				
+			    Intent deleteIntent = new Intent(getApplicationContext(), NotificationDeletedReceiver.class);
+				mBuilder.setDeleteIntent(PendingIntent.getBroadcast(getApplicationContext(), 0, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+				
 				//NotificationManagerCompat mNotificationManager = NotificationManagerCompat.from(getApplicationContext());
 				
 				NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 					// mId allows you to update the notification later on.
 					
-				mNotificationManager.notify(BADGE_NOTIFICATION_ID, mBuilder.build());		
-				BADGE_NOTIFICATION_ID++;
+				mNotificationManager.notify(id, mBuilder.build());		
+				if (!bonus) id++;
 			}
 		});
 	}
@@ -3762,7 +3775,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			if (percentage >= 1.00){
 				System.out.println("notifica");
 				showMessage(getString(R.string.new_badge, buildingText.getName()));
-				showNotification(getString(R.string.new_badge, buildingText.getName()), notification_icon);
+				showNotification(getString(R.string.new_badge, buildingText.getName()), notification_icon, false);
 			}
 		} else {//altrimenti aggiorno quello giˆ presente
 			System.out.println("notifica");
@@ -3775,7 +3788,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			}
 			if (old_percentage < 1.00 && percentage >= 1.00){
 				showMessage(getString(R.string.new_badge, buildingText.getName()));
-				showNotification(getString(R.string.new_badge, buildingText.getName()), notification_icon);
+				showNotification(getString(R.string.new_badge, buildingText.getName()), notification_icon, false);
 			}
 		}
 	}

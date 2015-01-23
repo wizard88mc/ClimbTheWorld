@@ -399,5 +399,6 @@
 	<string name="gallery_no_connection">Connect to see the gallery</string>
 	<string name="gallery_empty">No photos available</string>
 	<string name="bonus_excluded">(bonus excluded)</string>
+	<string name="notification_bonus">Goals completed:</string>
 	
 </resources>

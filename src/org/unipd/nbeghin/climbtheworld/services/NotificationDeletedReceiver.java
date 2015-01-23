@@ -9,18 +9,14 @@ import android.content.Intent;
 import android.view.Gravity;
 import android.widget.Toast;
 
-public class ConnectionAdvisor extends BroadcastReceiver{
+public class NotificationDeletedReceiver extends BroadcastReceiver{
 
 
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		
-		if(!FacebookUtils.isOnline(context) && ClimbApplication.isActivityVisible()){
-			Toast t = Toast.makeText(context, "Sei offline ora, ma i tuoi progressi saranno salvati non appena la connessione torna", Toast.LENGTH_SHORT);
-			t.setGravity(Gravity.TOP, 0, 300);
-			t.show();
-		}
+		ClimbApplication.bonus_notification = 0;
 	}
 
 }
