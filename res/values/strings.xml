@@ -173,7 +173,7 @@
     
     <string name="successfull_climb">You successfully climbed %1$d steps (%2$d m) of %3$s !</string>
     <string name="kicked_out">You have been kicked out! Now you\'re back to Solo Climb</string>
-    <string name="new_level">Great! You have reached a new level!</string>
+    <string name="new_level">Great! You have reached a level %d!</string>
     <string name="new_badge">You have won a new trophy: %s</string>
     <string name="no_microgoal">No more goal for this building</string>
     
@@ -401,4 +401,8 @@
 	<string name="bonus_excluded">(bonus excluded)</string>
 	<string name="notification_bonus">Goals completed:</string>
 	
+   <plurals name="summary_inbox_text">
+        <item quantity="one">+ %d new more badge</item>
+        <item quantity="other">+ %d new more badges</item>
+    </plurals>	
 </resources>

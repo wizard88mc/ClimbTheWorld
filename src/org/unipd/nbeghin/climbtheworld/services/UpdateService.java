@@ -289,7 +289,7 @@ public class UpdateService extends IntentService {
 							}
 						}
 					} else {
-						Toast.makeText(context, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
+						//Toast.makeText(context, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 						Log.e("updateService - climbings", e.getMessage());
 					}
 				}
@@ -414,7 +414,7 @@ public class UpdateService extends IntentService {
 							ClimbApplication.collaborationDao.delete(collaboration);
 						}
 					} else {
-						Toast.makeText(context, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
+						//Toast.makeText(context, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 						Log.e("updateService - collaborations", e.getMessage());
 					}
 				}
@@ -549,7 +549,7 @@ public class UpdateService extends IntentService {
 							ClimbApplication.competitionDao.delete(competition);
 						}
 					} else {
-						Toast.makeText(context, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
+						//Toast.makeText(context, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 						Log.e("UpdateService - competitors", e.getMessage());
 					}
 				}
@@ -751,7 +751,7 @@ public class UpdateService extends IntentService {
 							ClimbApplication.teamDuelDao.delete(duel);
 						}
 					} else {
-						Toast.makeText(context, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
+					//	Toast.makeText(context, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 						Log.e("UpdateService - team duels", e.getMessage());
 					}
 
@@ -807,7 +807,7 @@ public class UpdateService extends IntentService {
 						}
 
 					} else {
-						Toast.makeText(ctx, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
+						//Toast.makeText(ctx, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 						Log.e("UpdateService - save badges", e.getMessage());
 					}
 				}
@@ -843,7 +843,7 @@ public class UpdateService extends IntentService {
 						// parseUser.saveEventually();
 						ParseUtils.saveUserInParse(parseUser);
 					} else {
-						Toast.makeText(context, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
+				//		Toast.makeText(context, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 						Log.e("UpdateService - save users", e.getMessage());
 					}
 				}
@@ -916,7 +916,7 @@ public class UpdateService extends IntentService {
 								ParseUtils.saveMicrogoal(mg, microgoal);
 							}
 						} else {
-							Toast.makeText(context, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
+							//Toast.makeText(context, getString(R.string.connection_problem), Toast.LENGTH_SHORT).show();
 							Log.e("UpdateService - save microgoals", e.getMessage());
 						}
 					}

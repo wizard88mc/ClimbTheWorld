@@ -1,6 +1,5 @@
 package org.unipd.nbeghin.climbtheworld;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -16,7 +15,6 @@ import java.util.concurrent.TimeUnit;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.unipd.nbeghin.climbtheworld.comparator.UserBadgeComperator;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.db.PreExistingDbLoader;
 import org.unipd.nbeghin.climbtheworld.models.Badge;
@@ -35,9 +33,7 @@ import org.unipd.nbeghin.climbtheworld.models.Tour;
 import org.unipd.nbeghin.climbtheworld.models.TourText;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.models.UserBadge;
-import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 import org.unipd.nbeghin.climbtheworld.util.ParseUtils;
-import org.unipd.nbeghin.climbtheworld.weka.WekaClassifier;
 
 import android.app.Activity;
 import android.app.Application;
@@ -51,7 +47,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.Toast;
 
@@ -62,6 +57,9 @@ import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.model.GraphObject;
 import com.facebook.model.GraphUser;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
@@ -100,6 +98,7 @@ public class ClimbApplication extends Application {
 	public static String language;
 	
 	public static int bonus_notification = 0;
+	public static Multimap<String, String> notifications_inbox_contents = ArrayListMultimap.create();
 
 	public static List<Building> buildings;
 	public static List<Climbing> climbings; // list of loaded climbings
@@ -189,17 +188,49 @@ public class ClimbApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 		Log.d("ClimbApplication", "onCreate");
+		
 		sContext = getApplicationContext();
+		emptyMultimapNotification();
+		
 		SharedPreferences pref = sContext.getSharedPreferences("UserSession", 0);
 		Editor edit = pref.edit();
 		edit.putBoolean("openedFirst", true);
 		edit.commit();
+		
 		singleton = this;
 		language = getString(R.string.language);
+		
 		// Parse initialize
 		Parse.initialize(this, "e9wlYQPdpXlFX3XQc9Lq0GJFecuYrDSzwVNSovvd", "QVII1Qhy8pXrjAZiL07qaTKbaWpkB87zc88UMWv2");
 		ParseFacebookUtils.initialize(getString(R.string.app_id));
+		
 		loadDb();
+
+	}
+	
+	public static void emptyMultimapNotification(){
+		notifications_inbox_contents.clear();
+		notifications_inbox_contents.put("BONUS", "0");
+		notifications_inbox_contents.put("LEVEL", "0");
+	}
+	
+	public static void updateLevelNotification(int level){ System.out.println("notifico livello " + level);
+		notifications_inbox_contents.asMap().remove("LEVEL");
+		notifications_inbox_contents.put("LEVEL", String.valueOf(level));
+		System.out.println(notifications_inbox_contents.toString());
+	}
+	
+	public static void updateBonusNotification(int bonus){ System.out.println("notifico bonus " + bonus);
+		int new_val = Integer.valueOf(Iterables.get(notifications_inbox_contents.get("BONUS"), 0)) + bonus;
+		notifications_inbox_contents.asMap().remove("BONUS");
+		notifications_inbox_contents.put("BONUS", String.valueOf(new_val));
+		System.out.println(notifications_inbox_contents.toString());
+
+	}
+	
+	public static void addBadgeNotification(String message){
+		notifications_inbox_contents.put("BADGE", message);
+		System.out.println(notifications_inbox_contents.toString());
 
 	}
 
