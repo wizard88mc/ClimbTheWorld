@@ -36,14 +36,21 @@
     <item
         android:id="@+id/itemShareDb"
         android:onClick="onShareDb"
-        android:title="Share db"
+        android:title="Share db[D]"
         climbtheworld:showAsAction="never">
     </item>
     
     <item
         android:id="@+id/itemShareAnr"
         android:onClick="onShareAnr"
-        android:title="Share Anr"
+        android:title="Share Anr[D]"
+        climbtheworld:showAsAction="never">
+    </item>
+    
+    <item
+        android:id="@+id/itemShareLog"
+        android:onClick="onShareLog"
+        android:title="Share LogFile[D]"
         climbtheworld:showAsAction="never">
     </item>
     

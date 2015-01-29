@@ -1,9 +1,13 @@
 package org.unipd.nbeghin.climbtheworld;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -697,6 +701,10 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests {
 	public void onShareAnr(MenuItem v) {
 		shareAnr();
 	}
+	
+	public void onShareLog(MenuItem v){
+		shareLog();
+	}
 
 
 	public static void emptyNotificationList() {
@@ -890,10 +898,7 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests {
 		SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
 		String output_name = "ClimbTheWorld_" + df.format(new Date()) + ".db";
 		try {
-			File file = new File(ClimbApplication.dbHelper.getDbPath()); // get
-																			// private
-																			// db
-			// reference
+			File file = new File(ClimbApplication.dbHelper.getDbPath()); // get private db reference
 			if (file.exists() == false || file.length() == 0)
 				throw new Exception("Empty DB");
 			this.copyFile(new FileInputStream(file), this.openFileOutput(output_name, MODE_WORLD_READABLE));
@@ -913,10 +918,7 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests {
 		SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
 		String output_name = "ClimbTheWorld_" + df.format(new Date()) + ".txt";
 		try {
-			File file = new File("/data/anr/traces.txt"); // get
-															// private
-															// db
-			// reference
+			File file = new File("/data/anr/traces.txt");
 			if (file.exists() == false || file.length() == 0)
 				throw new Exception("Empty DB");
 			this.copyFile(new FileInputStream(file), this.openFileOutput(output_name, MODE_WORLD_READABLE));
@@ -929,6 +931,111 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests {
 			Toast.makeText(getApplicationContext(), getString(R.string.db_error, e.getMessage()), Toast.LENGTH_SHORT).show();
 			Log.e(AppName, e.getMessage());
 		}
+	}
+	
+	//DEBUG ONLY
+	private void shareLog(){
+		try {
+			appendLog(getLogCat());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	static final int BUFFER_SIZE = 1024;
+
+	/*public String getLogCat() {
+	    String[] logcatArgs = new String[] {"logcat", "-v", "time"};
+
+	    Process logcatProc = null;
+	    try {
+	        logcatProc = Runtime.getRuntime().exec(logcatArgs);
+	    }
+	    catch (IOException e) {
+	        return null;
+	    }
+
+	    BufferedReader reader = null;
+	    String response = null;
+	    try {
+	        String separator = System.getProperty("line.separator");
+	        StringBuilder sb = new StringBuilder();
+	        reader = new BufferedReader(new InputStreamReader(logcatProc.getInputStream()), BUFFER_SIZE);
+	        String line;
+	        while ((line = reader.readLine()) != null) {
+	            sb.append(line);
+	            sb.append(separator);
+	        }
+	        response = sb.toString();
+	    }
+	    catch (IOException e) {
+	    }
+	    finally {
+	        if (reader != null) {
+	            try {
+	                reader.close();
+	            }
+	            catch (IOException e) {}
+	        }
+	    }
+
+	    return response;
+	}*/
+	
+	public String getLogCat() throws IOException{
+		Process process = Runtime.getRuntime().exec("logcat -d");
+	      BufferedReader bufferedReader = new BufferedReader(
+	      new InputStreamReader(process.getInputStream()));
+
+	      StringBuilder log=new StringBuilder();
+	      String line;
+	      while ((line = bufferedReader.readLine()) != null) {
+	        log.append(line);
+	        log.append("\n");
+	      }
+	      return log.toString();
+
+	}
+	
+	
+	public void appendLog(String text)
+	{    
+		System.out.println(text);
+		SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
+		String output_name = "ClimbTheWorld_Log_" + df.format(new Date()) + ".txt";   
+	   File logFile = new File("/data/data/org.unipd.nbeghin.climbtheworld/" + output_name);
+	   if (!logFile.exists())
+	   {
+	      try
+	      {
+	         logFile.createNewFile();
+	      } 
+	      catch (IOException e)
+	      {
+	         // TODO Auto-generated catch block
+	         e.printStackTrace();
+	      }
+	   }
+	   try
+	   {
+	      //BufferedWriter for performance, true to set append to file flag
+	      BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true)); 
+	      buf.append(text);
+	      buf.newLine();
+	      buf.close();
+	      this.copyFile(new FileInputStream(logFile), this.openFileOutput(output_name, MODE_WORLD_READABLE));
+	      logFile = this.getFileStreamPath(output_name);
+	  	Intent i = new Intent(Intent.ACTION_SEND);
+		i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(logFile));
+		i.setType("*/*");
+		startActivity(Intent.createChooser(i, "Share to"));
+	   }
+	   catch (IOException e)
+	   {
+	      // TODO Auto-generated catch block
+	      e.printStackTrace();
+	   }
 	}
 
 }
