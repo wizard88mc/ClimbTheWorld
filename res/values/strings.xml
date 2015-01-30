@@ -173,8 +173,10 @@
     
     <string name="successfull_climb">You successfully climbed %1$d steps (%2$d m) of %3$s !</string>
     <string name="kicked_out">You have been kicked out! Now you\'re back to Solo Climb</string>
-    <string name="new_level">Great! You have reached a level %d!</string>
+    <string name="new_level">Wow! You\'ve reached level %d!</string>
+    <string name="new_level_inbox">New level Level %d</string>
     <string name="new_badge">You have won a new trophy: %s</string>
+    <string name="new_badge_inbox">New trophy! %s</string>
     <string name="no_microgoal">No more goal for this building</string>
     
     <!-- TeamPreparationActivity -->
@@ -399,10 +401,17 @@
 	<string name="gallery_no_connection">Connect to see the gallery</string>
 	<string name="gallery_empty">No photos available</string>
 	<string name="bonus_excluded">(bonus excluded)</string>
-	<string name="notification_bonus">Goals completed:</string>
+	<string name="notification_bonus">Goals completed + %d XP</string>
 	
    <plurals name="summary_inbox_text">
         <item quantity="one">+ %d new more badge</item>
         <item quantity="other">+ %d new more badges</item>
     </plurals>	
+    
+   <plurals name="summary_inbox_text_2">
+        <item quantity="one">%d notification</item>
+        <item quantity="other">%d notfications</item>
+    </plurals>	
+    
+   
 </resources>

@@ -164,7 +164,9 @@
     <string name="successfull_climb">Hai fatto i %1$d scalini (%2$d m) dell\'edificio %3$s !</string>
     <string name="kicked_out">Sei stato cacciato! Ora sei in modalità Solo Climb</string>
     <string name="new_level">Grande! Hai raggiunto il livello %d!</string>
+    <string name="new_level_inbox">Nuovo livello Livello %d</string>
     <string name="new_badge">Hai vinto un nuovo trofeo: %s</string>
+    <string name="new_badge_inbox">Nuovo trofeo! %s</string>
     <string name="no_microgoal">Nessun altro goal disponibile per questo edificio</string>
     <string name="current_position">Classifica</string>
     
@@ -406,11 +408,16 @@
 	<string name="gallery_no_connection">Connettiti per vedere la galleria</string>
 	<string name="gallery_empty">Nessuna foto disponibile</string>
 	<string name="bonus_excluded">(bonus escluso)</string>
-	<string name="notification_bonus">Obiettivi completati:</string>
+	<string name="notification_bonus">Obiettivi completati + %d XP</string>
 	
 	 <plurals name="summary_inbox_text">
         <item quantity="one">+ un altro nuovo badge</item>
         <item quantity="other">+ altri %d nuovi badge </item>
+    </plurals>	
+    
+	<plurals name="summary_inbox_text_2">
+        <item quantity="one">%d notifica</item>
+        <item quantity="other">%d notfiche</item>
     </plurals>	
 	
 </resources>

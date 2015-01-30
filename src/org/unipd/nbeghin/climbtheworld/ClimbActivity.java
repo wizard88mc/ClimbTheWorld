@@ -75,6 +75,9 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -87,7 +90,6 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -3719,26 +3721,37 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 		PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, /*new Intent()*/ ci, PendingIntent.FLAG_UPDATE_CURRENT);
 		
 		int notification_icon = (Build.VERSION.SDK_INT < 11) ? R.drawable.ic_stat_cup_dark : R.drawable.ic_stat_cup_light;
-		
+		int notification_size = ClimbApplication.notifications_inbox_contents.size();
+
 		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
 	    .setSmallIcon(notification_icon)
 	    .setLargeIcon(BitmapFactory.decodeResource(getResources(), notification_icon))
 	    .setContentTitle("Climb the World")
-	    .setContentText("News")
+	    .setContentText(getResources().getQuantityString(R.plurals.summary_inbox_text_2, notification_size, notification_size))
 	    .setDeleteIntent(PendingIntent.getService(ClimbActivity.this, requestID, deleteIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_ONE_SHOT))
 	    .setContentIntent(contentIntent);
 		
-		NotificationCompat.InboxStyle inboxStyle =
-	        new NotificationCompat.InboxStyle();
-		List<String> events = new ArrayList<String>();
+		NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
+		List<Spannable> events = new ArrayList<Spannable>();
+		
+		System.out.println("notifico " + ClimbApplication.notifications_inbox_contents.toString());
+
 		
 		//add bonus line
 		int current_bonus = Integer.valueOf(Iterables.get(ClimbApplication.notifications_inbox_contents.get("BONUS"), 0));
-		if(current_bonus > 0) events.add(getString(R.string.notification_bonus) + current_bonus);
+		Spannable sb = new SpannableString(getString(R.string.notification_bonus, current_bonus));
+		int end_index = sb.toString().indexOf("+");
+		sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, end_index - 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		if(current_bonus > 0) events.add(sb);
 		
 		//add level line
 		int current_level = Integer.valueOf(Iterables.get(ClimbApplication.notifications_inbox_contents.get("LEVEL"), 0));
-		if(current_level > 0) events.add(getString(R.string.new_level, current_level));
+		sb = new SpannableString(getString(R.string.new_level_inbox, current_level));
+		end_index = sb.toString().indexOf("L");
+		sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, end_index - 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		if(current_level > 0) events.add(sb);
+		
+		inboxStyle.setSummaryText(getResources().getQuantityString(R.plurals.summary_inbox_text_2, notification_size, notification_size));
 		
 		//add badges lines
 		Collection<String> badges = ClimbApplication.notifications_inbox_contents.get("BADGE");
@@ -3748,7 +3761,11 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			int added_lines = 0;
 			for (added_lines = 0; added_lines < n_current_missing_lines && it.hasNext(); added_lines++){
 				String b = (String) it.next();
-				events.add(b);
+				end_index = b.indexOf("!"); 
+				b = b.replace("!", "");
+				sb = new SpannableString(b);
+				sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, end_index, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				events.add(sb);
 			}
 			
 			int remaining_lines = badges.size() - added_lines;
@@ -3757,9 +3774,8 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			
 		}
 		
-		System.out.println("event size " +  events.size());
-		inboxStyle.setBigContentTitle("Details:");
-		System.out.println("devo notificare questo " +  ClimbApplication.notifications_inbox_contents.toString());
+		
+		inboxStyle.setBigContentTitle("Cimb the World");
 		for (int i=0; i < events.size(); i++) {
 			inboxStyle.addLine(events.get(i));
 		}
@@ -3869,7 +3885,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 					showNotificationBonus(getString(R.string.new_badge, buildingText.getName()), notification_icon, false);
 				else{
 					//show inbox notification
-					ClimbApplication.addBadgeNotification(getString(R.string.new_badge, buildingText.getName()));
+					ClimbApplication.addBadgeNotification(getString(R.string.new_badge_inbox, buildingText.getName()));
 					showInboxNotification();
 				}
 			}
@@ -3886,7 +3902,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 					showNotificationBonus(getString(R.string.new_badge, buildingText.getName()), notification_icon, false);
 				else{
 					//show inbox notification
-					ClimbApplication.addBadgeNotification(getString(R.string.new_badge, buildingText.getName()));
+					ClimbApplication.addBadgeNotification(getString(R.string.new_badge_inbox, buildingText.getName()));
 					showInboxNotification();
 				}
 			}

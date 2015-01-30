@@ -1088,7 +1088,13 @@ public class ClimbApplication extends Application {
 		}
 	}
 	
-	public static int generateStepsToDo(int tot_steps, int done_steps){
+	/**
+	 * versione con fisso 25%
+	 * @param tot_steps
+	 * @param done_steps
+	 * @return
+	 */
+	public static int generateStepsToDo_(int tot_steps, int done_steps){
 		int remaining_steps = tot_steps - done_steps;
 		int remaining_perc =(int) (((double) remaining_steps / (double) tot_steps) * 100);
 		System.out.println("remaining steps " + remaining_steps);
@@ -1099,6 +1105,24 @@ public class ClimbApplication extends Application {
 		else
 			return remaining_steps;
 	}
+	
+	public static int generateStepsToDo(int tot_steps, int done_steps){
+		//calculate interval 
+		int percentage = 5;
+		if(tot_steps < 6000)
+			percentage = 25;
+		else if(tot_steps >= 6000 && tot_steps <= 10000 )
+			percentage = 15;
+		
+		int remaining_steps = tot_steps - done_steps;
+		int remaining_perc =(int) (((double) remaining_steps / (double) tot_steps) * 100);
+
+		if(remaining_perc >= 35)
+			return (int) Math.ceil((double) (tot_steps*percentage)/ (double) 100);
+		else
+			return remaining_steps;
+	}
+	
 
 	/**
 	 * Saves the current logged in user (and its data) in the cloud.
