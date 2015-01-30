@@ -3712,7 +3712,11 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 		final int REQUEST_CODE_BASE = 1000;
 		final Intent deleteIntent = new Intent(ClimbActivity.this, NotificationDeletedReceiver.class); // new Intent("org.unipd.nbeghin.climbtheworld.services.NotificationDeletedReceiver");
 		final int requestID = REQUEST_CODE_BASE + (int) System.currentTimeMillis();
-		PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(), PendingIntent.FLAG_UPDATE_CURRENT);
+		
+		Intent ci = new Intent(getApplicationContext(), MainActivity.class);
+		ci.setAction(Intent.ACTION_MAIN);
+		ci.addCategory(Intent.CATEGORY_LAUNCHER);
+		PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, /*new Intent()*/ ci, PendingIntent.FLAG_UPDATE_CURRENT);
 		
 		int notification_icon = (Build.VERSION.SDK_INT < 11) ? R.drawable.ic_stat_cup_dark : R.drawable.ic_stat_cup_light;
 		
