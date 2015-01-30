@@ -1038,6 +1038,123 @@ public class AlarmUtils {
 	
 	
 	
+	private static boolean isPreviousIntervalListened(Context context, Alarm current_alarm, boolean prevAlarmNotAvailable){
+		
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		
+		//si recupera l'id dell'alarm di stop dell'ultimo intervallo valutato
+		int last_evaluated_stop_alarm_id = prefs.getInt("last_evaluated_interval_stop_id",-1);
+		
+		//se il metodo di set alarm è stato chiamato a causa del fatto che l'alarm precedentemente impostato
+		//non è più valido allora significa che l'alarm precedente si è concluso senza essere valutato;
+		//se non è mai stato valutato alcun intervallo allora si esce subito
+		if(prevAlarmNotAvailable || last_evaluated_stop_alarm_id==-1){
+			return false;
+		}
+		
+		//se l'alarm corrente è di start, l'alarm di stop dell'ultimo intervallo valutato deve essere
+		//il precedente
+		int interval_id_diff = 1;
+		//se l'alarm corrente è di stop, l'alarm di stop dell'ultimo intervallo valutato deve distare 2 id
+		if(!current_alarm.get_actionType()){	
+			interval_id_diff = 2;
+		}
+
+		//se l'intervallo corrente e l'ultimo intervallo valutato hanno id contigui si 
+		//controlla se sono vicini anche per quanto riguarda il tempo che intercorre tra loro
+		if(last_evaluated_stop_alarm_id-current_alarm.get_id()==interval_id_diff){
+			
+			//si recupera l'alarm di stop dell'ultimo intervallo valutato
+			Alarm last_evaluated=getAlarm(context, last_evaluated_stop_alarm_id);
+			
+			Calendar current_alarm_time = Calendar.getInstance();
+			Calendar last_interval_time = Calendar.getInstance();
+			int current_h=current_alarm.get_hour();
+			int current_m=current_alarm.get_minute();
+			current_alarm_time.set(Calendar.HOUR_OF_DAY, current_h);
+			current_alarm_time.set(Calendar.MINUTE, current_m);
+			current_alarm_time.set(Calendar.SECOND, current_alarm.get_second());
+			last_interval_time.set(Calendar.HOUR_OF_DAY, last_evaluated.get_hour());
+			last_interval_time.set(Calendar.MINUTE, last_evaluated.get_minute());
+			last_interval_time.set(Calendar.SECOND, last_evaluated.get_second());
+			last_interval_time.set(Calendar.DATE, prefs.getInt("last_evaluated_interval_alarm_date", -1));
+			last_interval_time.set(Calendar.MONTH, prefs.getInt("last_evaluated_interval_alarm_month", -1));
+			last_interval_time.set(Calendar.YEAR, prefs.getInt("last_evaluated_interval_alarm_year", -1));
+			
+			//differenza di tempo tra i due alarm
+			long time_diff = current_alarm_time.getTime().getTime() - last_interval_time.getTime().getTime();
+			
+			//se l'alarm corrente è di start, la differenza tra esso e il precedente alarm di stop che
+			//definisce l'intervallo ascoltato deve essere pari a 1 secondo (in tal modo l'ultimo ascoltato
+			//è quello immediatamente precedente)
+			long target_time_diff = 1000;
+			//se l'alarm corrente è di stop, la differenza deve essere pari a 5 minuti (o 4 minuti e 55 secondi
+			//se l'alarm corrente è l'ultimo della giornata, quello delle 23:59:55)
+			if(!current_alarm.get_actionType()){
+				if(current_h==23 && current_m==59){
+					target_time_diff=295000; //4 minuti e 55 secondi
+				}
+				else{
+					target_time_diff=300000; //5 minuti
+				}
+			}
+			
+			//se i due intervalli sono vicini anche per quanto riguarda il tempo, allora l'ultimo 
+			//intervallo ascoltato precede immediatamente quello corrente
+			if(time_diff==target_time_diff){
+				return true;
+			}
+			return false;			
+		}
+		return false;	
+	}
+	
+	
+	private static boolean isNextIntervalActive(Context context, Alarm current_alarm, int current_day_index){
+				
+		//se l'alarm corrente è di stop, l'id di start del prossimo intervallo è quello successivo; il
+		//tempo che intercorre tra i due alarm deve essere pari a 1 secondo
+		int next_id=current_alarm.get_id()+1;		
+		long target_time_diff = 1000;
+		//se l'alarm corrente è di start, l'id di start dell'intervallo successivo dista 2 lunghezze da
+		//quello corrente; il tempo che intercorre tra i due alarm deve essere pari a 5 minuti
+		if(current_alarm.get_actionType()){
+			next_id=current_alarm.get_id()+2;	
+			target_time_diff=300000; //5 minuti
+		}
+		
+		//si recupera il prossimo alarm
+		Alarm next_alarm=getAlarm(context, next_id);
+		//se il prossimo alarm esiste ed è attivo per il giorno corrente, si controlla che questo sia
+		//consecutivo all'alarm corrente
+		if(next_alarm!=null && next_alarm.getRepeatingDay(current_day_index)){
+			
+			Calendar current_alarm_time = Calendar.getInstance();
+			Calendar next_interval_time = Calendar.getInstance();
+			int current_h=current_alarm.get_hour();
+			int current_m=current_alarm.get_minute();
+			current_alarm_time.set(Calendar.HOUR_OF_DAY, current_h);
+			current_alarm_time.set(Calendar.MINUTE, current_m);
+			current_alarm_time.set(Calendar.SECOND, current_alarm.get_second());
+			next_interval_time.set(Calendar.HOUR_OF_DAY, next_alarm.get_hour());
+			next_interval_time.set(Calendar.MINUTE, next_alarm.get_minute());
+			next_interval_time.set(Calendar.SECOND, next_alarm.get_second());
+			
+			//differenza di tempo tra i due alarm
+			long time_diff = next_interval_time.getTime().getTime() - current_alarm_time.getTime().getTime();
+			
+			//si ritorna 'true' se il prossimo intervallo è attivo e viene immediatamente dopo in ordine
+			//di tempo rispetto all'alarm corrente
+			if(time_diff==target_time_diff){
+				return true;
+			}
+			return false;			
+		}		
+		return false;
+	}
+	
+	
+	
 	/////////
 	//PER TEST ALGORITMO
 	/**

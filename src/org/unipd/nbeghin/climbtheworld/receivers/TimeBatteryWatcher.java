@@ -24,6 +24,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -529,6 +530,22 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				//utile per scrivere il LOG
 				pref.edit().putBoolean("next_alarm_mutated", false).commit();
 				////////////////////////////				
+				
+				
+				//nelle SharedPreferences si memorizza l'informazione che questo appena concluso è l'ultimo
+				//intervallo valutato (informazione completa con data per essere precisi su quando è stato
+				//valutato); questa informazione è utile per vedere se il precedente intervallo è stato
+				//ascoltato o meno (serve per attuare il bilanciamento energetico)				
+				Calendar now_eval = Calendar.getInstance();				
+				Editor editor = pref.edit();	
+				//si imposta l'id dell'alarm di stop dell'intervallo valutato
+				editor.putInt("last_evaluated_interval_stop_id", this_alarm_id);
+				//si impostano giorno, mese e anno dell'ultimo intervallo valutato
+				editor.putInt("last_evaluated_interval_alarm_date", now_eval.get(Calendar.DATE));
+				editor.putInt("last_evaluated_interval_alarm_month", now_eval.get(Calendar.MONTH));
+				editor.putInt("last_evaluated_interval_alarm_year", now_eval.get(Calendar.YEAR));   
+				editor.commit();    
+				
 			}
 			
 			//int aa_id = pref.getInt("alarm_id", -1);
