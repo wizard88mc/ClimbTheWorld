@@ -12,3 +12,8 @@ DEPENDENCIES
 * Universal Image Loader https://github.com/nostra13/Android-Universal-Image-Loader
 * Facebook SDK https://developers.facebook.com/
 
+In silvia-branch:
+* StaggeredGridView https://github.com/etsy/AndroidStaggeredGrid
+* Parse https://parse.com/downloads/android/Parse/latest
+* Guava https://code.google.com/p/guava-libraries/
+* Gson https://code.google.com/p/google-gson/
