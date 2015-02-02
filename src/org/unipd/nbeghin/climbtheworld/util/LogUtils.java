@@ -533,7 +533,7 @@ public class LogUtils {
             	
             	if(charIndex!=-1 && (line.substring(0, charIndex)).equals(day_index+" - "+interval)){
             		
-            		line=line.replace(line, line+text);            		
+            		line=line.replace(line, line+text);
             	}
             	input += line + System.getProperty("line.separator");
             }
