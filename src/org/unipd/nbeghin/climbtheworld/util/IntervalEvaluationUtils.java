@@ -36,7 +36,8 @@ public class IntervalEvaluationUtils {
 		//di start seguito dal relativo alarm di stop così da definire un intervallo)				
 		Alarm previous_start_alarm = AlarmUtils.getAlarm(context, stop_alarm_id-1);
 		Alarm this_stop_alarm = AlarmUtils.getAlarm(context, stop_alarm_id);
-						
+			
+		
 		//si recupera l'indice del giorno corrente all'interno della settimana
 		/////////		
 		//PER TEST ALGORITMO
@@ -247,6 +248,24 @@ public class IntervalEvaluationUtils {
 		
 		Log.d(MainActivity.AppName,"alarm start dopo: " + AlarmUtils.getAlarm(context, stop_alarm_id-1).getRepeatingDay(current_day_index));
 	
+			
+		
+		
+		//si recuperano, se esistono, gli intervalli vicini per propagare la valutazione
+		Alarm prev_interval_stop = AlarmUtils.secondIntervalExists(context, this_stop_alarm, false);
+		Alarm prev_interval_start = null;
+		if(prev_interval_stop!=null){
+			prev_interval_start=AlarmUtils.getAlarm(context, stop_alarm_id-3);
+			propagateEvaluation(context, alarmDao, prev_interval_start, prev_interval_stop, current_day_index, evaluation, false);
+		}
+		Alarm next_interval_start = AlarmUtils.secondIntervalExists(context, this_stop_alarm, true);
+		Alarm next_interval_stop = null;		
+		if(next_interval_start!=null){
+			next_interval_stop=AlarmUtils.getAlarm(context, stop_alarm_id+2);		
+			propagateEvaluation(context, alarmDao, next_interval_start, next_interval_stop, current_day_index, evaluation, true);
+		}		
+				
+		
 		/*
 		//forse rivedere casi tra gioco senza scalini e niente gioco
 		float evaluation = 0f;			
@@ -295,6 +314,111 @@ public class IntervalEvaluationUtils {
     			ActivityRecognitionIntentService.getConfidencesWeightsSum(prefs)/ActivityRecognitionIntentService.getWeightsSum(prefs));
     	
     	return ActivityRecognitionIntentService.getConfidencesWeightsSum(prefs)/ActivityRecognitionIntentService.getWeightsSum(prefs);
+	}
+	
+	
+	
+	
+	private static void propagateEvaluation(Context context, RuntimeExceptionDao<Alarm, Integer> alarmDao,
+			Alarm start_alarm, Alarm stop_alarm, int current_day_index,	float evaluation,
+			boolean isNext){
+				
+		////////////////////////////
+		//LOG
+		String string="|";
+		
+		if(isNext){			
+			if(start_alarm.isStepsInterval(current_day_index)){
+				string+="S,";
+			}
+			else{
+				string+="E,";
+			}			
+			if(start_alarm.getRepeatingDay(current_day_index)){
+				string+="1;";
+			}
+			else{
+				string+="0;";
+			}
+			
+			string+="-;";
+		}
+		
+		String extra_str="";
+		////////////////////////////
+		
+		//viene propagata la valutazione dell'intervallo
+		
+		if(evaluation==1.0f){ 
+			//se nell'intervallo valutato sono stati fatti scalini, allora questo intervallo
+			//vicino diviene anch'esso un "intervallo con scalini", attivo la prossima settimana			
+			start_alarm.setStepsInterval(current_day_index, true);	
+			stop_alarm.setStepsInterval(current_day_index, true);			
+			start_alarm.setRepeatingDay(current_day_index, true);
+			stop_alarm.setRepeatingDay(current_day_index, true);
+			
+			string+="1(VP);S,1";			
+			extra_str="(VP: 1, S,1)";			
+		}
+		else{
+			//se nell'intervallo non sono stati fatti scalini, allora esso possiede una valutazione v,
+			//0<=v<1 che indica l'attività fisica svolta (se l'intervallo era S1 e l'utente non ha 
+			//fatto scalini, viene assegnata una valutazione pari a 0.5 per farlo diventare E1)
+			
+			if(evaluation>=eval_threshold){
+				start_alarm.setStepsInterval(current_day_index, false);	
+				stop_alarm.setStepsInterval(current_day_index, false);			
+				start_alarm.setRepeatingDay(current_day_index, true);
+				stop_alarm.setRepeatingDay(current_day_index, true);
+				
+				float v = new BigDecimal(evaluation).setScale(2, RoundingMode.HALF_UP).floatValue();
+				
+				string+=v+"(VP);E,1";
+				extra_str="(VP: "+v+", E,1)";
+			}
+			else{ //<0.5
+				
+				//se questo intervallo vicino è un intervallo con scalini e la valutazione propagata
+				//è <0.5, allora si fa diventare E1, assegnando comunque una valutazione pari a 0.5
+				if(start_alarm.isStepsInterval(current_day_index)){
+					start_alarm.setStepsInterval(current_day_index, false);	
+					stop_alarm.setStepsInterval(current_day_index, false);			
+					start_alarm.setRepeatingDay(current_day_index, true);
+					stop_alarm.setRepeatingDay(current_day_index, true);		
+					evaluation = eval_threshold;
+					
+					string+="0.5(VP);E,1";
+					extra_str="(VP: 0.5, E,1)";
+				}
+				else{
+					start_alarm.setStepsInterval(current_day_index, false);	
+					stop_alarm.setStepsInterval(current_day_index, false);			
+					start_alarm.setRepeatingDay(current_day_index, false);
+					stop_alarm.setRepeatingDay(current_day_index, false);
+					
+					float v = new BigDecimal(evaluation).setScale(2, RoundingMode.HALF_UP).floatValue();
+					string+=v+"(VP);E,0";
+					extra_str="(VP: "+v+", E,0)";
+				}
+			}
+		}
+				
+		
+		start_alarm.setEvaluation(current_day_index, evaluation);
+		stop_alarm.setEvaluation(current_day_index, evaluation);
+				
+		//si salvano queste modifiche anche nel database
+		alarmDao.update(start_alarm);
+		alarmDao.update(stop_alarm);	
+		
+		////////////////////////////
+		//LOG
+		if(!isNext){						
+			string=extra_str;
+		}
+		//sul file di log si riporta la stringa che indica la propagazione della valutazione	
+		LogUtils.writeIntervalStatus(context, current_day_index, start_alarm, stop_alarm, string);			
+		////////////////////////////			
 	}
 	
 	

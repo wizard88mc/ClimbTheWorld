@@ -1154,6 +1154,100 @@ public class AlarmUtils {
 	}
 	
 	
+	private static boolean isLastListenedIntervalFarEnough(Context context, Alarm current_alarm, boolean prevAlarmNotAvailable){
+		
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		
+		//si recupera l'id dell'alarm di stop dell'ultimo intervallo valutato
+		int last_evaluated_stop_alarm_id = prefs.getInt("last_evaluated_interval_stop_id",-1);
+		
+		//se il metodo di set alarm è stato chiamato a causa del fatto che l'alarm precedentemente impostato
+		//non è più valido allora significa che l'alarm precedente si è concluso senza essere valutato;
+		//se non è mai stato valutato alcun intervallo allora si esce subito
+		if(prevAlarmNotAvailable || last_evaluated_stop_alarm_id==-1){
+			return true;
+		}
+				
+		//si recupera l'alarm di stop dell'ultimo intervallo valutato
+		Alarm last_evaluated=getAlarm(context, last_evaluated_stop_alarm_id);
+		
+		Calendar current_alarm_time = Calendar.getInstance();
+		Calendar last_interval_time = Calendar.getInstance();
+		current_alarm_time.set(Calendar.HOUR_OF_DAY, current_alarm.get_hour());
+		current_alarm_time.set(Calendar.MINUTE, current_alarm.get_minute());
+		current_alarm_time.set(Calendar.SECOND, current_alarm.get_second());
+		last_interval_time.set(Calendar.HOUR_OF_DAY, last_evaluated.get_hour());
+		last_interval_time.set(Calendar.MINUTE, last_evaluated.get_minute());
+		last_interval_time.set(Calendar.SECOND, last_evaluated.get_second());
+		last_interval_time.set(Calendar.DATE, prefs.getInt("last_evaluated_interval_alarm_date", -1));
+		last_interval_time.set(Calendar.MONTH, prefs.getInt("last_evaluated_interval_alarm_month", -1));
+		last_interval_time.set(Calendar.YEAR, prefs.getInt("last_evaluated_interval_alarm_year", -1));
+		
+		//differenza di tempo tra i due alarm
+		long time_diff = current_alarm_time.getTime().getTime() - last_interval_time.getTime().getTime();
+		
+		//se il tempo che intercorre tra la fine dell'ultimo intervallo valutato e l'intervallo
+		//corrente è > 10 minuti allora si ritorna 'true'
+		if(time_diff > 600000){
+			return true;			
+		}
+		return false;
+	}
+	
+	
+	
+	public static Alarm secondIntervalExists(Context context, Alarm current_alarm, boolean next){
+		
+		//in input si ha l'alarm di stop dell'intervallo preso in considerazione; 
+		//l'alarm qui ottenuto può essere di stop quando si vuole controllare che l'intervallo 
+		//precedente (come id) venga immediatamente prima in ordine di tempo rispetto all'intervallo
+		//preso in esame; è di start quando si vuole controllare che l'intervallo successivo venga
+		//immediatamente dopo in ordine di tempo
+		Alarm second_alarm = null;
+		
+		if(next){
+			second_alarm = AlarmUtils.getAlarm(context, current_alarm.get_id()+1);
+		}
+		else{
+			second_alarm = AlarmUtils.getAlarm(context, current_alarm.get_id()-2);
+		}
+		
+		
+		if(second_alarm!=null){
+			//se quest'ultimo esiste, si controlla se tale l'intervallo viene immediatamente prima 
+			//o dopo in ordine di tempo rispetto all'intervallo corrente
+			Calendar current_alarm_time = Calendar.getInstance();
+			Calendar second_alarm_time = Calendar.getInstance();
+			current_alarm_time.set(Calendar.HOUR_OF_DAY, current_alarm.get_hour());
+			current_alarm_time.set(Calendar.MINUTE, current_alarm.get_minute());
+			current_alarm_time.set(Calendar.SECOND, current_alarm.get_second());
+			second_alarm_time.set(Calendar.HOUR_OF_DAY, second_alarm.get_hour());
+			second_alarm_time.set(Calendar.MINUTE, second_alarm.get_minute());
+			second_alarm_time.set(Calendar.SECOND, second_alarm.get_second());
+			
+			//differenza di tempo tra i due alarm
+			long time_diff=0;
+			
+			if(next){
+				time_diff = second_alarm_time.getTime().getTime() - current_alarm_time.getTime().getTime();				
+			}
+			else{
+				time_diff = current_alarm_time.getTime().getTime() - second_alarm_time.getTime().getTime();
+			}
+			
+			//se il tempo che intercorre tra i due intervalli è pari a 1 secondo allora significa che
+			//sono consecutivi
+			if(time_diff == 1000){
+				return second_alarm;
+			}
+			return null;
+		}
+		return null;
+	}
+	
+	
+	
+	
 	
 	/////////
 	//PER TEST ALGORITMO
