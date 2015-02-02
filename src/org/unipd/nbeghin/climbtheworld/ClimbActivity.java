@@ -41,6 +41,7 @@ import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.models.UserBadge;
+import org.unipd.nbeghin.climbtheworld.services.NotificationClickedService;
 import org.unipd.nbeghin.climbtheworld.services.NotificationDeletedReceiver;
 import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
@@ -397,10 +398,15 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 		}
 
 		if (pref.getBoolean("first_open_3", true)) {
-			Intent intent = new Intent(this, OnBoardingActivity.class);
-			intent.putExtra("source", "ClimbActivityVictory");
-			startActivity(intent);
-			pref.edit().putBoolean("first_open_3", false).commit();
+			if(!pref.getBoolean("done_tutorial", false)){
+				Intent intent = new Intent(this, OnBoardingActivity.class);
+				intent.putExtra("source", "ClimbActivityVictory");
+				startActivity(intent);
+				pref.edit().putBoolean("first_open_3", false).commit();
+			}else{
+				pref.edit().putBoolean("first_open_3", false).commit();
+
+			}
 		}
 	}
 
@@ -1003,10 +1009,14 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 	public void onStart() {
 		super.onStart();
 		if (pref.getBoolean("first_open_2", true)) {
-			Intent intent = new Intent(this, OnBoardingActivity.class);
-			intent.putExtra("source", "ClimbActivity");
-			startActivity(intent);
-			pref.edit().putBoolean("first_open_2", false).commit();
+				if(!pref.getBoolean("done_tutorial", false)){
+				Intent intent = new Intent(this, OnBoardingActivity.class);
+				intent.putExtra("source", "ClimbActivity");
+				startActivity(intent);
+				pref.edit().putBoolean("first_open_2", false).commit();
+			}else{
+				pref.edit().putBoolean("first_open_2", false).commit();
+			}
 		}
 	}
 
@@ -3643,11 +3653,17 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 
 	
 	private void showNotificationNewLevel(final int newLevel, final int drawable){
+		final int REQUEST_CODE_BASE = 1000;
+
+		final int requestID2 = REQUEST_CODE_BASE + (int) System.currentTimeMillis();
+		final Intent contentIntent = new Intent(ClimbActivity.this, NotificationClickedService.class);
+
 		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext())
 			.setSmallIcon(drawable).setLargeIcon(BitmapFactory.decodeResource(getResources(), drawable))
 			.setContentTitle("Climb The World");
-		PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(), PendingIntent.FLAG_UPDATE_CURRENT);
-		mBuilder.setContentIntent(contentIntent);
+//		PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(), PendingIntent.FLAG_UPDATE_CURRENT);
+//		mBuilder.setContentIntent(contentIntent);
+		mBuilder.setContentIntent(PendingIntent.getService(ClimbActivity.this, requestID2, contentIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_ONE_SHOT));
 		
 		ClimbActivity.this.runOnUiThread(new Runnable() {
 			public void run() {
@@ -3667,7 +3683,9 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 
 
 		final Intent deleteIntent = new Intent(ClimbActivity.this, NotificationDeletedReceiver.class); // new Intent("org.unipd.nbeghin.climbtheworld.services.NotificationDeletedReceiver");
+		final Intent contentIntent = new Intent(ClimbActivity.this, NotificationClickedService.class);
 		final int requestID = REQUEST_CODE_BASE + (int) System.currentTimeMillis();
+		final int requestID2 = REQUEST_CODE_BASE + (int) System.currentTimeMillis();
 		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext())
 			.setSmallIcon(drawable).setLargeIcon(BitmapFactory.decodeResource(getResources(), drawable))
 			.setContentTitle("Climb The World");
@@ -3676,8 +3694,10 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 		// .setContentIntent(PendingIntent.getBroadcast(ClimbActivity.this, requestID, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT))
 		// .setDeleteIntent(PendingIntent.getBroadcast(ClimbActivity.this, requestID, deleteIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_ONE_SHOT));
 
-		PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(), PendingIntent.FLAG_UPDATE_CURRENT);
-		mBuilder.setContentIntent(contentIntent);
+//		PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(), PendingIntent.FLAG_UPDATE_CURRENT);
+//		mBuilder.setContentIntent(contentIntent);
+		mBuilder.setContentIntent(PendingIntent.getService(ClimbActivity.this, requestID2, contentIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_ONE_SHOT));
+
 		
 		ClimbActivity.this.runOnUiThread(new Runnable() {
 			public void run() {
@@ -3713,12 +3733,16 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 
 		final int REQUEST_CODE_BASE = 1000;
 		final Intent deleteIntent = new Intent(ClimbActivity.this, NotificationDeletedReceiver.class); // new Intent("org.unipd.nbeghin.climbtheworld.services.NotificationDeletedReceiver");
+		final Intent contentIntent = new Intent(ClimbActivity.this, NotificationClickedService.class);
 		final int requestID = REQUEST_CODE_BASE + (int) System.currentTimeMillis();
+		final int requestID2 = REQUEST_CODE_BASE + (int) System.currentTimeMillis();
+
+//		Intent ci = new Intent(getApplicationContext(), MainActivity.class);
+//		ci.setAction(Intent.ACTION_MAIN);
+//		ci.addCategory(Intent.CATEGORY_LAUNCHER);
+		//PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, /*new Intent()*/ ci, PendingIntent.FLAG_UPDATE_CURRENT);
 		
-		Intent ci = new Intent(getApplicationContext(), MainActivity.class);
-		ci.setAction(Intent.ACTION_MAIN);
-		ci.addCategory(Intent.CATEGORY_LAUNCHER);
-		PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, /*new Intent()*/ ci, PendingIntent.FLAG_UPDATE_CURRENT);
+		
 		
 		int notification_icon = (Build.VERSION.SDK_INT < 11) ? R.drawable.ic_stat_cup_dark : R.drawable.ic_stat_cup_light;
 		int notification_size = ClimbApplication.notifications_inbox_contents.size();
@@ -3727,9 +3751,10 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 	    .setSmallIcon(notification_icon)
 	    .setLargeIcon(BitmapFactory.decodeResource(getResources(), notification_icon))
 	    .setContentTitle("Climb the World")
-	    .setContentText(getResources().getQuantityString(R.plurals.summary_inbox_text_2, notification_size, notification_size))
+	    //.setContentText(getResources().getQuantityString(R.plurals.summary_inbox_text_2, notification_size, notification_size))
+	    .setContentText("Climb the World")
 	    .setDeleteIntent(PendingIntent.getService(ClimbActivity.this, requestID, deleteIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_ONE_SHOT))
-	    .setContentIntent(contentIntent);
+	    .setContentIntent(PendingIntent.getService(ClimbActivity.this, requestID2, contentIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_ONE_SHOT));
 		
 		NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
 		List<Spannable> events = new ArrayList<Spannable>();
@@ -3742,16 +3767,24 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 		Spannable sb = new SpannableString(getString(R.string.notification_bonus, current_bonus));
 		int end_index = sb.toString().indexOf("+");
 		sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, end_index - 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		if(current_bonus > 0) events.add(sb);
+		if(current_bonus > 0)
+			events.add(sb);
+		else
+			notification_size -= 1;
 		
 		//add level line
 		int current_level = Integer.valueOf(Iterables.get(ClimbApplication.notifications_inbox_contents.get("LEVEL"), 0));
 		sb = new SpannableString(getString(R.string.new_level_inbox, current_level));
 		end_index = sb.toString().indexOf("L");
 		sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, end_index - 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		if(current_level > 0) events.add(sb);
+		if(current_level > 0) 
+			events.add(sb);
+		else
+			notification_size -= 1;
+
 		
 		inboxStyle.setSummaryText(getResources().getQuantityString(R.plurals.summary_inbox_text_2, notification_size, notification_size));
+		mBuilder.setContentText(getResources().getQuantityString(R.plurals.summary_inbox_text_2, notification_size, notification_size));
 		
 		//add badges lines
 		Collection<String> badges = ClimbApplication.notifications_inbox_contents.get("BADGE");

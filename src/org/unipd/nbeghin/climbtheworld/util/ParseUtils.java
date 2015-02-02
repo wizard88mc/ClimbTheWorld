@@ -353,6 +353,8 @@ public class ParseUtils {
 						ParseUser user = ParseUser.getCurrentUser();
 						me.setLevel(user.getInt("level"));
 						me.setXP(user.getInt("XP"));
+						ClimbApplication.setDoneTutorial(me);
+
 						me.setHeight(user.getDouble("height"));
 						JSONObject stats = user.getJSONObject("mean_daily_steps");
 						if (stats != null && stats.length() > 0) {
@@ -367,6 +369,7 @@ public class ParseUtils {
 						}
 						}
 						ClimbApplication.userDao.update(me);
+						
 				    } else {
 				    		//Toast.makeText(ClimbApplication.getContext(), ClimbApplication.getContext().getString(R.string.connection_problem2), Toast.LENGTH_SHORT).show();
 						//ClimbApplication.showConnectionProblemsToast();

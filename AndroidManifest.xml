@@ -33,6 +33,9 @@
         <service
             android:name=".services.NotificationDeletedReceiver"
             android:exported="false"/>
+        <service
+            android:name=".services.NotificationClickedService"
+            android:exported="false"/>
         
         
 	 <activity 

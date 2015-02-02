@@ -183,11 +183,14 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests {
 
 		// onboarding message 1
 		if (pref.getBoolean("first_open_1", true)) {
-
-			Intent intent = new Intent(getContext(), OnBoardingActivity.class);
-			intent.putExtra("source", "MainActivity");
-			startActivity(intent);
-			pref.edit().putBoolean("first_open_1", false).commit();
+			if(!pref.getBoolean("done_tutorial", false)){
+				Intent intent = new Intent(getContext(), OnBoardingActivity.class);
+				intent.putExtra("source", "MainActivity");
+				startActivity(intent);
+				pref.edit().putBoolean("first_open_1", false).commit();
+			}else{
+				pref.edit().putBoolean("first_open_1", false).commit();
+			}
 		}
 
 	}
@@ -755,7 +758,7 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests {
 	}
 
 	/**
-	 * Request to be executed asynchronously: it check if user has already connected his account with Facebook. If this is the case, it downloads all his previous data.
+	 * Request to be executed asynchronously: it checks if user has already connected his account with Facebook. If this is the case, it downloads all his previous data.
 	 */
 	@Override
 	public void makeRequest(final Session session, final ProgressDialog PD) {

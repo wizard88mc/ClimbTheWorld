@@ -163,6 +163,14 @@ public class ClimbApplication extends Application {
 	public static void setCurrentUser(User user) {
 		currentUser = user;
 	}
+	
+	public static void setDoneTutorial(User user){
+		SharedPreferences pref = getContext().getSharedPreferences("UserSession", 0);
+		if(user.getLevel() >= 1){
+			pref.edit().putBoolean("done_tutorial", true).commit();
+		}else
+			pref.edit().putBoolean("done_tutorial", false).commit();
+	}
 
 	public static boolean isActivityVisible() {
 		return activityVisible;
