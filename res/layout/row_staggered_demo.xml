@@ -8,4 +8,10 @@
         android:layout_height="wrap_content"
         android:src="@null" />
 
+    <ProgressBar
+        android:id="@+id/progressBarItem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" 
+        android:layout_gravity="center"/>
+
 </FrameLayout>

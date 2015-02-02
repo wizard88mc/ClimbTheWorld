@@ -12,18 +12,21 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.origamilabs.library.views.StaggeredGridView;
-import com.origamilabs.library.views.StaggeredGridView.OnItemClickListener;
+import com.etsy.android.grid.StaggeredGridView;
 
-public class GalleryActivity extends BaseImageLoaderActivity {
+//import com.origamilabs.library.views.StaggeredGridView;
+//import com.origamilabs.library.views.StaggeredGridView.OnItemClickListener;
+
+public class GalleryActivity extends BaseImageLoaderActivity implements AbsListView.OnItemClickListener {
 	public static List<Photo>	photos;
 	private int building_id=0;
 	
@@ -45,16 +48,17 @@ public class GalleryActivity extends BaseImageLoaderActivity {
 					Log.i(MainActivity.AppName, "Photos found: " + photos.size());
 					StaggeredGridView gridView = (StaggeredGridView) this.findViewById(R.id.photoGallery);
 					int margin = getResources().getDimensionPixelSize(R.dimen.margin);
-					gridView.setItemMargin(margin); // set the GridView margin
+					//gridView.setItemMargin(margin); // set the GridView margin
 					gridView.setPadding(margin, 0, margin, 0); // have the margin on the sides as well
 					StaggeredPhotoAdapter adapter = new StaggeredPhotoAdapter(this, R.id.imgRocket, photos);
 					gridView.setAdapter(adapter);
-					gridView.setOnItemClickListener(new OnItemClickListener() {
-						@Override
-						public void onItemClick(StaggeredGridView parent, View view, int position, long id) {
-							startImagePagerActivity(position);
-						};
-					});
+					gridView.setOnItemClickListener(this);
+//					gridView.setOnItemClickListener(new OnItemClickListener() {
+//						@Override
+//						public void onItemClick(StaggeredGridView parent, View view, int position, long id) {
+//							startImagePagerActivity(position);
+//						};
+//					});
 					adapter.notifyDataSetChanged();
 				}else{
 					((TextView) findViewById(R.id.textNoConnection)).setVisibility(View.VISIBLE);
@@ -131,4 +135,10 @@ public class GalleryActivity extends BaseImageLoaderActivity {
 		Log.i(MainActivity.AppName, "GalleryActivity onDestroy");
 		super.onDestroy();
 	}
+	
+	 @Override
+	public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+	        Toast.makeText(this, "Item Clicked: " + position, Toast.LENGTH_SHORT).show();
+		 startImagePagerActivity(position);
+	  }
 }
