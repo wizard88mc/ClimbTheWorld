@@ -941,7 +941,7 @@ public class AlarmUtils {
 		//del boot perché l'alarm precedentemente impostato non è più valido; dopo aver
 		//trovato un nuovo alarm, se quest'ultimo è di stop significa che si è all'interno di
 		//un nuovo intervallo attivo: si fa ripartire il classificatore Google/scalini
-		if(prevAlarmNotAvailable && !nextAlarm.get_actionType()){
+		if((prevAlarmNotAvailable || current_alarm_id==-1) && !nextAlarm.get_actionType()){
 						 
 			//si resettano i valori relativi alle attività/scalini rilevati in precedenza			
 			ActivityRecognitionIntentService.clearValuesCount(prefs);
@@ -1103,7 +1103,7 @@ public class AlarmUtils {
 
 		//se l'intervallo corrente e l'ultimo intervallo valutato hanno id contigui si 
 		//controlla se sono vicini anche per quanto riguarda il tempo che intercorre tra loro
-		if(last_evaluated_stop_alarm_id-current_alarm.get_id()==interval_id_diff){
+		if(current_alarm.get_id()-last_evaluated_stop_alarm_id==interval_id_diff){
 			
 			//si recupera l'alarm di stop dell'ultimo intervallo valutato
 			Alarm last_evaluated=getAlarm(context, last_evaluated_stop_alarm_id);
@@ -1211,16 +1211,26 @@ public class AlarmUtils {
 			return true;
 		}
 				
+		long target_time_diff = 600000; 
+		
 		//si recupera l'alarm di stop dell'ultimo intervallo valutato
-		Alarm last_evaluated=getAlarm(context, last_evaluated_stop_alarm_id);
+		Alarm last_evaluated=getAlarm(context, last_evaluated_stop_alarm_id);	
 		
 		Calendar current_alarm_time = Calendar.getInstance();
 		Calendar last_interval_time = (Calendar) current_alarm_time.clone();
 		current_alarm_time.set(Calendar.HOUR_OF_DAY, current_alarm.get_hour());
 		current_alarm_time.set(Calendar.MINUTE, current_alarm.get_minute());
 		current_alarm_time.set(Calendar.SECOND, current_alarm.get_second());
-		last_interval_time.set(Calendar.HOUR_OF_DAY, last_evaluated.get_hour());
-		last_interval_time.set(Calendar.MINUTE, last_evaluated.get_minute());
+		
+		int last_val_hh=last_evaluated.get_hour();
+		int last_val_mm=last_evaluated.get_minute();
+		
+		if(last_val_hh==23 && last_val_mm==59){
+			target_time_diff+=5000;
+		}
+		
+		last_interval_time.set(Calendar.HOUR_OF_DAY, last_val_hh);
+		last_interval_time.set(Calendar.MINUTE, last_val_mm);
 		last_interval_time.set(Calendar.SECOND, last_evaluated.get_second());
 		last_interval_time.set(Calendar.DATE, prefs.getInt("last_evaluated_interval_alarm_date", -1));
 		last_interval_time.set(Calendar.MONTH, prefs.getInt("last_evaluated_interval_alarm_month", -1));
@@ -1241,8 +1251,8 @@ public class AlarmUtils {
 		}		
 		
 		//se il tempo che intercorre tra la fine dell'ultimo intervallo valutato e l'intervallo
-		//corrente è > 10 minuti allora si ritorna 'true'
-		if(time_diff > 600000){
+		//corrente è > 10 minuti (si saltano 2 intervalli) allora si ritorna 'true'
+		if(time_diff > target_time_diff){
 			Log.d(MainActivity.AppName, "AlarmUtils - filtro: diff > 10 minuti: " +time_diff+" OK");
 			return true;			
 		}
