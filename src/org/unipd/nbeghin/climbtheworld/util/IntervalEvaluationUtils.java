@@ -251,7 +251,7 @@ public class IntervalEvaluationUtils {
 		
 		
 		//si recuperano, se esistono, gli intervalli vicini per propagare la valutazione
-		Alarm prev_interval_stop = AlarmUtils.secondIntervalExists(context, this_stop_alarm, false);
+		Alarm prev_interval_stop = AlarmUtils.secondIntervalExists(context, previous_start_alarm, false);
 		Alarm prev_interval_start = null;
 		if(prev_interval_stop!=null){
 			Log.d(MainActivity.AppName, "Eval utils - propagazione valutazione precedente");

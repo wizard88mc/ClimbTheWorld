@@ -1254,7 +1254,9 @@ public class AlarmUtils {
 	
 	public static Alarm secondIntervalExists(Context context, Alarm current_alarm, boolean next){
 		
-		//in input si ha l'alarm di stop dell'intervallo preso in considerazione; 
+		//in input si ha l'alarm di stop (se si vuole controllare se esiste l'intervallo
+		//successivo) o di start (se si vuole controllare se esiste l'intervallo precedente)
+		//dell'intervallo preso in considerazione; 
 		//l'alarm qui ottenuto può essere di stop quando si vuole controllare che l'intervallo 
 		//precedente (come id) venga immediatamente prima in ordine di tempo rispetto all'intervallo
 		//preso in esame; è di start quando si vuole controllare che l'intervallo successivo venga
@@ -1265,7 +1267,7 @@ public class AlarmUtils {
 			second_alarm = AlarmUtils.getAlarm(context, current_alarm.get_id()+1);
 		}
 		else{
-			second_alarm = AlarmUtils.getAlarm(context, current_alarm.get_id()-2);
+			second_alarm = AlarmUtils.getAlarm(context, current_alarm.get_id()-1);
 		}
 		
 		
