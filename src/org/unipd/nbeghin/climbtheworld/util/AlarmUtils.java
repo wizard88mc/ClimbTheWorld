@@ -349,13 +349,7 @@ public class AlarmUtils {
     	return helper.getAlarmDao().queryForAll();  
     }
 	
-	
-	
-	
-	
-   
-    //Metodo per settare il prossimo alarm; chiamato la prima volta per inizializzare il primo alarm,
-	//nell'on receive per l'on boot action
+
     /**
      * Sets up the next alarm; it is also called to initialize the first alarm.
      * @param context context of the application.
@@ -365,7 +359,9 @@ public class AlarmUtils {
      * @param current_alarm_id id of the current alarm, previously set.
      */
 	public static void setNextAlarm(Context context, List<Alarm> alarms, boolean takeAllAlarms, boolean prevAlarmNotAvailable, int current_alarm_id){
-				
+		//questo metodo serve per settare il prossimo alarm dopo averne consumato uno nell'apposito
+		//receiver; è chiamato inizialmente per	inizializzare il primo alarm
+		
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		
 		RuntimeExceptionDao<Alarm, Integer> alarmDao = DbHelper.getInstance(context).getAlarmDao();    	
@@ -408,7 +404,7 @@ public class AlarmUtils {
 		
 		
 		Calendar now = Calendar.getInstance();
-		Calendar alarmTime = Calendar.getInstance();	
+		Calendar alarmTime = (Calendar) now.clone();//Calendar.getInstance();	
 		//DA RIPRISTINARE CON SETTIMANA DI 7 GIORNI
 		//int today = alarmTime.get(Calendar.DAY_OF_WEEK)-1;
 		
@@ -1113,7 +1109,7 @@ public class AlarmUtils {
 			Alarm last_evaluated=getAlarm(context, last_evaluated_stop_alarm_id);
 			
 			Calendar current_alarm_time = Calendar.getInstance();
-			Calendar last_interval_time = Calendar.getInstance();
+			Calendar last_interval_time = (Calendar) current_alarm_time.clone();
 			int current_h=current_alarm.get_hour();
 			int current_m=current_alarm.get_minute();
 			current_alarm_time.set(Calendar.HOUR_OF_DAY, current_h);
@@ -1132,6 +1128,7 @@ public class AlarmUtils {
 			//se l'alarm corrente è di start, la differenza tra esso e il precedente alarm di stop che
 			//definisce l'intervallo ascoltato deve essere pari a 1 secondo (in tal modo l'ultimo ascoltato
 			//è quello immediatamente precedente)
+						
 			long target_time_diff = 1000;
 			//se l'alarm corrente è di stop, la differenza deve essere pari a 5 minuti (o 4 minuti e 55 secondi
 			//se l'alarm corrente è l'ultimo della giornata, quello delle 23:59:55)
@@ -1175,7 +1172,7 @@ public class AlarmUtils {
 		if(next_alarm!=null && next_alarm.getRepeatingDay(current_day_index)){
 			
 			Calendar current_alarm_time = Calendar.getInstance();
-			Calendar next_interval_time = Calendar.getInstance();
+			Calendar next_interval_time = (Calendar) current_alarm_time.clone();
 			int current_h=current_alarm.get_hour();
 			int current_m=current_alarm.get_minute();
 			current_alarm_time.set(Calendar.HOUR_OF_DAY, current_h);
@@ -1210,6 +1207,7 @@ public class AlarmUtils {
 		//non è più valido allora significa che l'alarm precedente si è concluso senza essere valutato;
 		//se non è mai stato valutato alcun intervallo allora si esce subito
 		if(prevAlarmNotAvailable || last_evaluated_stop_alarm_id==-1){
+			Log.d(MainActivity.AppName, "AlarmUtils - filtro bilanciamento energetico: OK (non più valido o nessuno ancora valutato)");
 			return true;
 		}
 				
@@ -1217,7 +1215,7 @@ public class AlarmUtils {
 		Alarm last_evaluated=getAlarm(context, last_evaluated_stop_alarm_id);
 		
 		Calendar current_alarm_time = Calendar.getInstance();
-		Calendar last_interval_time = Calendar.getInstance();
+		Calendar last_interval_time = (Calendar) current_alarm_time.clone();
 		current_alarm_time.set(Calendar.HOUR_OF_DAY, current_alarm.get_hour());
 		current_alarm_time.set(Calendar.MINUTE, current_alarm.get_minute());
 		current_alarm_time.set(Calendar.SECOND, current_alarm.get_second());
@@ -1227,15 +1225,28 @@ public class AlarmUtils {
 		last_interval_time.set(Calendar.DATE, prefs.getInt("last_evaluated_interval_alarm_date", -1));
 		last_interval_time.set(Calendar.MONTH, prefs.getInt("last_evaluated_interval_alarm_month", -1));
 		last_interval_time.set(Calendar.YEAR, prefs.getInt("last_evaluated_interval_alarm_year", -1));
-		
+				
 		//differenza di tempo tra i due alarm
 		long time_diff = current_alarm_time.getTime().getTime() - last_interval_time.getTime().getTime();
+		
+		if(MainActivity.logEnabled){
+			int alr_m=current_alarm_time.get(Calendar.MONTH)+1;  
+			int last_m=last_interval_time.get(Calendar.MONTH)+1;  
+			Log.d(MainActivity.AppName, "AlarmUtils - filtro bilanciamento energetico: CURR:" 
+					+ current_alarm_time.get(Calendar.HOUR_OF_DAY)+":"+ current_alarm_time.get(Calendar.MINUTE)+":"+ current_alarm_time.get(Calendar.SECOND) +
+					"  "+current_alarm_time.get(Calendar.DATE)+"/"+alr_m+"/"+current_alarm_time.get(Calendar.YEAR)+
+					"; LAST: "+ last_interval_time.get(Calendar.HOUR_OF_DAY)+":"+ last_interval_time.get(Calendar.MINUTE)+":"+ 
+					last_interval_time.get(Calendar.SECOND) + "  "+last_interval_time.get(Calendar.DATE)+"/"+last_m+"/"+
+					last_interval_time.get(Calendar.YEAR));
+		}		
 		
 		//se il tempo che intercorre tra la fine dell'ultimo intervallo valutato e l'intervallo
 		//corrente è > 10 minuti allora si ritorna 'true'
 		if(time_diff > 600000){
+			Log.d(MainActivity.AppName, "AlarmUtils - filtro: diff > 10 minuti: " +time_diff+" OK");
 			return true;			
 		}
+		Log.d(MainActivity.AppName, "AlarmUtils - filtro: diff <= 10 minuti: " +time_diff+" NO");
 		return false;
 	}
 	
@@ -1262,7 +1273,7 @@ public class AlarmUtils {
 			//se quest'ultimo esiste, si controlla se tale l'intervallo viene immediatamente prima 
 			//o dopo in ordine di tempo rispetto all'intervallo corrente
 			Calendar current_alarm_time = Calendar.getInstance();
-			Calendar second_alarm_time = Calendar.getInstance();
+			Calendar second_alarm_time = (Calendar) current_alarm_time.clone();
 			current_alarm_time.set(Calendar.HOUR_OF_DAY, current_alarm.get_hour());
 			current_alarm_time.set(Calendar.MINUTE, current_alarm.get_minute());
 			current_alarm_time.set(Calendar.SECOND, current_alarm.get_second());
@@ -1274,11 +1285,14 @@ public class AlarmUtils {
 			long time_diff=0;
 			
 			if(next){
-				time_diff = second_alarm_time.getTime().getTime() - current_alarm_time.getTime().getTime();				
+				time_diff = second_alarm_time.getTime().getTime() - current_alarm_time.getTime().getTime();		
+				Log.d(MainActivity.AppName, "AlarmUtils - intervallo next diff: " +time_diff);
 			}
 			else{
 				time_diff = current_alarm_time.getTime().getTime() - second_alarm_time.getTime().getTime();
+				Log.d(MainActivity.AppName, "AlarmUtils - intervallo prev diff: " +time_diff);
 			}
+					
 			
 			//se il tempo che intercorre tra i due intervalli è pari a 1 secondo allora significa che
 			//sono consecutivi
@@ -1296,7 +1310,7 @@ public class AlarmUtils {
 		
 		//nel logfile si scrive che tale intervallo è stato saltato solo quando si arriva
 		//al relativo alarm di stop		
-		if(!a.get_actionType()){			
+		if(!a.get_actionType() && !isPreviousIntervalListened(context, a, false)){			
 			//si ottiene il relativo alarm di start (esiste sicuramente)
 			Alarm prev_start= getAlarm(context, a.get_id()-1); 						
 

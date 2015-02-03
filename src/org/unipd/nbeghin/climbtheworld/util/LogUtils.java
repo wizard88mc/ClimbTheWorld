@@ -3,7 +3,6 @@ package org.unipd.nbeghin.climbtheworld.util;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -102,10 +101,10 @@ public class LogUtils {
 		time_now.set(Calendar.HOUR_OF_DAY, 0);
 		time_now.set(Calendar.MINUTE, 0);
 		time_now.set(Calendar.SECOND, 0);					
-		Calendar time_before = Calendar.getInstance();
-		time_before.set(Calendar.HOUR_OF_DAY, 0);
+		Calendar time_before = (Calendar) time_now.clone();//Calendar.getInstance();
+		/*time_before.set(Calendar.HOUR_OF_DAY, 0);
 		time_before.set(Calendar.MINUTE, 0);
-		time_before.set(Calendar.SECOND, 0);		
+		time_before.set(Calendar.SECOND, 0);*/		
     	
 		int dd=0; int mm=0; int yyyy=0;
 		String not_evaluated_cause="";
@@ -156,7 +155,6 @@ public class LogUtils {
 		
 		//si resettano ora, minuti e secondi per riportarli all'orario corrente
 		time_now = Calendar.getInstance();
-		
 
 		if(MainActivity.logEnabled){
 			int month=time_now.get(Calendar.MONTH)+1;	

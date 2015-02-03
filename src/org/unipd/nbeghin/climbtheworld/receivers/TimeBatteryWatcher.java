@@ -118,10 +118,10 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				now.set(Calendar.MINUTE, 0);
 				now.set(Calendar.SECOND, 0);
 				
-				Calendar before = Calendar.getInstance();
-				before.set(Calendar.HOUR_OF_DAY, 0);
+				Calendar before = (Calendar) now.clone();
+				/*before.set(Calendar.HOUR_OF_DAY, 0);
 				before.set(Calendar.MINUTE, 0);
-				before.set(Calendar.SECOND, 0);
+				before.set(Calendar.SECOND, 0);*/
 				DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");	
 				Date date = null;
 				try {
@@ -534,8 +534,9 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				
 				//nelle SharedPreferences si memorizza l'informazione che questo appena concluso è l'ultimo
 				//intervallo valutato (informazione completa con data per essere precisi su quando è stato
-				//valutato); questa informazione è utile per vedere se il precedente intervallo è stato
-				//ascoltato o meno (serve per attuare il bilanciamento energetico)				
+				//valutato); questa informazione è utile per vedere qual è stato l'ultimo intervallo 
+				//ad essere valutato ed autorizza o meno l'algoritmo ad ascoltare un certo intervallo
+				//considerato (serve per attuare il bilanciamento energetico)				
 				Calendar now_eval = Calendar.getInstance();				
 				Editor editor = pref.edit();	
 				//si imposta l'id dell'alarm di stop dell'intervallo valutato
@@ -544,8 +545,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				editor.putInt("last_evaluated_interval_alarm_date", now_eval.get(Calendar.DATE));
 				editor.putInt("last_evaluated_interval_alarm_month", now_eval.get(Calendar.MONTH));
 				editor.putInt("last_evaluated_interval_alarm_year", now_eval.get(Calendar.YEAR));   
-				editor.commit();    
-				
+				editor.commit();    				
 			}
 			
 			//int aa_id = pref.getInt("alarm_id", -1);

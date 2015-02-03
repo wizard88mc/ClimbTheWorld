@@ -225,7 +225,7 @@ public class GeneralUtils {
 	            String receiveString = "";
 	            
 	            Calendar cal_start = Calendar.getInstance();
-	            Calendar cal_stop = Calendar.getInstance();	            
+	            Calendar cal_stop = (Calendar) cal_start.clone();	            
 	        	SimpleDateFormat calFormat = new SimpleDateFormat("HH:mm:ss");
 	        	  
 	        	int current_day = cal_start.get(Calendar.DATE);

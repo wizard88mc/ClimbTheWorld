@@ -6,14 +6,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
+
 import org.unipd.nbeghin.climbtheworld.adapters.PagerAdapter;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.fragments.BuildingsFragment;
 import org.unipd.nbeghin.climbtheworld.fragments.ToursFragment;
 import org.unipd.nbeghin.climbtheworldAlgorithm.R;
+
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
@@ -86,7 +89,6 @@ public class MainActivity extends ActionBarActivity {
 	        alertDialog.setCancelable(false);
 	        alertDialog.show();
 		}
-		
 	}
 
 	

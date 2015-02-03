@@ -2,7 +2,6 @@ package org.unipd.nbeghin.climbtheworld.util;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Calendar;
 
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionIntentService;
@@ -255,12 +254,14 @@ public class IntervalEvaluationUtils {
 		Alarm prev_interval_stop = AlarmUtils.secondIntervalExists(context, this_stop_alarm, false);
 		Alarm prev_interval_start = null;
 		if(prev_interval_stop!=null){
+			Log.d(MainActivity.AppName, "Eval utils - propagazione valutazione precedente");
 			prev_interval_start=AlarmUtils.getAlarm(context, stop_alarm_id-3);
 			propagateEvaluation(context, alarmDao, prev_interval_start, prev_interval_stop, current_day_index, evaluation, false);
 		}
 		Alarm next_interval_start = AlarmUtils.secondIntervalExists(context, this_stop_alarm, true);
 		Alarm next_interval_stop = null;		
 		if(next_interval_start!=null){
+			Log.d(MainActivity.AppName, "Eval utils - propagazione valutazione successivo");
 			next_interval_stop=AlarmUtils.getAlarm(context, stop_alarm_id+2);		
 			propagateEvaluation(context, alarmDao, next_interval_start, next_interval_stop, current_day_index, evaluation, true);
 		}		
@@ -379,7 +380,7 @@ public class IntervalEvaluationUtils {
 			else{ //<0.5
 				
 				//se questo intervallo vicino è un intervallo con scalini e la valutazione propagata
-				//è <0.5, allora si fa diventare E1, assegnando comunque una valutazione pari a 0.5
+				//è <0.5, allora lo si fa diventare E1, assegnando comunque una valutazione pari a 0.5
 				if(start_alarm.isStepsInterval(current_day_index)){
 					start_alarm.setStepsInterval(current_day_index, false);	
 					stop_alarm.setStepsInterval(current_day_index, false);			
