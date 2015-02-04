@@ -224,7 +224,7 @@ public class ClimbActivity extends Activity {
 			}
 			updateStats(); // update the view of current stats
 			if (win) {
-				stopClassify(AlarmUtils.getAlarm(appContext, settings.getInt("alarm_id", -1)), settings.getInt("artificialDayIndex", 0)); // stop classifier service service
+				stopClassify(AlarmUtils.getAlarm(appContext, settings.getInt("alarm_id", -1)), settings.getInt("artificialDayIndex", 0)); // stop classifier service
 				apply_win();
 			}
 		}

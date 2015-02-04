@@ -247,8 +247,6 @@ public class IntervalEvaluationUtils {
 		
 		Log.d(MainActivity.AppName,"alarm start dopo: " + AlarmUtils.getAlarm(context, stop_alarm_id-1).getRepeatingDay(current_day_index));
 	
-			
-		
 		
 		//si recuperano, se esistono, gli intervalli vicini per propagare la valutazione
 		Alarm prev_interval_stop = AlarmUtils.secondIntervalExists(context, previous_start_alarm, false);

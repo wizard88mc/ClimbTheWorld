@@ -461,7 +461,7 @@ public class AlarmUtils {
 				//(disattivato) anche l'alarm di stop successivo)
 				
 				
-				if(isLastListenedIntervalFarEnough(context, nextAlarm, prevAlarmNotAvailable)){
+				if(isLastListenedIntervalFarEnough(context, nextAlarm, prevAlarmNotAvailable,0)){
 					
 					//se l'alarm non è attivato per questo giorno e se esso è di start, vuol dire
 					//che il relativo intervallo non è stato attivato per questo giorno					
@@ -557,7 +557,7 @@ public class AlarmUtils {
 				else{					
 					////////////////////////////
 					//utile per scrivere il LOG					
-					writeSkippedInterval(context, nextAlarm, artificialIndex);
+					writeSkippedInterval(context, nextAlarm, artificialIndex, 0);
 					////////////////////////////
 					
 					nextAlarm=null;
@@ -581,7 +581,7 @@ public class AlarmUtils {
 					/////////
 					
 					
-					if(isLastListenedIntervalFarEnough(context, e, prevAlarmNotAvailable)){
+					if(isLastListenedIntervalFarEnough(context, e, prevAlarmNotAvailable,0)){
 						
 						if(e.getRepeatingDay(artificialIndex)){
 							//l'alarm è attivato per questo giorno
@@ -644,7 +644,7 @@ public class AlarmUtils {
 					else{
 						////////////////////////////
 						//utile per scrivere il LOG					
-						writeSkippedInterval(context, e, artificialIndex);
+						writeSkippedInterval(context, e, artificialIndex, 0);
 						////////////////////////////
 					}
 				}
@@ -716,7 +716,7 @@ public class AlarmUtils {
 				Alarm e = alarms.get(i-1);
 				
 				
-				if(isLastListenedIntervalFarEnough(context, e, prevAlarmNotAvailable)){
+				if(isLastListenedIntervalFarEnough(context, e, prevAlarmNotAvailable,0)){
 					
 					if(e.getRepeatingDay(artificialIndex)){
 						nextAlarm=e;
@@ -770,7 +770,7 @@ public class AlarmUtils {
 				else{
 					////////////////////////////
 					//utile per scrivere il LOG					
-					writeSkippedInterval(context, e, artificialIndex);
+					writeSkippedInterval(context, e, artificialIndex, 0);
 					////////////////////////////
 				}
 				
@@ -784,6 +784,9 @@ public class AlarmUtils {
 		//gli intervalli della settimana non sono attivi, ma grazie alla mutazione prima o
 		//poi ne verrà attivato uno in un certo giorno)
 		if(nextAlarm==null)	{
+			
+			System.out.println("Giorni successivi");
+			
 			
 			//si resettano ora, minuti e secondi
 			alarmTime.set(Calendar.HOUR_OF_DAY, 0);
@@ -802,13 +805,14 @@ public class AlarmUtils {
 				Log.d(MainActivity.AppName, "AlarmUtils - milliseconds of the resetted alarm: " + alarmTime.getTimeInMillis());
 			}
 			/////////	
-			
+			int days_added=0;
 			
 			while(!stop){
 				
 				//si incrementa il giorno in quanto un opportuno alarm non è stato trovato nel
 				//giorno precedente
 				alarmTime.add(Calendar.DATE, 1);
+				days_added++;
 				
 				if(MainActivity.logEnabled){
 					int alr_m=alarmTime.get(Calendar.MONTH)+1;    	
@@ -835,7 +839,7 @@ public class AlarmUtils {
 					/////////
 					
 					
-					if(isLastListenedIntervalFarEnough(context, e, prevAlarmNotAvailable)){
+					if(isLastListenedIntervalFarEnough(context, e, prevAlarmNotAvailable, days_added)){
 						
 						//gli alarm hanno un istante di inizio sicuramente > di ora in quanto
 						//si stanno cercando in un giorno successivo a quello corrente
@@ -893,7 +897,7 @@ public class AlarmUtils {
 					else{
 						////////////////////////////
 						//utile per scrivere il LOG					
-						writeSkippedInterval(context, e, currentIndex);
+						writeSkippedInterval(context, e, currentIndex, days_added);
 						////////////////////////////
 					}
 				}
@@ -1079,7 +1083,7 @@ public class AlarmUtils {
 	
 	
 	
-	private static boolean isPreviousIntervalListened(Context context, Alarm current_alarm, boolean prevAlarmNotAvailable){
+	private static boolean isPreviousIntervalListened(Context context, Alarm current_alarm, boolean prevAlarmNotAvailable, int days_number_to_add){
 		
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		
@@ -1110,6 +1114,10 @@ public class AlarmUtils {
 			
 			Calendar current_alarm_time = Calendar.getInstance();
 			Calendar last_interval_time = (Calendar) current_alarm_time.clone();
+			
+			if(days_number_to_add>0){
+				current_alarm_time.add(Calendar.DATE, days_number_to_add);
+			}
 			int current_h=current_alarm.get_hour();
 			int current_m=current_alarm.get_minute();
 			current_alarm_time.set(Calendar.HOUR_OF_DAY, current_h);
@@ -1196,7 +1204,7 @@ public class AlarmUtils {
 	}
 	
 	
-	private static boolean isLastListenedIntervalFarEnough(Context context, Alarm current_alarm, boolean prevAlarmNotAvailable){
+	private static boolean isLastListenedIntervalFarEnough(Context context, Alarm current_alarm, boolean prevAlarmNotAvailable, int days_number_to_add){
 		
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		
@@ -1218,6 +1226,10 @@ public class AlarmUtils {
 		
 		Calendar current_alarm_time = Calendar.getInstance();
 		Calendar last_interval_time = (Calendar) current_alarm_time.clone();
+		
+		if(days_number_to_add>0){
+			current_alarm_time.add(Calendar.DATE, days_number_to_add);
+		}
 		current_alarm_time.set(Calendar.HOUR_OF_DAY, current_alarm.get_hour());
 		current_alarm_time.set(Calendar.MINUTE, current_alarm.get_minute());
 		current_alarm_time.set(Calendar.SECOND, current_alarm.get_second());
@@ -1318,11 +1330,11 @@ public class AlarmUtils {
 	
 	
 	
-	private static void writeSkippedInterval(Context context, Alarm a, int day_index){
+	private static void writeSkippedInterval(Context context, Alarm a, int day_index, int days_number_to_add){
 		
 		//nel logfile si scrive che tale intervallo è stato saltato solo quando si arriva
 		//al relativo alarm di stop		
-		if(!a.get_actionType() && !isPreviousIntervalListened(context, a, false)){			
+		if(!a.get_actionType() && !isPreviousIntervalListened(context, a, false, days_number_to_add)){			
 			//si ottiene il relativo alarm di start (esiste sicuramente)
 			Alarm prev_start= getAlarm(context, a.get_id()-1); 						
 
