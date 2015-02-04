@@ -687,6 +687,13 @@ public class ClimbActivity extends Activity {
 						appContext.startService(new Intent(appContext, ActivityRecognitionRecordService.class));
 					}*/
 				}
+				else{
+					//se il prossimo alarm è di start significa che non si è all'interno di un
+					//intervallo di esplorazione/intervallo con scalini attivo; quindi, in tal caso,
+					//se l'utente ferma il gioco si resetta a 'false' il booleano che indica se 
+					//l'utente ha fatto almeno 1 scalino nel periodo di gioco corrente
+					stepsInGamePeriod=false;					
+				}
 				
 			} else { // if sampling is not enabled stop the classifier
 				climbedYesterday=StatUtils.climbedYesterday(climbing.get_id());
