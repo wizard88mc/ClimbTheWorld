@@ -12,6 +12,7 @@ import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionI
 import org.unipd.nbeghin.climbtheworld.models.Alarm;
 import org.unipd.nbeghin.climbtheworld.services.ActivityRecognitionRecordService;
 import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
+import org.unipd.nbeghin.climbtheworld.services.SetNextAlarmIntentService;
 import org.unipd.nbeghin.climbtheworld.util.AlarmUtils;
 import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
 import org.unipd.nbeghin.climbtheworld.util.IntervalEvaluationUtils;
@@ -245,8 +246,12 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    		if(MainActivity.logEnabled){
 		    			Log.d(MainActivity.AppName,"On boot - the previous alarm is not valid; we set another alarm");		
 		    		}
-												
-		    				    		
+							
+		    		//si fa partire il servizio che imposta e lancia un nuovo alarm	 
+		    		//(se il nuovo alarm è di stop, si fa ripartire subito il classificatore opportuno)
+		    		context.startService(new Intent(context, SetNextAlarmIntentService.class).putExtra("takeAllAlarms", true).putExtra("prevAlarmNotAvailable", true).putExtra("current_alarm_id", alarm_id));
+		    		
+		    		/*		    		
 		    		Thread thread = new Thread(){					    	
 		    			@Override
 		    			public void run() {
@@ -256,7 +261,8 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    		//si fa partire il thread che imposta e lancia un nuovo alarm
 		    		//(se il nuovo alarm è di stop, si fa ripartire subito il 
 		    		//classificatore opportuno)
-		    		thread.start();						
+		    		thread.start();			
+		    		*/			
 		    	}			
 		    	else{	
 		    		//se il next alarm settato è un evento di stop significa che si è
@@ -554,7 +560,10 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			//si cancella l'alarm che è stato "consumato" da questo on receive
 			AlarmUtils.cancelAlarm(context, AlarmUtils.getAlarm(context,this_alarm_id));
 			
+			//si fa partire il servizio che imposta e lancia il prossimo alarm
+			context.startService(new Intent(context, SetNextAlarmIntentService.class).putExtra("takeAllAlarms", false).putExtra("prevAlarmNotAvailable", false).putExtra("current_alarm_id", this_alarm_id));
 			
+			/*
 			Thread thread = new Thread(){				
 				@Override
 				public void run() {					
@@ -563,7 +572,8 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				}
 			};	
 			//si fa partire il thread che imposta il prossimo alarm
-			thread.start();			
+			thread.start();	
+			*/		
 		}
 	}
 }

@@ -34,6 +34,10 @@
         <service
             android:name="org.unipd.nbeghin.climbtheworld.services.SamplingRateDetectorService"
             android:exported="false" />
+            
+        <service
+ 		    android:name="org.unipd.nbeghin.climbtheworld.services.SetNextAlarmIntentService"
+  	        android:exported="false" />
         
         <service
  		    android:name="org.unipd.nbeghin.climbtheworld.services.ActivityRecognitionRecordService"
@@ -166,14 +170,6 @@
       	    <action android:name="org.unipd.nbeghin.classifier.notification" />
    	      </intent-filter>
         </receiver>
-        
-       <!--   <receiver android:name="org.unipd.nbeghin.climbtheworld.receivers.UserMotionReceiver" 
-            android:exported="false">
-  	      <intent-filter>
-      	    
-   	      </intent-filter>
-        </receiver>
-       -->
         
     </application>
 

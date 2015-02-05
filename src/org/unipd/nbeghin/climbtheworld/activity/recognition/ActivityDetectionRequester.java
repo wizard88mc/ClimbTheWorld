@@ -98,15 +98,15 @@ public class ActivityDetectionRequester
      */
     private PendingIntent createRequestPendingIntent() {
 
-        // If the PendingIntent already exists
+        //se il PendingIntent esiste già
         if (null != getRequestPendingIntent()) {
 
-            // Return the existing intent
+            //si ritorna l'intent esistente
             return callbackIntent;
 
-        // If no PendingIntent exists
+        //se non esiste alcun PendingIntent
         } else {
-            // Create an Intent pointing to the IntentService
+            //si crea un intent che punta ad un IntentService
             Intent intent = new Intent(context, ActivityRecognitionIntentService.class);
 
             /*
