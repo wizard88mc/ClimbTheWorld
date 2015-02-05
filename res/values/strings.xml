@@ -72,7 +72,7 @@
     <string name="team_duel_completed">This team is completed</string>
     <string name="wait_notification">Wait for your choice to be saved</string>
     <string name="delete_req">Request Deleted</string>
-    <string name="no_notifications">No notifications \n Press b1 or b2 -> "FB Notification" to download Facebook notification</string>
+    <string name="no_notifications">No notifications \n\n Press b0 to login with Facebook then\n\n press b1 or b2 -> "FB Notification" to download Facebook notification</string>
     <string name="team_duel_already_part">You are already part of this team</string>
     <string name="competition_end">Competition already ended</string>
     <string name="no_base_level">You have to reach level %1$d to unlock %1$s</string>
@@ -101,6 +101,7 @@
     <string name="no_user_defined">No user defined</string>
     <string name="settings_title">Settings</string>
     <string name="no_profile_set">No profile set yet</string>
+    <string name="enter_profile">Enter your profile name</string>
     <string name="title_profile">Profile</string>
     <string name="climbing_settings">Climbing setting</string>
     <string name="title_difficulty">Difficulty</string>
@@ -145,16 +146,16 @@
     <string name="alert_message">Your accelerometer is not fast enough for this application. Make sure to use at least %f Hz</string>    
     <string name="stats_panel">%1$s of %2$s (%3$s%%)</string>
     <string name="threshold">Steps to threshold</string>
-    <string name="threashold_passed">"Threshold passed: you\'re in!!!!"</string>
-    <string name="num_steps">%s steps"</string>
+    <string name="threashold_passed">Threshold passed: you\'re in!!!!</string>
+    <string name="num_steps">%s steps</string>
     <string name="no_collaboration">No collaboration available for this building</string>
-    <string name="no_team_duel">"No team duel available for this building"</string>
+    <string name="no_team_duel">No team duel available for this building"</string>
     
     <string name="no_competition">No competition available for this building</string>
     <string name="collab_no_available">This collaboration is not yet available</string>
-    <string name="already_climb">ALREADY CLIMBED ON %s</string>
+    <string name="already_climb">Already climbed on %s</string>
     <string name="sampling_enabled">Sampling running - Stop it before exiting</string>
-    <string name="social_penalty">Move up next time!!!!</string>
+    <string name="social_penalty">Move up next time!</string>
     <string name="team_duel_no_available">This team duel is not yet available</string>
     <string name="your_team_won">Your team has won!!!!</string>
     <string name="other_team_won">The challenger\'s team has won</string>
@@ -194,7 +195,7 @@
     <!-- PagerAdapter -->
     <string name="buildings">Buildings</string>
     <string name="tours">Tours</string>
-    <string name="notifications">Notification</string>
+    <string name="notifications">Notifications</string>
     <string name="trophies">Trophies</string>
     <string name="undefined">Undefined</string>
     
@@ -208,6 +209,8 @@
     <string name="update">Update</string>
     <string name="microGoal">Current goal</string>
     <string name="help">Help</string>
+    <string name="how_to">How to</string>
+    
     <!-- dialog micro goal -->
     <string name="accept">Ok, let\'s do it!</string>
     <string name="title_dialog">Goal</string>
@@ -288,7 +291,10 @@
     <string name="add_other_help">Invite other Facebook friends of yours to join your team</string>
     <string name="delete_player">Kick one of your friends out from this climb</string>
     <string name="profile_fb_help">Log in with facebook to share this victory with your friends!</string>
-	
+    <string name="update_group_help">Tape here to update the groups\' data</string>
+    <string name="play_climb_help">Tap play to start climbing</string>
+    <string name="exit_game_help">Tap here to leave the group and play in \'Solo Climb\' mode</string>
+    	
     <!-- splash -->
     <string name="loading">Loading...</string>
     
@@ -354,7 +360,7 @@
 	<!-- onboarding -->
 	<string name="onboarding_1">Welcome! \n Are you ready to start this new adventure? \nPress on Mushrooms</string>
 	<string name="onboarding_2">Well done! \n Now you have to make 11 steps \nPress play to start your first climb</string>
-	<string name="onboarding_3">Fantastic! First goals completed, level passed and got a trophy! \nNow you can continue to climb and win more and more! \nRemember: when you reach the stars, they will give you extra points!</string>
+	<string name="onboarding_3">Fantastic! First goals completed, level passed and got a trophy! \nContinue to climb! \nRemember: when you reach the stars, they will give you extra points!</string>
 	<string name="onboarding_btn_1">Yes, let\'s start!</string>
 	<string name="onboarding_btn_2">Ok, I can do it!</string>
 	<string name="onboarding_btn_3">Yeah, let\'s start the game!</string>

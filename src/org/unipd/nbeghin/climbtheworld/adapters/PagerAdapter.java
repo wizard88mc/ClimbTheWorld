@@ -40,6 +40,7 @@ public class PagerAdapter extends FragmentPagerAdapter {
 	    super.notifyDataSetChanged();
 	}
 
+	/*
 	@Override
 	public String getPageTitle(int position) {
 		switch (position) {
@@ -54,5 +55,5 @@ public class PagerAdapter extends FragmentPagerAdapter {
 			default:
 				return ClimbApplication.getContext().getString(R.string.undefined);
 		}
-	}
+	}*/
 }

@@ -174,7 +174,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.5"
-                    android:background="@color/black_overlay"
+                    android:background="@drawable/button_play"
                     android:onClick="onBtnStartClimbing"
                     android:src="@drawable/av_play" />
 
@@ -185,7 +185,7 @@
                     android:layout_height="wrap_content"
                     
                     android:layout_weight="0.5"
-                    android:background="@color/black_overlay"
+                    android:background="@drawable/button_play"
                     android:onClick="accessPhotoGallery"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_action_video"
@@ -199,8 +199,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:gravity="center"
             android:layout_marginTop="10dp"
-            android:text="Building name (location)"
+            android:text="Building name \n(location)"
             android:textColor="#fff"
             android:background="@color/black_overlay"
             android:textSize="18sp" />

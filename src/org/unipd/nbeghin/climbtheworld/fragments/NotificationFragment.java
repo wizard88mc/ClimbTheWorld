@@ -80,6 +80,14 @@ public class NotificationFragment extends Fragment implements Updater{
         ss.setSpan(span, i, i+"b1".length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE); 
         empty.setText(ss); 
         
+        i = (String.valueOf(empty.getText())).indexOf("b0");
+		ss = new SpannableString(empty.getText()); 
+        d = getResources().getDrawable(R.drawable.profile); 
+        d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight()); 
+        span = new ImageSpan(d, ImageSpan.ALIGN_BASELINE); 
+        ss.setSpan(span, i, i+"b0".length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE); 
+        empty.setText(ss);
+        
         i = (String.valueOf(empty.getText())).indexOf("b2");
 		ss = new SpannableString(empty.getText()); 
         d = getResources().getDrawable(R.drawable.menu); 

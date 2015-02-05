@@ -246,11 +246,11 @@ public class HelpDialogActivity extends Dialog {
 		textGallery.setVisibility(View.INVISIBLE);
 		textUpdate.setVisibility(View.INVISIBLE);
 		textMicrogoal.setVisibility(View.VISIBLE);
-		textMicrogoal.setText("Premi qui per aggiornare i dati dei due gruppi");
+		textMicrogoal.setText(ClimbApplication.getContext().getString(R.string.update_group_help));
 		if(duel.isReadyToPlay()){
-			textShare.setText("Premi play per partire con la scalata");
+			textShare.setText(ClimbApplication.getContext().getString(R.string.play_climb_help));
 		}else{
-			textShare.setText("Premi qui per uscire dal gruppo e tornare in modalità solo climb");
+			textShare.setText(ClimbApplication.getContext().getString(R.string.exit_game_help));
 		}
 		if(duel.isChallenger()){
 			imageRow1.setVisibility(View.VISIBLE);

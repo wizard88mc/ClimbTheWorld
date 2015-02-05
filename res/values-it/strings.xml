@@ -68,7 +68,7 @@
     <string name="team_duel_completed">Questo team è già completo</string>
     <string name="team_duel_already_part">Fai già parte di questo team</string>
     <string name="delete_req">Richiesta eliminata</string>
-    <string name="no_notifications">Nessuna notifica \n Premi b1 o b2 -> "Notifiche FB" per vedere le nuove notifiche</string>
+    <string name="no_notifications">Nessuna notifica \n\n Premi b0 per fare login con Facebook poi \n\n premi b1 o b2 -> "Notifiche FB" per vedere le nuove notifiche</string>
     <string name="competition_end">Competizione già terminata</string>
     <string name="no_base_level">Devi raggiungere il livello %1$d per sbloccare %2$s</string>
     
@@ -135,16 +135,16 @@
     <string name="alert_message">Il tuo accelerometro non è veloce a sufficienza per questa applicazione. Assicurati di usare almeno %f Hz</string>   
     <string name="stats_panel">%1$s di %2$s (%3$s%%)</string>
     <string name="threshold">Scalini alla soglia</string>
-    <string name="threashold_passed">"Soglia superata: vai così!!!!"</string>
-    <string name="num_steps">%s scalini"</string>
+    <string name="threashold_passed">Soglia superata: vai così!!!!</string>
+    <string name="num_steps">%s scalini</string>
     <string name="no_collaboration">Nessuna collaborazione disponibile per questo edificio</string>
-    <string name="no_team_duel">"Nessuna sfida tra team disponibile per questo edificio"</string>
+    <string name="no_team_duel">Nessuna sfida tra team disponibile per questo edificio</string>
     
     <string name="no_competition">Nessuna competizione disponibile per questo edificio</string>
     <string name="collab_no_available">Questa collaborazione non è ancora disponbile</string>
     <string name="already_climb">Già scalato in data %s</string>
     <string name="sampling_enabled">In campionamento - Disattivarlo prima di uscire</string>
-    <string name="social_penalty">Un piccolo sforzo in più dai!!!!</string>
+    <string name="social_penalty">Un piccolo sforzo in più dai!</string>
     <string name="team_duel_no_available">Questo duello tra team non è ancora disponbile</string>
     <string name="your_team_won">Il tuo team ha vinto!!!!</string>
     <string name="other_team_won">Il team dello sfidante ha vinto</string>
@@ -180,6 +180,7 @@
     <!-- SettingsActivity -->
     <string name="settings_title">Impostazioni</string>
     <string name="no_profile_set">Nessun profilo</string>
+    <string name="enter_profile">Scrivi il tuo nome</string>
     <string name="title_profile">Profilo</string>
     <string name="climbing_settings">Impostazioni della scalata</string>
     <string name="title_difficulty">Difficoltà</string>
@@ -212,6 +213,7 @@
     <string name="update">Aggiorna</string>
     <string name="microGoal">Goal corrente</string>
     <string name="help">Aiuto</string>
+    <string name="how_to">Come giocare</string>
     
     <!-- dialog micro goal -->
     <string name="accept">Ok, ci sto!</string>
@@ -295,6 +297,9 @@
     <string name="add_other_help">Invita altri tuoi amici su Facebook ad entrare nel tuo team</string>
     <string name="delete_player">Caccia un tuo amico da questa scalata</string>
     <string name="profile_fb_help">Connettiti con Facebook per condividere questa vittoria con i tuoi amici!</string>
+    <string name="update_group_help">Premi qui per aggiornare i dati dei due gruppi</string>
+    <string name="play_climb_help">Premi play per partire con la scalata</string>
+    <string name="exit_game_help">Premi qui per uscire dal gruppo e tornare in modalità solo climb</string>
     
     <!-- splash -->
     <string name="loading">Caricamento...</string>
@@ -361,7 +366,7 @@
 	<!-- onboarding -->
 	<string name="onboarding_1">Benvenuto! \n Sei pronto per iniziare una nuova avventura? \nPremi Funghi</string>
 	<string name="onboarding_2">Ben fatto! \n Ora fai 11 scalini \nPremi play per iniziare la tua prima scalata</string>
-	<string name="onboarding_3">Fantastico! Hai completato i tuoi primi obiettivi, superato livelli e vinto un trofeo! \nOra puoi contuare le scalate e a vincere sempre di più! Ricorda: raggiungendo le stelle, otterrai punti extra!</string>
+	<string name="onboarding_3">Fantastico! Hai completato i tuoi primi obiettivi, superato livelli e vinto un trofeo! \nContinua a scalare! Ricorda: raggiungendo le stelle, otterrai punti extra!</string>
 	<string name="onboarding_btn_1">Si, cominciamo!</string>
 	<string name="onboarding_btn_2">Ok, posso farlo!</string>
 	<string name="onboarding_btn_3">Yeah, iniziamo il gioco!</string>

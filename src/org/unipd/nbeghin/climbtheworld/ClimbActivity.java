@@ -145,7 +145,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 	public static int NOTIFICATION_ID_BADGE = 1; // badge
 	public static int NOTIFICATION_ID_BONUS = 2; // bonus
 	public static int NOTIFICATION_ID_LEVEL = 3; // level
-	public static int NOTIFICATION_ID_INBOX = 4;
+	public static int NOTIFICATION_ID_INBOX = 4; // inbox
 
 	public boolean current_win = false;
 
@@ -298,14 +298,11 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 						} else
 							seekbarIndicator.setProgress(num_steps);
 
-						percentage = (double) num_steps / (double) building.getSteps(); // increase
-																						// the
-																						// progress
+						percentage = (double) num_steps / (double) building.getSteps(); // increase the progress
 					}
 
 					boolean win = false; // user wins?
-					boolean winMicrogoal = false; // is current microgoal
-													// completed?
+					boolean winMicrogoal = false; // is current microgoal completed?
 					if (!isCounterMode) { // check win only if game mode is on
 						winMicrogoal = microgoal.getDone_steps() >= microgoal.getTot_steps();
 						if (winMicrogoal)
@@ -320,13 +317,9 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 							win = ((myTeamScore()) >= building.getSteps());
 							setThresholdText();
 						} else
-							win = ((num_steps) >= building.getSteps()); // consider
-																		// only
-																		// my
-																		// steps
-						if (win) { // ensure it did not exceed the number of
-									// steps
-							// (when multiple steps-at-once are detected)
+							win = ((num_steps) >= building.getSteps()); // consider only my steps
+						if (win) { // ensure it did not exceed the number of steps
+								   // (when multiple steps-at-once are detected)
 							num_steps = building.getSteps();
 							percentage = 1.00;
 							if (mode != GameModeType.SOCIAL_CHALLENGE && mode != GameModeType.TEAM_VS_TEAM)
@@ -347,12 +340,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 				}
 			}
 
-			((TextView) findViewById(R.id.lblClassifierOutput)).setText(finalClassification > 0 ? "STAIR" : "NON_STAIR"); // debug:
-																															// show
-																															// currently
-																															// detected
-																															// classifier
-																															// output
+			((TextView) findViewById(R.id.lblClassifierOutput)).setText(finalClassification > 0 ? "STAIR" : "NON_STAIR"); // debug: show currently detected classifier output
 		}
 	}
 
@@ -361,7 +349,6 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 		percentage += percentage_bonus;
 		int old_steps = num_steps;
 		num_steps = (int) (((double) building.getSteps()) * percentage);
-		int gift_steps = num_steps - old_steps;
 		// stopClassify();
 		used_bonus = true;
 		Toast.makeText(getApplicationContext(), getString(R.string.bonus), Toast.LENGTH_LONG).show();
@@ -373,8 +360,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			seekbarIndicator.setProgress(num_steps + sumOthersStep());
 			setThresholdText();
 		} else
-			seekbarIndicator.setProgress(num_steps); // increase the seekbar
-														// progress
+			seekbarIndicator.setProgress(num_steps); // increase the seekbar progress
 	}
 
 	private void apply_win() {
@@ -1042,14 +1028,11 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 		if (imageId > 0)
 			((ImageView) findViewById(R.id.buildingPhoto)).setImageResource(imageId);
 		// set building info
-		((TextView) findViewById(R.id.lblBuildingName)).setText(buildingText.getName() + " (" + buildingText.getLocation() + ")"); // building's
+		((TextView) findViewById(R.id.lblBuildingName)).setText(buildingText.getName() + "\n (" + buildingText.getLocation() + ")"); // building's
 		// location
 		((TextView) findViewById(R.id.lblNumSteps)).setText(getString(R.string.num_steps, Integer.toString(building.getSteps()))); // building's
 		// steps
-		((TextView) findViewById(R.id.lblHeight)).setText(Integer.toString(building.getHeight()) + "mt"); // building's
-																											// height
-																											// (in
-																											// mt)
+		((TextView) findViewById(R.id.lblHeight)).setText(Integer.toString(building.getHeight()) + "mt"); // building's height (in mt)
 		loadPreviousClimbing(); // get previous climbing for this building
 		mode = GameModeType.values()[climbing.getGame_mode()]; // setup game mode
 		old_game_mode = mode;
@@ -3266,10 +3249,10 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 		int newXP = 0;
 		switch (difficulty) {
 		case 1:// 5
-			newXP = realSteps * 10;
+			newXP = realSteps + (int)( (double)realSteps / (double)100 * 30 );
 			break;
 		case 10:
-			newXP = realSteps * 3;
+			newXP = realSteps * 2;
 			break;
 		case 100:// 1
 			newXP = realSteps;

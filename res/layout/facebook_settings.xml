@@ -10,7 +10,7 @@
     <RelativeLayout
         android:id="@+id/top_control_bar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="20dp" >
     </RelativeLayout>
 
     <LinearLayout
@@ -18,15 +18,16 @@
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
         android:orientation="vertical" >
-
+        
         <ListView
             android:id="@android:id/list"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:choiceMode="multipleChoice" >
-        </ListView>
+        </ListView> 
 
         <LinearLayout
+            android:id="@+id/lblFacebook"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal" >
@@ -35,14 +36,9 @@
                 android:id="@+id/fb_profile_picture"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
                 android:layout_marginLeft="5dp"
-                 >
+                android:gravity="center_horizontal" >
             </android.widget.ProfilePictureView>
-            
-            <!-- com.facebook.widget.ProfilePictureView
-            	facebook:preset_size="small"
-             -->
 
             <TextView
                 android:id="@+id/lblFacebookUser"
@@ -51,8 +47,9 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="5dp"
                 android:text="@string/text_not_logged" />
-
         </LinearLayout>
+
+          
     </LinearLayout>
 
   <!--    <com.facebook.widget.LoginButton

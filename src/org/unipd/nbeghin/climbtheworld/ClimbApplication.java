@@ -261,7 +261,8 @@ public class ClimbApplication extends Application {
 	 * @return the level where the user is with points XP
 	 */
 	public static int XPtoLevel(int points) {
-		return ((int) Math.floor(20 + Math.sqrt(400 + 100 * points)) / 50);
+		//return ((int) Math.floor(20 + Math.sqrt(400 + 100 * points)) / 50);
+		return ((int) Math.ceil(2 + Math.sqrt(points - 4)) / 5);
 	}
 
 	/**

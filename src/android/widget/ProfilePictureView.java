@@ -4,6 +4,8 @@ package android.widget;
  * Modified ProfilePictureView class to make circular profile photo
  */
 
+import java.net.URISyntaxException;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -14,14 +16,12 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 
 import com.facebook.FacebookException;
 import com.facebook.LoggingBehavior;
@@ -31,8 +31,6 @@ import com.facebook.internal.ImageRequest;
 import com.facebook.internal.ImageResponse;
 import com.facebook.internal.Logger;
 import com.facebook.internal.Utility;
-
-import java.net.URISyntaxException;
 
 /**
  * View that displays the profile photo of a supplied profile ID, while conforming
@@ -419,11 +417,15 @@ public class ProfilePictureView extends FrameLayout {
         }
     }
 
-    private void setImageBitmap(Bitmap imageBitmap) {
+    private void setImageBitmap(Bitmap imageBitmap) { System.out.println("setimage");
         if (image != null && imageBitmap != null) {
             imageContents = imageBitmap; // Hold for save-restore cycles
             image.setImageBitmap(ProfilePictureView.getRoundedBitmap(imageBitmap));
         }
+    }
+    
+    public Drawable getProfileImage(){ if(image.getDrawable() == null) System.out.println("è null");
+    	return image.getDrawable();
     }
 
     private void sendImageRequest(boolean allowCachedResponse) {

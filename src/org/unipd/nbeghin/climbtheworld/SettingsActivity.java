@@ -1,13 +1,17 @@
 package org.unipd.nbeghin.climbtheworld;
 
+import org.unipd.nbeghin.climbtheworld.models.User;
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -16,6 +20,10 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
+//import com.facebook.widget.ProfilePictureView;
+import android.widget.ProfilePictureView;
 import android.widget.TextView;
 
 import com.facebook.Request;
@@ -24,8 +32,6 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
-//import com.facebook.widget.ProfilePictureView;
-import android.widget.ProfilePictureView;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -67,6 +73,8 @@ public class SettingsActivity extends PreferenceActivity {
 		uiHelper.onCreate(savedInstanceState);
 
 		current_activity = SettingsActivity.this;
+		
+		
 		
 		Session session = Session.getActiveSession();
 		if (session != null && session.isOpened()) {
@@ -115,6 +123,7 @@ public class SettingsActivity extends PreferenceActivity {
 		} else if (state.isClosed()) {
 			Log.i(MainActivity.AppName, "Logged out...");
 			profilePictureView.setProfileId(null);
+			profilePictureView.setPresetSize(-2);
 			lblFacebookUser.setText("Not logged in");
 			profile_name.setSummary("No user defined");
 		}
@@ -122,6 +131,15 @@ public class SettingsActivity extends PreferenceActivity {
 
 	private void onSessionStateChange(final Session session, SessionState state, Exception exception) {
 		updateFacebookSession(session, state);
+	}
+	
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		((ProfilePictureView) findViewById(R.id.fb_profile_picture)).setPresetSize(-2);
+		final Preference profile_name = findPreference("profile_name");
+		profile_name.setIcon(((ProfilePictureView) findViewById(R.id.fb_profile_picture)).getProfileImage());
+		((LinearLayout) findViewById(R.id.lblFacebook)).setVisibility(View.GONE);
+		super.onWindowFocusChanged(hasFocus);
 	}
 
 	@Override
@@ -177,6 +195,17 @@ public class SettingsActivity extends PreferenceActivity {
 		// 0.0f);
 		// findPreference("detectedSamplingRate").setSummary(new
 		// DecimalFormat("#.##").format(detectedSamplingRate)+"Hz");
+		
+		
+		SharedPreferences pref = getApplicationContext().getSharedPreferences("UserSession", 0);
+
+		User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
+		if(me != null){
+			((TextView) findViewById(R.id.lblFacebookUser)).setText(me.getName());
+			final Preference profile_name = findPreference("profile_name");
+			profile_name.setSummary(me.getName());
+			//((ProfilePictureView) findViewById(R.id.fb_profile_picture2)).setPresetSize(-2);
+		}
 	}
 
 	/** {@inheritDoc} */

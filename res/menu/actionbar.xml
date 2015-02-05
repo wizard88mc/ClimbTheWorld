@@ -33,6 +33,20 @@
         climbtheworld:showAsAction="never">
     </item> -->
     
+      <item
+        android:id="@+id/itemNotifications"
+        android:onClick="downloadFBNotification"
+        android:title="@string/FB_notification"
+        climbtheworld:showAsAction="never">
+    </item>
+    
+    <item
+        android:id="@+id/itemDemo"
+        android:onClick="showDemo"
+        android:title="@string/how_to"
+        climbtheworld:showAsAction="never">
+    </item>
+    
     <item
         android:id="@+id/itemShareDb"
         android:onClick="onShareDb"
@@ -62,19 +76,7 @@
         climbtheworld:showAsAction="never">
     </item> -->
     
-    <item
-        android:id="@+id/itemNotifications"
-        android:onClick="downloadFBNotification"
-        android:title="@string/FB_notification"
-        climbtheworld:showAsAction="never">
-    </item>
-    
-    <item
-        android:id="@+id/itemDemo"
-        android:onClick="showDemo"
-        android:title="Demo"
-        climbtheworld:showAsAction="never">
-    </item>
+  
     
   
     <!-- onUpdateNotifications -->

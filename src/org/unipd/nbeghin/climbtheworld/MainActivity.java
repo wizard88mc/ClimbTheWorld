@@ -45,7 +45,11 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Gravity;
@@ -71,7 +75,7 @@ import com.facebook.widget.WebDialog;
  * 
  */
 @SuppressLint("NewApi")
-public class MainActivity extends ActionBarActivity implements NetworkRequests {
+public class MainActivity extends ActionBarActivity implements NetworkRequests, ActionBar.TabListener {
 	private static final String APP_TITLE = "Climb the world";
 	public static final String AppName = "ClimbTheWorld";
 
@@ -142,6 +146,36 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests {
 		mPagerAdapter = new PagerAdapter(super.getSupportFragmentManager(), fragments);
 		mPager = (ViewPager) super.findViewById(R.id.pager);
 		mPager.setAdapter(this.mPagerAdapter);
+		
+		final ActionBar action_bar = getSupportActionBar();
+		action_bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+		
+		String names[] = {getString(R.string.buildings), getString(R.string.tours), getString(R.string.notifications), getString(R.string.trophies)};
+		//add tabs
+		for(String tab_name : names)
+			action_bar.addTab(action_bar.newTab().setText(tab_name).setTabListener(this));
+		
+		//on swiping
+		mPager.setOnPageChangeListener(new OnPageChangeListener() {
+			
+			@Override
+			public void onPageSelected(int position) {
+				action_bar.setSelectedNavigationItem(position);
+				
+			}
+			
+			@Override
+			public void onPageScrolled(int arg0, float arg1, int arg2) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onPageScrollStateChanged(int arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
 
 	}
@@ -1039,6 +1073,24 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests {
 	      // TODO Auto-generated catch block
 	      e.printStackTrace();
 	   }
+	}
+
+	@Override
+	public void onTabReselected(Tab arg0, FragmentTransaction arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onTabSelected(Tab tab, FragmentTransaction arg1) {
+		mPager.setCurrentItem(tab.getPosition());
+		
+	}
+
+	@Override
+	public void onTabUnselected(Tab arg0, FragmentTransaction arg1) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
