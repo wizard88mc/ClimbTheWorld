@@ -19,9 +19,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 /**
  * List all buildings associated to a given tour
@@ -33,6 +38,16 @@ public class TourDetailActivity extends FragmentActivity {
 		super.onCreate(savedInstanceState);
 		int tour_id=getIntent().getIntExtra(ToursFragment.tour_intent_object, 0); // get tour id from received intent
 		setContentView(R.layout.activity_tour_detail);
+		
+		LinearLayout root = (LinearLayout)findViewById(R.id.mainLayoutTour);
+		Toolbar bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.settings_toolbar, root, false);
+        root.addView(bar, 0); // insert at top
+        bar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
 		if (tour_id>0) {
 			Log.i(MainActivity.AppName, "Loading buildings for tour "+tour_id);

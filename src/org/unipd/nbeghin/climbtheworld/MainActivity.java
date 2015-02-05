@@ -51,11 +51,14 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -109,6 +112,9 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests, 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		pref = getSharedPreferences("UserSession", 0);
+		
+	//	Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_mainLayout);
+	//	setSupportActionBar(toolbar);
 
 		uiHelper = new UiLifecycleHelper(this, callback);
 		uiHelper.onCreate(savedInstanceState);
@@ -131,7 +137,9 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests, 
 		// } catch (NoSuchAlgorithmException e) {
 		//
 		// }
-
+		
+	
+		
 		waitLayout = (RelativeLayout) findViewById(R.id.waitLayout);
 		
 		ClimbApplication.notifications = new ArrayList<Notification>();
@@ -147,9 +155,10 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests, 
 		mPager = (ViewPager) super.findViewById(R.id.pager);
 		mPager.setAdapter(this.mPagerAdapter);
 		
+		
 		final ActionBar action_bar = getSupportActionBar();
 		action_bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-		
+
 		String names[] = {getString(R.string.buildings), getString(R.string.tours), getString(R.string.notifications), getString(R.string.trophies)};
 		//add tabs
 		for(String tab_name : names)
@@ -177,7 +186,9 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests, 
 			}
 		});
 		
-
+		mPager.setOffscreenPageLimit(0);
+		
+		
 	}
 	
 	public static void showWaitLayout(){
@@ -827,7 +838,7 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests, 
 						}
 					} else {
 						// System.err.println("no user");
-						//FBid giˆ settato, scarico le mie informazioni
+						//FBid giï¿½ settato, scarico le mie informazioni
 						new MyAsync(MainActivity.this, PD, false).execute();
 						Editor edit = pref.edit();
 						edit.putBoolean("openedFirst", false);

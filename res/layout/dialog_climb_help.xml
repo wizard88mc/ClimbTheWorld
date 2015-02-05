@@ -10,12 +10,12 @@
     <View
         android:id="@+id/view1"
         android:layout_width="wrap_content"
-        android:layout_height="@dimen/abc_action_bar_default_height"
+        android:layout_height="@dimen/abc_action_bar_default_height_material"
         android:background="@android:color/transparent" />
 
     <ImageView
         android:id="@+id/view2"
-        style="?buttonBarButtonStyle"
+        style="?android:attr/buttonBarButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

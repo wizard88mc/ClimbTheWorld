@@ -1840,7 +1840,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 	private void setupActionBar() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			// Show the Up button in the action bar.
-			getActionBar().setDisplayHomeAsUpEnabled(true);
+			//getActionBar().setDisplayHomeAsUpEnabled(true);
 		}
 	}
 
@@ -3905,7 +3905,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 					showInboxNotification();
 				}
 			}
-		} else {// altrimenti aggiorno quello giˆ presente
+		} else {// altrimenti aggiorno quello giï¿½ presente
 			double old_percentage = userbadge.getPercentage();
 			if (userbadge.getPercentage() < climbing.getPercentage()) {
 				userbadge.setPercentage(climbing.getPercentage());

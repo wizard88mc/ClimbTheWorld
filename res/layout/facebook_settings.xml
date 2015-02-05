@@ -1,23 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:facebook="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent" 
-    android:layout_marginRight="10dp"
-    android:layout_marginLeft="10dp"
     android:background="@color/white">
+    
 
-    <RelativeLayout
+
+    <FrameLayout
         android:id="@+id/top_control_bar"
         android:layout_width="match_parent"
-        android:layout_height="20dp" >
-    </RelativeLayout>
+        android:layout_height="@dimen/abc_action_bar_default_height_material" >
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/bottom_control_bar"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:layout_below="@id/top_control_bar" >
         
         <ListView
             android:id="@android:id/list"
@@ -31,6 +33,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal" >
+            <!-- android:layout_marginRight="10dp"
+    android:layout_marginLeft="10dp" -->
 
             <android.widget.ProfilePictureView
                 android:id="@+id/fb_profile_picture"
