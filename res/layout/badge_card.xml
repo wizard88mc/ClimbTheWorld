@@ -45,6 +45,7 @@
             <TextView
                 android:id="@+id/textDescription"
                 style="@style/CardTitle"
+                android:textColor="@color/black"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="left"
@@ -56,6 +57,7 @@
             <TextView
                 android:id="@+id/textPercentage"
                 style="@style/CardText"
+                android:textColor="@color/black"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingRight="10dp"

@@ -21,7 +21,6 @@
     </item>
     <item
         android:id="@+id/itemSettings"
-        android:icon="@drawable/action_settings"
         android:onClick="onShowSettings"
         android:title="@string/settings"
         climbtheworld:showAsAction="never">

@@ -113,7 +113,7 @@
         android:layout_alignRight="@+id/tableLayout1"
         android:layout_alignTop="@+id/textOtherTeam"
         android:layout_marginTop="10dp"
-        android:src="@drawable/social_person" />
+        android:background="@drawable/social_person" />
     
      <ImageButton
         android:id="@+id/addChallengerTeam"
@@ -122,7 +122,7 @@
         android:layout_alignRight="@+id/tableLayout1"
         android:layout_alignTop="@+id/textOtherTeam"
         android:layout_marginTop="10dp"
-        android:src="@drawable/ic_action_add_group" />
+        android:background="@drawable/ic_action_add_group" />
 
       <TextView
           android:id="@+id/textChallenger"
@@ -249,7 +249,8 @@
           android:layout_height="wrap_content"
           android:layout_alignRight="@+id/tableLayout1"
           android:layout_alignTop="@+id/textMyTeam"
-          android:src="@drawable/ic_action_add_group" />
+          android:scaleType="fitXY"
+          android:background="@drawable/ic_action_add_group" />
 
       <TextView
           android:id="@+id/textMyTeam"

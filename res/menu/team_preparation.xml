@@ -5,13 +5,13 @@
     
     <item
         android:id="@+id/itemUpdate"
-        android:icon="@drawable/ic_action_refresh_dark"
+        android:icon="@drawable/ic_action_refresh"
         android:title="@string/update"
         climbtheworld:showAsAction="ifRoom">
     </item>
     <item
         android:id="@+id/itemHelp"
-        android:icon="@drawable/ic_action_help_dark"
+        android:icon="@drawable/ic_action_help"
         android:title="@string/update"
         climbtheworld:showAsAction="ifRoom">
     </item>

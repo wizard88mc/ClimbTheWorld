@@ -25,7 +25,8 @@
             android:id="@android:id/list"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:choiceMode="multipleChoice" >
+            android:choiceMode="multipleChoice"
+            android:textColor="@color/black" >
         </ListView> 
 
         <LinearLayout
@@ -50,6 +51,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="5dp"
+                android:textColor="@color/black"
                 android:text="@string/text_not_logged" />
         </LinearLayout>
 

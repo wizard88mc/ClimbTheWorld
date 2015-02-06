@@ -12,17 +12,20 @@
             android:layout_marginTop="10dp"
             android:paddingBottom="5dp"
             android:text="@string/pick_friends"
+            android:textColor="@color/black"
             android:textAppearance="?android:attr/textAppearanceMedium" />
     
     <TextView
                 style="?android:attr/listSeparatorTextViewStyle"
                 android:layout_width="fill_parent"
+                android:textColor="@color/black"
                 android:layout_height="wrap_content"
                 android:text="@string/all_friends" 
                 android:layout_weight="0.1"/>
 
     <TextView
         android:id="@+id/textNoInvitable"
+        android:textColor="@color/black"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="8"
@@ -37,18 +40,22 @@
         android:layout_height="match_parent"
         android:layout_weight="8"
         android:paddingTop="10dp" 
+        android:textColor="@color/black"
      >
     </ListView>
 
     <Button
         android:id="@+id/buttonInvite"
-        style="@style/btnStyleCard"
+            style="?android:attr/borderlessButtonStyle"
         android:layout_gravity="bottom"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="0dp"
-        android:drawableLeft="@drawable/ic_action_email"
-        android:drawableStart="@drawable/ic_action_email"
+ android:textAllCaps="true"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/white"
+            android:background="@color/accent"
         android:text="@string/invite_btn" />
 
 </LinearLayout>

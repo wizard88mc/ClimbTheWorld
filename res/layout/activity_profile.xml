@@ -7,6 +7,7 @@
     android:background="@color/white"
 
     >
+    
 
     <com.facebook.widget.LoginButton
         android:id="@+id/login_button"
@@ -38,6 +39,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/profile_title" 
                 android:layout_weight="0.03"
+                android:textColor="@color/black"
                 android:layout_marginBottom="5dp"/>
 
             <LinearLayout
@@ -72,6 +74,7 @@
                     <TextView
                         android:id="@+id/textUserName"
                         style="@style/CardText"
+                        android:textColor="@color/black"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
@@ -80,6 +83,8 @@
                     <TextView
                         android:id="@+id/textXP"
                         style="@style/CardText"
+                                        android:textColor="@color/black"
+                        
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
@@ -94,6 +99,8 @@
                         <TextView
                             android:id="@+id/textLevel"
                             style="@style/CardText"
+                                            android:textColor="@color/black"
+                            
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_weight="0.65"
@@ -113,6 +120,8 @@
             <TextView
                 style="?android:attr/listSeparatorTextViewStyle"
                 android:layout_width="fill_parent"
+                                android:textColor="@color/black"
+                
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
                 android:layout_marginTop="5dp"
@@ -133,6 +142,8 @@
                     <TextView
                         android:id="@+id/textCurrentValue"
                         style="@style/CardText"
+                                        android:textColor="@color/black"
+                        
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="2dp"
@@ -144,6 +155,8 @@
                     <TextView
                         android:id="@+id/MyStepsText"
                         style="@style/CardText"
+                                        android:textColor="@color/black"
+                        
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="2dp"
@@ -155,6 +168,8 @@
                     <TextView
                         android:id="@+id/textHeight"
                         style="@style/CardText"
+                                        android:textColor="@color/black"
+                        
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="2dp"
@@ -167,16 +182,24 @@
 
                 <Button
                     android:id="@+id/buttonCounter"
-                    style="@style/btnStyleCard"
+            style="?android:attr/borderlessButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
-                    android:text="@string/climbBtn" />
+ android:textAllCaps="true"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/accent"                    
+                    android:text="@string/climbBtn" 
+                    android:background="@drawable/button_shadow"
+                    android:padding="12dp"/>
             </LinearLayout>
 
             <TextView
                 style="?android:attr/listSeparatorTextViewStyle"
+                                android:textColor="@color/black"
+                
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
@@ -189,7 +212,9 @@
                 android:layout_height="match_parent"
                 android:layout_marginTop="5dp"
                 android:fillViewport="true"
-                android:layout_weight="16" >
+                android:layout_weight="16" 
+                                android:textColor="@color/black"
+                >
             </ListView>
 
            

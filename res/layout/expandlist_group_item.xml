@@ -12,6 +12,7 @@
         android:layout_marginLeft="35dp"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textStyle="bold" 
+        android:textColor="@color/black"
         /> <!-- android:paddingLeft="35sp" -->
 
 </LinearLayout>

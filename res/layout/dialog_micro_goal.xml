@@ -4,7 +4,8 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="#ffffff"
-    android:orientation="vertical" >
+    android:orientation="vertical" 
+    android:padding="24dp">
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -33,10 +34,11 @@
             android:layout_weight="0.01"
             android:padding="8dp"
             android:text="@string/title_dialog"
-            android:textColor="#ff33b5e5"
             android:textSize="22sp"
             android:textStyle="normal"
-            android:typeface="normal" />
+            android:typeface="normal" 
+            android:textColor="@color/black"/> <!--             android:textColor="#ff33b5e5"
+             -->
     </LinearLayout>
 
     <!-- Underline with this bluish color -->
@@ -58,10 +60,12 @@
         android:gravity="left"
         android:padding="8dp"
         android:text="Reward"
-        android:textColor="#343434"
         android:textSize="15dip"
         android:textStyle="normal"
-        android:typeface="normal"/>
+        android:typeface="normal"
+        android:textColor="@color/black"
+        /> <!--         android:textColor="#343434"
+         -->
 
     <TextView
         android:id="@+id/tvmessagedialogtext"
@@ -73,10 +77,12 @@
         android:gravity="left"
         android:padding="8dp"
         android:text="Message"
-        android:textColor="#343434"
         android:textSize="15dip"
         android:textStyle="normal"
-        android:typeface="normal" />
+        android:typeface="normal" 
+        android:textColor="@color/black"
+        /> <!--         android:textColor="#343434"
+         -->
 
     <TableLayout
         android:id="@+id/checkBoxesLayout"
@@ -93,6 +99,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="false"
+               android:textColor="@color/black"
+                
                 />
 
         </TableRow>
@@ -106,6 +114,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="false"
+                               android:textColor="@color/black"
                 
                  />
 
@@ -130,6 +139,8 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginBottom="5dp"
+                       android:textColor="@color/black"
+        
         android:text="%" />
 
     <LinearLayout
@@ -141,17 +152,27 @@
 
         <Button
             android:id="@+id/bmessageDialogYes"
+                        style="?android:attr/borderlessButtonStyle"
+            
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dip"
             android:layout_weight="1"
             android:padding="8dp"
             android:text="@string/accept"
-            android:textColor="#343434"
+                android:textAllCaps="true"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/accent"
+            android:gravity="end"
+            android:layout_marginRight="16dp"
+            
+          />
+        <!--   android:textColor="#343434"
             android:textSize="13sp"
             android:textStyle="normal"
             android:typeface="normal" 
-            android:background="@color/com_facebook_picker_search_bar_background"/>
+            android:background="@color/com_facebook_picker_search_bar_background" -->
 
         <!-- No Button -->
     </LinearLayout>

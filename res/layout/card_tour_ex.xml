@@ -18,7 +18,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Title" />
+            android:text="Title" 
+            android:textColor="@color/black"/>
     </LinearLayout>
 <!--     <View -->
 <!--         android:layout_width="fill_parent" -->
@@ -41,7 +42,8 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="4"
-            android:text="Description" />
+            android:text="Description" 
+            />
     </LinearLayout>
 <!--     <View -->
 <!--         android:layout_width="fill_parent" -->

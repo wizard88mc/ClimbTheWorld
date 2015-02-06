@@ -36,6 +36,7 @@
         android:layout_alignBottom="@+id/checkBox1"
         android:layout_toRightOf="@+id/checkBox1"
         android:layout_marginTop="10dp"
+        android:textColor="@color/black"
         android:text="TextView" />
  
 </LinearLayout>

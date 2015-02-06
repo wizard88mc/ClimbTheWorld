@@ -114,7 +114,7 @@
     
     <!-- ProfileActivity -->
     <string name="level">Level: %s</string>
-    <string name="climbBtn">Improve yourself</string>
+    <string name="climbBtn">Improve\nyourself</string>
     <string name="mean_text">Average daily steps: \t %s</string>
     <string name="today_step">Today\'s steps: \t %s</string>
     <string name="profile_title">Profile</string>

@@ -47,7 +47,9 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:text="Statistica"
-            android:textSize="20sp" />
+            android:textSize="20sp" 
+                            android:textColor="@color/black"
+            />
 
         <TextView
             android:id="@+id/statValue"

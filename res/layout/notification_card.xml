@@ -34,6 +34,8 @@
             android:layout_weight="1"
             android:minLines="4"
             android:gravity="center|left"
+                            android:textColor="@color/black"
+            
             android:text="Text\ntext\n text" />
 
         <ProgressBar
@@ -44,9 +46,9 @@
 
         <ImageButton
             android:id="@+id/cancelButton"
-            android:layout_width="45dp"
+            android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/abc_ic_clear_mtrl_alpha" />
+            android:background="@drawable/ic_action_cancel" />
         <!-- @drawable/abc_ic_clear_search_api_holo_light -->
 
         <ImageButton
@@ -54,7 +56,7 @@
             android:layout_width="45dp"
             android:layout_height="40dp"
             android:scaleType="fitXY"
-            android:src="@drawable/abc_ic_cab_done_holo_light" />
+            android:background="@drawable/abc_ic_cab_done_holo_light" />
 
     </LinearLayout>
 
