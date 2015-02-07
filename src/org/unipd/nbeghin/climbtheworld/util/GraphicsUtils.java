@@ -1,5 +1,7 @@
 package org.unipd.nbeghin.climbtheworld.util;
 
+import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -9,11 +11,13 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.os.Build;
+import android.support.v7.appcompat.R;
 
 
 /**
  * 
- * @author SAM BHADANI
+ * @author SAM BHADANI, Segato Silvia
  *
  */
 public class GraphicsUtils
@@ -67,5 +71,36 @@ public class GraphicsUtils
         targetHeight), null);
   return targetBitmap;
  }
+ 
+ /**
+  * Created by alessandro on 04/09/14.
+  */
+ public static int getActionBarSize(final Context context) {
+
+		final int[] attrs;
+
+		if (Build.VERSION.SDK_INT >= 14) {
+			attrs = new int[]{android.R.attr.actionBarSize};
+		}
+		else {
+			attrs = new int[]{R.attr.actionBarSize};
+		}
+
+		TypedArray values = context.getTheme().obtainStyledAttributes(attrs);
+		try {
+			return values.getDimensionPixelSize(0, 0);
+		} finally {
+			values.recycle();
+		}
+	}
+
+	public static int getStatusBarHeight(Context context) {
+		int result = 0;
+		int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
+		if (resourceId > 0) {
+			result = context.getResources().getDimensionPixelSize(resourceId);
+		}
+		return result;
+	}
 
 }

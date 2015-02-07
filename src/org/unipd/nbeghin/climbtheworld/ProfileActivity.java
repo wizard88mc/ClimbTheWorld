@@ -1,5 +1,8 @@
 package org.unipd.nbeghin.climbtheworld;
 
+
+import it.sephiroth.android.library.tooltip.TooltipManager;
+
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,6 +15,7 @@ import org.unipd.nbeghin.climbtheworld.models.Stat;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.models.UserBadge;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
+import org.unipd.nbeghin.climbtheworld.util.GraphicsUtils;
 import org.unipd.nbeghin.climbtheworld.util.StatUtils;
 
 import android.annotation.TargetApi;
@@ -19,9 +23,11 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -44,7 +50,7 @@ import com.facebook.model.GraphUser;
 //import com.facebook.widget.ProfilePictureView;
 import com.parse.ParseUser;
 
-public class ProfileActivity extends ActionBarActivity implements NetworkRequests {
+public class ProfileActivity extends ActionBarActivity implements NetworkRequests,  TooltipManager.onTooltipClosingCallback  {
 
 	Button improveBtn;
 	private Session.StatusCallback callback = new Session.StatusCallback() {
@@ -242,6 +248,38 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 
 		// Nothing changed
 		return false;
+	}
+	
+	public void onWindowFocusChanged(boolean hasFocus) {
+		
+		
+		if (pref.getBoolean("first_open_4", true)) {
+			if(!pref.getBoolean("done_tutorial", false)){
+				View locButton = findViewById(R.id.itemInviteFacebookFriends);
+
+				TooltipManager manager = TooltipManager.getInstance(this);
+				manager.create(0)
+			       .anchor(locButton, TooltipManager.Gravity.BOTTOM)
+			       .actionBarSize(GraphicsUtils.getActionBarSize(getBaseContext()))
+			       .closePolicy(TooltipManager.ClosePolicy.TouchOutside, 1000000)
+			       .text(R.string.hello_world)
+			       .toggleArrow(true)
+			       .maxWidth(400)
+			       .showDelay(300)
+			       .withCallback(this)
+			       .withStyleId(R.style.ToolTipLayoutCustomStyle)
+			       .show();
+				super.onWindowFocusChanged(hasFocus);
+				
+				((TextView) findViewById(android.R.id.text1)).setTextColor(Color.parseColor("#FFFFFF"));
+				pref.edit().putBoolean("first_open_4", false).commit();
+			}else{
+				pref.edit().putBoolean("first_open_4", false).commit();
+			}
+		}
+		
+		
+		
 	}
 
 	private void updateFacebookSession(final Session session, SessionState state) {
@@ -502,5 +540,11 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 			}
 		}
 		ClimbApplication.refreshUserBadge();
+	}
+
+	@Override
+	public void onClosing(int id, boolean fromUser, boolean containsTouch) {
+		// TODO Auto-generated method stub
+		
 	}
 }

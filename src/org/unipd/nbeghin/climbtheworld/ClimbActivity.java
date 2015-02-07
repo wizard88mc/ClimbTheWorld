@@ -451,7 +451,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 	}
 
 	private void apply_win_microgoal() {
-		User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
+		User me = currentUser;//ClimbApplication.getUserById(pref.getInt("local_id", -1));
 		int multiplier = 1;
 		switch (difficulty) {
 		case 100:
@@ -3240,16 +3240,15 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 	}
 
 	private void updatePoints(boolean penalty, boolean saveOnline) {
-		System.out.println("update points");
 		if (difficulty == 0) {
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 			difficulty = Integer.parseInt(settings.getString("difficulty", "10"));
 		}
-		int realSteps = new_steps / difficulty;
+		int realSteps = new_steps / difficulty; 		System.out.println("update points " + difficulty);
 		int newXP = 0;
 		switch (difficulty) {
 		case 1:// 5
-			newXP = realSteps + (int)( (double)realSteps / (double)100 * 30 );
+			newXP = realSteps * 3;
 			break;
 		case 10:
 			newXP = realSteps * 2;

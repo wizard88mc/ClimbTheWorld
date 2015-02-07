@@ -114,7 +114,7 @@
     
     <!-- ProfileActivity -->
     <string name="level">Level: %s</string>
-    <string name="climbBtn">Improve\nyourself</string>
+    <string name="climbBtn">Step\nCounter</string> <!-- Improve\nyourself -->
     <string name="mean_text">Average daily steps: \t %s</string>
     <string name="today_step">Today\'s steps: \t %s</string>
     <string name="profile_title">Profile</string>
@@ -358,12 +358,16 @@
 	<string name="demo2_slide33">Reach the top to make your team win!</string>
 	
 	<!-- onboarding -->
-	<string name="onboarding_1">Welcome! \n Are you ready to start this new adventure? \nPress on Mushrooms</string>
-	<string name="onboarding_2">Well done! \n Now you have to make 11 steps \nPress play to start your first climb</string>
-	<string name="onboarding_3">Fantastic! First goals completed, level passed and got a trophy! \nContinue to climb! \nRemember: when you reach the stars, they will give you extra points!</string>
+	<string name="onboarding_title_1">Welcome to Climb The World!</string>
+	<string name="onboarding_title_2">Well done!</string>
+	<string name="onboarding_title_3">Congratulations!</string>
+	<string name="onboarding_1">Let\'s start the game. \nTap on Mushrooms building.</string>
+	<string name="onboarding_2">Now tap play and make 11 steps.</string>
+	<string name="onboarding_3">You have completed your first climb! Continue to play! \nRemember: Reaching stars will give you extra points!\nIf you need help, tap ?</string>
 	<string name="onboarding_btn_1">Yes, let\'s start!</string>
 	<string name="onboarding_btn_2">Ok, I can do it!</string>
 	<string name="onboarding_btn_3">Yeah, let\'s start the game!</string>
+	<string name="onboarding_skip_btn">Skip tutorial</string>
 	
 	<!-- facebook post -->
 	<string name="solo_climb_win_post">I\'ve reached the top of %1$s with %2$d</string>

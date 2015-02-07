@@ -170,7 +170,9 @@ public class BuildingCard extends Card {
 			photo.setImageResource(imageId);
 		LayoutParams paramsPhoto = (LayoutParams) photo.getLayoutParams();
 		((TextView) view.findViewById(R.id.buildingStat)).setMinLines(2);
-		((TextView) view.findViewById(R.id.buildingStat)).setText(building.getSteps() + " " + ClimbApplication.getContext().getString(R.string.steps) + building.getHeight() + "m)" + "\n" + ClimbApplication.getContext().getString(R.string.reward, ClimbApplication.XPforStep(building.getSteps())));
+		boolean tutorial = false;
+		if(building.get_id() == 6) tutorial = true;
+		((TextView) view.findViewById(R.id.buildingStat)).setText(building.getSteps() + " " + ClimbApplication.getContext().getString(R.string.steps) + building.getHeight() + "m)" + "\n" + ClimbApplication.getContext().getString(R.string.reward, ClimbApplication.XPforStep(building.getSteps(), tutorial)));
 		((TextView) view.findViewById(R.id.location)).setText(buildingText.getLocation());
 		
 		if(order <= 0)

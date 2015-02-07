@@ -1,5 +1,7 @@
 package org.unipd.nbeghin.climbtheworld;
 
+import it.sephiroth.android.library.tooltip.TooltipManager;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -34,6 +36,7 @@ import org.unipd.nbeghin.climbtheworld.models.Notification;
 import org.unipd.nbeghin.climbtheworld.models.NotificationType;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
+import org.unipd.nbeghin.climbtheworld.util.GraphicsUtils;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
@@ -41,6 +44,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -60,6 +64,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.FacebookRequestError;
@@ -78,7 +83,7 @@ import com.facebook.widget.WebDialog;
  * 
  */
 @SuppressLint("NewApi")
-public class MainActivity extends ActionBarActivity implements NetworkRequests, ActionBar.TabListener {
+public class MainActivity extends ActionBarActivity implements NetworkRequests, ActionBar.TabListener, TooltipManager.onTooltipClosingCallback {
 	private static final String APP_TITLE = "Climb the world";
 	public static final String AppName = "ClimbTheWorld";
 
@@ -191,6 +196,8 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests, 
 		
 	}
 	
+	
+	
 	public static void showWaitLayout(){
 		Log.i("MAIN", "VISIBLE");
 		waitLayout.setVisibility(ViewPager.VISIBLE);
@@ -238,6 +245,38 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests, 
 			}
 		}
 
+	}
+	
+public void onWindowFocusChanged(boolean hasFocus) {
+		
+		
+		if (pref.getBoolean("first_open_5", true) && pref.getBoolean("first_open_1", false)) {
+			if(!pref.getBoolean("done_tutorial", false)){
+				View locButton = findViewById(R.id.itemInviteFacebookFriends);
+
+				TooltipManager manager = TooltipManager.getInstance(this);
+				manager.create(0)
+			       .anchor(locButton, TooltipManager.Gravity.BOTTOM)
+			       .actionBarSize(GraphicsUtils.getActionBarSize(getBaseContext()))
+			       .closePolicy(TooltipManager.ClosePolicy.TouchOutside, 1000000)
+			       .text(R.string.hello_world)
+			       .toggleArrow(true)
+			       .maxWidth(400)
+			       .showDelay(300)
+			       .withCallback(this)
+			       .withStyleId(R.style.ToolTipLayoutCustomStyle)
+			       .show();
+				super.onWindowFocusChanged(hasFocus);
+				
+				((TextView) findViewById(android.R.id.text1)).setTextColor(Color.parseColor("#FFFFFF"));
+				pref.edit().putBoolean("first_open_5", false).commit();
+			}else{
+				pref.edit().putBoolean("first_open_5", false).commit();
+			}
+		}
+		
+		
+		
 	}
 
 	private void onSessionStateChange(final Session session, SessionState state, Exception exception) {
@@ -1100,6 +1139,14 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests, 
 
 	@Override
 	public void onTabUnselected(Tab arg0, FragmentTransaction arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	@Override
+	public void onClosing(int id, boolean fromUser, boolean containsTouch) {
 		// TODO Auto-generated method stub
 		
 	}

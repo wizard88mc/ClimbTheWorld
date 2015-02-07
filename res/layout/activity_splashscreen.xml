@@ -2,47 +2,38 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#FFFFBE"
+    android:layout_marginLeft="24dp"
+    android:layout_marginRight="24dp"
      >
 
-    <ImageView
-        android:id="@+id/imageView1"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="141dp"
-        android:layout_marginBottom="170dp"
-        android:src="@drawable/logo" 
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentTop="true"/>
-
-    <ProgressBar
-        android:id="@+id/progressBar1"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="35dp" />
-
-    <TextView
-        android:id="@+id/textTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/imageView1"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:gravity="center"
-        android:text="Climb The World"
-        android:textSize="40sp" />
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="71dp"
+        android:background="@color/accent"
+        android:paddingBottom="12dp"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:paddingTop="12dp" >
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/textTitle"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="18dp"
-        android:text="@string/loading"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.61"
+            android:gravity="start"
+            android:textColor="@color/white"
+            android:text="Premi per vedere il tuo profilo" />
+
+        <ImageButton
+            android:id="@+id/imageButton1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/abc_ic_clear_mtrl_alpha"
+            android:gravity="end" />
+    </LinearLayout>
 
 </RelativeLayout>

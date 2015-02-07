@@ -294,17 +294,18 @@ public class ClimbApplication extends Application {
 	 *            the amount of steps the user has done
 	 * @return the amount of XP point the user has earned after doing steps steps.
 	 */
-	public static int XPforStep(int steps) {
+	public static int XPforStep(int steps, boolean tutorial) {
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
 		int difficulty = Integer.parseInt(settings.getString("difficulty", "10"));
+		if(tutorial) difficulty = 1;
 		double r_steps = (double) steps / (double) difficulty;
 		switch (difficulty) {
 		case 100:// easy
 			return (int) Math.floor(r_steps);
 		case 1:// hard
-			return ((int) Math.floor(r_steps)) * 5;
-		default: // normal
 			return ((int) Math.floor(r_steps)) * 3;
+		default: // normal
+			return ((int) Math.floor(r_steps)) * 2;
 		}
 	}
 

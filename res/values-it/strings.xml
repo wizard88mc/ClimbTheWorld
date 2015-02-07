@@ -103,7 +103,7 @@
     
     <!-- ProfileActivity -->
     <string name="level">Livello: %s</string>
-    <string name="climbBtn">Migliorati</string>
+    <string name="climbBtn">Conta\nScalini</string><!-- Migliorati -->
     <string name="mean_text">Media scalini giornalieri: \t %s</string>
     <string name="today_step">Scalini di oggi: \t %s</string>
     <string name="profile_title">Profilo</string>
@@ -364,12 +364,17 @@
 	<string name="demo2_slide33">Raggiungi la cima per far vincere il tuo team!</string>
 	
 	<!-- onboarding -->
-	<string name="onboarding_1">Benvenuto! \n Sei pronto per iniziare una nuova avventura? \nPremi Funghi</string>
-	<string name="onboarding_2">Ben fatto! \n Ora fai 11 scalini \nPremi play per iniziare la tua prima scalata</string>
-	<string name="onboarding_3">Fantastico! Hai completato i tuoi primi obiettivi, superato livelli e vinto un trofeo! \nContinua a scalare! Ricorda: raggiungendo le stelle, otterrai punti extra!</string>
+	<string name="onboarding_title_1">Benvenuto in Climb The World!</string>
+	<string name="onboarding_title_2">Ben fatto!</string>
+	<string name="onboarding_title_3">Complimenti!</string>
+	<string name="onboarding_1">Iniziamo il gioco. \nPremi l\'edificio Funghi.</string>
+	<string name="onboarding_2">Ora premi play e fai 11 scalini.</string>
+	<string name="onboarding_3">Hai completato la tua prima scalata! Continua a giocare! \nRicorda: raggiungendo le stelle, otterrai punti extra!\nSe hai bisogno di aiuto, premi ?</string>
 	<string name="onboarding_btn_1">Si, cominciamo!</string>
 	<string name="onboarding_btn_2">Ok, posso farlo!</string>
 	<string name="onboarding_btn_3">Yeah, iniziamo il gioco!</string>
+	<string name="onboarding_skip_btn">Salta tutorial</string>
+	
 	
 	<!-- facebook post -->
 	<string name="solo_climb_win_post">Sono arrivato in cima a %1$s con %2$d</string>
