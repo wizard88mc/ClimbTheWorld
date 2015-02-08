@@ -5,7 +5,7 @@
     android:layout_height="fill_parent"
     android:background="#ffffff"
     android:orientation="vertical"
-    android:padding="24dp" >
+    android:padding="12dp" >
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -34,7 +34,7 @@
             android:layout_weight="0.01"
             android:padding="8dp"
             android:text="@string/title_dialog"
-            android:textColor="@color/black"
+            android:textColor="@color/accent"
             android:textSize="22sp"
             android:textStyle="normal"
             android:typeface="normal" />
@@ -46,7 +46,8 @@
     <View
         android:layout_width="fill_parent"
         android:layout_height="2dip"
-        android:background="#ff33b5e5" />
+        android:background="#ff33b5e5" 
+        android:visibility="gone"/>
 
     <!-- The message -->
 
@@ -54,14 +55,14 @@
         android:id="@+id/textReward"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+         android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
         android:layout_marginBottom="10dp"
-        android:layout_marginTop="4dip"
         android:gravity="left"
         android:padding="8dp"
         android:text="Reward"
         android:textColor="@color/black"
-        android:textSize="15dip"
+        android:textSize="14sp"
         android:textStyle="normal"
         android:typeface="normal" />
 <!--          android:textColor="#343434" -->
@@ -70,14 +71,14 @@
         android:id="@+id/tvmessagedialogtext"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
         android:layout_marginBottom="10dp"
-        android:layout_marginTop="4dip"
         android:gravity="left"
         android:padding="8dp"
         android:text="Message"
         android:textColor="@color/black"
-        android:textSize="15dip"
+        android:textSize="14sp"
         android:textStyle="normal"
         android:typeface="normal" />
 <!--          android:textColor="#343434" -->
@@ -97,7 +98,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="false"
-                android:textColor="@color/black" />
+                        android:textSize="14sp"
+                
+                android:textColor="@color/secondary_text" />
         </TableRow>
 
         <TableRow
@@ -110,7 +113,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="false"
-                android:textColor="@color/black" />
+                        android:textSize="14sp"
+                
+                android:textColor="@color/secondary_text" />
         </TableRow>
     </TableLayout>
 
@@ -131,6 +136,8 @@
         android:layout_marginRight="10dp"
         android:layout_marginTop="2dp"
         android:text="%"
+                android:textSize="14sp"
+        
         android:textColor="@color/black" />
 
     <LinearLayout

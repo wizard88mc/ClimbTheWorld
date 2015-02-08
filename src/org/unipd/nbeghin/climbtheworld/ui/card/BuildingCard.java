@@ -375,7 +375,7 @@ public class BuildingCard extends Card {
 								 */
 								CheckBox cb = (CheckBox) dialog.findViewById(ClimbApplication.getContext().getResources().getIdentifier("checkBox" + (i + 1), "id", activity.getPackageName()));
 								cb.setText(steps[i]);
-								cb.setTextColor(Color.BLACK);
+								cb.setTextColor(ClimbApplication.getContext().getResources().getColor(R.color.black));
 								cb.setChecked(checked[i]);
 								cb.setClickable(false);
 							}
