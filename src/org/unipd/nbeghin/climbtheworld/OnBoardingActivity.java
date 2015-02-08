@@ -46,7 +46,8 @@ public class OnBoardingActivity extends Activity{
 				pref.edit().putBoolean("first_open_2", false).commit();
 				pref.edit().putBoolean("first_open_1", false).commit();
 				pref.edit().putBoolean("first_open_3", false).commit();
-
+				pref.edit().putBoolean("first_open_4", false).commit();
+				pref.edit().putBoolean("first_open_5", false).commit();
 				finish();
 			}
 		});

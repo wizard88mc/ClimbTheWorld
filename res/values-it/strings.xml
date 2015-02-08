@@ -370,7 +370,7 @@
 	<string name="onboarding_1">Iniziamo il gioco. \nPremi l\'edificio Funghi.</string>
 	<string name="onboarding_2">Ora premi play e fai 11 scalini.</string>
 	<string name="onboarding_3">Hai completato la tua prima scalata! Continua a giocare! \nRicorda: raggiungendo le stelle, otterrai punti extra!\nSe hai bisogno di aiuto, premi ?</string>
-	<string name="onboarding_btn_1">Si, cominciamo!</string>
+	<string name="onboarding_btn_1">Ok!</string>
 	<string name="onboarding_btn_2">Ok, posso farlo!</string>
 	<string name="onboarding_btn_3">Yeah, iniziamo il gioco!</string>
 	<string name="onboarding_skip_btn">Salta tutorial</string>
@@ -429,5 +429,8 @@
         <item quantity="one">%d notifica</item>
         <item quantity="other">%d notfiche</item>
     </plurals>	
+    
+	<string name="tip_profile">Tocca qui per vedere il tuo profilo</string>
+	<string name="tip_invite">Tocca qui per invitare gli amici a provare Climb the World dopo il login in Facebook</string>
 	
 </resources>

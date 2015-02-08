@@ -43,11 +43,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.FacebookRequestError;
@@ -1338,7 +1341,11 @@ public class ClimbApplication extends Application {
 		}
 	}
 	
-	
+	public static void setTextTipStyle(TextView text_tip){
+		text_tip.setTextColor(Color.parseColor("#FFFFFF"));
+		text_tip.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+		text_tip.setPadding(12, 12, 12, 12);
+	}
 	
 	
 

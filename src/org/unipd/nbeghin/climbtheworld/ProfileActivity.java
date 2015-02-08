@@ -253,32 +253,38 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 	public void onWindowFocusChanged(boolean hasFocus) {
 		
 		
-		if (pref.getBoolean("first_open_4", true)) {
+		if (pref.getBoolean("first_open_5", true)) {
 			if(!pref.getBoolean("done_tutorial", false)){
 				View locButton = findViewById(R.id.itemInviteFacebookFriends);
+
 
 				TooltipManager manager = TooltipManager.getInstance(this);
 				manager.create(0)
 			       .anchor(locButton, TooltipManager.Gravity.BOTTOM)
 			       .actionBarSize(GraphicsUtils.getActionBarSize(getBaseContext()))
-			       .closePolicy(TooltipManager.ClosePolicy.TouchOutside, 1000000)
-			       .text(R.string.hello_world)
+			       .closePolicy(TooltipManager.ClosePolicy.TouchOutside, 0)
+			       .text(R.string.tip_invite)
 			       .toggleArrow(true)
 			       .maxWidth(400)
 			       .showDelay(300)
 			       .withCallback(this)
-			       .withStyleId(R.style.ToolTipLayoutCustomStyle)
+			       .withCustomView(R.layout.activity_splashscreen, false)
+			       .withStyleId(R.style.ToolTipLayoutCustomStyle)			       
 			       .show();
-				super.onWindowFocusChanged(hasFocus);
 				
-				((TextView) findViewById(android.R.id.text1)).setTextColor(Color.parseColor("#FFFFFF"));
-				pref.edit().putBoolean("first_open_4", false).commit();
+				ClimbApplication.setTextTipStyle(((TextView) findViewById(android.R.id.text1)));
+
+				
+				
+
+				pref.edit().putBoolean("first_open_5", false).commit();
 			}else{
-				pref.edit().putBoolean("first_open_4", false).commit();
+				pref.edit().putBoolean("first_open_5", false).commit();
 			}
 		}
 		
-		
+		super.onWindowFocusChanged(hasFocus);
+
 		
 	}
 

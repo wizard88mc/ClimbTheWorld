@@ -55,14 +55,12 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -250,32 +248,36 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests, 
 public void onWindowFocusChanged(boolean hasFocus) {
 		
 		
-		if (pref.getBoolean("first_open_5", true) && pref.getBoolean("first_open_1", false)) {
-			if(!pref.getBoolean("done_tutorial", false)){
-				View locButton = findViewById(R.id.itemInviteFacebookFriends);
+		if (pref.getBoolean("first_open_4", true) && !pref.getBoolean("first_open_3", true)) {
+			//if(!pref.getBoolean("done_tutorial", false)){
+			View locButton = findViewById(R.id.itemProfile);
 
-				TooltipManager manager = TooltipManager.getInstance(this);
-				manager.create(0)
-			       .anchor(locButton, TooltipManager.Gravity.BOTTOM)
-			       .actionBarSize(GraphicsUtils.getActionBarSize(getBaseContext()))
-			       .closePolicy(TooltipManager.ClosePolicy.TouchOutside, 1000000)
-			       .text(R.string.hello_world)
-			       .toggleArrow(true)
-			       .maxWidth(400)
-			       .showDelay(300)
-			       .withCallback(this)
-			       .withStyleId(R.style.ToolTipLayoutCustomStyle)
-			       .show();
-				super.onWindowFocusChanged(hasFocus);
+			TooltipManager manager = TooltipManager.getInstance(this);
+			manager.create(1)
+		       .anchor(locButton, TooltipManager.Gravity.BOTTOM)
+		       .actionBarSize(GraphicsUtils.getActionBarSize(getBaseContext()))
+		       .closePolicy(TooltipManager.ClosePolicy.TouchOutside, 0)
+		       .text(R.string.tip_profile)
+		       .toggleArrow(true)
+		       .maxWidth(400)
+		       .showDelay(300)
+		       .withCallback(this)
+		       .withCustomView(R.layout.activity_splashscreen, false)
+		       .withStyleId(R.style.ToolTipLayoutCustomStyle)
+		       .show();
+				ClimbApplication.setTextTipStyle(((TextView) findViewById(android.R.id.text1)));
+
 				
-				((TextView) findViewById(android.R.id.text1)).setTextColor(Color.parseColor("#FFFFFF"));
-				pref.edit().putBoolean("first_open_5", false).commit();
-			}else{
-				pref.edit().putBoolean("first_open_5", false).commit();
-			}
+				pref.edit().putBoolean("first_open_4", false).commit();
+//			}else{
+//				pref.edit().putBoolean("first_open_4", false).commit();
+//			}
 		}
 		
-		
+	
+
+		super.onWindowFocusChanged(hasFocus);
+
 		
 	}
 
