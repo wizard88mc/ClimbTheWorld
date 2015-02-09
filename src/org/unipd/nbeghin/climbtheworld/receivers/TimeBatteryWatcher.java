@@ -417,8 +417,13 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    	}		    	
 		    	//}	
 		    	
-		    	
-		    	
+		    	//si re-imposta l'alarm che serve per recuperare il livello di carica della batteria; è utile per
+    	    	//attuare il bilanciamento energetico        	    	
+    	    	Intent battery_intent = new Intent(context, TimeBatteryWatcher.class);
+    	    	battery_intent.setAction("org.unipd.nbeghin.climbtheworld.BATTERY_ENERGY_BALANCING");    	
+    	    	//si ripete l'alarm circa ogni ora (il primo lancio avviene entro 10 minuti dal boot)
+    	    	alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 600000,
+    	    			3600000, PendingIntent.getBroadcast(context, 0, battery_intent, 0));		    	
 			}
 		}
 		else if(action.equalsIgnoreCase(ENERGY_BALANCING)){ //bilanciamento energetico
@@ -429,7 +434,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			//cambiare, ecc.; se si spegne con livello basso e si ricarica da spento superando la
 			//soglia, l'evento non viene lanciato al boot non facendo riavviare l'algoritmo) né si
 			//monitora costantemente il livello di batteria; infatti, il livello viene controllato
-			//solamente ogni 2 ore circa, operando eventualmente le opportune azioni correttive
+			//solamente ogni ora circa, operando eventualmente le opportune azioni correttive
 			
 			int alarm_id = pref.getInt("alarm_id", -1);
 			//se l'algoritmo è stato configurato e c'è un prossimo alarm impostato
@@ -440,7 +445,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				Intent batteryStatus = context.getApplicationContext().registerReceiver(null, ifilter);
 				int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
 				int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-
+				//percentuale di batteria
 				float batteryPct = level / (float)scale;
 				
 				LogUtils.writeLogFile(context, "\nTimeBatteryWatcher - ENERGY BALANCING, "+dateFormat.format((Calendar.getInstance()).getTime())+" level: "+level+", scale: "+scale+", BATTERY: "+batteryPct);

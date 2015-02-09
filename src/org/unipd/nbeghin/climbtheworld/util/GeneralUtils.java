@@ -201,9 +201,9 @@ public class GeneralUtils {
         	    	//attuare il bilanciamento energetico        	    	
         	    	Intent battery_intent = new Intent(context, TimeBatteryWatcher.class);
         	    	battery_intent.setAction("org.unipd.nbeghin.climbtheworld.BATTERY_ENERGY_BALANCING");    	
-        	    	//si ripete l'alarm ogni 2 ore circa
-        	    	alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, AlarmManager.INTERVAL_HALF_HOUR,
-        	    			7200000, PendingIntent.getBroadcast(context, 0, battery_intent, 0));
+        	    	//si ripete l'alarm circa ogni ora (il primo lancio avviene entro 10 minuti)
+        	    	alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 600000,
+        	    			3600000, PendingIntent.getBroadcast(context, 0, battery_intent, 0));
     			}
     			else{
     				//LogUtils.writeLogFile(context, "NON FAI MAI ATTIVITA' FISICA/SCALINI: NON E' STATO CREATO ALCUN INTERVALLO");
