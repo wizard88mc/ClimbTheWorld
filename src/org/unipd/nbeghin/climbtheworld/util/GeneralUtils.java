@@ -21,6 +21,7 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.unipd.nbeghin.climbtheworld.ClimbTheWorldApp;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.models.Alarm;
@@ -39,6 +40,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.res.AssetManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -181,8 +183,8 @@ public class GeneralUtils {
         	    				"  "+calendar.get(Calendar.DATE)+"/"+month+"/"+calendar.get(Calendar.YEAR));        	
         	        	Log.d(MainActivity.AppName + " - TEST", "GeneralUtils - milliseconds of the update day index alarm: " + calendar.getTimeInMillis());
         	    	}
-        	    	/////////
-        	    	
+        	    	/////////        	    	
+        	    	        	    	
         	    	////////////////////////////
         	    	//utile per scrivere il LOG
         	    	editor.putBoolean("next_alarm_mutated", false).commit();
@@ -193,12 +195,22 @@ public class GeneralUtils {
         	    	
         	    	LogUtils.offIntervalsTracking(context, prefs, -1);    			
         	    	//si imposta e si lancia il prossimo alarm
-        	    	AlarmUtils.setNextAlarm(context,alarms_created,true,false,-1); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,1))  
+        	    	AlarmUtils.setNextAlarm(context,alarms_created,true,false,-1); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,1)) 
+        	    	
+        	    	//si imposta l'alarm che serve per recuperare il livello di carica della batteria; è utile per
+        	    	//attuare il bilanciamento energetico        	    	
+        	    	Intent battery_intent = new Intent(context, TimeBatteryWatcher.class);
+        	    	battery_intent.setAction("org.unipd.nbeghin.climbtheworld.BATTERY_ENERGY_BALANCING");    	
+        	    	//si ripete l'alarm ogni 2 ore circa
+        	    	alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, AlarmManager.INTERVAL_HALF_HOUR,
+        	    			7200000, PendingIntent.getBroadcast(context, 0, battery_intent, 0));
     			}
     			else{
     				//LogUtils.writeLogFile(context, "NON FAI MAI ATTIVITA' FISICA/SCALINI: NON E' STATO CREATO ALCUN INTERVALLO");
     				LogUtils.initLogFile(context, null);
     			}
+    			
+    			prefs.edit().putBoolean("algorithm_configured", true).commit();
     		}
     	};
     	thread.start();

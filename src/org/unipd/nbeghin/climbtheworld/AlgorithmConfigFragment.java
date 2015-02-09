@@ -303,8 +303,7 @@ public class AlgorithmConfigFragment extends Fragment {
 		@Override
 		protected Void doInBackground(Void... params) {
 
-			AlarmUtils.createIntervals(mContext, positions_colors, this);
-			PreferenceManager.getDefaultSharedPreferences(ClimbTheWorldApp.getContext()).edit().putBoolean("algorithm_configured", true).commit();
+			AlarmUtils.createIntervals(mContext, positions_colors, this);			
 			
 			return null;
 		}
@@ -335,6 +334,7 @@ public class AlgorithmConfigFragment extends Fragment {
                 return;
 			
 			GeneralUtils.initializeAlgorithm(ClimbTheWorldApp.getContext(), PreferenceManager.getDefaultSharedPreferences(ClimbTheWorldApp.getContext()));
+			
 			
 			mFragment.taskFinished();
 		}
