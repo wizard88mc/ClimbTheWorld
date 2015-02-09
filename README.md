@@ -17,3 +17,4 @@ In silvia-branch:
 * Parse https://parse.com/downloads/android/Parse/latest
 * Guava https://code.google.com/p/guava-libraries/
 * Gson https://code.google.com/p/google-gson/
+* Tooltips https://github.com/sephiroth74/android-target-tooltip
