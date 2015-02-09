@@ -84,6 +84,7 @@ public class CheckboxListViewAdapter extends ArrayAdapter<JSONObject> implements
 
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
+		
 		View listItemView = inflater.inflate(R.layout.checkbox_listview, parent, false);
 
 		profilePicView = (ImageView) listItemView.findViewById(R.id.imageProfileView);

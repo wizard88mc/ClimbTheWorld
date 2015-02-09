@@ -1,6 +1,7 @@
 package org.unipd.nbeghin.climbtheworld;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.json.JSONObject;
@@ -9,7 +10,6 @@ import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 
 import android.app.SearchManager;
 import android.content.Context;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
@@ -35,6 +35,7 @@ import com.facebook.widget.WebDialog;
 
 public class FBPickFriendActivity extends ActionBarActivity {
 
+	
 	public static List<String> idsToInvite = new ArrayList<String>();
 	private ListView invitableList;
 	private Button doneButton;
@@ -62,6 +63,14 @@ public class FBPickFriendActivity extends ActionBarActivity {
 		}
 
 		adapter = new CheckboxListViewAdapter(this, ClimbApplication.invitableFriends);
+		adapter.sort(new Comparator<JSONObject>() {//alphabetical order
+		    @Override
+		    public int compare(JSONObject lhs, JSONObject rhs) {
+		    	String name_lhs = lhs.optString("first_name") + " " + lhs.optString("last_name");
+		    	String name_rhs = rhs.optString("first_name") + " " + rhs.optString("last_name");
+		        return name_lhs.compareTo(name_rhs);    
+		    }
+		});
 		invitableList.setAdapter(adapter);
 
 		invitableList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
