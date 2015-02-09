@@ -135,7 +135,7 @@ public class ActivityDetectionRemover
     @Override
     public void onConnected(Bundle connectionData) {
         // If debugging, log the connection
-        Log.d(ActivityUtils.TAG, "Remover - on connected"); //context.getString(R.string.connected)
+        Log.d(ActivityRecognitionUtils.TAG, "Remover - on connected"); //context.getString(R.string.connected)
         // Send a request to Location Services to remove activity recognition updates
         continueRemoveUpdates();
     }
@@ -192,7 +192,7 @@ public class ActivityDetectionRemover
 
             try {
                 connectionResult.startResolutionForResult((Activity) context,
-                    ActivityUtils.CONNECTION_FAILURE_RESOLUTION_REQUEST);
+                    ActivityRecognitionUtils.CONNECTION_FAILURE_RESOLUTION_REQUEST);
 
             /*
              * Thrown if Google Play services canceled the original
@@ -227,7 +227,7 @@ public class ActivityDetectionRemover
 	public void onConnectionSuspended(int arg0) {
 		
 		 // In debug mode, log the disconnection
-        Log.d(ActivityUtils.TAG, "Remover - On connection suspended"); //context.getString(R.string.disconnected)
+        Log.d(ActivityRecognitionUtils.TAG, "Remover - On connection suspended"); //context.getString(R.string.disconnected)
 
         // Destroy the current activity recognition client
         mActivityRecognitionClient = null;

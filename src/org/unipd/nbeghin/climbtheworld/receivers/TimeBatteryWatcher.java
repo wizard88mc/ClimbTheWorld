@@ -9,6 +9,7 @@ import java.util.Date;
 import org.unipd.nbeghin.climbtheworld.ClimbActivity;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionIntentService;
+import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionUtils;
 import org.unipd.nbeghin.climbtheworld.models.Alarm;
 import org.unipd.nbeghin.climbtheworld.services.ActivityRecognitionRecordService;
 import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
@@ -334,7 +335,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    			
 		    			//si fa partire l'intent service che imposta e lancia un nuovo alarm	 
 			    		//(se il nuovo alarm è di stop, si fa ripartire subito il classificatore opportuno)
-			    		context.startService(new Intent(context, SetNextAlarmIntentService.class)
+			    		context.getApplicationContext().startService(new Intent(context, SetNextAlarmIntentService.class)
 			    			.putExtra("takeAllAlarms", true)
 			    			.putExtra("prevAlarmNotAvailable", true)
 			    			.putExtra("current_alarm_id", alarm_id)
@@ -379,7 +380,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			    				//l'intervallo non è stato interessato da un periodo di gioco
 			    				//con scalini
 			    				if(StairsClassifierReceiver.getStepsNumber(pref)<1){
-			    					context.startService(new Intent(context, ActivityRecognitionRecordService.class));
+			    					context.getApplicationContext().startService(new Intent(context, ActivityRecognitionRecordService.class));
 			    					//si registra anche il receiver per la registrazione dell'attività utente
 			    					//context.getApplicationContext().registerReceiver(userMotionReceiver, userMotionFilter);
 			    					//context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
@@ -469,7 +470,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 							if(!current_next_alarm.isStepsInterval(pref.getInt("artificialDayIndex", 0))){
 								if(GeneralUtils.isActivityRecognitionServiceRunning(context)){
 									Log.d(MainActivity.AppName,"BATTERY LOW - Stop activity recognition");
-									context.stopService(new Intent(context, ActivityRecognitionRecordService.class));
+									context.getApplicationContext().stopService(new Intent(context, ActivityRecognitionRecordService.class));
 								}
 							}
 							else{
@@ -489,7 +490,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						//si fa partire l'intent service del setNextAlarm che, in tal caso, cancella
 						//solamente il prossimo alarm, precedentemente impostato (in tal modo si
 						//ferma l'algoritmo)
-						context.startService(new Intent(context, SetNextAlarmIntentService.class)
+						context.getApplicationContext().startService(new Intent(context, SetNextAlarmIntentService.class)
 						.putExtra("current_alarm_id", pref.getInt("alarm_id",-1))
 						.putExtra("low_battery", true));					
 					}
@@ -506,28 +507,48 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						
 						//si fa partire l'intent service del setNextAlarm che imposta il prossimo
 						//alarm valido, facendo ripartire l'algoritmo
-						context.startService(new Intent(context, SetNextAlarmIntentService.class)
+						context.getApplicationContext().startService(new Intent(context, SetNextAlarmIntentService.class)
 							.putExtra("takeAllAlarms", true)
 							.putExtra("prevAlarmNotAvailable", true)
 							.putExtra("current_alarm_id", pref.getInt("alarm_id",-1))
 							.putExtra("low_battery", false));						
 					}		
 					
+					boolean restart=false;
 					
-					
-					if(batteryPct<=0.2){
-						
+					//se il livello di batteria L è <=30% si abbassa la frequenza di aggiornamento
+					//del servizio di activity recognition:
+					//se 10%<L<=20%: ogni 20 secondi, se 20%<L<=30%: ogni 10 secondi, 
+					//se L>30% ogni 5 secondi (impostazione di default)
+					if(batteryPct<=0.2){						
+						if(ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)!=20){							
+							//si imposta la frequenza di aggiornamento a 20 secondi
+							ActivityRecognitionUtils.setDetectionIntervalMilliseconds(context, 20);
+							restart=true;
+						}
 					}
-					else if(batteryPct<=0.3){
-					
+					else if(batteryPct<=0.3){					
+						if(ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)!=10){
+							//si imposta la frequenza di aggiornamento a 10 secondi
+							ActivityRecognitionUtils.setDetectionIntervalMilliseconds(context, 10);	
+							restart=true;
+						}						
+					}
+					else{ //batteryPct>0.3						
+						if(ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)!=5){
+							//si imposta la frequenza di aggiornamento a 5 secondi
+							ActivityRecognitionUtils.setDetectionIntervalMilliseconds(context, 5);
+							restart=true;
+						}						
+					}
+					//se si è cambiata la frequenza di aggiornamento e se il servizio di activity
+					//recognition è in esecuzione, si riavvia
+					if(restart && GeneralUtils.isActivityRecognitionServiceRunning(context)){
+						context.getApplicationContext().stopService(new Intent(context, ActivityRecognitionRecordService.class));
+						context.getApplicationContext().startService(new Intent(context, ActivityRecognitionRecordService.class));
 					}
 				}
-				
-				
 			}
-			
-			
-			
 		}
 		/////////
 		//PER TEST ALGORITMO
@@ -632,9 +653,8 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						
 						//non è un "intervallo con scalini"
 						
-						if(!GeneralUtils.isActivityRecognitionServiceRunning(context)){							
-						    Intent activityRecognitionIntent = new Intent(context, ActivityRecognitionRecordService.class);
-						   	context.startService(activityRecognitionIntent);
+						if(!GeneralUtils.isActivityRecognitionServiceRunning(context)){
+						   	context.getApplicationContext().startService(new Intent(context, ActivityRecognitionRecordService.class));
 						   	//si abilita anche il receiver per la registrazione dell'attività utente
 							//context.getApplicationContext().registerReceiver(userMotionReceiver, userMotionFilter);
 							//context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);					
@@ -676,7 +696,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					//è attivo
 					if(GeneralUtils.isActivityRecognitionServiceRunning(context)){
 						Log.d(MainActivity.AppName,"STOP ACTION - Stop activity recognition");
-					   	context.stopService(new Intent(context, ActivityRecognitionRecordService.class));
+					   	context.getApplicationContext().stopService(new Intent(context, ActivityRecognitionRecordService.class));
 						//si disabilita anche il receiver per la registrazione dell'attività utente
 						//context.getApplicationContext().unregisterReceiver(userMotionReceiver);
 						//context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
@@ -773,7 +793,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			
 			//si fa partire l'intent service che cancella l'alarm "consumato" da questo on receive e
 			//che imposta e lancia il prossimo alarm
-			context.startService(new Intent(context, SetNextAlarmIntentService.class)
+			context.getApplicationContext().startService(new Intent(context, SetNextAlarmIntentService.class)
 				.putExtra("takeAllAlarms", false)
 				.putExtra("prevAlarmNotAvailable", false)
 				.putExtra("current_alarm_id", this_alarm_id)

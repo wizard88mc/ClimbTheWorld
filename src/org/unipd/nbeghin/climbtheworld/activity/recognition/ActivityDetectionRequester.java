@@ -16,11 +16,11 @@ import android.os.Bundle;
 import android.util.Log;
 
 /**
- * Classe per la connessione ai Location Services e per la richiesta degli update di
- * activity recognition. Bisogna assicurarsi che il componente 'Google Play services'
- * sia disponibile prima di richiedere gli update. Per usare tale classe è
- * necessario istanziarla e chiamare il metodo {@link requestUpdates()}. Tutto
- * il resto è fatto automaticamente.
+ * Class for connecting to Location Services and activity recognition updates.
+ * Note: Clients must ensure that Google Play services is available before requesting updates.
+ * Use GooglePlayServicesUtil.isGooglePlayServicesAvailable() to check.
+ * To use a ActivityDetectionRequester, instantiate it and call requestUpdates(). Everything else
+ * is done automatically.
  */
 public class ActivityDetectionRequester 
 		implements ConnectionCallbacks, OnConnectionFailedListener {
@@ -37,7 +37,10 @@ public class ActivityDetectionRequester
 	/**
 	 * Costruttore della classe che permette di richiedere al sistema gli update di 
 	 * activity recognition attraverso la connessione ai Location Services.
-	 * @param context contesto passato dal client chiamante
+	 */
+	/**
+	 * Constructor of the ActivityDetectionRequester, a class for connecting to activity recognition updates.
+	 * @param context context given by the caller client.
 	 */
 	public ActivityDetectionRequester(Context context) {
 		this.context=context;
@@ -48,9 +51,9 @@ public class ActivityDetectionRequester
         callbackIntent = null;        
 	}
 	
-	 /**
-     * Avvia il processo di richiesta degli update di activity recognition 
-     * richiedendo una connessione ai Location Services.
+	/**
+     * Start the activity recognition update request process by
+     * getting a connection.
      */
     public void requestUpdates() {
         requestConnection();
@@ -65,10 +68,10 @@ public class ActivityDetectionRequester
          * The PendingIntent sends updates to ActivityRecognitionIntentService
          */
     	ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(getActivityRecognitionClient(),
-                ActivityUtils.DETECTION_INTERVAL_MILLISECONDS,
+                ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context),
                 createRequestPendingIntent());
 
-        // Disconnect the client
+        //disconnect the client
         requestDisconnection();
     }
 
@@ -103,9 +106,9 @@ public class ActivityDetectionRequester
 
             //si ritorna l'intent esistente
             return callbackIntent;
-
-        //se non esiste alcun PendingIntent
-        } else {
+        } 
+        else {
+        	//se non esiste alcun PendingIntent
             //si crea un intent che punta ad un IntentService
             Intent intent = new Intent(context, ActivityRecognitionIntentService.class);
 
@@ -145,7 +148,7 @@ public class ActivityDetectionRequester
 
             try {
                 connectionResult.startResolutionForResult((Activity) context,
-                    ActivityUtils.CONNECTION_FAILURE_RESOLUTION_REQUEST);
+                    ActivityRecognitionUtils.CONNECTION_FAILURE_RESOLUTION_REQUEST);
 
             /*
              * Thrown if Google Play services canceled the original
@@ -186,7 +189,7 @@ public class ActivityDetectionRequester
 	public void onConnected(Bundle arg0) {
 		
 		 // If debugging, log the connection
-        Log.d(ActivityUtils.TAG, "Detection - On connected"); //context.getString(R.string.connected)
+        Log.d(ActivityRecognitionUtils.TAG, "Detection - On connected"); //context.getString(R.string.connected)
 
         // Continue the process of requesting activity recognition updates
         continueRequestActivityUpdates();
@@ -243,15 +246,10 @@ public class ActivityDetectionRequester
 	public void onConnectionSuspended(int arg0) {
 		
 		// In debug mode, log the disconnection
-        Log.d(ActivityUtils.TAG, "Detection - On connection suspended"); //context.getString(R.string.disconnected)
+        Log.d(ActivityRecognitionUtils.TAG, "Detection - On connection suspended"); //context.getString(R.string.disconnected)
 
         // Destroy the current activity recognition client
-        mActivityRecognitionClient = null;
-		
+        mActivityRecognitionClient = null;		
 	}
-	
-	
-	
-	
 	
 }
