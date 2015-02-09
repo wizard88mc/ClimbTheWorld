@@ -93,7 +93,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 
 			float batteryPct = level / (float)scale;
 			
-			LogUtils.writeLogFile(context, "\nTimeBatteryWatcher - BATTERY LOW, "+dateFormat.format((Calendar.getInstance()).getTime())+" level: "+level+", scale: "+scale+", BATTERY: "+batteryPct);
+			LogUtils.writeLogFile(context, "TimeBatteryWatcher - BATTERY LOW, "+dateFormat.format((Calendar.getInstance()).getTime())+" level: "+level+", scale: "+scale+", BATTERY: "+batteryPct);
 			
 			/*
 			int alarm_id=pref.getInt("alarm_id", -1);
@@ -150,7 +150,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 
 			float batteryPct = level / (float)scale;
 			
-			LogUtils.writeLogFile(context, "\nTimeBatteryWatcher - BATTERY OKAY, "+dateFormat.format((Calendar.getInstance()).getTime())+" level: "+level+", scale: "+scale+", BATTERY: "+batteryPct);
+			LogUtils.writeLogFile(context, "TimeBatteryWatcher - BATTERY OKAY, "+dateFormat.format((Calendar.getInstance()).getTime())+" level: "+level+", scale: "+scale+", BATTERY: "+batteryPct);
 			
 		}		
 		//se il device ha completato il boot
@@ -158,7 +158,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			
 			Log.d(MainActivity.AppName, "TimeBatteryWatcher - BOOT ACTION");
 			
-			LogUtils.writeLogFile(context, "\nTimeBatteryWatcher - BOOT ACTION");
+			LogUtils.writeLogFile(context, "TimeBatteryWatcher - BOOT ACTION");
 			
 			//riferimento all'alarm manager
 			final AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -457,7 +457,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				//correzioni, si sospende l'algoritmo (ascolto e trigger)
 				if(batteryPct<=0.1){
 				
-					toLog+="\nTimeBatteryWatcher - ENERGY BALANCING, LEVEL <=10%";
+					toLog+="TimeBatteryWatcher - ENERGY BALANCING, LEVEL <=10%";
 					
 					if(!pref.getBoolean("low_battery_status", false)){
 						
@@ -503,7 +503,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				}
 				else {
 					
-					toLog+="\nTimeBatteryWatcher - ENERGY BALANCING, LEVEL >10%";
+					toLog+="TimeBatteryWatcher - ENERGY BALANCING, LEVEL >10%";
 					
 					//se l'ultima volta è stato rilevato un livello di batteria critico, ora quest'ultimo
 					//si è alzato e, quindi, si fa ripartire l'algoritmo, impostando opportunamente il
