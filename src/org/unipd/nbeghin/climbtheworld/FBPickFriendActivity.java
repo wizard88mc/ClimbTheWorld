@@ -117,6 +117,9 @@ public class FBPickFriendActivity extends ActionBarActivity {
 				if (error != null && !(error instanceof FacebookOperationCanceledException)) {
 					showError(getResources().getString(R.string.network_error));
 				}
+				if(error == null)
+					Toast.makeText(FBPickFriendActivity.this, getString(R.string.invite_sent), Toast.LENGTH_SHORT).show();
+
 				dialog = null;
 				dialogAction = null;
 				dialogParams = null;
@@ -143,8 +146,7 @@ public class FBPickFriendActivity extends ActionBarActivity {
 		@Override
 		public boolean onCreateOptionsMenu(Menu menu) {
 //			// Inflate the menu; this adds items to the action bar if it is present.
-//			getMenuInflater().inflate(R.menu.actionbar, menu);
-//			return true;
+
 			 getMenuInflater().inflate(R.menu.fb_invite, menu);
 
 		        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);

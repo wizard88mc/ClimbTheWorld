@@ -85,7 +85,7 @@
     <string name="not_logged">Non hai fatto il login a Facebook</string>
     <string name="request_arrived">Richiesta arrivata</string>
     <string name="request_deleted">Richiesta eliminata</string>
-    
+    <string name="invite_sent">Inviti inviati</string>
     <string name="post_published">Post pubblicato</string>
     
     
@@ -272,7 +272,7 @@
     <!-- FBPickFriendActivity -->
     <string name="pick_friends">Seleziona gli amici che vuoi invitare</string>
     <string name="invite_btn">Invita</string>
-    <string name="no_invitable">Nessun amico da invitare</string>
+    <string name="no_invitable">Nessun amico da invitare\nTutti giocano già con Climb the World :)</string>
     <string name="all_friends">Tutti i tuoi amici</string>
     
     <!-- dialog lock level -->

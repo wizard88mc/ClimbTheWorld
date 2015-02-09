@@ -4,8 +4,10 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -87,6 +89,7 @@ import com.parse.SignUpCallback;
  */
 public class ClimbApplication extends Application {
 	public static final boolean DEBUG = true;
+	public static final List<String> PERMISSIONS = Arrays.asList("user_friends,public_profile");
 
 	public static final int N_MEMBERS_PER_GROUP = 6;  // 5 friends + me
 	public static int PERCENTAGE_MICROGOAL = 25;
@@ -193,6 +196,7 @@ public class ClimbApplication extends Application {
 
 	public static void setInvitableFriend(List<JSONObject> obj) {
 		invitableFriends = obj;
+		Log.d("invitabili", String.valueOf(obj.size()));
 	}
 
 	@Override
@@ -1287,6 +1291,15 @@ public class ClimbApplication extends Application {
 	public static RequestBatch loadFriendsFromFacebook() {
 		Log.d("ClimbApplication", "loadFriendsFromFacebook");
 		final Session session = Session.getActiveSession();
+		
+//		final List<String> PERMISSIONS = Arrays.asList("publish_actions, user_friends");
+//		List<String> permissions = Session.getActiveSession().getPermissions();
+//
+//		if (!new HashSet<String>(permissions).containsAll(PERMISSIONS)) {
+//			Session.NewPermissionsRequest newPermissionsRequest = new Session.NewPermissionsRequest(this, PERMISSIONS);
+//			Session.getActiveSession().requestNewPublishPermissions(newPermissionsRequest);
+//			Log.w("FBShare", "has permission");
+//		}
 
 		RequestBatch requestBatch = new RequestBatch();
 
@@ -1310,7 +1323,7 @@ public class ClimbApplication extends Application {
 						if (dataArray.length() > 0) {
 							// Ensure the user has at least one friend ...
 
-							for (int i = 0; i < dataArray.length(); i++) {
+							for (int i = 0; i < dataArray.length(); i++) { 
 								invitableFriends.add(dataArray.optJSONObject(i));
 							}
 						}

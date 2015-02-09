@@ -20,15 +20,15 @@ import org.unipd.nbeghin.climbtheworld.util.StatUtils;
 
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -47,6 +47,7 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
+import com.facebook.widget.LoginButton;
 //import com.facebook.widget.ProfilePictureView;
 import com.parse.ParseUser;
 
@@ -66,7 +67,9 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 	private User me;
 	SharedPreferences pref;
 	public ProfilePictureView profilePictureView;
-
+	
+	List<String> permissions;
+	
 	public void setProfileData(GraphUser user, boolean login) {
 		me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
 		profilePictureView.setCropped(true);
@@ -82,6 +85,8 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 	public ProfilePictureView getProfilePictureView() {
 		return profilePictureView;
 	}
+	
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -96,9 +101,38 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 		pref = getApplicationContext().getSharedPreferences("UserSession", 0);
 		me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
 		
+		LoginButton authButton = (LoginButton) findViewById(R.id.login_button);
+	    authButton.setPublishPermissions("public_profile,user_friends");
+//	    Session.NewPermissionsRequest newPermissionsRequest = new 
+//	    Session.NewPermissionsRequest(this, Arrays.asList("user_friends,public_profile"));
+//	    Session.getActiveSession().requestNewReadPermissions(newPermissionsRequest);
+		
 		updateUserData();
 
 		Session session = Session.getActiveSession();
+		
+		 
+		    
+		    
+//		if(session != null && session.isOpened()){
+//		final List<String> PERMISSIONS = Arrays.asList("publish_actions, user_friends");
+//		List<String> permissions = Session.getActiveSession().getPermissions();
+//		
+//		for(String p : permissions)
+//			System.out.println(p);
+//
+//		if (!new HashSet<String>(permissions).containsAll(PERMISSIONS)) {
+//			Session.NewPermissionsRequest newPermissionsRequest = new Session.NewPermissionsRequest(this, PERMISSIONS);
+//			Session.getActiveSession().requestNewPublishPermissions(newPermissionsRequest);
+//			Log.w("FBShare", "has permission");
+//		}
+//		
+//		permissions = Session.getActiveSession().getPermissions();
+//		System.out.println("dopo");
+//		for(String p : permissions)
+//			System.out.println(p);
+//		}
+		
 		if (session != null && session.isOpened()) {
 			setProfilePicture(session, session.getState());
 		}
@@ -115,7 +149,6 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 		super.onStart();
 	}
 	
-	private static final List<String> PERMISSIONS = Arrays.asList("publish_actions");
 
 
 	/**
@@ -125,20 +158,20 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 	 */
 	private void setProfilePicture(final Session session, SessionState state) {
 		if (state.isOpened()) {
-//			Session.NewPermissionsRequest newPermissionsRequest = new Session.NewPermissionsRequest(this, PERMISSIONS);
-//			 Session.getActiveSession().requestNewPublishPermissions(newPermissionsRequest);
-			
-			try
-            {
-                Session.OpenRequest request = new Session.OpenRequest(this);
-                request.setPermissions(Arrays.asList("publish_actions"));
-            }
-        catch (Exception e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
 
+			
+//			try
+//            {
+//                Session.OpenRequest request = new Session.OpenRequest(this);
+//                request.setPermissions(Arrays.asList("publish_actions, user_friends"));
+//            }
+//        catch (Exception e)
+//            {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
+			
+			
              
 			Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
 				@Override
@@ -365,6 +398,18 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 		DecimalFormat df = new DecimalFormat("####0.00");
 		((TextView) findViewById(R.id.textHeight)).setText(getString(R.string.height_text) + ": " /*String.valueOf(me.getHeight()) */ + "\t " + df.format(me.getHeight())+ "mt");
 
+		
+		if(session != null && session.isOpened()){
+			
+
+//			if (!new HashSet<String>(permissions).containsAll(PERMISSIONS)) {
+//				Session.NewPermissionsRequest newPermissionsRequest = new Session.NewPermissionsRequest(this, PERMISSIONS);
+//				Session.getActiveSession().requestNewPublishPermissions(newPermissionsRequest);
+//				Log.w("FBShare", "has permission");
+//			}
+			
+			
+			}
 
 		uiHelper.onResume();
 		ClimbApplication.activityResumed();

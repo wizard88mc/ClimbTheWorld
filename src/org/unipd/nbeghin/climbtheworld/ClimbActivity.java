@@ -106,6 +106,7 @@ import android.widget.VerticalSeekBar;
 import com.facebook.FacebookException;
 import com.facebook.FacebookOperationCanceledException;
 import com.facebook.Session;
+import com.facebook.SessionDefaultAudience;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.widget.FacebookDialog;
@@ -580,7 +581,9 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 		}
 	}
 
-	private static final List<String> PERMISSIONS = Arrays.asList("publish_actions");
+	private final List<String> PERMISSION = Arrays.asList("publish_actions");
+    private static final int REAUTH_ACTIVITY_CODE = 100;
+
 
 	public void accessPhotoGallery(View v) {
 		if (percentage >= 1.0) {
@@ -644,8 +647,11 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 
 				List<String> permissions = Session.getActiveSession().getPermissions();
 
-				if (!new HashSet<String>(permissions).containsAll(PERMISSIONS)) {
-					Session.NewPermissionsRequest newPermissionsRequest = new Session.NewPermissionsRequest(this, PERMISSIONS);
+				for(String p : permissions)
+					System.out.println(p);
+				
+				if (!new HashSet<String>(permissions).containsAll(PERMISSION)) {
+					Session.NewPermissionsRequest newPermissionsRequest = new Session.NewPermissionsRequest(this, PERMISSION);
 					Session.getActiveSession().requestNewPublishPermissions(newPermissionsRequest);
 					Log.w("FBShare", "has permission");
 				}

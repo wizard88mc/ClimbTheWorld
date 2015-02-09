@@ -90,6 +90,7 @@
     <string name="request_arrived">Request arrived</string>
     <string name="request_deleted">Request deleted</string>
     <string name="post_published">Post published</string>
+    <string name="invite_sent">Invites sent</string>
     
     
     <!-- AsyncTask -->
@@ -266,7 +267,7 @@
     <!-- FBPickFriendActivity -->
     <string name="pick_friends">Select friends to invite</string>
     <string name="invite_btn">Invite</string>
-    <string name="no_invitable">No more friends to invite</string>  
+    <string name="no_invitable">No more friends to invite\nEveryone already plays with Climb the World :)</string>  
     <string name="all_friends">All friends</string>
     
     <!-- dialog lock level -->

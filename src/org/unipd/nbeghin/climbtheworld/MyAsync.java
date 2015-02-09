@@ -22,6 +22,7 @@ import org.unipd.nbeghin.climbtheworld.util.ParseUtils;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInstaller.Session;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
@@ -63,6 +64,7 @@ public class MyAsync {
 	protected Void execute() {
 		ClimbApplication.BUSY = true;
 		// PD.setMessage("load friends");
+		
 		RequestBatch requestBatch = ClimbApplication.loadFriendsFromFacebook();
 		// Execute the batch of requests asynchronously
 		if (inside)
