@@ -21,10 +21,10 @@ public final class ActivityRecognitionUtils {
     /**
      * Sets the detection interval for the activity recognition updates.
      * @param context context of the application.
-     * @param seconds number of seconds that defines the activity update interval.
+     * @param milliseconds number of milliseconds that defines the activity update interval.
      */
-    public static void setDetectionIntervalMilliseconds(Context context, int seconds){    	
-    	PreferenceManager.getDefaultSharedPreferences(context).edit().putInt("ar_detection_interval_seconds", seconds).commit();    	
+    public static void setDetectionIntervalMilliseconds(Context context, int milliseconds){    	
+    	PreferenceManager.getDefaultSharedPreferences(context).edit().putInt("ar_detection_interval_milliseconds", milliseconds).commit();    	
     }
     
     /**
@@ -33,7 +33,7 @@ public final class ActivityRecognitionUtils {
      * @return the number of milliseconds that defines the activity update interval.
      */
     public static int getDetectionIntervalMilliseconds(Context context){
-    	return PreferenceManager.getDefaultSharedPreferences(context).getInt("ar_detection_interval_seconds", 5)*1000;
+    	return PreferenceManager.getDefaultSharedPreferences(context).getInt("ar_detection_interval_milliseconds", 5000);
     }
     
 }

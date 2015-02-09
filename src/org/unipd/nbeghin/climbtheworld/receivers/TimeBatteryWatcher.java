@@ -418,8 +418,8 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    	}		    	
 		    	//}	
 		    	
-		    	//si re-imposta l'alarm che serve per recuperare il livello di carica della batteria; è utile per
-    	    	//attuare il bilanciamento energetico        	    	
+		    	//si re-imposta l'alarm che serve per recuperare il livello di carica della batteria;
+		    	//è utile per attuare il bilanciamento energetico        	    	
     	    	Intent battery_intent = new Intent(context, TimeBatteryWatcher.class);
     	    	battery_intent.setAction("org.unipd.nbeghin.climbtheworld.BATTERY_ENERGY_BALANCING");    	
     	    	//si ripete l'alarm circa ogni ora (il primo lancio avviene entro 10 minuti dal boot)
@@ -451,11 +451,14 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				
 				LogUtils.writeLogFile(context, "\nTimeBatteryWatcher - ENERGY BALANCING, "+dateFormat.format((Calendar.getInstance()).getTime())+" level: "+level+", scale: "+scale+", BATTERY: "+batteryPct);
 				
+				String toLog="";
 				
 				//se il livello di batteria è critico (<=10%) e non si sono già fatte le opportune
 				//correzioni, si sospende l'algoritmo (ascolto e trigger)
 				if(batteryPct<=0.1){
 				
+					toLog+="\nTimeBatteryWatcher - ENERGY BALANCING, LEVEL <=10%";
+					
 					if(!pref.getBoolean("low_battery_status", false)){
 						
 						//nelle shared preferences si salva il booleano che indica il livello critico della batteria 
@@ -470,6 +473,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 							if(!current_next_alarm.isStepsInterval(pref.getInt("artificialDayIndex", 0))){
 								if(GeneralUtils.isActivityRecognitionServiceRunning(context)){
 									Log.d(MainActivity.AppName,"BATTERY LOW - Stop activity recognition");
+									toLog+=", stop activity recognition";
 									context.getApplicationContext().stopService(new Intent(context, ActivityRecognitionRecordService.class));
 								}
 							}
@@ -478,7 +482,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 								//si ferma il classificatore scalini/non_scalini
 								if(!ClimbActivity.samplingEnabled){
 									Log.d(MainActivity.AppName,"BATTERY LOW - Gioco non attivo, si ferma il classificatore scalini");
-									
+									toLog+=", game not active, stop stairs classifier";
 									context.getApplicationContext().stopService(new Intent(context, SamplingClassifyService.class));
 									//si disabilita anche il receiver
 									//context.getApplicationContext().unregisterReceiver(stairsReceiver);
@@ -492,10 +496,14 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						//ferma l'algoritmo)
 						context.getApplicationContext().startService(new Intent(context, SetNextAlarmIntentService.class)
 						.putExtra("current_alarm_id", pref.getInt("alarm_id",-1))
-						.putExtra("low_battery", true));					
+						.putExtra("low_battery", true));		
+						
+						toLog+=", STOP ALGORITHM (cancel next alarm)";
 					}
 				}
 				else {
+					
+					toLog+="\nTimeBatteryWatcher - ENERGY BALANCING, LEVEL >10%";
 					
 					//se l'ultima volta è stato rilevato un livello di batteria critico, ora quest'ultimo
 					//si è alzato e, quindi, si fa ripartire l'algoritmo, impostando opportunamente il
@@ -511,7 +519,9 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 							.putExtra("takeAllAlarms", true)
 							.putExtra("prevAlarmNotAvailable", true)
 							.putExtra("current_alarm_id", pref.getInt("alarm_id",-1))
-							.putExtra("low_battery", false));						
+							.putExtra("low_battery", false));			
+						
+						toLog+=", low before, now ok, RESTART ALGORITHM (set new next alarm)";
 					}		
 					
 					boolean restart=false;
@@ -521,23 +531,23 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					//se 10%<L<=20%: ogni 20 secondi, se 20%<L<=30%: ogni 10 secondi, 
 					//se L>30% ogni 5 secondi (impostazione di default)
 					if(batteryPct<=0.2){						
-						if(ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)!=20){							
+						if(ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)!=20000){							
 							//si imposta la frequenza di aggiornamento a 20 secondi
-							ActivityRecognitionUtils.setDetectionIntervalMilliseconds(context, 20);
+							ActivityRecognitionUtils.setDetectionIntervalMilliseconds(context, 20000);
 							restart=true;
 						}
 					}
 					else if(batteryPct<=0.3){					
-						if(ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)!=10){
+						if(ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)!=10000){
 							//si imposta la frequenza di aggiornamento a 10 secondi
-							ActivityRecognitionUtils.setDetectionIntervalMilliseconds(context, 10);	
+							ActivityRecognitionUtils.setDetectionIntervalMilliseconds(context, 10000);	
 							restart=true;
 						}						
 					}
 					else{ //batteryPct>0.3						
-						if(ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)!=5){
+						if(ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)!=5000){
 							//si imposta la frequenza di aggiornamento a 5 secondi
-							ActivityRecognitionUtils.setDetectionIntervalMilliseconds(context, 5);
+							ActivityRecognitionUtils.setDetectionIntervalMilliseconds(context, 5000);
 							restart=true;
 						}						
 					}
@@ -546,8 +556,10 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					if(restart && GeneralUtils.isActivityRecognitionServiceRunning(context)){
 						context.getApplicationContext().stopService(new Intent(context, ActivityRecognitionRecordService.class));
 						context.getApplicationContext().startService(new Intent(context, ActivityRecognitionRecordService.class));
+						toLog+=", restart activity recognition service with "+ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)/100+"-seconds update interval";
 					}
 				}
+				LogUtils.writeLogFile(context, toLog);
 			}
 		}
 		/////////

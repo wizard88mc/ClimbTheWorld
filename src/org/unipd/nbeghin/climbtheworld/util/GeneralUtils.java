@@ -209,8 +209,6 @@ public class GeneralUtils {
     				//LogUtils.writeLogFile(context, "NON FAI MAI ATTIVITA' FISICA/SCALINI: NON E' STATO CREATO ALCUN INTERVALLO");
     				LogUtils.initLogFile(context, null);
     			}
-    			
-    			prefs.edit().putBoolean("algorithm_configured", true).commit();
     		}
     	};
     	thread.start();
