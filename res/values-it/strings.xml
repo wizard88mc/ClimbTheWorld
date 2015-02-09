@@ -432,5 +432,6 @@
     
 	<string name="tip_profile">Tocca qui per vedere il tuo profilo</string>
 	<string name="tip_invite">Tocca qui per invitare gli amici a provare Climb the World dopo il login in Facebook</string>
-	
+   <string name="connect_to_post">Connettiti per pubblicare il post</string>
+		
 </resources>

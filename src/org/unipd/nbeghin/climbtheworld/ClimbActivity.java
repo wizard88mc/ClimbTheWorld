@@ -320,7 +320,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 						} else
 							win = ((num_steps) >= building.getSteps()); // consider only my steps
 						if (win) { // ensure it did not exceed the number of steps
-								   // (when multiple steps-at-once are detected)
+									// (when multiple steps-at-once are detected)
 							num_steps = building.getSteps();
 							percentage = 1.00;
 							if (mode != GameModeType.SOCIAL_CHALLENGE && mode != GameModeType.TEAM_VS_TEAM)
@@ -385,12 +385,12 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 		}
 
 		if (pref.getBoolean("first_open_3", true)) {
-			if(!pref.getBoolean("done_tutorial", false)){
+			if (!pref.getBoolean("done_tutorial", false)) {
 				Intent intent = new Intent(this, OnBoardingActivity.class);
 				intent.putExtra("source", "ClimbActivityVictory");
 				startActivity(intent);
 				pref.edit().putBoolean("first_open_3", false).commit();
-			}else{
+			} else {
 				pref.edit().putBoolean("first_open_3", false).commit();
 
 			}
@@ -417,42 +417,30 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 
 	private void win_microgoal_animation(int bonus) {
 		seekbarIndicator.goldStar();
-		/*final TextView bonus_microgoal = (TextView) findViewById(R.id.bonusMicrogoal);
-		bonus_microgoal.setText(getString(R.string.microgoal_terminated2, bonus));
-		Animation anim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_slide_in_top);
-		anim.setDuration(2000);
-		anim.setAnimationListener(new AnimationListener() {
-
-			@Override
-			public void onAnimationStart(Animation animation) {
-			}
-
-			@Override
-			public void onAnimationRepeat(Animation animation) {
-			}
-
-			@Override
-			public void onAnimationEnd(Animation animation) {
-				Animation anim2 = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_slide_out_bottom);
-				anim2.setDuration(2000);
-				bonus_microgoal.startAnimation(anim2);
-			}
-		});
-
-		bonus_microgoal.startAnimation(anim);*/
+		/*
+		 * final TextView bonus_microgoal = (TextView) findViewById(R.id.bonusMicrogoal); bonus_microgoal.setText(getString(R.string.microgoal_terminated2, bonus)); Animation anim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_slide_in_top); anim.setDuration(2000); anim.setAnimationListener(new AnimationListener() {
+		 * 
+		 * @Override public void onAnimationStart(Animation animation) { }
+		 * 
+		 * @Override public void onAnimationRepeat(Animation animation) { }
+		 * 
+		 * @Override public void onAnimationEnd(Animation animation) { Animation anim2 = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_slide_out_bottom); anim2.setDuration(2000); bonus_microgoal.startAnimation(anim2); } });
+		 * 
+		 * bonus_microgoal.startAnimation(anim);
+		 */
 
 		// int notification_icon = (Build.VERSION.SDK_INT < 11) ? R.drawable.ic_stat_star_dark : R.drawable.ic_stat_star_light;
 		int notification_icon = (Build.VERSION.SDK_INT < 11) ? R.drawable.ic_stat_cup_dark : R.drawable.ic_stat_cup_light;
-		if((Build.VERSION.SDK_INT < 16))
+		if ((Build.VERSION.SDK_INT < 16))
 			showNotificationBonus(String.valueOf(bonus), notification_icon, true); // getString(R.string.microgoal_terminated2, bonus)
-		else{
+		else {
 			ClimbApplication.updateBonusNotification(bonus);
 			showInboxNotification();
 		}
 	}
 
 	private void apply_win_microgoal() {
-		User me = currentUser;//ClimbApplication.getUserById(pref.getInt("local_id", -1));
+		User me = currentUser;// ClimbApplication.getUserById(pref.getInt("local_id", -1));
 		int multiplier = 1;
 		switch (difficulty) {
 		case 100:
@@ -582,8 +570,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 	}
 
 	private final List<String> PERMISSION = Arrays.asList("publish_actions");
-    private static final int REAUTH_ACTIVITY_CODE = 100;
-
+	private static final int REAUTH_ACTIVITY_CODE = 100;
 
 	public void accessPhotoGallery(View v) {
 		if (percentage >= 1.0) {
@@ -593,107 +580,116 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			startActivity(intent);
 			finish();
 		} else {
+			if (FacebookUtils.isOnline(getApplicationContext())) {
+				if (FacebookUtils.isLoggedIn()) {
+					if (FacebookDialog.canPresentOpenGraphActionDialog(getApplicationContext(), FacebookDialog.OpenGraphActionDialogFeature.OG_ACTION_DIALOG)) {
+						// OpenGraphObject object = OpenGraphObject.Factory.createForPost("unipdclimb:building");
+						// object.setTitle(buildingText.getName());
+						// List<String> list = new ArrayList<String>();
+						// list.add("http://thumb1.shutterstock.com/display_pic_with_logo/711913/218203954/stock-vector-trophy-hand-holding-trophy-vector-218203954.jpg");
+						// object.setImageUrls(list);
+						// object.setType("unipdclimb:building");
+						// object.setTitle("titolo");
+						// object.setUrl("http://climbtheworld.parseapp.com/building.html");
+						//
+						// OpenGraphAction action = OpenGraphAction.Factory.createForPost("unipdclimb:climb");
+						// action.setProperty("building", object);
+						// action.setType("unipdclimb:climb");
+						//
+						// List<String> permissions = Session.getActiveSession().getPermissions();
+						//
+						// if (!new HashSet<String>(permissions).containsAll(PERMISSIONS)) {
+						// Session.NewPermissionsRequest newPermissionsRequest = new Session.NewPermissionsRequest(
+						// this, PERMISSIONS);
+						// Session.getActiveSession().requestNewPublishPermissions(newPermissionsRequest);
+						// Log.w("FBShare", "has permission");
+						// return;
+						// }
+						//
+						// Request request = Request.newPostOpenGraphActionRequest(Session.getActiveSession(), action, new Request.Callback() {
+						//
+						// @Override
+						// public void onCompleted(Response response) {
+						// System.out.println("completed");
+						// FacebookRequestError error = response.getError();
+						// if (error != null){
+						// Log.e("FacebookRequestError", "Error 1: "+error.getErrorMessage());
+						// } else {
+						// String actionId = null;
+						// try {
+						// JSONObject graphResponse = response
+						// .getGraphObject().getInnerJSONObject();
+						// actionId = graphResponse.getString("id");
+						// } catch (JSONException e) {
+						// }
+						// Log.e("done", actionId);
+						//
+						// }
+						// }
+						// });
+						//
+						// RequestBatch requestBatch = new RequestBatch();
+						// requestBatch.add(request);
+						//
+						// requestBatch.executeAsync();
 
-			if (FacebookDialog.canPresentOpenGraphActionDialog(getApplicationContext(), FacebookDialog.OpenGraphActionDialogFeature.OG_ACTION_DIALOG)) {
-				// OpenGraphObject object = OpenGraphObject.Factory.createForPost("unipdclimb:building");
-				// object.setTitle(buildingText.getName());
-				// List<String> list = new ArrayList<String>();
-				// list.add("http://thumb1.shutterstock.com/display_pic_with_logo/711913/218203954/stock-vector-trophy-hand-holding-trophy-vector-218203954.jpg");
-				// object.setImageUrls(list);
-				// object.setType("unipdclimb:building");
-				// object.setTitle("titolo");
-				// object.setUrl("http://climbtheworld.parseapp.com/building.html");
-				//
-				// OpenGraphAction action = OpenGraphAction.Factory.createForPost("unipdclimb:climb");
-				// action.setProperty("building", object);
-				// action.setType("unipdclimb:climb");
-				//
-				// List<String> permissions = Session.getActiveSession().getPermissions();
-				//
-				// if (!new HashSet<String>(permissions).containsAll(PERMISSIONS)) {
-				// Session.NewPermissionsRequest newPermissionsRequest = new Session.NewPermissionsRequest(
-				// this, PERMISSIONS);
-				// Session.getActiveSession().requestNewPublishPermissions(newPermissionsRequest);
-				// Log.w("FBShare", "has permission");
-				// return;
-				// }
-				//
-				// Request request = Request.newPostOpenGraphActionRequest(Session.getActiveSession(), action, new Request.Callback() {
-				//
-				// @Override
-				// public void onCompleted(Response response) {
-				// System.out.println("completed");
-				// FacebookRequestError error = response.getError();
-				// if (error != null){
-				// Log.e("FacebookRequestError", "Error 1: "+error.getErrorMessage());
-				// } else {
-				// String actionId = null;
-				// try {
-				// JSONObject graphResponse = response
-				// .getGraphObject().getInnerJSONObject();
-				// actionId = graphResponse.getString("id");
-				// } catch (JSONException e) {
-				// }
-				// Log.e("done", actionId);
-				//
-				// }
-				// }
-				// });
-				//
-				// RequestBatch requestBatch = new RequestBatch();
-				// requestBatch.add(request);
-				//
-				// requestBatch.executeAsync();
+						List<String> permissions = Session.getActiveSession().getPermissions();
 
-				List<String> permissions = Session.getActiveSession().getPermissions();
+						for (String p : permissions)
+							System.out.println(p);
 
-				for(String p : permissions)
-					System.out.println(p);
-				
-				if (!new HashSet<String>(permissions).containsAll(PERMISSION)) {
-					Session.NewPermissionsRequest newPermissionsRequest = new Session.NewPermissionsRequest(this, PERMISSION);
-					Session.getActiveSession().requestNewPublishPermissions(newPermissionsRequest);
-					Log.w("FBShare", "has permission");
-				}
+						if (!new HashSet<String>(permissions).containsAll(PERMISSION)) {
+							Session.NewPermissionsRequest newPermissionsRequest = new Session.NewPermissionsRequest(this, PERMISSION);
+							Session.getActiveSession().requestNewPublishPermissions(newPermissionsRequest);
+							Log.w("FBShare", "has permission");
+						}
 
-				FacebookDialog shareDialog = null;
-				boolean win = percentage >= 1.00 ? true : false;
+						FacebookDialog shareDialog = null;
+						boolean win = percentage >= 1.00 ? true : false;
 
-				switch (old_game_mode) {
-				case SOLO_CLIMB:
-					shareDialog = FacebookUtils.publishOpenGraphStory_SoloClimb(this, win, previous_progress, buildingText.getName(), building.getSteps());
-					break;
-				case SOCIAL_CLIMB:
-					shareDialog = FacebookUtils.publishOpenGraphStory_SocialClimb(this, collab_parse.getJSONObject("collaborators"), win, previous_progress, buildingText.getName());
-					break;
+						switch (old_game_mode) {
+						case SOLO_CLIMB:
+							shareDialog = FacebookUtils.publishOpenGraphStory_SoloClimb(this, win, previous_progress, buildingText.getName(), building.getSteps());
+							break;
+						case SOCIAL_CLIMB:
+							shareDialog = FacebookUtils.publishOpenGraphStory_SocialClimb(this, collab_parse.getJSONObject("collaborators"), win, previous_progress, buildingText.getName());
+							break;
 
-				case SOCIAL_CHALLENGE:
-					shareDialog = FacebookUtils.publishOpenGraphStory_SocialChallenge(this, chart, win, previous_progress, buildingText.getName(), old_chart_position);
-					break;
+						case SOCIAL_CHALLENGE:
+							shareDialog = FacebookUtils.publishOpenGraphStory_SocialChallenge(this, chart, win, previous_progress, buildingText.getName(), old_chart_position);
+							break;
 
-				case TEAM_VS_TEAM:
-					int new_position = 0;
-					if (teamDuel.getSteps_my_group() >= teamDuel.getSteps_other_group())
-						new_position = 0;
-					else
-						new_position = 1;
-					shareDialog = FacebookUtils.publishOpenGraphStory_TeamVsTeam(this, teamDuel.getMygroup(), teamDuel_parse.getJSONObject("creator_stairs"), teamDuel_parse.getJSONObject("challenger_stairs"), win, previous_progress, buildingText.getName(), old_chart_position, new_position);
-					break;
-				}
+						case TEAM_VS_TEAM:
+							int new_position = 0;
+							if (teamDuel.getSteps_my_group() >= teamDuel.getSteps_other_group())
+								new_position = 0;
+							else
+								new_position = 1;
+							shareDialog = FacebookUtils.publishOpenGraphStory_TeamVsTeam(this, teamDuel.getMygroup(), teamDuel_parse.getJSONObject("creator_stairs"), teamDuel_parse.getJSONObject("challenger_stairs"), win, previous_progress, buildingText.getName(), old_chart_position, new_position);
+							break;
+						}
 
-				uiHelper.trackPendingDialogCall(shareDialog.present());
+						uiHelper.trackPendingDialogCall(shareDialog.present());
 
-			} else {
+					} else {
 
-				FacebookUtils fb = new FacebookUtils(this);
+						FacebookUtils fb = new FacebookUtils(this);
 
-				try {
-					fb.postUpdateToWall(climbing, previous_progress, buildingText.getName(), pref.getString("FBid", ""));
-				} catch (NoFBSession e) {
-					Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+						try {
+							fb.postUpdateToWall(climbing, previous_progress, buildingText.getName(), pref.getString("FBid", ""));
+						} catch (NoFBSession e) {
+							Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+							startActivity(intent);
+
+						}
+					}
+				}else{
+					Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+					intent.putExtra("need_help", true);
 					startActivity(intent);
-
 				}
+			}else{
+				Toast.makeText(getApplicationContext(), getString(R.string.connect_to_post), Toast.LENGTH_SHORT).show();
 			}
 
 		}// close else
@@ -1001,12 +997,12 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 	public void onStart() {
 		super.onStart();
 		if (pref.getBoolean("first_open_2", true)) {
-				if(!pref.getBoolean("done_tutorial", false)){
+			if (!pref.getBoolean("done_tutorial", false)) {
 				Intent intent = new Intent(this, OnBoardingActivity.class);
 				intent.putExtra("source", "ClimbActivity");
 				startActivity(intent);
 				pref.edit().putBoolean("first_open_2", false).commit();
-			}else{
+			} else {
 				pref.edit().putBoolean("first_open_2", false).commit();
 			}
 		}
@@ -1227,7 +1223,8 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 							if (othersName.has(currentUser.getFBid())) {
 
 								try {
-									others.put(pref.getString("FBid", ""), num_steps);
+									String fbid = pref.getString("FBid", "");
+									if(!fbid.equalsIgnoreCase("none") && !fbid.equalsIgnoreCase("empty")) others.put(fbid, num_steps);
 								} catch (JSONException e1) {
 									// TODO Auto-generated catch block
 									e1.printStackTrace();
@@ -1846,7 +1843,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 	private void setupActionBar() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			// Show the Up button in the action bar.
-			//getActionBar().setDisplayHomeAsUpEnabled(true);
+			// getActionBar().setDisplayHomeAsUpEnabled(true);
 		}
 	}
 
@@ -1962,46 +1959,55 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 	public void onBtnStartClimbing(View v) {
 
 		if (percentage >= 1.00 || (current_win && percentage < 1.00)) { // already win
+			if (FacebookUtils.isOnline(getApplicationContext())) {
+				if (FacebookUtils.isLoggedIn()) {
+					if (FacebookDialog.canPresentOpenGraphActionDialog(getApplicationContext(), FacebookDialog.OpenGraphActionDialogFeature.OG_ACTION_DIALOG)) {
 
-			if (FacebookDialog.canPresentOpenGraphActionDialog(getApplicationContext(), FacebookDialog.OpenGraphActionDialogFeature.OG_ACTION_DIALOG)) {
+						FacebookDialog shareDialog = null;
+						boolean win = percentage >= 1.00 ? true : false;
 
-				FacebookDialog shareDialog = null;
-				boolean win = percentage >= 1.00 ? true : false;
+						switch (old_game_mode) {
+						case SOLO_CLIMB:
+							shareDialog = FacebookUtils.publishOpenGraphStory_SoloClimb(this, win, previous_progress, buildingText.getName(), building.getSteps());
+							break;
+						case SOCIAL_CLIMB:
+							shareDialog = FacebookUtils.publishOpenGraphStory_SocialClimb(this, collab_parse.getJSONObject("collaborators"), win, previous_progress, buildingText.getName());
+							break;
 
-				switch (old_game_mode) {
-				case SOLO_CLIMB:
-					shareDialog = FacebookUtils.publishOpenGraphStory_SoloClimb(this, win, previous_progress, buildingText.getName(), building.getSteps());
-					break;
-				case SOCIAL_CLIMB:
-					shareDialog = FacebookUtils.publishOpenGraphStory_SocialClimb(this, collab_parse.getJSONObject("collaborators"), win, previous_progress, buildingText.getName());
-					break;
+						case SOCIAL_CHALLENGE:
+							shareDialog = FacebookUtils.publishOpenGraphStory_SocialChallenge(this, chart, win, previous_progress, buildingText.getName(), old_chart_position);
+							break;
 
-				case SOCIAL_CHALLENGE:
-					shareDialog = FacebookUtils.publishOpenGraphStory_SocialChallenge(this, chart, win, previous_progress, buildingText.getName(), old_chart_position);
-					break;
+						case TEAM_VS_TEAM:
+							int new_position = 0;
+							if (teamDuel.getSteps_my_group() >= teamDuel.getSteps_other_group())
+								new_position = 0;
+							else
+								new_position = 1;
+							shareDialog = FacebookUtils.publishOpenGraphStory_TeamVsTeam(this, teamDuel.getMygroup(), teamDuel_parse.getJSONObject("creator_stairs"), teamDuel_parse.getJSONObject("challenger_stairs"), win, previous_progress, buildingText.getName(), old_chart_position, new_position);
+							break;
+						}
 
-				case TEAM_VS_TEAM:
-					int new_position = 0;
-					if (teamDuel.getSteps_my_group() >= teamDuel.getSteps_other_group())
-						new_position = 0;
-					else
-						new_position = 1;
-					shareDialog = FacebookUtils.publishOpenGraphStory_TeamVsTeam(this, teamDuel.getMygroup(), teamDuel_parse.getJSONObject("creator_stairs"), teamDuel_parse.getJSONObject("challenger_stairs"), win, previous_progress, buildingText.getName(), old_chart_position, new_position);
-					break;
-				}
+						uiHelper.trackPendingDialogCall(shareDialog.present());
 
-				uiHelper.trackPendingDialogCall(shareDialog.present());
+					} else {
+						FacebookUtils fb = new FacebookUtils(this);
+						try {
+							fb.postToWall(climbing, buildingText.getName());
+						} catch (NoFBSession e) {
+							Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+							intent.putExtra("need_help", true);
+							startActivity(intent);
+						}
 
-			} else {
-				FacebookUtils fb = new FacebookUtils(this);
-				try {
-					fb.postToWall(climbing, buildingText.getName());
-				} catch (NoFBSession e) {
+					}
+				} else {
 					Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
 					intent.putExtra("need_help", true);
 					startActivity(intent);
 				}
-
+			} else {
+				Toast.makeText(getApplicationContext(), getString(R.string.connect_to_post), Toast.LENGTH_SHORT).show();
 			}
 
 		} else {
@@ -2258,7 +2264,6 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 		if (collab_parse == null) {
 			collaboration.setSaved(false);
 			ClimbApplication.collaborationDao.update(collaboration);
-			System.out.println("collab parse null");
 			// Toast.makeText(getApplicationContext(),
 			// getString(R.string.connection_problem2), Toast.LENGTH_SHORT)
 			// .show();
@@ -2266,8 +2271,8 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			SharedPreferences pref = getSharedPreferences("UserSession", 0);
 			JSONObject stairs = collab_parse.getJSONObject("stairs");
 			try {
-				System.out.println("save stairs");
-				stairs.put(pref.getString("FBid", ""), collaboration.getMy_stairs());
+				String fbid = pref.getString("FBid", "");
+				if(!fbid.equalsIgnoreCase("none") && !fbid.equalsIgnoreCase("empty")) stairs.put(fbid, collaboration.getMy_stairs());
 				collab_parse.put("stairs", stairs);
 				if (percentage >= 1.00 || current_win) {
 					collab_parse.put("completed", true);
@@ -2306,7 +2311,8 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			SharedPreferences pref = getSharedPreferences("UserSession", 0);
 			JSONObject stairs = compet_parse.getJSONObject("stairs");
 			try {
-				stairs.put(pref.getString("FBid", ""), competition.getMy_stairs());
+				String fbid = pref.getString("FBid", "");
+				if(!fbid.equalsIgnoreCase("none") && !fbid.equalsIgnoreCase("empty")) stairs.put(pref.getString("FBid", ""), competition.getMy_stairs());
 				compet_parse.put("stairs", stairs);
 				System.out.println("salvo scalini");
 
@@ -2347,7 +2353,8 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			else
 				myteam = teamDuel_parse.getJSONObject("creator_stairs");
 			try {
-				myteam.put(pref.getString("FBid", ""), teamDuel.getMy_steps());
+				String fbid = pref.getString("FBid", "");
+				if(!fbid.equalsIgnoreCase("none") && !fbid.equalsIgnoreCase("empty")) myteam.put(pref.getString("FBid", ""), teamDuel.getMy_steps());
 
 				// if (percentage >= 1.00) {
 				// System.out.println("elimino team duel");
@@ -2524,11 +2531,11 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			// play
 			// again
 
-			if (mode == GameModeType.SOCIAL_CLIMB && collaboration != null)
+			if (mode == GameModeType.SOCIAL_CLIMB && collaboration != null && !pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty"))
 				saveCollaborationData();
 			// else if (mode == GameModeType.SOCIAL_CHALLENGE && competition != null)
 			// saveCompetitionData();
-			else if (mode == GameModeType.TEAM_VS_TEAM && teamDuel != null)
+			else if (mode == GameModeType.TEAM_VS_TEAM && teamDuel != null && !pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty"))
 				saveTeamDuelData();
 
 			updatePoints(false, true);
@@ -2746,7 +2753,8 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 								otherTeam = teamDuel_parse.getJSONObject("creator_stairs");
 								// if(!completed){
 								try {
-									if (myTeam.getInt(pref.getString("FBid", "")) < num_steps)
+									String fbid = pref.getString("FBid", "");
+									if (myTeam.getInt(pref.getString("FBid", "")) < num_steps && !fbid.equalsIgnoreCase("none") && !fbid.equalsIgnoreCase("empty"))
 										myTeam.put(pref.getString("FBid", ""), num_steps);
 								} catch (JSONException e1) {
 									// TODO Auto-generated catch block
@@ -2761,7 +2769,8 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 								otherTeam = teamDuel_parse.getJSONObject("challenger_stairs");
 								// if(!completed){
 								try {
-									if (myTeam.getInt(pref.getString("FBid", "")) < num_steps)
+									String fbid = pref.getString("FBid", "");
+									if (myTeam.getInt(pref.getString("FBid", "")) < num_steps && !fbid.equalsIgnoreCase("none") && !fbid.equalsIgnoreCase("empty"))
 										myTeam.put(pref.getString("FBid", ""), num_steps);
 								} catch (JSONException e1) {
 									e1.printStackTrace();
@@ -2990,7 +2999,8 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 							if (othersName.has(currentUser.getFBid())) {
 
 								try {
-									if (others.getInt(pref.getString("FBid", "")) < num_steps)
+									String fbid = pref.getString("FBid", "");
+									if (others.getInt(pref.getString("FBid", "")) < num_steps && !fbid.equalsIgnoreCase("none") && !fbid.equalsIgnoreCase("empty"))
 										others.put(pref.getString("FBid", ""), num_steps);
 								} catch (JSONException e1) {
 									// TODO Auto-generated catch block
@@ -3250,7 +3260,8 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 			difficulty = Integer.parseInt(settings.getString("difficulty", "10"));
 		}
-		int realSteps = new_steps / difficulty; 		System.out.println("update points " + difficulty);
+		int realSteps = new_steps / difficulty;
+		System.out.println("update points " + difficulty);
 		int newXP = 0;
 		switch (difficulty) {
 		case 1:// 5
@@ -3293,15 +3304,15 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 		me.setXP(me.getXP() + newXP);
 		if (newLevel != me.getLevel()) {
 			me.setLevel(newLevel);
-			//showMessage(getString(R.string.new_level));
+			// showMessage(getString(R.string.new_level));
 			int notification_icon = (Build.VERSION.SDK_INT < 11) ? R.drawable.ic_stat_cup_dark : R.drawable.ic_stat_cup_light;
-			if((Build.VERSION.SDK_INT < 16))
+			if ((Build.VERSION.SDK_INT < 16))
 				showNotificationNewLevel(newLevel, notification_icon);
-			else{
+			else {
 				ClimbApplication.updateLevelNotification(newLevel);
 				showInboxNotification();
 			}
-				
+
 		}
 		ClimbApplication.userDao.update(me);
 		if (ParseUser.getCurrentUser() != null) {
@@ -3637,22 +3648,18 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			}
 		});
 	}
-	
 
-	
-	private void showNotificationNewLevel(final int newLevel, final int drawable){
+	private void showNotificationNewLevel(final int newLevel, final int drawable) {
 		final int REQUEST_CODE_BASE = 1000;
 
 		final int requestID2 = REQUEST_CODE_BASE + (int) System.currentTimeMillis();
 		final Intent contentIntent = new Intent(ClimbActivity.this, NotificationClickedService.class);
 
-		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext())
-			.setSmallIcon(drawable).setLargeIcon(BitmapFactory.decodeResource(getResources(), drawable))
-			.setContentTitle("Climb The World");
-//		PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(), PendingIntent.FLAG_UPDATE_CURRENT);
-//		mBuilder.setContentIntent(contentIntent);
+		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext()).setSmallIcon(drawable).setLargeIcon(BitmapFactory.decodeResource(getResources(), drawable)).setContentTitle("Climb The World");
+		// PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(), PendingIntent.FLAG_UPDATE_CURRENT);
+		// mBuilder.setContentIntent(contentIntent);
 		mBuilder.setContentIntent(PendingIntent.getService(ClimbActivity.this, requestID2, contentIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_ONE_SHOT));
-		
+
 		ClimbActivity.this.runOnUiThread(new Runnable() {
 			public void run() {
 
@@ -3661,7 +3668,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 				NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
 				mNotificationManager.notify(NOTIFICATION_ID_LEVEL, mBuilder.build());
-			
+
 			}
 		});
 	}
@@ -3669,39 +3676,35 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 	private void showNotificationBonus(final String message, final int drawable, final boolean bonus) {
 		final int REQUEST_CODE_BASE = 1000;
 
-
 		final Intent deleteIntent = new Intent(ClimbActivity.this, NotificationDeletedReceiver.class); // new Intent("org.unipd.nbeghin.climbtheworld.services.NotificationDeletedReceiver");
 		final Intent contentIntent = new Intent(ClimbActivity.this, NotificationClickedService.class);
 		final int requestID = REQUEST_CODE_BASE + (int) System.currentTimeMillis();
 		final int requestID2 = REQUEST_CODE_BASE + (int) System.currentTimeMillis();
-		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext())
-			.setSmallIcon(drawable).setLargeIcon(BitmapFactory.decodeResource(getResources(), drawable))
-			.setContentTitle("Climb The World");
+		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext()).setSmallIcon(drawable).setLargeIcon(BitmapFactory.decodeResource(getResources(), drawable)).setContentTitle("Climb The World");
 		// .addAction(R.drawable.ic_action_help_dark, "Test", PendingIntent.getService(ClimbActivity.this, requestID, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT))
 		// .setContentIntent(PendingIntent.getService(ClimbActivity.this, requestID, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT))
 		// .setContentIntent(PendingIntent.getBroadcast(ClimbActivity.this, requestID, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT))
 		// .setDeleteIntent(PendingIntent.getBroadcast(ClimbActivity.this, requestID, deleteIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_ONE_SHOT));
 
-//		PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(), PendingIntent.FLAG_UPDATE_CURRENT);
-//		mBuilder.setContentIntent(contentIntent);
+		// PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(), PendingIntent.FLAG_UPDATE_CURRENT);
+		// mBuilder.setContentIntent(contentIntent);
 		mBuilder.setContentIntent(PendingIntent.getService(ClimbActivity.this, requestID2, contentIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_ONE_SHOT));
 
-		
 		ClimbActivity.this.runOnUiThread(new Runnable() {
 			public void run() {
 
 				int id = (bonus == true) ? NOTIFICATION_ID_BONUS : NOTIFICATION_ID_BADGE;
 				// Intent deleteIntent = new Intent(ClimbActivity.this, NotificationDeletedReceiver.class);
 
-				if (!bonus){
+				if (!bonus) {
 					mBuilder.setContentText(message);
 					mBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(message));
 				} else {
 					int bonus = Integer.valueOf(message);
 					ClimbApplication.bonus_notification += bonus;
 					mBuilder.setContentText(getString(R.string.notification_bonus) + ClimbApplication.bonus_notification);
-					mBuilder.setDeleteIntent(PendingIntent.getService(ClimbActivity.this, requestID, deleteIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_ONE_SHOT))
-							.setStyle(new NotificationCompat.BigTextStyle().bigText(getString(R.string.notification_bonus) + ClimbApplication.bonus_notification));
+					mBuilder.setDeleteIntent(PendingIntent.getService(ClimbActivity.this, requestID, deleteIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_ONE_SHOT)).setStyle(new NotificationCompat.BigTextStyle().bigText(getString(R.string.notification_bonus)
+							+ ClimbApplication.bonus_notification));
 
 				}
 
@@ -3716,8 +3719,8 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			}
 		});
 	}
-	
-	private void showInboxNotification(){
+
+	private void showInboxNotification() {
 
 		final int REQUEST_CODE_BASE = 1000;
 		final Intent deleteIntent = new Intent(ClimbActivity.this, NotificationDeletedReceiver.class); // new Intent("org.unipd.nbeghin.climbtheworld.services.NotificationDeletedReceiver");
@@ -3725,90 +3728,81 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 		final int requestID = REQUEST_CODE_BASE + (int) System.currentTimeMillis();
 		final int requestID2 = REQUEST_CODE_BASE + (int) System.currentTimeMillis();
 
-//		Intent ci = new Intent(getApplicationContext(), MainActivity.class);
-//		ci.setAction(Intent.ACTION_MAIN);
-//		ci.addCategory(Intent.CATEGORY_LAUNCHER);
-		//PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, /*new Intent()*/ ci, PendingIntent.FLAG_UPDATE_CURRENT);
-		
-		
-		
+		// Intent ci = new Intent(getApplicationContext(), MainActivity.class);
+		// ci.setAction(Intent.ACTION_MAIN);
+		// ci.addCategory(Intent.CATEGORY_LAUNCHER);
+		// PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, /*new Intent()*/ ci, PendingIntent.FLAG_UPDATE_CURRENT);
+
 		int notification_icon = (Build.VERSION.SDK_INT < 11) ? R.drawable.ic_stat_cup_dark : R.drawable.ic_stat_cup_light;
 		int notification_size = ClimbApplication.notifications_inbox_contents.size();
 
-		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
-	    .setSmallIcon(notification_icon)
-	    .setLargeIcon(BitmapFactory.decodeResource(getResources(), notification_icon))
-	    .setContentTitle("Climb the World")
-	    //.setContentText(getResources().getQuantityString(R.plurals.summary_inbox_text_2, notification_size, notification_size))
-	    .setContentText("Climb the World")
-	    .setDeleteIntent(PendingIntent.getService(ClimbActivity.this, requestID, deleteIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_ONE_SHOT))
-	    .setContentIntent(PendingIntent.getService(ClimbActivity.this, requestID2, contentIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_ONE_SHOT));
-		
+		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this).setSmallIcon(notification_icon).setLargeIcon(BitmapFactory.decodeResource(getResources(), notification_icon)).setContentTitle("Climb the World")
+		// .setContentText(getResources().getQuantityString(R.plurals.summary_inbox_text_2, notification_size, notification_size))
+		.setContentText("Climb the World").setDeleteIntent(PendingIntent.getService(ClimbActivity.this, requestID, deleteIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_ONE_SHOT)).setContentIntent(PendingIntent.getService(ClimbActivity.this, requestID2, contentIntent, PendingIntent.FLAG_CANCEL_CURRENT
+				| PendingIntent.FLAG_ONE_SHOT));
+
 		NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
 		List<Spannable> events = new ArrayList<Spannable>();
-		
+
 		System.out.println("notifico " + ClimbApplication.notifications_inbox_contents.toString());
 
-		
-		//add bonus line
+		// add bonus line
 		int current_bonus = Integer.valueOf(Iterables.get(ClimbApplication.notifications_inbox_contents.get("BONUS"), 0));
 		Spannable sb = new SpannableString(getString(R.string.notification_bonus, current_bonus));
 		int end_index = sb.toString().indexOf("+");
 		sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, end_index - 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		if(current_bonus > 0)
-			events.add(sb);
-		else
-			notification_size -= 1;
-		
-		//add level line
-		int current_level = Integer.valueOf(Iterables.get(ClimbApplication.notifications_inbox_contents.get("LEVEL"), 0));
-		sb = new SpannableString(getString(R.string.new_level_inbox, current_level));
-		end_index = sb.toString().indexOf("L");
-		sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, end_index - 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		if(current_level > 0) 
+		if (current_bonus > 0)
 			events.add(sb);
 		else
 			notification_size -= 1;
 
-		
+		// add level line
+		int current_level = Integer.valueOf(Iterables.get(ClimbApplication.notifications_inbox_contents.get("LEVEL"), 0));
+		sb = new SpannableString(getString(R.string.new_level_inbox, current_level));
+		end_index = sb.toString().indexOf("L");
+		sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, end_index - 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		if (current_level > 0)
+			events.add(sb);
+		else
+			notification_size -= 1;
+
 		inboxStyle.setSummaryText(getResources().getQuantityString(R.plurals.summary_inbox_text_2, notification_size, notification_size));
 		mBuilder.setContentText(getResources().getQuantityString(R.plurals.summary_inbox_text_2, notification_size, notification_size));
-		
-		//add badges lines
+
+		// add badges lines
 		Collection<String> badges = ClimbApplication.notifications_inbox_contents.get("BADGE");
-		if(badges.size() > 0){
+		if (badges.size() > 0) {
 			int n_current_missing_lines = 5 - events.size();
 			Iterator<String> it = badges.iterator();
 			int added_lines = 0;
-			for (added_lines = 0; added_lines < n_current_missing_lines && it.hasNext(); added_lines++){
+			for (added_lines = 0; added_lines < n_current_missing_lines && it.hasNext(); added_lines++) {
 				String b = (String) it.next();
-				end_index = b.indexOf("!"); 
+				end_index = b.indexOf("!");
 				b = b.replace("!", "");
 				sb = new SpannableString(b);
 				sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, end_index, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				events.add(sb);
 			}
-			
+
 			int remaining_lines = badges.size() - added_lines;
-			if(remaining_lines > 0)
+			if (remaining_lines > 0)
 				inboxStyle.setSummaryText(getResources().getQuantityString(R.plurals.summary_inbox_text, remaining_lines, remaining_lines));
-			
+
 		}
-		
-		
+
 		inboxStyle.setBigContentTitle("Cimb the World");
-		for (int i=0; i < events.size(); i++) {
+		for (int i = 0; i < events.size(); i++) {
 			inboxStyle.addLine(events.get(i));
 		}
 		mBuilder.setStyle(inboxStyle);
-		
+
 		ClimbActivity.this.runOnUiThread(new Runnable() {
 			public void run() {
 				NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 				mNotificationManager.notify(NOTIFICATION_ID_INBOX, mBuilder.build());
 			}
 		});
-		
+
 	}
 
 	private void showOfflineSocialMember() {
@@ -3901,11 +3895,11 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			ClimbApplication.userBadgeDao.create(userbadge);
 
 			if (percentage >= 1.00) {
-				//showMessage(getString(R.string.new_badge, buildingText.getName()));
-				if(Build.VERSION.SDK_INT < 16)
+				// showMessage(getString(R.string.new_badge, buildingText.getName()));
+				if (Build.VERSION.SDK_INT < 16)
 					showNotificationBonus(getString(R.string.new_badge, buildingText.getName()), notification_icon, false);
-				else{
-					//show inbox notification
+				else {
+					// show inbox notification
 					ClimbApplication.addBadgeNotification(getString(R.string.new_badge_inbox, buildingText.getName()));
 					showInboxNotification();
 				}
@@ -3918,11 +3912,11 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 				ClimbApplication.userBadgeDao.update(userbadge);
 			}
 			if (old_percentage < 1.00 && percentage >= 1.00) {
-				//showMessage(getString(R.string.new_badge, buildingText.getName()));
-				if(Build.VERSION.SDK_INT < 16)
+				// showMessage(getString(R.string.new_badge, buildingText.getName()));
+				if (Build.VERSION.SDK_INT < 16)
 					showNotificationBonus(getString(R.string.new_badge, buildingText.getName()), notification_icon, false);
-				else{
-					//show inbox notification
+				else {
+					// show inbox notification
 					ClimbApplication.addBadgeNotification(getString(R.string.new_badge_inbox, buildingText.getName()));
 					showInboxNotification();
 				}
