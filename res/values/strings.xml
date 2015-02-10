@@ -328,12 +328,16 @@
 	<string name="text_4_3">In settings you can choose the right climb difficulty for your climbings</string>
 	-->
 		
-	<string name="demo1_welcome">Welcome to \nClimb The World</string>
 	<string name="demo1_title">How to play</string>
-	<string name="demo1_slide0">Climb the world\'s peacks simply making stairs!</string>
-	<string name="demo1_slide1">Choose a building from "Buildings" o "Tours" \nWhich kind of climb you want?</string>
+	<string name="demo1_slide01">Choose Climbing Difficulty</string>
+	<string name="demo1_slide02">Choose a building</string>
+	<string name="demo1_slide03">Choose a climbing mode</string>
+		
+	
+	<string name="demo1_slide1">Which kind of climb you want?\n(Tap Solo Climb to read the basic rules)</string>
 	<string name="demo1_slide2">Changed idea? \nYou can come back to Solo Climb whenever you want</string>
-	<string name="demo1_slide3">Check your improvements \nIf you want to get fitter, try the step counter!</string>
+	<string name="demo1_slide3_title">Tired of playing?</string>	
+	<string name="demo1_slide3">try the step counter!</string>
 	
 	<string name="demo2_title">How to play in %s mode</string>
 	

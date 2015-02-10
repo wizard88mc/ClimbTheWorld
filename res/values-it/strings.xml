@@ -333,12 +333,16 @@
 	<string name="text_4_3">In Impostazioni puoi scegliere la giusta difficoltà per le tue scalate</string>
 	-->
 	
-	<string name="demo1_welcome">Benvenuto in \nClimb The World</string>
-	<string name="demo1_title">Come si gioca</string>
-	<string name="demo1_slide0">Scala le vette del mondo semplicemente facendo le scale!</string>
-	<string name="demo1_slide1">Scegli un edificio da "Edifici" o "Tour" \nIn quale modalità vuoi fare la scalata?</string>
+	<string name="demo1_title">COme giocare</string>
+	<string name="demo1_slide01">Scegli la difficoltà di scalata</string>
+	<string name="demo1_slide02">Scegli un edificio</string>
+	<string name="demo1_slide03">Scegli una modalità di scalata</string>
+	
+	
+	<string name="demo1_slide1">In quale modalità vuoi fare la scalata?\n(Vedi Solo Climb per conoscere le regole di base)</string>
 	<string name="demo1_slide2">Hai cambiato idea? \nPuoi tornare alla modalità Solo Climb quando vuoi</string>
-	<string name="demo1_slide3">Controlla i tuoi miglioramenti \nPer rimanere in forma puoi provare lo step counter!</string>
+	<string name="demo1_slide3_title">Stanco di giocare?</string>
+	<string name="demo1_slide3">prova il conta scalini!</string>
 	
 	<string name="demo2_title">Come giocare in modalità %s</string>
 	

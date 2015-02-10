@@ -341,7 +341,8 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 				}
 			}
 
-			((TextView) findViewById(R.id.lblClassifierOutput)).setText(finalClassification > 0 ? "STAIR" : "NON_STAIR"); // debug: show currently detected classifier output
+			//((TextView) findViewById(R.id.lblClassifierOutput)).setText(finalClassification > 0 ? "STAIR" : "NON_STAIR"); // debug: show currently detected classifier output
+			((TextView) findViewById(R.id.lblClassifierOutput)).setVisibility(View.GONE);
 		}
 	}
 
