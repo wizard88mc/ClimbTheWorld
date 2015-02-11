@@ -335,15 +335,15 @@
 		
 	
 	<string name="demo1_slide1">Which kind of climb you want?\n(Tap Solo Climb to read the basic rules)</string>
-	<string name="demo1_slide2">Changed idea? \nYou can come back to Solo Climb whenever you want</string>
+	<string name="demo1_slide2">Changed idea?\n\nYou can come back to Solo Climb whenever you want</string>
 	<string name="demo1_slide3_title">Tired of playing?</string>	
 	<string name="demo1_slide3">try the step counter!</string>
 	
-	<string name="demo2_title">How to play in %s mode</string>
+	<string name="demo2_title">How to play\n%s mode</string>
 	
 	<string name="demo2_slide00">Press play and make stairs</string>
 	<string name="demo2_slide01">You can pause the climb whenever you want</string>
-	<string name="demo2_slide02">Reach the stars to complete missions and earn bonus</string>
+	<string name="demo2_slide02">Reach the stars to complete goals and earn bonus</string>
 	<string name="demo2_slide03">Reach the top to win the trophy!</string>
 	
 	<string name="demo2_slide10">Ask for help to 5 Facebook friends at most \nYour steps will be summed up to your friends\'</string>

@@ -333,22 +333,22 @@
 	<string name="text_4_3">In Impostazioni puoi scegliere la giusta difficoltà per le tue scalate</string>
 	-->
 	
-	<string name="demo1_title">COme giocare</string>
+	<string name="demo1_title">Come giocare</string>
 	<string name="demo1_slide01">Scegli la difficoltà di scalata</string>
 	<string name="demo1_slide02">Scegli un edificio</string>
 	<string name="demo1_slide03">Scegli una modalità di scalata</string>
 	
 	
 	<string name="demo1_slide1">In quale modalità vuoi fare la scalata?\n(Vedi Solo Climb per conoscere le regole di base)</string>
-	<string name="demo1_slide2">Hai cambiato idea? \nPuoi tornare alla modalità Solo Climb quando vuoi</string>
+	<string name="demo1_slide2">Hai cambiato idea?\n\nPuoi tornare alla modalità Solo Climb quando vuoi</string>
 	<string name="demo1_slide3_title">Stanco di giocare?</string>
 	<string name="demo1_slide3">prova il conta scalini!</string>
 	
-	<string name="demo2_title">Come giocare in modalità %s</string>
+	<string name="demo2_title">Come giocare\nmodalità %s</string>
 	
 	<string name="demo2_slide00">Premi play e sali le scale</string>
 	<string name="demo2_slide01">Puoi mettere la scalata in pausa quando vuoi</string>
-	<string name="demo2_slide02">Raggiungi le stelle per completare le missioni e guadagnare punti bonus</string>
+	<string name="demo2_slide02">Raggiungi le stelle per completare i goal e guadagnare punti bonus</string>
 	<string name="demo2_slide03">Raggiungi la vetta per vincere il trofeo!</string>
 	
 	<string name="demo2_slide10">Chiedi aiuto a massimo 5 amici di Facebook \nI tuoi scalini saranno sommati a quelli fatti dai tuoi amici</string>

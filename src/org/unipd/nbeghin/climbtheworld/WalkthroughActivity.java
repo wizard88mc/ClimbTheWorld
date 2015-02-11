@@ -126,7 +126,7 @@ public class WalkthroughActivity extends Activity {
 				how_to.setVisibility(View.GONE);
 				single_step.setVisibility(View.VISIBLE);
 				textDown.setVisibility(View.VISIBLE);
-				image.setImageResource(R.drawable.normal_building);
+				image.setImageResource(R.drawable.normal_card);
 				textDown.setText(getString(R.string.demo1_slide1));
 				TableRow tr = null;
 				
@@ -205,7 +205,7 @@ public class WalkthroughActivity extends Activity {
 				how_to.setVisibility(View.GONE);
 				single_step.setVisibility(View.VISIBLE);
 				textDown.setVisibility(View.VISIBLE);				
-				image.setImageResource(R.drawable.back_building);
+				image.setImageResource(R.drawable.back_to_solo_card);
 				textDown.setText(getString(R.string.demo1_slide2));
 				break;
 			case 3:
@@ -213,7 +213,7 @@ public class WalkthroughActivity extends Activity {
 				how_to.setVisibility(View.GONE);
 				single_step.setVisibility(View.VISIBLE);
 				textDown.setVisibility(View.VISIBLE);
-				image.setImageResource(R.drawable.profilo);
+				image.setImageResource(R.drawable.step_counter);
 				
 				s = getString(R.string.profile) + "p1 -> " + getString(R.string.demo1_slide3);
 				int i = s.indexOf("p1");
