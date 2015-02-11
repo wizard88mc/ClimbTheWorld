@@ -1,6 +1,7 @@
 package org.unipd.nbeghin.climbtheworld.util;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
@@ -1356,6 +1357,86 @@ public class AlarmUtils {
 	}
 	
 	
+	
+	private static boolean areIntervalSetsFarEnough(Context context, Alarm last_alarm_first_set, Alarm first_alarm_second_set){
+		
+		Calendar alarm_first_set_time = Calendar.getInstance();
+		Calendar alarm_second_set_time = (Calendar) alarm_first_set_time.clone();
+		
+		alarm_first_set_time.set(Calendar.HOUR_OF_DAY, last_alarm_first_set.get_hour());
+		alarm_first_set_time.set(Calendar.MINUTE, last_alarm_first_set.get_minute());
+		alarm_first_set_time.set(Calendar.SECOND, last_alarm_first_set.get_second());
+		alarm_second_set_time.set(Calendar.HOUR_OF_DAY, first_alarm_second_set.get_hour());
+		alarm_second_set_time.set(Calendar.MINUTE, first_alarm_second_set.get_minute());
+		alarm_second_set_time.set(Calendar.SECOND, first_alarm_second_set.get_second());
+		
+		if(alarm_second_set_time.getTime().getTime() - alarm_first_set_time.getTime().getTime() >= 21600000){
+			return true;
+		}
+		return false;		
+	}
+	
+	
+	
+	private static long getTimeDistance(Alarm current_alarm, Alarm start_alarm, boolean from_beginning){
+		
+		Calendar current_alarm_time = Calendar.getInstance();
+		Calendar start_alarm_time = (Calendar) current_alarm_time.clone();
+		
+		current_alarm_time.set(Calendar.HOUR_OF_DAY, current_alarm.get_hour());
+		current_alarm_time.set(Calendar.MINUTE, current_alarm.get_minute());
+		current_alarm_time.set(Calendar.SECOND, current_alarm.get_second());
+		start_alarm_time.set(Calendar.HOUR_OF_DAY, start_alarm.get_hour());
+		start_alarm_time.set(Calendar.MINUTE, start_alarm.get_minute());
+		start_alarm_time.set(Calendar.SECOND, start_alarm.get_second());
+		
+		
+		if(from_beginning){
+			return current_alarm_time.getTime().getTime() - start_alarm_time.getTime().getTime();
+		}
+		else{
+			return start_alarm_time.getTime().getTime() - current_alarm_time.getTime().getTime();
+		}		
+	}
+	
+	
+	
+	private static ArrayList<ArrayList<Alarm>> getActiveIntervalSets(Context context){
+		
+		//si recupera l'indice del giorno corrente
+		int day_index = PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0);//context.getSharedPreferences("appPrefs", 0).getInt("artificialDayIndex", 0);
+		
+		ArrayList<ArrayList<Alarm>> intervalSets = new ArrayList<ArrayList<Alarm>>();
+				
+		List<Alarm> all_alarms = getAllAlarms(context);
+		
+		int i=1;
+		while(i<=all_alarms.size()){
+			
+			boolean active=true;
+			ArrayList<Alarm> set = new ArrayList<Alarm>();
+						
+			do {
+				
+				Alarm a = getAlarm(context, i);
+				if(a!=null && a.getRepeatingDay(day_index)){
+					set.add(a);
+				}
+				else{
+					active=false;
+					//si tengono i gruppi di 3 o più intervalli attivi
+					if(set.size()>=3){
+						intervalSets.add(set);
+					}
+				}
+				//si passa all'alarm di start successivo
+				i+=2;
+			}
+			while(active);			
+		}
+		
+		return intervalSets;
+	}
 	
 	
 	

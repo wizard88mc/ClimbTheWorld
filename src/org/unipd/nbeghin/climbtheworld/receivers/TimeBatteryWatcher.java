@@ -556,7 +556,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					if(restart && GeneralUtils.isActivityRecognitionServiceRunning(context)){
 						context.getApplicationContext().stopService(new Intent(context, ActivityRecognitionRecordService.class));
 						context.getApplicationContext().startService(new Intent(context, ActivityRecognitionRecordService.class));
-						toLog+=", restart activity recognition service with "+ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)/100+"-seconds update interval";
+						toLog+=", restart activity recognition service with "+ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)/1000+"-seconds update interval";
 					}
 				}
 				LogUtils.writeLogFile(context, toLog);
