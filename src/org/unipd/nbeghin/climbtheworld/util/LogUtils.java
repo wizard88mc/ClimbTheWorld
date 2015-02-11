@@ -93,8 +93,9 @@ public class LogUtils {
     public static void offIntervalsTracking(Context context, SharedPreferences pref, int alarm_id){
     	
     	//si considerano gli intervalli che non sono stati valutati durante il
-		//periodo di tempo in cui il device era spento (utile per tracciarli
-		//nel file di output e, se si vuole, per cambiare la loro valutazione) 
+		//periodo di tempo in cui l'algoritmo non era attivo (a causa del device spento o del
+    	//livello critico della batteria); è utile per tracciarli nel file di output e, se si
+    	//vuole, per cambiare la loro valutazione
 
 		    	
     	Calendar time_now = Calendar.getInstance();
@@ -129,8 +130,8 @@ public class LogUtils {
     		dd=pref.getInt("alarm_date", -1);
     		mm=pref.getInt("alarm_month", -1);
     		yyyy=pref.getInt("alarm_year", -1);		
-    		//not_evaluated_cause="Non considerato perche' device spento";
-    		not_evaluated_cause="DS";
+    		//not_evaluated_cause="Non considerato perche' algoritmo non attivo"; //device spento o livello critico della batteria
+    		not_evaluated_cause="NA";
     	}    	
 
 		time_before.set(Calendar.DATE,dd);
@@ -149,7 +150,7 @@ public class LogUtils {
         												//seconds in a minute, millis in a second
 		int days_diff = (int) Math.round(time_diff);
 		
-		Log.d(MainActivity.AppName, "Intervals tracking - device spento, day diff since next alarm: " + days_diff);
+		Log.d(MainActivity.AppName, "Intervals tracking - algoritmo non attivo, day diff since next alarm: " + days_diff);
 		
 		List<Alarm> alarms_lst = AlarmUtils.getAllAlarms(context);
 		
@@ -219,7 +220,7 @@ public class LogUtils {
 				if(!e.get_actionType()){								
 					int stop_id = e.get_id();
 					int start_id = stop_id-1;	
-					Log.d(MainActivity.AppName, "On Boot - device spento nell'intervallo: start-stop: " + start_id+"-"+stop_id);
+					Log.d(MainActivity.AppName, "Algoritmo non attivo nell'intervallo: start-stop: " + start_id+"-"+stop_id);
 				
 					String status="";
 					String after_mutation_string="";
@@ -276,7 +277,7 @@ public class LogUtils {
 		
 		if(stop==false){
 			
-			Log.d(MainActivity.AppName, "On Boot - device spento; si passa al giorno successivo");
+			Log.d(MainActivity.AppName, "Algoritmo non attivo; si passa al giorno successivo");
 			
 			/////////
 			//PER TEST ALGORITMO: si inizializza l'indice artificiale 
@@ -297,7 +298,7 @@ public class LogUtils {
 				/////////
 				//time_before.get(Calendar.DAY_OF_WEEK)-1
 				
-				Log.d(MainActivity.AppName, "On Boot - device spento, indice giorno: " + ii);
+				Log.d(MainActivity.AppName, "Algoritmo non attivo, indice giorno: " + ii);
 				
 				
 				//se si tratta del primo intervallo (id_start=1 e id_stop=2) si è in
@@ -377,7 +378,7 @@ public class LogUtils {
 						if(!e.get_actionType()){								
 							int stop_id = e.get_id();
 							int start_id = stop_id-1;								
-							Log.d(MainActivity.AppName, "On Boot - device spento nell'intervallo: start-stop: " + start_id+"-"+stop_id);
+							Log.d(MainActivity.AppName, "Algoritmo non attivo nell'intervallo: start-stop: " + start_id+"-"+stop_id);
 						
 							String status="";
 							String after_mutation_string="";

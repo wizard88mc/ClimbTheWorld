@@ -510,7 +510,10 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					//prossimo alarm
 					if(pref.getBoolean("low_battery_status", false)){
 						
-						
+						//////////////////////////////////////////////
+						//SI TRACCIANO GLI INTERVALLI NON VALUTATI A CAUSA DEL LIVELLO CRITICO DELLA BATTERIA
+						LogUtils.offIntervalsTracking(context, pref, alarm_id);					
+						//////////////////////////////////////////////
 						
 						//il livello della batteria non è più critico
 						pref.edit().putBoolean("low_battery_status", false).commit();
