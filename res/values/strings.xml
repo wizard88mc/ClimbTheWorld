@@ -346,21 +346,21 @@
 	<string name="demo2_slide02">Reach the stars to complete goals and earn bonus</string>
 	<string name="demo2_slide03">Reach the top to win the trophy!</string>
 	
-	<string name="demo2_slide10">Ask for help to 5 Facebook friends at most \nYour steps will be summed up to your friends\'</string>
-	<string name="demo2_slide11">Make stairs and exceed the partecipation treshold.\nReach the stars to complete missions e and earn bonus </string>
+	<string name="demo2_slide10">Invite 5 friends at most and climb the building together\nYour steps will be summed up to theirs\n\n(your previous progress will be maintained)</string>
+	<string name="demo2_slide11">Make stairs and exceed the partecipation threshold to win the final bonus</string>
 	<string name="demo2_slide12">Press Update to see your friends\' progresses</string>
-	<string name="demo2_slide13">Reach the top with your friends and win the trophy together!</string>
+	<string name="demo2_slide13">Reach the top with your friends and win the trophy with bonus points together!</string>
 	
-	<string name="demo2_slide20">Challenge 5 Facebook friends at most \nIf you reach the top first, you change the challenge!</string>
-	<string name="demo2_slide21">Reach the stars to complete missions and earn bonus</string>
-	<string name="demo2_slide22">Press Update to see who is winning</string>
-	<string name="demo2_slide23">Reach the top to win the challenge and win the victory bonus</string>
+	<string name="demo2_slide20">Challenge 5 friends at most: if you reach the top first, you win the challenge!\n\n(your previous progress will be paused)</string>
+	<string name="demo2_slide21">Make stairs</string>
+	<string name="demo2_slide22">Tap Update to update the chart and see who is winning</string>
+	<string name="demo2_slide23">Reach the top to win the challenge and bonus points!\n\n(your previous progress will now be restored)</string>
 	
-	<string name="demo2_slide30">Challenge a friend and create a team with 5 Facebook friends \nYour steps will be summed up to your friends\'
-	    \nThe team who reach the top first wins</string>
+	<string name="demo2_slide30">Challenge a friend and both create a team with 5 friends: your steps will be summed up to your team mates\'.
+	    \nThe team who reach the top first wins\n\n(your previous progress will be paused)</string>
 	<string name="demo2_slide31">When both teams are completed, the challenge can begin</string>
-	<string name="demo2_slide32">Make stairs and reach the stars to complete missions and earn bonus \nPress Update to see which team is winning</string>
-	<string name="demo2_slide33">Reach the top to make your team win!</string>
+	<string name="demo2_slide32">Make stairs and exceed the partecipation threshold to win the final bonus</string>
+	<string name="demo2_slide33">Tap update to find out the winning team. If you\'re part of it, you\'ll win bonus points!\n\n(your previous progress will now be restored)</string>
 	
 	<!-- onboarding -->
 	<string name="onboarding_title_1">Welcome to Climb The World!</string>

@@ -351,21 +351,21 @@
 	<string name="demo2_slide02">Raggiungi le stelle per completare i goal e guadagnare punti bonus</string>
 	<string name="demo2_slide03">Raggiungi la vetta per vincere il trofeo!</string>
 	
-	<string name="demo2_slide10">Chiedi aiuto a massimo 5 amici di Facebook \nI tuoi scalini saranno sommati a quelli fatti dai tuoi amici</string>
-	<string name="demo2_slide11">Fai le scale e supera la soglia di partecipazione.\nRaggiungi le stelle per completare le missioni e guadagnare punti bonus </string>
+	<string name="demo2_slide10">Invita al più 5 amici e scalate insieme l\'edificio\nI tuoi scalini saranno sommati ai loro\n\n(i tuoi progressi precedenti sono mantenuti)</string>
+	<string name="demo2_slide11">Fai le scale e supera la soglia di partecipazione per vincere il bonus finale</string>
 	<string name="demo2_slide12">Premi Aggiorna per vedere i progressi dei tuoi amici</string>
-	<string name="demo2_slide13">Raggiungi la cima insieme agli amici e vincete il trofeo!</string>
+	<string name="demo2_slide13">Raggiungi la cima insieme agli amici e vinci il trofeo e punti XP bonus!</string>
 	
-	<string name="demo2_slide20">Sfida fino a 5 tuoi amici su Facebook \n Se raggiungi la cima per primo, hai vinto la sfida!</string>
-	<string name="demo2_slide21">Raggiungi le stelle per completare le missioni e guadagnare punti bonus</string>
-	<string name="demo2_slide22">Premi Aggiorna per vedere chi sta vincendo</string>
-	<string name="demo2_slide23">Raggiungi la cima per vincere la sfida e il bonus vittoria</string>
+	<string name="demo2_slide20">Sfida fino a 5 tuoi amici: se raggiungi la cima per primo, hai vinto la sfida!\n\n(i tuoi progressi precedenti sono messi in pausa)</string>
+	<string name="demo2_slide21">Fai la scale</string>
+	<string name="demo2_slide22">Fai le scale e supera la soglia di partecipazione per vincere i punti XP bonus</string>
+	<string name="demo2_slide23">Vinci per guadagnare punti XP bonus\n\n(i tuoi progressi precedenti sono da ora rispristinati)</string>
 	
-	<string name="demo2_slide30">Sfida un amico e crea un tuo team di 5 amici di Facebook \nI tuoi passi saranno sommati a quelli dei tuoi amici.
-	    \nVince il team che raggiunge per primo la cima</string>
+	<string name="demo2_slide30">Sfida un amico e create entrambi un team di 5 amici: i tuoi passi saranno sommati a quelli dei tuo team.
+	    \nVince il team che raggiunge per primo la cima\n\n\n\n(i tuoi progressi precedenti sono messi in pausa)</string>
 	<string name="demo2_slide31">Quando i due team sono completi, inizia la sfida</string>
-	<string name="demo2_slide32">Sali le scale e raggiungi le stelle per guadagnare punti bonus \nPremi Aggiorna per vedere quale team sta vincendo</string>
-	<string name="demo2_slide33">Raggiungi la cima per far vincere il tuo team!</string>
+	<string name="demo2_slide32">Fai le scale e supera la soglia di partecipazione per vincere il bonus finale</string>
+	<string name="demo2_slide33">Premi Aggiorna per conoscere il team vincitore\n Se ne fai parte, vinci punti XP bonus!\n\n(i tuoi progressi precedenti sono da ora rispristinati)</string>
 	
 	<!-- onboarding -->
 	<string name="onboarding_title_1">Benvenuto in Climb The World!</string>
