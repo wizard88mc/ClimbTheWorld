@@ -14,7 +14,7 @@ public class SetNextAlarmIntentService extends IntentService {
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		
-		boolean low_battery_status = intent.getBooleanExtra("low_battery_status", false);
+		boolean low_battery_status = intent.getBooleanExtra("low_battery", false);
 		int current_alarm_id = intent.getIntExtra("current_alarm_id", -1);	
 		
 		//si cancella l'alarm che era stato settato in precedenza
