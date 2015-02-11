@@ -105,7 +105,7 @@ public class WalkthroughActivity extends Activity {
             
             switch (position) {
 			case 0:
-				title.setText(getString(R.string.demo1_title));
+				title.setText(getString(R.string.demo1_title) + "\n(Offline ok)");
 				how_to.setVisibility(View.VISIBLE);
 				single_step.setVisibility(View.GONE);
 				textDown.setVisibility(View.GONE);
