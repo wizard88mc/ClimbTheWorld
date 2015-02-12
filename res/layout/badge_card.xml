@@ -51,8 +51,18 @@
                 android:gravity="left"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:text="Text"
+                android:text="Name"
                 android:textSize="18sp" />
+            <TextView
+                android:id="@+id/textName"
+                style="@style/CardText"
+                android:textColor="@color/black"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingRight="10dp"
+                android:paddingLeft="10dp"
+                android:paddingBottom="5dp"
+                android:text="Description" />
 
             <TextView
                 android:id="@+id/textPercentage"

@@ -81,6 +81,9 @@
     <string name="steps_badge">Make %d steps</string>
     <string name="complete_tour">Complete the tour: %s</string>
     <string name="complete_building">Climb the %s</string>
+    <string name="complete_building_name">New souvenir: %s</string>
+    <string name="complete_tour_name">%s explorer</string>
+    <string name="steps_badge_name">Always higher</string>
     
     <!-- Facebook Requests -->
     <string name="request_sent">Request sent</string>

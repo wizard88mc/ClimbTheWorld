@@ -77,6 +77,9 @@
     <string name="steps_badge">Fai %d passi</string>
     <string name="complete_tour">Completa il tour: %s</string>
     <string name="complete_building">Scala l\'edificio %s</string>
+    <string name="complete_building_name">Nuovo souvenir: %s</string>
+    <string name="complete_tour_name">Primo esploratore del %s</string>
+    <string name="steps_badge_name">Sempre più in alto</string>
     
     <!-- Facebook Requests -->
     <string name="request_sent">Richiesta inviata</string>

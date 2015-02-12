@@ -18,6 +18,7 @@ public class BadgeCard extends Card{
 	
 	ImageView cup;
 	TextView description;
+	TextView name;
 	ProgressBar progressBar;
 	UserBadge userBadge;
 	TextView textPercentage;
@@ -32,8 +33,10 @@ public class BadgeCard extends Card{
 		View view = LayoutInflater.from(context).inflate(R.layout.badge_card, null);
 		cup = (ImageView) view.findViewById(R.id.imageCup);
 		description = (TextView) view.findViewById(R.id.textDescription);
+		name = (TextView) view.findViewById(R.id.textName);
 		progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
-		description.setText(userBadge.getDescription());
+		name.setText(userBadge.getDescription());
+		description.setText(userBadge.getName());
 		if(userBadge.getPercentage() < 1.00){
 			cup.setImageResource(R.drawable.unlock_win);
 		}else

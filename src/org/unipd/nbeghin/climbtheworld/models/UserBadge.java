@@ -105,6 +105,23 @@ public class UserBadge {
 		}
 	}
 	
+	public String getName(){
+		switch(badge.getCategory()){
+		case BUILDING_COMPLETED:
+			//Building building = ClimbApplication.getBuildingById(obj_id);
+			BuildingText text = ModelsUtil.getBuildingTextFromBuildingId(obj_id);
+			return ClimbApplication.getContext().getString(R.string.complete_building_name, text.getName());
+		case TOUR_COMPLETED:
+			//Tour tour = ClimbApplication.getTourById(obj_id);
+			TourText text_tour = ModelsUtil.getTourTextFromBuildingId(obj_id);
+			return ClimbApplication.getContext().getString(R.string.complete_tour_name, text_tour.getTitle());
+		case STEPS_COMPLETED:
+			return  ClimbApplication.getContext().getString(R.string.steps_badge_name, badge.getN_steps());
+		default:
+			return "";
+		}
+	}
+	
 	public String toJSON(){
 		return "{\"badge_id\": " + getBadge().get_id() + ", \"obj_id\": " + obj_id +", \"percentage\":" + percentage + "}";
 	}
