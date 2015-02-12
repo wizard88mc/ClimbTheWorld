@@ -16,7 +16,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-public class IntervalEvaluationUtils {
+public final class IntervalEvaluationUtils {
 
 	//soglia per il valore di valutazione
 	private static float eval_threshold = 0.5f;

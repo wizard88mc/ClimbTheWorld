@@ -20,8 +20,10 @@ import android.text.Spanned;
 import android.text.SpannedString;
 import android.util.Log;
 
-public class LogUtils {
+public final class LogUtils {
 
+	private LogUtils() {
+	}
 	 
     //start-stop, 0/1 attuale, se attivo valutazione, 0/1 la prossima settimana
     public static void writeLogFile(Context context, String text){

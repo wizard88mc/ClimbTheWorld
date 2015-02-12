@@ -49,7 +49,7 @@ import android.util.Log;
  * Classe che contiene alcuni metodi di utilità.
  *
  */
-public class GeneralUtils {
+public final class GeneralUtils {
 	
 	//numero di giorni di cui è composta una settimana
 	public static int daysOfWeek = 2;

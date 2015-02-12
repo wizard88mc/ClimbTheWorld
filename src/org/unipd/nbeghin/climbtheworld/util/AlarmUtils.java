@@ -39,7 +39,7 @@ import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
-public class AlarmUtils {
+public final class AlarmUtils {
 	
 	//private static PreparedQuery<Alarm> alarmsForTemplateQuery = null;
 	private static Random rand = new Random();
@@ -1437,6 +1437,61 @@ public class AlarmUtils {
 		
 		return intervalSets;
 	}
+	
+
+	private static ArrayList<IntPair> getPossibleTriggerSetPairs(ArrayList<ArrayList<Alarm>> activeSets){
+		
+		int i=0;
+		int size = activeSets.size();
+		
+		long time_distance = 21600000;
+		
+		ArrayList<IntPair> pairs = new ArrayList<IntPair>();
+						
+		boolean stop=false;
+		
+		while(!stop){
+			
+			Alarm first_alarm_first_set = activeSets.get(i).get(0);
+			
+			ArrayList<Alarm> secondSet = activeSets.get(size-i-1);
+			Alarm last_alarm_second_set = secondSet.get(secondSet.size()-1);
+						
+			if(getTimeDistance(first_alarm_first_set, last_alarm_second_set, false) >= time_distance){
+				
+				pairs.add(new IntPair(i,size-i-1));
+				
+				if(i!=0){
+					pairs.add(new IntPair(i,size-i));
+					pairs.add(new IntPair(i-1,size-i-1));
+				}				
+			}
+			else{
+				
+				if(i!=0){
+					
+					Alarm first_alarm_previous_first_set = activeSets.get(i-1).get(0);
+					
+					if(getTimeDistance(first_alarm_previous_first_set, last_alarm_second_set, false) >= time_distance){
+						pairs.add(new IntPair(i-1,size-i-1));
+					}
+					
+					secondSet = activeSets.get(size-i);
+					Alarm last_alarm_next_second_set = secondSet.get(secondSet.size()-1);
+					
+					if(getTimeDistance(first_alarm_first_set, last_alarm_next_second_set, false) >= time_distance){
+						pairs.add(new IntPair(i,size-1));
+					}
+				}
+				
+				stop=!stop;
+			}
+		}
+		
+		return pairs;		
+	}
+	
+	
 	
 	
 	
