@@ -1274,7 +1274,11 @@ public final class AlarmUtils {
 	
 	
 	
-	public static Alarm secondIntervalExists(Context context, Alarm current_alarm, boolean next){
+	public static Alarm secondInterval(Context context, Alarm current_alarm, boolean next){
+		
+		if(current_alarm==null){
+			return null;
+		}
 		
 		//in input si ha l'alarm di stop (se si vuole controllare se esiste l'intervallo
 		//successivo) o di start (se si vuole controllare se esiste l'intervallo precedente)
@@ -1286,10 +1290,10 @@ public final class AlarmUtils {
 		Alarm second_alarm = null;
 		
 		if(next){
-			second_alarm = AlarmUtils.getAlarm(context, current_alarm.get_id()+1);
+			second_alarm = getAlarm(context, current_alarm.get_id()+1);
 		}
 		else{
-			second_alarm = AlarmUtils.getAlarm(context, current_alarm.get_id()-1);
+			second_alarm = getAlarm(context, current_alarm.get_id()-1);
 		}
 		
 		
@@ -1408,33 +1412,63 @@ public final class AlarmUtils {
 		
 		ArrayList<ArrayList<Alarm>> intervalSets = new ArrayList<ArrayList<Alarm>>();
 				
+		//si recuperano tutti gli alarm salvati nel database
 		List<Alarm> all_alarms = getAllAlarms(context);
 		
+		//indice per scorrere gli intervalli 
 		int i=1;
 		while(i<=all_alarms.size()){
 			
 			boolean active=true;
 			ArrayList<Alarm> set = new ArrayList<Alarm>();
-						
-			do {
 				
-				Alarm a = getAlarm(context, i);
-				if(a!=null && a.getRepeatingDay(day_index)){
-					set.add(a);
-				}
-				else{
-					active=false;
-					//si tengono i gruppi di 3 o più intervalli attivi
-					if(set.size()>=3){
-						intervalSets.add(set);
+			Alarm previous = null;
+			
+			do {				
+				//se 'previous' (l'alarm precedente) viene immediatamente prima dell'alarm di indice i,
+				//significa che i due intervalli sono consecutivi; in tal caso si ritorna l'alarm di
+				//indice i, altrimenti null
+				Alarm a = secondInterval(context, previous, true);
+								
+				if(a!=null || set.size()==0){
+					
+					if(a==null){
+						a = getAlarm(context, i);
+					}						
+					
+					//a è un alarm di start; si controlla se è attivo nel giorno considerato
+					if(a!=null && a.getRepeatingDay(day_index)){
+						set.add(a);
 					}
+					else{
+						active=false;
+					}
+					
+					//si salva il corrispondente alarm di stop; questo serve all'iterazione 
+					//successiva per vedere se i due intervalli sono consecutivi come orario
+					previous = getAlarm(context, i+1);
+										
+					//si passa all'alarm di start successivo
+					i+=2;
 				}
-				//si passa all'alarm di start successivo
-				i+=2;
+				else{ //l'intervallo precedente e questo che si sta considerando sono entrambi
+					  //attivi, ma non sono consecutivi come orario; in tal caso si interrompe
+					  //il gruppo e se ne inizia un altro, sempre a partire dall'intervallo corrente
+					  //(non si incrementa i)
+					active=false;
+					previous=null;
+				}
+				
 			}
-			while(active);			
-		}
-		
+			while(set.size()<=12 && active); 
+			//un gruppo può essere composto al massimo da 12 intervalli (questo per andare meglio
+			//a calcolare la distanza temporale minima tra i 2 trigger)
+			
+			//si tengono i gruppi di 3 o più intervalli attivi
+			if(set.size()>=3){
+				intervalSets.add(set);
+			}
+		}		
 		return intervalSets;
 	}
 	
@@ -1490,6 +1524,8 @@ public final class AlarmUtils {
 		
 		return pairs;		
 	}
+	
+	
 	
 	
 	

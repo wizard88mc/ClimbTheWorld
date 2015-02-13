@@ -249,14 +249,14 @@ public final class IntervalEvaluationUtils {
 	
 		
 		//si recuperano, se esistono, gli intervalli vicini per propagare la valutazione
-		Alarm prev_interval_stop = AlarmUtils.secondIntervalExists(context, previous_start_alarm, false);
+		Alarm prev_interval_stop = AlarmUtils.secondInterval(context, previous_start_alarm, false);
 		Alarm prev_interval_start = null;
 		if(prev_interval_stop!=null){
 			Log.d(MainActivity.AppName, "Eval utils - propagazione valutazione precedente");
 			prev_interval_start=AlarmUtils.getAlarm(context, stop_alarm_id-3);
 			propagateEvaluation(context, alarmDao, prev_interval_start, prev_interval_stop, current_day_index, evaluation, false);
 		}
-		Alarm next_interval_start = AlarmUtils.secondIntervalExists(context, this_stop_alarm, true);
+		Alarm next_interval_start = AlarmUtils.secondInterval(context, this_stop_alarm, true);
 		Alarm next_interval_stop = null;		
 		if(next_interval_start!=null){
 			Log.d(MainActivity.AppName, "Eval utils - propagazione valutazione successivo");
