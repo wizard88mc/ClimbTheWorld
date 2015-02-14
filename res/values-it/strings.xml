@@ -426,6 +426,7 @@
 	<string name="gallery_empty">Nessuna foto disponibile</string>
 	<string name="bonus_excluded">(bonus escluso)</string>
 	<string name="notification_bonus">Obiettivi completati + %d XP</string>
+	<string name="notification_title">Stai scalando %s</string>
 	
 	 <plurals name="summary_inbox_text">
         <item quantity="one">+ un altro nuovo badge</item>

@@ -420,6 +420,7 @@
 	<string name="gallery_empty">No photos available</string>
 	<string name="bonus_excluded">(bonus excluded)</string>
 	<string name="notification_bonus">Goals completed + %d XP</string>
+	<string name="notification_title">You\'re climbing %s</string>
 	
    <plurals name="summary_inbox_text">
         <item quantity="one">+ %d new more badge</item>

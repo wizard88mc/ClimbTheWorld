@@ -3549,10 +3549,10 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 				int randomNum1 = Integer.valueOf(climbs[0]) / 5;
 
 				if (checked_size == 1)
-					intro = String.format(texts.getIntro(), randomNum1) + getString(R.string.bonus_excluded);
+					intro = String.format(texts.getIntro(), randomNum1) /*+ getString(R.string.bonus_excluded)*/;
 				else if (checked_size == 2) {
 					int randomNum2 = Integer.valueOf(climbs[0] + climbs[1]) / 5;
-					intro = String.format(texts.getIntro(), randomNum1, randomNum2) + getString(R.string.bonus_excluded);
+					intro = String.format(texts.getIntro(), randomNum1, randomNum2) /*+ getString(R.string.bonus_excluded)*/;
 				}
 
 				// to set the message
@@ -3726,7 +3726,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 		final Intent contentIntent = new Intent(ClimbActivity.this, NotificationClickedService.class);
 		final int requestID = REQUEST_CODE_BASE + (int) System.currentTimeMillis();
 		final int requestID2 = REQUEST_CODE_BASE + (int) System.currentTimeMillis();
-		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext()).setSmallIcon(drawable).setLargeIcon(BitmapFactory.decodeResource(getResources(), drawable)).setContentTitle("Climb The World");
+		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext()).setSmallIcon(drawable).setLargeIcon(BitmapFactory.decodeResource(getResources(), drawable)).setContentTitle(getString(R.string.notification_title, buildingText.getName()));
 		// .addAction(R.drawable.ic_action_help_dark, "Test", PendingIntent.getService(ClimbActivity.this, requestID, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT))
 		// .setContentIntent(PendingIntent.getService(ClimbActivity.this, requestID, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT))
 		// .setContentIntent(PendingIntent.getBroadcast(ClimbActivity.this, requestID, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT))
@@ -3749,7 +3749,8 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 					int bonus = Integer.valueOf(message);
 					ClimbApplication.bonus_notification += bonus;
 					mBuilder.setContentText(getString(R.string.notification_bonus, ClimbApplication.bonus_notification));
-					mBuilder.setDeleteIntent(PendingIntent.getService(ClimbActivity.this, requestID, deleteIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_ONE_SHOT)).setStyle(new NotificationCompat.BigTextStyle().bigText(getString(R.string.notification_bonus)
+					mBuilder.setDeleteIntent(PendingIntent.getService(ClimbActivity.this, requestID, deleteIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_ONE_SHOT))
+					.setStyle(new NotificationCompat.BigTextStyle().bigText(getString(R.string.notification_bonus)
 							+ ClimbApplication.bonus_notification));
 
 				}
@@ -3784,7 +3785,8 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 
 		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this).setSmallIcon(notification_icon).setLargeIcon(BitmapFactory.decodeResource(getResources(), notification_icon)).setContentTitle("Climb the World")
 		// .setContentText(getResources().getQuantityString(R.plurals.summary_inbox_text_2, notification_size, notification_size))
-		.setContentText("Climb the World").setDeleteIntent(PendingIntent.getService(ClimbActivity.this, requestID, deleteIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_ONE_SHOT)).setContentIntent(PendingIntent.getService(ClimbActivity.this, requestID2, contentIntent, PendingIntent.FLAG_CANCEL_CURRENT
+		.setContentText("Climb the World").setDeleteIntent(PendingIntent.getService(ClimbActivity.this, requestID, deleteIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_ONE_SHOT))
+		.setContentIntent(PendingIntent.getService(ClimbActivity.this, requestID2, contentIntent, PendingIntent.FLAG_CANCEL_CURRENT
 				| PendingIntent.FLAG_ONE_SHOT));
 
 		NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
@@ -3836,7 +3838,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 
 		}
 
-		inboxStyle.setBigContentTitle("Cimb the World");
+		inboxStyle.setBigContentTitle(getString(R.string.notification_title, buildingText.getName()));
 		for (int i = 0; i < events.size(); i++) {
 			inboxStyle.addLine(events.get(i));
 		}
@@ -3943,10 +3945,10 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			if (percentage >= 1.00) {
 				// showMessage(getString(R.string.new_badge, buildingText.getName()));
 				if (Build.VERSION.SDK_INT < 16)
-					showNotificationBonus(getString(R.string.new_badge, buildingText.getName()), notification_icon, false);
+					showNotificationBonus(getString(R.string.new_badge, userbadge.getName()), notification_icon, false);
 				else {
 					// show inbox notification
-					ClimbApplication.addBadgeNotification(getString(R.string.new_badge_inbox, buildingText.getName()));
+					ClimbApplication.addBadgeNotification(getString(R.string.new_badge_inbox, userbadge.getName()));
 					showInboxNotification();
 				}
 			}
@@ -3960,10 +3962,10 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			if (old_percentage < 1.00 && percentage >= 1.00) {
 				// showMessage(getString(R.string.new_badge, buildingText.getName()));
 				if (Build.VERSION.SDK_INT < 16)
-					showNotificationBonus(getString(R.string.new_badge, buildingText.getName()), notification_icon, false);
+					showNotificationBonus(getString(R.string.new_badge, userbadge.getName()), notification_icon, false);
 				else {
 					// show inbox notification
-					ClimbApplication.addBadgeNotification(getString(R.string.new_badge_inbox, buildingText.getName()));
+					ClimbApplication.addBadgeNotification(getString(R.string.new_badge_inbox, userbadge.getName()));
 					showInboxNotification();
 				}
 			}
