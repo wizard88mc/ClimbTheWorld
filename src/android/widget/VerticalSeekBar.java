@@ -1,5 +1,8 @@
 package android.widget;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.unipd.nbeghin.climbtheworld.R;
 
 import android.content.Context;
@@ -20,13 +23,30 @@ import android.widget.RelativeLayout.LayoutParams;
 public class VerticalSeekBar extends SeekBar {
 	
 	 private Bitmap thumb1 = BitmapFactory.decodeResource(getResources(), R.drawable.star);
+	 private Bitmap thumb2 = BitmapFactory.decodeResource(getResources(), R.drawable.star);
+	 private Bitmap thumb3 = BitmapFactory.decodeResource(getResources(), R.drawable.star);
+	 private Bitmap thumb4 = BitmapFactory.decodeResource(getResources(), R.drawable.star);
 
 	 private static double starHeight = 0;
+	 private static double perc_unit = 0;
 	 private static int totalHeight = 0;
 	 private int height = 0;
 	 private int width = 0;
-	 private View line;
-     
+	 private List<View> lines = new ArrayList<View>();
+	 private List<Bitmap> thumbs = new ArrayList<Bitmap>();
+	 
+	 private void setLists(){
+			RelativeLayout parent = (RelativeLayout) this.getParent();
+			lines.add(parent.findViewById(R.id.redLine1));
+			lines.add(parent.findViewById(R.id.redLine2));
+			lines.add(parent.findViewById(R.id.redLine3));
+			lines.add(parent.findViewById(R.id.redLine4));
+			thumbs.add(thumb1);
+			thumbs.add(thumb2);
+			thumbs.add(thumb3);
+			thumbs.add(thumb4);
+	 }
+	 
 	public VerticalSeekBar(Context context) {
 		super(context);
 		requestLayout();
@@ -62,16 +82,33 @@ public class VerticalSeekBar extends SeekBar {
 	protected void onDraw(Canvas c) {
 		c.rotate(-90);
 		c.translate(-getHeight(), 0);
-		RelativeLayout parent = (RelativeLayout) this.getParent();
-		line = parent.findViewById(R.id.redLine);
-		line.setLayoutParams(new LayoutParams(width/2, 2));
-		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)line.getLayoutParams();
-		params.setMargins(0,  totalHeight - ((int) starHeight) - 30, 0, 0); //substitute parameters for left, top, right, bottom
-		line.setLayoutParams(params);
-		line.setBackgroundColor(getResources().getColor(R.color.red));
+		if(lines.isEmpty() && thumbs.isEmpty()) setLists();
+
+		for(int i = 0; i < lines.size(); i++){
+			View v = lines.get(i);
+			v.setVisibility(View.GONE);
+			v.setLayoutParams(new LayoutParams(width/2, 2));
+			RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)v.getLayoutParams();
+			
+			starHeight = ((double) height) /  ((double) 100) * (perc_unit * (i + 1)) - 70 + 5;
+			if(i == lines.size() - 1){
+				float toolbar_dimens = getResources().getDimension(R.dimen.abc_action_bar_default_height_material);
+				starHeight = height- toolbar_dimens + 50;//100 + 5;
+			}
+			
+			c.drawBitmap(thumbs.get(i), (float)starHeight , 40,null); System.out.println(starHeight);
+//			params.setMargins(0,  totalHeight - ((int) starHeight) - 30, 0, 0); //substitute parameters for left, top, right, bottom
+//			v.setLayoutParams(params);
+//			v.setBackgroundColor(getResources().getColor(R.color.red));
+		}
+//		line1 = parent.findViewById(R.id.redLine1);		
+//		line1.setLayoutParams(new LayoutParams(width/2, 2));
+//		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)line1.getLayoutParams();
+//		params.setMargins(0,  totalHeight - ((int) starHeight) - 30, 0, 0); //substitute parameters for left, top, right, bottom
+//		line1.setLayoutParams(params);
+//		line1.setBackgroundColor(getResources().getColor(R.color.red));
 		
-		System.out.println("starheight " + starHeight);
-		c.drawBitmap(thumb1, (float)starHeight , 40,null);
+//		c.drawBitmap(thumb1, (float)starHeight , 40,null);
         
         
 		super.onDraw(c);
@@ -81,8 +118,10 @@ public class VerticalSeekBar extends SeekBar {
 		thumb1 = BitmapFactory.decodeResource(getResources(), R.drawable.star);
 		//System.out.println("height " + height  + " progress " + progress);
 		starHeight = (((double) progress * ((double) height)) /(double) 100) + 5;
-		if(starHeight >= height)
-			starHeight = height - 60 + 5;
+		if(starHeight >= height){
+			float toolbar_dimens = getResources().getDimension(R.dimen.abc_action_bar_default_height_material);
+			starHeight = height - toolbar_dimens;//100 + 5;
+		}
 		//System.out.println(starHeight);
 		invalidate();
 		
@@ -92,9 +131,18 @@ public class VerticalSeekBar extends SeekBar {
 		totalHeight = height;
 	}
 	
-	public void goldStar(){
-//		thumb1 = BitmapFactory.decodeResource(getResources(), R.drawable.gold_star);
-//		invalidate();
+	public void setGoldStar(int position){
+		Bitmap goldenStar = BitmapFactory.decodeResource(getResources(), R.drawable.gold_star);
+		thumbs.set(position - 1, goldenStar);
+		invalidate();
+	}
+	
+	public void setInitialGoldenStars(int finalPosition, double unit){
+		perc_unit = unit;
+		Bitmap goldenStar = BitmapFactory.decodeResource(getResources(), R.drawable.gold_star);
+		for(int i = 0; i < finalPosition; i++)
+			thumbs.set(i, goldenStar);
+		invalidate();
 	}
 
 	/*

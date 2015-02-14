@@ -290,7 +290,7 @@ public class BuildingCard extends Card {
 												// microgoal
 
 					try {
-						System.out.println("on click micro");
+					
 						Microgoal microgoal = ClimbApplication.getMicrogoalByUserAndBuilding(pref.getInt("local_id", -1), building.get_id());
 						if (microgoal != null) {
 							MicrogoalText texts = ModelsUtil.getMicrogoalTextByStory(microgoal.getStory_id());// ClimbApplication.getMicrogoalTextByStory(microgoal.getStory_id());
@@ -319,14 +319,14 @@ public class BuildingCard extends Card {
 							for (int k = 0; k < checked_size; k++) {
 								int currents_steps = steps_per_part;
 								int check_steps = steps_per_part;
-								if (k == checked_size - 1 && resume != 0){
-									currents_steps += resume;
-									check_steps = currents_steps;
-								}else{
+								if (k == checked_size - 1 && resume != 0) {
+									check_steps = (currents_steps * (k + 1) + resume) ;
+									//						currents_steps += resume;
+								} else {
 									check_steps = steps_per_part * (k + 1);
 								}
 								steps[k] = String.format((steps_obj.getString(keys.next())), currents_steps);
-								checked[k] = microgoal.getDone_steps() >= check_steps ? true : false;
+								checked[k] = microgoal.getDone_steps() >= check_steps ? true : false; System.out.println("checked steps " + check_steps);
 								climbs[k] = currents_steps;
 							}
 
@@ -400,6 +400,7 @@ public class BuildingCard extends Card {
 							TextView perc = (TextView) dialog.findViewById(R.id.textPercentageDialog);
 							double percentage = Math.round(((double) microgoal.getDone_steps() / (double) microgoal.getTot_steps()) * 100);
 							pb.setIndeterminate(false);
+							if(percentage >= 100) percentage = 100;
 							pb.setProgress((int) percentage);
 							perc.setText(String.valueOf(percentage) + "%");
 

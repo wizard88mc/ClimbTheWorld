@@ -281,7 +281,12 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 
 				if (climbedYesterday && percentage > 0.25f && percentage < 0.50f && used_bonus == false && building.get_id() != 6) {
 					// bonus at 25%
-					apply_percentage_bonus();
+					int rest = apply_percentage_bonus();
+					boolean winMicrogoal = microgoal.getDone_steps() >= microgoal.getTot_steps();
+					if (winMicrogoal){
+						apply_win_microgoal();
+						microgoal.setDone_steps(microgoal.getDone_steps() + rest);
+					}
 				} else { // standard, no bonus
 					num_steps += vstep_for_rstep; // increase the number of steps
 					new_steps += vstep_for_rstep;
@@ -346,23 +351,30 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 		}
 	}
 
-	private void apply_percentage_bonus() {
+	private int apply_percentage_bonus() {
 		Log.i(MainActivity.AppName, "Applying percentage bonus");
 		percentage += percentage_bonus;
 		int old_steps = num_steps;
 		num_steps = (int) (((double) building.getSteps()) * percentage);
+		int gained_steps = num_steps - old_steps;
+		int remaining = microgoal.getTot_steps() - microgoal.getDone_steps();
+		int rest_micro_steps = 0;
+		if(gained_steps >= remaining)
+			rest_micro_steps = gained_steps - remaining;
+		microgoal.setDone_steps(microgoal.getDone_steps() + remaining);
 		// stopClassify();
 		used_bonus = true;
 		Toast.makeText(getApplicationContext(), getString(R.string.bonus), Toast.LENGTH_LONG).show();
 		enableRocket();
 		double progress = ((double) ((microgoal.getTot_steps() - microgoal.getDone_steps()) + num_steps) * (double) 100) / (double) building.getSteps();
-		seekbarIndicator.nextStar((int) Math.round(progress));
+		//seekbarIndicator.nextStar((int) Math.round(progress));
 		updateStats(); // update the view of current stats
 		if (mode == GameModeType.SOCIAL_CLIMB) {
 			seekbarIndicator.setProgress(num_steps + sumOthersStep());
 			setThresholdText();
 		} else
 			seekbarIndicator.setProgress(num_steps); // increase the seekbar progress
+		return rest_micro_steps;
 	}
 
 	private void apply_win() {
@@ -417,7 +429,21 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 	}
 
 	private void win_microgoal_animation(int bonus) {
-		seekbarIndicator.goldStar();
+		
+		//calculate interval 
+		int percentage = 5;
+		if(building.getSteps() < 6000)
+			percentage = 25;
+		else if(building.getSteps() >= 6000 && building.getSteps() <= 10000 )
+			percentage = 15;
+		
+		
+		
+		int unit = (int) Math.ceil((double) (building.getSteps()*percentage)/ (double) 100);
+		int final_pos = (int) Math.floor(((double) (num_steps)/ (double) unit));
+		if(num_steps == building.getSteps()) final_pos += 1;
+
+		seekbarIndicator.setGoldStar(final_pos);
 		/*
 		 * final TextView bonus_microgoal = (TextView) findViewById(R.id.bonusMicrogoal); bonus_microgoal.setText(getString(R.string.microgoal_terminated2, bonus)); Animation anim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.abc_slide_in_top); anim.setDuration(2000); anim.setAnimationListener(new AnimationListener() {
 		 * 
@@ -1332,7 +1358,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 								int new_seekbar_progress = num_steps + sumOthersStep();
 								seekbarIndicator.setProgress(new_seekbar_progress);
 								double progress = ((double) (new_seekbar_progress + (microgoal.getTot_steps() - microgoal.getDone_steps())) * (double) 100) / (double) (building.getSteps());
-								seekbarIndicator.nextStar((int) Math.round(progress));
+								//seekbarIndicator.nextStar((int) Math.round(progress));
 								for (; i < group_members.size(); i++) {
 									group_members.get(i).setClickable(false);
 									group_members.get(i).setVisibility(View.INVISIBLE);
@@ -1674,7 +1700,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			microgoal.setStory_id(story_id);
 			microgoal.setReward(5);
 			double progress = ((double) (tot_steps + num_steps) * (double) 100) / (double) building.getSteps();
-			seekbarIndicator.nextStar((int) Math.round(progress));
+			//seekbarIndicator.nextStar((int) Math.round(progress));
 			// if (!pref.getString("FBid", "none").equalsIgnoreCase("none") && !pref.getString("FBid", "none").equalsIgnoreCase("empty"))
 			if (!me.getFBid().equalsIgnoreCase("empty") && !me.getFBid().equalsIgnoreCase("none")) {
 				microgoal.setSaved(false);
@@ -1790,14 +1816,31 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
-		if (!setInitialStar) {
-			seekbarIndicator.setTotalHeight();
-			if (microgoal != null) {
-				double progress = ((double) ((microgoal.getTot_steps() - microgoal.getDone_steps()) + climbing.getCompleted_steps()) * (double) 100) / (double) building.getSteps();
-				seekbarIndicator.nextStar((int) Math.round(progress));
-			}
-			setInitialStar = true;
-		}
+//		if (!setInitialStar) {
+//			seekbarIndicator.setTotalHeight();
+//			if (microgoal != null) {
+//				double progress = ((double) ((microgoal.getTot_steps() - microgoal.getDone_steps()) + climbing.getCompleted_steps()) * (double) 100) / (double) building.getSteps();
+//				seekbarIndicator.nextStar((int) Math.round(progress));
+//			}
+//			setInitialStar = true;
+//		}
+		//int unit = (int) Math.floor(((double )building.getSteps() / (double)100) * 25);
+		//seekbarIndicator.setInitialGoldenStars(num_steps/unit);
+		
+		//calculate interval 
+				int percentage = 5;
+				if(building.getSteps() < 6000)
+					percentage = 25;
+				else if(building.getSteps() >= 6000 && building.getSteps() <= 10000 )
+					percentage = 15;
+				
+				
+				int unit = (int) Math.ceil((double) (building.getSteps()*percentage)/ (double) 100);
+				double perc_unit = Math.ceil(((double) (unit*100)/ (double) building.getSteps()));
+				int final_pos = (int) Math.floor(((double) (num_steps)/ (double) unit));
+				if(num_steps == building.getSteps()) final_pos += 1;
+				seekbarIndicator.setInitialGoldenStars(final_pos, perc_unit);
+		
 		super.onWindowFocusChanged(hasFocus);
 	}
 
@@ -2880,7 +2923,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 							int new_seekbar_progress = myTeamScore();
 							seekbarIndicator.setProgress(new_seekbar_progress);
 							double progress = (((double) (new_seekbar_progress + (microgoal.getTot_steps() - microgoal.getDone_steps())) * (double) 100) / (double) building.getSteps());
-							seekbarIndicator.nextStar((int) Math.round(progress));
+							//seekbarIndicator.nextStar((int) Math.round(progress));
 							secondSeekbar.setProgress(ModelsUtil.sum(otherTeam));
 
 							if (/* myGroupScore >= building.getSteps() */teamDuel.isCompleted() && Integer.valueOf(teamDuel.getWinner_id()) == teamDuel.getMygroup().ordinal()) {
@@ -3481,12 +3524,13 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 				Integer climbs[] = new Integer[checked_size];
 				Iterator<String> keys = steps_obj.keys();
 
+				
 				for (int k = 0; k < checked_size; k++) {
 					int currents_steps = steps_per_part;
 					int check_steps = steps_per_part;
 					if (k == checked_size - 1 && resume != 0) {
-						currents_steps += resume;
-						check_steps = currents_steps;
+						check_steps = (currents_steps * (k + 1) + resume) ;
+						//						currents_steps += resume;
 					} else {
 						check_steps = steps_per_part * (k + 1);
 					}
@@ -3550,6 +3594,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 				TextView perc = (TextView) dialog.findViewById(R.id.textPercentageDialog);
 				double percentage = Math.round(((double) microgoal.getDone_steps() / (double) microgoal.getTot_steps()) * 100);
 				pb.setIndeterminate(false);
+				if(percentage >= 100) percentage = 100;
 				pb.setProgress((int) percentage);
 				perc.setText(String.valueOf(percentage) + "%");
 
@@ -3703,7 +3748,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 				} else {
 					int bonus = Integer.valueOf(message);
 					ClimbApplication.bonus_notification += bonus;
-					mBuilder.setContentText(getString(R.string.notification_bonus) + ClimbApplication.bonus_notification);
+					mBuilder.setContentText(getString(R.string.notification_bonus, ClimbApplication.bonus_notification));
 					mBuilder.setDeleteIntent(PendingIntent.getService(ClimbActivity.this, requestID, deleteIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_ONE_SHOT)).setStyle(new NotificationCompat.BigTextStyle().bigText(getString(R.string.notification_bonus)
 							+ ClimbApplication.bonus_notification));
 

@@ -58,7 +58,31 @@
         android:layout_marginBottom="50dp" >
         
         <View
-            android:id="@+id/redLine"
+            android:id="@+id/redLine1"
+            android:layout_width="wrap_content"
+            android:layout_height="2dp"
+            android:background="@color/red"
+            android:layout_alignParentBottom="true"
+             />
+        
+         <View
+            android:id="@+id/redLine2"
+            android:layout_width="wrap_content"
+            android:layout_height="2dp"
+            android:background="@color/red"
+            android:layout_alignParentBottom="true"
+             />
+         
+          <View
+            android:id="@+id/redLine3"
+            android:layout_width="wrap_content"
+            android:layout_height="2dp"
+            android:background="@color/red"
+            android:layout_alignParentBottom="true"
+             />
+          
+           <View
+            android:id="@+id/redLine4"
             android:layout_width="wrap_content"
             android:layout_height="2dp"
             android:background="@color/red"
