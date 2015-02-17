@@ -9,8 +9,7 @@
     <string name="title_activity_profile">Your profile</string>
     <string name="title_activity_tour_detail">Tour detail</string>
     <string name="title_activity_gallery">Gallery</string>
-    <string name="title_activity_photo_pager_activity">Gallery</string>
-    <string name="title_activity_log">Log</string>    
+    <string name="title_activity_photo_pager_activity">Gallery</string>       
     <string name="app_id">1444608782432270</string>
     <!--  <string name="app_name">ClimbTheWorld</string> -->
     <!-- <string name="app_id">370546396320150</string> -->
@@ -18,6 +17,10 @@
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_fbpick_friend">FBPickFriendActivity</string>
 
+    
+    <!-- Show Log menu-->
+    <string name="title_activity_log">Log</string> 
+    
     <!-- Show Log  -->
     <string name="refresh_log_data">Refresh</string>
     <string name="upload_log_data">Upload</string>

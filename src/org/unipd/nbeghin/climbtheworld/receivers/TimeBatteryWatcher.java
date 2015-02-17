@@ -30,6 +30,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
 import android.os.BatteryManager;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -203,7 +204,8 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    		Log.d(MainActivity.AppName + " - TEST","TimeBatteryWatcher - on boot, new index: "+currentDayIndex+", new date: " + dateFormatted);	
 		    	}	
 		    	
-		    	//si reimposta il repeating alarm per l'update dell'indice artificiale, in quanto
+		    	
+		    	//si reimposta l'alarm per l'update dell'indice artificiale, in quanto
 		    	//dopo un reboot del device quello impostato in precedenza non viene lanciato; 
 		    	//quest'ultimo viene prima cancellato attraverso l'alarm manager		    	
 		    	Intent update_index_intent = new Intent(context, TimeBatteryWatcher.class);
@@ -211,14 +213,25 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				alarmManager.cancel(PendingIntent.getBroadcast(context, 0, update_index_intent, 0));
 		    	//si reimposta l'alarm per l'update dell'indice artificiale
 				Calendar calendar = Calendar.getInstance();
-		    	//si imposta a partire dalla mezzanotte del giorno successivo
+				//si imposta per la mezzanotte del giorno successivo
 		    	calendar.add(Calendar.DATE, 1); 
 		    	calendar.set(Calendar.HOUR_OF_DAY, 0);
 		    	calendar.set(Calendar.MINUTE, 0);
 		    	calendar.set(Calendar.SECOND, 0); 
-		    	//si ripete l'alarm ogni giorno a mezzanotte
+		    	
+				if(Build.VERSION.SDK_INT < 19){
+					alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), PendingIntent.getBroadcast(context, 0, update_index_intent, 0));					
+				}
+				else{
+					//se nel sistema sta eseguendo una versione di Android con API >=19
+    	    		//allora è necessario invocare il metodo setExact
+					alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), PendingIntent.getBroadcast(context, 0, update_index_intent, 0));
+				}
+		    	
+		    	/*
 		    	alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
 		    			AlarmManager.INTERVAL_DAY, PendingIntent.getBroadcast(context, 0, update_index_intent, 0));
+				*/
 				
 		    	if(MainActivity.logEnabled){
 		    		Log.d(MainActivity.AppName + " - TEST","TimeBatteryWatcher - set update day index alarm");
@@ -362,7 +375,16 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			    		//si crea il pending intent creando dapprima un intent con tutti i
 			    		//dati dell'alarm per identificarlo in modo univoco
 			    		PendingIntent pi = AlarmUtils.createPendingIntent(context, current_next_alarm, new int[]{alarmTime.get(Calendar.DATE), alarmTime.get(Calendar.MONTH), alarmTime.get(Calendar.YEAR)});
-			    		alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime.getTimeInMillis(), pi);
+			    					    		
+			    		if(Build.VERSION.SDK_INT < 19){
+			    			alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime.getTimeInMillis(), pi);			
+						}
+						else{
+							//se nel sistema sta eseguendo una versione di Android con API >=19
+		    	    		//allora è necessario invocare il metodo setExact
+							alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTime.getTimeInMillis(), pi);
+						}
+			    		
 			    		
 			    		if(MainActivity.logEnabled){
 			    			Log.d(MainActivity.AppName,"On boot - the previous alarm is valid; we set the same alarm");		
@@ -557,24 +579,45 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 	    	if(MainActivity.logEnabled){
 	    		Log.d(MainActivity.AppName + " - TEST","TimeBatteryWatcher - on update index, new index: "+pref.getInt("artificialDayIndex", 0)+", new date: " + dateFormatted);
 	    	}
-	    			   	
-	    	/*
-	    	//utile settare il prossimo alarm se si porta avanti l'ora manualmente, saltando
-	    	//degli alarm in mezzo; prima si cerca di fermare il servizio di activity recognition,
-	    	//se questo è attivo, in quanto può partire per un alarm di start settato in precedenza,
-	    	//non ancora consumato, il cui tempo di inizio è già passato per lo spostamento 
-	    	//d'orario (quindi, si avvia subito)
+	    			 
 	    	
-	    	Intent activityRecognitionIntent = new Intent(context, ActivityRecognitionRecordService.class);
-		    context.stopService(activityRecognitionIntent);
+	    	//una volta consumato questo alarm per l'update dell'indice artificiale, viene prima
+	    	//cancellato ogni alarm di questo tipo attraverso l'alarm manager (solo per sicurezza)
+	    	//e poi lo si reimposta per la mezzanotte del giorno successivo
 	    	
-			//si cancella il next alarm settato in precedenza
-	    	int aa_id = pref.getInt("alarm_id", -1);
-			System.out.println("ID da cancellare " + aa_id);
-			AlarmUtils.cancelAlarm(context, AlarmUtils.getAlarm(context,aa_id));			
-			//si imposta e si lancia il prossimo alarm
-	    	AlarmUtils.setNextAlarm(context,AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,pref.getInt("current_template", -1))));	
-			*/
+	    	//riferimento all'alarm manager
+			final AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+	    	
+	    	Intent update_index_intent = new Intent(context, TimeBatteryWatcher.class);
+	    	update_index_intent.setAction("org.unipd.nbeghin.climbtheworld.UPDATE_DAY_INDEX_TESTING");  
+			alarmManager.cancel(PendingIntent.getBroadcast(context, 0, update_index_intent, 0));
+	    	//si reimposta l'alarm per l'update dell'indice artificiale
+			Calendar calendar = Calendar.getInstance();
+	    	//si imposta a partire dalla mezzanotte del giorno successivo
+	    	calendar.add(Calendar.DATE, 1); 
+	    	calendar.set(Calendar.HOUR_OF_DAY, 0);
+	    	calendar.set(Calendar.MINUTE, 0);
+	    	calendar.set(Calendar.SECOND, 0); 
+	    	
+			if(Build.VERSION.SDK_INT < 19){
+				alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), PendingIntent.getBroadcast(context, 0, update_index_intent, 0));					
+			}
+			else{
+				//se nel sistema sta eseguendo una versione di Android con API >=19
+	    		//allora è necessario invocare il metodo setExact
+				alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), PendingIntent.getBroadcast(context, 0, update_index_intent, 0));
+			}
+			/////////
+	    	if(MainActivity.logEnabled){
+	    		Log.d(MainActivity.AppName + " - TEST","TimeBatteryWatcher - set update day index alarm");
+	    		int month =calendar.get(Calendar.MONTH)+1;    	
+	        	Log.d(MainActivity.AppName + " - TEST", "TimeBatteryWatcher - UPDATE DAY INDEX ALARM: h:m:s=" 
+	    				+ calendar.get(Calendar.HOUR_OF_DAY)+":"+ calendar.get(Calendar.MINUTE)+":"+ calendar.get(Calendar.SECOND) +
+	    				"  "+calendar.get(Calendar.DATE)+"/"+month+"/"+calendar.get(Calendar.YEAR));        	
+	        	Log.d(MainActivity.AppName + " - TEST", "TimeBatteryWatcher - milliseconds of the update day index alarm: " + calendar.getTimeInMillis());
+	    	}
+	    	/////////
+	    	
 		}
 		/////////
 		else{				

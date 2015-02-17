@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
 import org.unipd.nbeghin.climbtheworld.AlgorithmConfigFragment;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionIntentService;
@@ -17,6 +18,7 @@ import org.unipd.nbeghin.climbtheworld.models.Alarm;
 import org.unipd.nbeghin.climbtheworld.receivers.StairsClassifierReceiver;
 import org.unipd.nbeghin.climbtheworld.services.ActivityRecognitionRecordService;
 import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
+
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -27,11 +29,11 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.os.AsyncTask;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.SparseIntArray;
-import android.widget.Toast;
+
 import com.j256.ormlite.android.AndroidConnectionSource;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
@@ -984,7 +986,16 @@ public final class AlarmUtils {
 		PendingIntent pi = createPendingIntent(context, nextAlarm, new int[]{alarmTime.get(Calendar.DATE), alarmTime.get(Calendar.MONTH), alarmTime.get(Calendar.YEAR)});
 		
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-		alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime.getTimeInMillis(), pi);
+		
+		if(Build.VERSION.SDK_INT < 19){
+			alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime.getTimeInMillis(), pi);
+		}
+		else{
+			//se nel sistema sta eseguendo una versione di Android con API >=19
+    		//allora è necessario invocare il metodo setExact
+			alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTime.getTimeInMillis(), pi);
+		}
+		
 		
 		if(MainActivity.logEnabled){
 			Log.d(MainActivity.AppName,"AlarmUtils - pending intent for next alarm set in the alarm manager");		

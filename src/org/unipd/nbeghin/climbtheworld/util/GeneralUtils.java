@@ -40,6 +40,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.res.AssetManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -170,10 +171,24 @@ public final class GeneralUtils {
         	    	calendar.set(Calendar.HOUR_OF_DAY, 0);
         	    	calendar.set(Calendar.MINUTE, 0);
         	    	calendar.set(Calendar.SECOND, 0); 
-        	    	//si ripete l'alarm ogni giorno a mezzanotte
+        	    	        	    	
+        	    	//si imposta l'alarm per la mezzanotte del giorno successivo (poi per ripeterlo
+        	    	//ogni giorno alla stessa ora si reimposta una volta consumato/al boot del device);
+        	    	//non si usa il metodo setRepeating perché a partire dalle API 19 esso imposta 
+        	    	//alarm inesatti
+        	    	if(Build.VERSION.SDK_INT < 19){
+        	    		alarmMgr.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), PendingIntent.getBroadcast(context, 0, intent, 0));
+        	    	}
+        	    	else{ 
+        	    		//se nel sistema sta eseguendo una versione di Android con API >=19
+        	    		//allora è necessario invocare il metodo setExact
+        	    		alarmMgr.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), PendingIntent.getBroadcast(context, 0, intent, 0));
+        	    	}
+        	    	
+        	    	/*
         	    	alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
         	    			AlarmManager.INTERVAL_DAY, PendingIntent.getBroadcast(context, 0, intent, 0));
-        	    	    	
+        	       	*/
         	    	if(MainActivity.logEnabled){
         	    		Log.d(MainActivity.AppName + " - TEST","GeneralUtils - init index: 0, init date: " + dateFormatted);	
         	    		Log.d(MainActivity.AppName + " - TEST","GeneralUtils - set update day index alarm");
