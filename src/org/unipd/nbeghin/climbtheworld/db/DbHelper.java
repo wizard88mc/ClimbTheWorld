@@ -1,12 +1,10 @@
 package org.unipd.nbeghin.climbtheworld.db;
 
 import org.unipd.nbeghin.climbtheworld.models.Alarm;
-import org.unipd.nbeghin.climbtheworld.models.AlarmTimeTemplate;
 import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.BuildingTour;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Photo;
-import org.unipd.nbeghin.climbtheworld.models.TimeTemplate;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
 
 import android.content.Context;
@@ -32,8 +30,6 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
 	
 	
 	private RuntimeExceptionDao<Alarm, Integer> alarmRuntimeDao = null;
-	private RuntimeExceptionDao<TimeTemplate, Integer> timeTemplateRuntimeDao = null;
-	private RuntimeExceptionDao<AlarmTimeTemplate, Integer> alarmTimeTemplateRuntimeDao = null;
 	
 
 	private DbHelper(Context context) {
@@ -115,21 +111,7 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
 		}
 		return alarmRuntimeDao;
 	}
-	
-	public RuntimeExceptionDao<TimeTemplate, Integer> getTimeTemplateDao() {
-		if (timeTemplateRuntimeDao == null) {
-				timeTemplateRuntimeDao = getRuntimeExceptionDao(TimeTemplate.class);
-		}
-		return timeTemplateRuntimeDao;
-	}
-	
-	public RuntimeExceptionDao<AlarmTimeTemplate, Integer> getAlarmTimeTemplateDao() {
-		if (alarmTimeTemplateRuntimeDao == null) {
-				alarmTimeTemplateRuntimeDao = getRuntimeExceptionDao(AlarmTimeTemplate.class);
-		}
-		return alarmTimeTemplateRuntimeDao;
-	}
-		
+			
 	
     public String getDbPath() {
         return this.getReadableDatabase().getPath();
@@ -148,7 +130,5 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
 		photoRuntimeDao = null;
 				
 		alarmRuntimeDao=null;
-		timeTemplateRuntimeDao=null;
-		alarmTimeTemplateRuntimeDao=null;
 	}
 }
