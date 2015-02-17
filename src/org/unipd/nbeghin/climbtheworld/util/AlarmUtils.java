@@ -4,9 +4,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
-
 import org.unipd.nbeghin.climbtheworld.AlgorithmConfigFragment;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionIntentService;
@@ -16,7 +17,7 @@ import org.unipd.nbeghin.climbtheworld.models.Alarm;
 import org.unipd.nbeghin.climbtheworld.receivers.StairsClassifierReceiver;
 import org.unipd.nbeghin.climbtheworld.services.ActivityRecognitionRecordService;
 import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
-
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -31,7 +32,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.widget.Toast;
-
 import com.j256.ormlite.android.AndroidConnectionSource;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
@@ -534,8 +534,8 @@ public final class AlarmUtils {
 							//si ottiene il relativo alarm di start (esiste sicuramente)
 							Alarm prev_start= getAlarm(context, id_this_alarm-1); 
 							
-							//String extra_str="a device spento)";
-							String extra_str="DS";
+							//String extra_str="a device spento)"; //ad algoritmo non attivo
+							String extra_str="NA";
 							if(!prevAlarmNotAvailable){
 								//extra_str="ad algoritmo non ancora configurato)";
 								extra_str="NC";
@@ -1473,53 +1473,121 @@ public final class AlarmUtils {
 	}
 	
 
-	private static ArrayList<IntPair> getPossibleTriggerSetPairs(ArrayList<ArrayList<Alarm>> activeSets){
+	@SuppressLint("UseSparseArrays")
+	private static Map<Long,IntPair> getPossibleTriggerSetPairs(Context context, ArrayList<ArrayList<Alarm>> activeSets){
+		
+		//in input si ha la lista di gruppi di intervalli consecutivi attivi (un gruppo è formato
+		//da almeno 3 e al massimo da 12 intervalli); questo metodo viene chiamato nel caso ci siano
+		//almeno 2 gruppi di intervalli (altrimenti viene considerato l'unico gruppo)
 		
 		int i=0;
+		//si ottiene il numero di gruppi trovati
 		int size = activeSets.size();
 		
-		long time_distance = 21600000;
+		//considerando una coppia di gruppi, la distanza temporale tra il primo intervallo del primo
+		//gruppo e il primo intervallo del secondo gruppo deve essere >= 6 ore; dal momento che
+		//un gruppo è formato al massimo da 12 intervalli da 5 minuti, ci sono almeno 6 ore di
+		//differenza tra un trigger e l'altro (i due trigger saranno infatti i primi intervalli dei gruppi)
 		
-		ArrayList<IntPair> pairs = new ArrayList<IntPair>();
+		long time_distance = 21600000;  //6 ore in millisecondi
+		
+		//lista di coppie di interi che indicano le possibili coppie di gruppi dalle quali ricavare i
+		//2 trigger; si ritorna una HashMap per poi ordinarla per chiave
+		Map<Long, IntPair> pairs = new HashMap<Long, IntPair>();
 						
 		boolean stop=false;
 		
 		while(!stop){
 			
-			Alarm first_alarm_first_set = activeSets.get(i).get(0);
+			//si recupera la coppia di gruppi di indice (i, size-i-1), cioè formata dal primo
+			//gruppo non considerato a partire dall'inizio e dal primo gruppo non considerato a
+			//partire dalla fine (così facendo, dal momento che i gruppi sono ordinati per orario
+			//crescente, se una coppia di gruppi più esterna non soddisfa la condizione >= 6 ore,
+			//ci si ferma subito perché neanche quelle più interne la soddisferanno)
 			
-			ArrayList<Alarm> secondSet = activeSets.get(size-i-1);
-			Alarm last_alarm_second_set = secondSet.get(secondSet.size()-1);
+			//si recupera il primo alarm (di start) del primo gruppo non considerato a partire
+			//dall'inizio
+			Alarm first_alarm_first_set =(activeSets.get(i)).get(0);
+			int first_alarm_first_set_id = first_alarm_first_set.get_id();
+			//si recupera il primo alarm (di start) del primo gruppo non considerato a partire
+			//dalla fine
+			int end_index=size-i-1;
+			Alarm first_alarm_second_set = (activeSets.get(end_index)).get(0); //per ultimo: secondSet.size()-1
+			int first_alarm_second_set_id = first_alarm_second_set.get_id();
+			//Alarm last_alarm_second_set = getAlarm(context, last_start_alarm_second_set.get_id()+1);			
 						
-			if(getTimeDistance(first_alarm_first_set, last_alarm_second_set, false) >= time_distance){
+			//si recupera anche il primo alarm del gruppo precedente al primo
+			Alarm first_alarm_prev_first_set = (activeSets.get(i-1)).get(0);
+			int first_alarm_prev_first_set_id = first_alarm_prev_first_set.get_id();
+			//si recupera anche il primo alarm del gruppo successivo al secondo
+			Alarm first_alarm_next_second_set = (activeSets.get(end_index+1)).get(0);		
+			int first_alarm_next_second_set_id = first_alarm_next_second_set.get_id();
+			
+			//se il primo intervallo del primo gruppo e il primo intervallo del secondo gruppo 
+			//distano almeno 6 ore, allora si tiene la coppia di alarm
+			long time = getTimeDistance(first_alarm_first_set, first_alarm_second_set, false);
+						
+			if(i < end_index){
 				
-				pairs.add(new IntPair(i,size-i-1));
-				
-				if(i!=0){
-					pairs.add(new IntPair(i,size-i));
-					pairs.add(new IntPair(i-1,size-i-1));
-				}				
-			}
-			else{
-				
-				if(i!=0){
+				if(time >= time_distance){
 					
-					Alarm first_alarm_previous_first_set = activeSets.get(i-1).get(0);
+					pairs.put(time, new IntPair(first_alarm_first_set_id,first_alarm_second_set_id));
 					
-					if(getTimeDistance(first_alarm_previous_first_set, last_alarm_second_set, false) >= time_distance){
-						pairs.add(new IntPair(i-1,size-i-1));
+					if(i!=0){
+						//si tengono anche le coppie (1o alarm gruppo precedente al primo, 1o alarm secondo gruppo)
+						//e (1o alarm primo gruppo, 1o alarm gruppo successivo al secondo) in quanto
+						//anch'esse soddisfano la condizione >= 6 ore;
+						//la coppia indicata con (1o alarm gruppo precedente al primo, 1o alarm gruppo successivo al secondo)
+						//è stata aggiunta all'iterazione precedente
+											
+						pairs.put(getTimeDistance(first_alarm_first_set, first_alarm_next_second_set, false),
+								new IntPair(first_alarm_first_set_id,first_alarm_next_second_set_id));
+											
+						pairs.put(getTimeDistance(first_alarm_prev_first_set, first_alarm_second_set, false),
+								new IntPair(first_alarm_prev_first_set_id,first_alarm_second_set_id));					
+					}
+				}
+				else{
+					
+					if(i!=0){
+						
+						long prev_first_second_time = getTimeDistance(first_alarm_prev_first_set, first_alarm_second_set, false);
+						if( prev_first_second_time >= time_distance){
+							pairs.put(prev_first_second_time, new IntPair(first_alarm_prev_first_set_id,first_alarm_second_set_id));
+						}					
+						
+						long first_next_second_time = getTimeDistance(first_alarm_first_set, first_alarm_next_second_set, false);
+						if( first_next_second_time >= time_distance){
+							pairs.put(first_next_second_time, new IntPair(first_alarm_first_set_id,first_alarm_next_second_set_id));
+						}
 					}
 					
-					secondSet = activeSets.get(size-i);
-					Alarm last_alarm_next_second_set = secondSet.get(secondSet.size()-1);
+					stop=!stop;
+				}
+				
+				
+				if(i!=0){
+					//si misura la distanza temporale tra il primo alarm del gruppo di indice 'i'
+					//e quello del gruppo di indice 'i-1'								
+					long prev_time = getTimeDistance(first_alarm_prev_first_set, first_alarm_first_set, false);
+					if(prev_time >= time_distance){
+						pairs.put(prev_time, new IntPair(first_alarm_prev_first_set_id,first_alarm_first_set_id));
+					}
 					
-					if(getTimeDistance(first_alarm_first_set, last_alarm_next_second_set, false) >= time_distance){
-						pairs.add(new IntPair(i,size-1));
+					//si misura la distanza temporale tra il primo alarm del gruppo di indice 'end_index'
+					//e quello del gruppo di indice 'end_index+1'					
+					long next_time = getTimeDistance(first_alarm_second_set, first_alarm_next_second_set, false);
+					if(next_time >= time_distance){
+						pairs.put(next_time, new IntPair(first_alarm_second_set_id,first_alarm_next_second_set_id));
 					}
 				}
 				
+				i++; //si incrementa l'indice per considerare la prossima coppia
+			}
+			else{
 				stop=!stop;
 			}
+			
 		}
 		
 		return pairs;		

@@ -84,6 +84,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			//nelle shared preferences si salva l'informazione che indica il livello di batteria 
 			//pref.edit().putBoolean("low_battery_status", true).commit();
 			
+			/*
 			Log.d(MainActivity.AppName, "TimeBatteryWatcher - BATTERY LOW");
 			
 			IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
@@ -94,53 +95,11 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			float batteryPct = level / (float)scale;
 			
 			LogUtils.writeLogFile(context, "TimeBatteryWatcher - BATTERY LOW, "+dateFormat.format((Calendar.getInstance()).getTime())+" level: "+level+", scale: "+scale+", BATTERY: "+batteryPct);
-			
-			/*
-			int alarm_id=pref.getInt("alarm_id", -1);
-						
-			if(pref.getBoolean("algorithm_configured", false) && alarm_id!=-1){	
-				
-				//si recupera il prossimo alarm impostato in precedenza
-				Alarm current_next_alarm = AlarmUtils.getAlarm(context, alarm_id);
-				//se è di stop significa che si è all'interno di un intervallo attivo e, quindi,
-				//si ferma il classificatore eventualmente in esecuzione
-				if(!current_next_alarm.get_actionType()){
-				 					
-					if(!current_next_alarm.isStepsInterval(pref.getInt("artificialDayIndex", 0))){
-						if(GeneralUtils.isActivityRecognitionServiceRunning(context)){
-							Log.d(MainActivity.AppName,"BATTERY LOW - Stop activity recognition");
-						   	context.stopService(new Intent(context, ActivityRecognitionRecordService.class));
-						}
-					}
-					else{
-						
-						if(!ClimbActivity.samplingEnabled){
-							Log.d(MainActivity.AppName,"BATTERY LOW - Gioco non attivo, si ferma il classificatore scalini");
-							
-							context.getApplicationContext().stopService(new Intent(context, SamplingClassifyService.class));
-							//si disabilita anche il receiver
-							//context.getApplicationContext().unregisterReceiver(stairsReceiver);
-							context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
-						}	
-					}
-				}
-				//in ogni caso si cancella dall'alarm manager l'alarm precedentemente impostato 
-		    	//AlarmUtils.cancelAlarm(context, );	
-				
-				
-				
-				
-			}
-			
-			*/	
-			
-			
-			
-			
+			*/
 			
 		}
 		else if(action.equalsIgnoreCase(Intent.ACTION_BATTERY_OKAY)){
-			
+			/*
 			Log.d(MainActivity.AppName, "TimeBatteryWatcher - BATTERY OKAY");
 
 			IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
@@ -151,14 +110,14 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			float batteryPct = level / (float)scale;
 			
 			LogUtils.writeLogFile(context, "TimeBatteryWatcher - BATTERY OKAY, "+dateFormat.format((Calendar.getInstance()).getTime())+" level: "+level+", scale: "+scale+", BATTERY: "+batteryPct);
-			
+			*/
 		}		
 		//se il device ha completato il boot
 		else if (action.equalsIgnoreCase(Intent.ACTION_BOOT_COMPLETED)) {
 			
 			Log.d(MainActivity.AppName, "TimeBatteryWatcher - BOOT ACTION");
 			
-			LogUtils.writeLogFile(context, "TimeBatteryWatcher - BOOT ACTION");
+			//LogUtils.writeLogFile(context, "TimeBatteryWatcher - BOOT ACTION");
 			
 			//riferimento all'alarm manager
 			final AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
