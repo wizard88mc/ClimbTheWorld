@@ -403,8 +403,8 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    	//è utile per attuare il bilanciamento energetico        	    	
     	    	Intent battery_intent = new Intent(context, TimeBatteryWatcher.class);
     	    	battery_intent.setAction("org.unipd.nbeghin.climbtheworld.BATTERY_ENERGY_BALANCING");    	
-    	    	//si ripete l'alarm circa ogni ora (il primo lancio avviene entro 10 minuti dal boot)
-    	    	alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 600000,
+    	    	//si ripete l'alarm circa ogni ora (il primo lancio avviene entro 5 minuti dal boot)
+    	    	alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 300000,
     	    			3600000, PendingIntent.getBroadcast(context, 0, battery_intent, 0));		    	
 			}
 		}
