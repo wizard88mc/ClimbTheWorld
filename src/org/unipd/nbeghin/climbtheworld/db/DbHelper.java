@@ -6,7 +6,6 @@ import org.unipd.nbeghin.climbtheworld.models.Building;
 import org.unipd.nbeghin.climbtheworld.models.BuildingTour;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Photo;
-import org.unipd.nbeghin.climbtheworld.models.DayStairs;
 import org.unipd.nbeghin.climbtheworld.models.TimeTemplate;
 import org.unipd.nbeghin.climbtheworld.models.Tour;
 
@@ -35,7 +34,6 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
 	private RuntimeExceptionDao<Alarm, Integer> alarmRuntimeDao = null;
 	private RuntimeExceptionDao<TimeTemplate, Integer> timeTemplateRuntimeDao = null;
 	private RuntimeExceptionDao<AlarmTimeTemplate, Integer> alarmTimeTemplateRuntimeDao = null;
-	private RuntimeExceptionDao<DayStairs, Integer> stairsHistoryRuntimeDao = null;
 	
 
 	private DbHelper(Context context) {
@@ -131,15 +129,7 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
 		}
 		return alarmTimeTemplateRuntimeDao;
 	}
-	
-
-	public RuntimeExceptionDao<DayStairs, Integer> getStairsHistoryDao() {
-		if (stairsHistoryRuntimeDao == null) {
-				stairsHistoryRuntimeDao = getRuntimeExceptionDao(DayStairs.class);
-		}
-		return stairsHistoryRuntimeDao;
-	}
-	
+		
 	
     public String getDbPath() {
         return this.getReadableDatabase().getPath();
@@ -160,6 +150,5 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
 		alarmRuntimeDao=null;
 		timeTemplateRuntimeDao=null;
 		alarmTimeTemplateRuntimeDao=null;
-		stairsHistoryRuntimeDao=null;
 	}
 }
