@@ -430,15 +430,15 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				//percentuale di batteria
 				float batteryPct = level / (float)scale;
 				
-				LogUtils.writeLogFile(context, "\nTimeBatteryWatcher - ENERGY BALANCING, "+dateFormat.format((Calendar.getInstance()).getTime())+" level: "+level+", scale: "+scale+", BATTERY: "+batteryPct);
+				//LogUtils.writeLogFile(context, "\nTimeBatteryWatcher - ENERGY BALANCING, "+dateFormat.format((Calendar.getInstance()).getTime())+" level: "+level+", scale: "+scale+", BATTERY: "+batteryPct);
 				
 				String toLog="";
 				
-				//se il livello di batteria è critico (<=10%) e non si sono già fatte le opportune
+				//se il livello di batteria è critico (<=20%) e non si sono già fatte le opportune
 				//correzioni, si sospende l'algoritmo (ascolto e trigger)
-				if(batteryPct<=0.1){
+				if(batteryPct<=0.2){
 				
-					toLog+="TimeBatteryWatcher - ENERGY BALANCING, LEVEL <=10%";
+					toLog+="TimeBatteryWatcher - ENERGY BALANCING, LEVEL <=20%";
 					
 					if(!pref.getBoolean("low_battery_status", false)){
 						
@@ -484,7 +484,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				}
 				else {
 					
-					toLog+="TimeBatteryWatcher - ENERGY BALANCING, LEVEL >10%";
+					toLog+="TimeBatteryWatcher - ENERGY BALANCING, LEVEL >20%";
 					
 					//se l'ultima volta è stato rilevato un livello di batteria critico, ora quest'ultimo
 					//si è alzato e, quindi, si fa ripartire l'algoritmo, impostando opportunamente il
@@ -512,25 +512,25 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					
 					boolean restart=false;
 					
-					//se il livello di batteria L è <=30% si abbassa la frequenza di aggiornamento
+					//se il livello di batteria L è <=45% si abbassa la frequenza di aggiornamento
 					//del servizio di activity recognition:
-					//se 10%<L<=20%: ogni 20 secondi, se 20%<L<=30%: ogni 10 secondi, 
-					//se L>30% ogni 5 secondi (impostazione di default)
-					if(batteryPct<=0.2){						
+					//se 20%<L<=30%: ogni 20 secondi, se 30%<L<=45%: ogni 10 secondi, 
+					//se L>45% ogni 5 secondi (impostazione di default)
+					if(batteryPct<=0.3){						
 						if(ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)!=20000){							
 							//si imposta la frequenza di aggiornamento a 20 secondi
 							ActivityRecognitionUtils.setDetectionIntervalMilliseconds(context, 20000);
 							restart=true;
 						}
 					}
-					else if(batteryPct<=0.3){					
+					else if(batteryPct<=0.45){					
 						if(ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)!=10000){
 							//si imposta la frequenza di aggiornamento a 10 secondi
 							ActivityRecognitionUtils.setDetectionIntervalMilliseconds(context, 10000);	
 							restart=true;
 						}						
 					}
-					else{ //batteryPct>0.3						
+					else{ //batteryPct>0.45						
 						if(ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)!=5000){
 							//si imposta la frequenza di aggiornamento a 5 secondi
 							ActivityRecognitionUtils.setDetectionIntervalMilliseconds(context, 5000);
@@ -545,7 +545,13 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						toLog+=", restart activity recognition service with "+ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)/1000+"-seconds update interval";
 					}
 				}
-				LogUtils.writeLogFile(context, toLog);
+				//LogUtils.writeLogFile(context, toLog);
+								
+				if(MainActivity.logEnabled){
+	    			Log.d(MainActivity.AppName,"TimeBatteryWatcher - ENERGY BALANCING, "+dateFormat.format((Calendar.getInstance()).getTime())+" level: "+level+", scale: "+scale+", BATTERY: "+batteryPct);		
+	    		    Log.d(MainActivity.AppName,toLog);
+				}
+				
 			}
 		}
 		/////////
