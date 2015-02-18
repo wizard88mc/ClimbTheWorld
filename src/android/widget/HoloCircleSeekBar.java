@@ -44,7 +44,7 @@ public class HoloCircleSeekBar extends View implements Parcelable{
 	private String text=new String();
 	private int conversion = 0;
 	private int max = 100;
-	private String color_attr;
+	private String main_color_attr;
 	private int color;
 	private SweepGradient s;
 	private Paint mArcColor;
@@ -187,7 +187,7 @@ public class HoloCircleSeekBar extends View implements Parcelable{
 				R.styleable.HoloCircleSeekBar_pointer_size, 48);
 		max = a.getInteger(R.styleable.HoloCircleSeekBar_max, 100);
 
-		color_attr = a.getString(R.styleable.HoloCircleSeekBar_color);
+		main_color_attr = a.getString(R.styleable.HoloCircleSeekBar_main_color);
 		wheel_color_attr = a
 				.getString(R.styleable.HoloCircleSeekBar_wheel_active_color);
 		wheel_unactive_color_attr = a
@@ -217,13 +217,13 @@ public class HoloCircleSeekBar extends View implements Parcelable{
 		if (init_position < start_arc)
 			init_position = calculateTextFromStartAngle(start_arc);
 
-		if (color_attr != null) {
+		if (main_color_attr != null) {
 			try {
-				color = Color.parseColor(color_attr);
+				color = Color.parseColor(main_color_attr);
 			} catch (IllegalArgumentException e) {
 				color = Color.CYAN;
 			}
-			color = Color.parseColor(color_attr);
+			color = Color.parseColor(main_color_attr);
 		} else {
 			color = Color.CYAN;
 		}
@@ -553,7 +553,7 @@ public class HoloCircleSeekBar extends View implements Parcelable{
 		dest.writeString(String.valueOf(block_end));
 		dest.writeString(String.valueOf(block_start));
 		dest.writeInt(color);
-		dest.writeString(color_attr);
+		dest.writeString(main_color_attr);
 		dest.writeInt(conversion);
 		dest.writeInt(end_wheel);
 		dest.writeInt(init_position);
@@ -606,7 +606,7 @@ public class HoloCircleSeekBar extends View implements Parcelable{
 		block_end = Boolean.getBoolean(in.readString());
 		block_start = Boolean.getBoolean(in.readString());
 		color = in.readInt();
-		color_attr = in.readString();
+		main_color_attr = in.readString();
 		conversion = in.readInt();
 		end_wheel = in.readInt();
 		init_position = in.readInt();
@@ -691,7 +691,7 @@ public class HoloCircleSeekBar extends View implements Parcelable{
     	bundle.putInt("wheel_color", wheel_color);    	
     	bundle.putBoolean("block_end", block_end);
     	bundle.putBoolean("block_start",block_start);
-    	bundle.putString("color_attr", color_attr);    	
+    	bundle.putString("main_color_attr", main_color_attr);    	
     	bundle.putBoolean("mUserIsMovingPointer",mUserIsMovingPointer);
     	bundle.putString("pointer_color_attr",pointer_color_attr);
     	bundle.putString("pointer_halo_color_attr",pointer_halo_color_attr);
@@ -731,7 +731,7 @@ public class HoloCircleSeekBar extends View implements Parcelable{
             text=bundle.getString("text");
             conversion=bundle.getInt("conversion");
             max=bundle.getInt("max");
-            color_attr=bundle.getString("color_attr");
+            main_color_attr=bundle.getString("main_color_attr");
             color=bundle.getInt("color");
             wheel_color_attr=bundle.getString("wheel_color_attr");
             wheel_unactive_color_attr=bundle.getString("wheel_unactive_color_attr");

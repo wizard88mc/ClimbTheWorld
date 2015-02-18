@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Random;
 
@@ -351,39 +353,39 @@ public final class AlarmUtils {
     	return helper.getAlarmDao().queryForAll();  
     }
 	
+    
+    public static long countAlarms(Context context){
+    	
+    	DbHelper helper = DbHelper.getInstance(context);
+    	
+    	return helper.getAlarmDao().countOf(); 
+    }
+    
 
     /**
      * Sets up the next alarm; it is also called to initialize the first alarm.
      * @param context context of the application.
-     * @param alarms list of all alarms saved in the database.
      * @param takeAllAlarms boolean indicating if the algorithm have to take all the alarms saved in the database.
      * @param prevAlarmNotAvailable boolean indicating if the previous alarm is no longer available.
      * @param current_alarm_id id of the current alarm, previously set.
      */
-	public static void setNextAlarm(Context context, List<Alarm> alarms, boolean takeAllAlarms, boolean prevAlarmNotAvailable, int current_alarm_id){
+	public static void setNextAlarm(Context context, boolean takeAllAlarms, boolean prevAlarmNotAvailable, int current_alarm_id){
 		//questo metodo serve per settare il prossimo alarm dopo averne consumato uno nell'apposito
 		//receiver; è chiamato inizialmente per	inizializzare il primo alarm
 		
+		//riferimento alle SharedPreferences
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-		
+		//riferimento alla dao degli alarm
 		RuntimeExceptionDao<Alarm, Integer> alarmDao = DbHelper.getInstance(context).getAlarmDao();    	
 		
 		//si usa l'indice artificiale per il test dell'algoritmo (altrimenti l'indice del
 		//giorno si può ricavare dalla data corrente) 
 		int artificialIndex = prefs.getInt("artificialDayIndex", 0);//context.getSharedPreferences("appPrefs", 0).getInt("artificialDayIndex", 0);
-		
-		
+				
 		int alarm_artificial_day_index=0;
 		
-		
-		if(MainActivity.logEnabled){
-			Log.d(MainActivity.AppName, "AlarmUtils - SetNextAlarm: list size " + alarms.size());
-			Log.d(MainActivity.AppName, "AlarmUtils - SetNextAlarm: list elements");
-			for (Alarm e : alarms) {		    
-				Log.d(MainActivity.AppName,"Alarm id: " + e.get_id() + " - hms: " + e.get_hour() + "," + e.get_minute() + "," + e.get_second());			
-			}
-		}
-		
+		//si recupera il numero di alarm salvati nel database
+		int alarms_number = prefs.getInt("alarms_number", 0);
 		
 		Alarm nextAlarm=null;
 		
@@ -413,11 +415,23 @@ public final class AlarmUtils {
 		
 		boolean stop=false;		
 				
-		//se si è al primo avvio dell'applicazione o all'evento di boot del device, allora
-		//per cercare il prossimo alarm si considera tutta la lista di alarm e si sceglie
-		//il primo che risulta valido per essere lanciato nel giorno corrente (o in uno
-		//successivo); in tal caso si esegue una ricerca binaria
+		//se si è al primo avvio dell'applicazione, all'evento di boot del device o se si sta
+		//per riavviare l'algoritmo, allora per cercare il prossimo alarm si considera tutta la
+		//lista di alarm e si sceglie il primo che risulta valido per essere lanciato nel giorno
+		//corrente (o in uno successivo); in tal caso si esegue una ricerca binaria
 		if(takeAllAlarms){ 
+			
+			//si recupera la lista di tutti gli alarm
+		    List<Alarm> alarms = getAllAlarms(context);
+			
+		    if(MainActivity.logEnabled){
+				Log.d(MainActivity.AppName, "AlarmUtils - SetNextAlarm: COUNT DB " + countAlarms(context));
+				Log.d(MainActivity.AppName, "AlarmUtils - SetNextAlarm: list size " + alarms.size());
+				Log.d(MainActivity.AppName, "AlarmUtils - SetNextAlarm: list elements");
+				for (Alarm e : alarms) {		    
+					Log.d(MainActivity.AppName,"Alarm id: " + e.get_id() + " - hms: " + e.get_hour() + "," + e.get_minute() + "," + e.get_second());			
+				}
+			}
 			
 			int begin = 0;
 			int end = alarms.size()-1;
@@ -490,7 +504,7 @@ public final class AlarmUtils {
 							System.out.println("next alarm non attivo e di start");
 													
 							//si prova ad effettuare la mutazione, attivando l'intervallo
-							if(!intervalMutated(nextAlarm, alarms, artificialIndex, alarmDao,context)){
+							if(!intervalMutated(nextAlarm, artificialIndex, alarmDao,context)){
 								
 								//si scrive nel file di log che questo intervallo non è stato
 								//mutato e, quindi, non viene valutato
@@ -601,7 +615,7 @@ public final class AlarmUtils {
 								//è un alarm di start
 										
 								//si prova ad effettuare la mutazione, attivando l'intervallo
-								stop=intervalMutated(e, alarms, artificialIndex, alarmDao,context);
+								stop=intervalMutated(e, artificialIndex, alarmDao,context);
 								if(stop){
 									nextAlarm=e;
 								}
@@ -707,15 +721,16 @@ public final class AlarmUtils {
 				 }					
 			}*/			
 		}
-		else{ //non si è al primo avvio dell'app o al boot del device
+		else{ //non si è al primo avvio dell'app o al boot del device o al riavvio dell'algoritmo
 			  //dato un certo alarm che è stato consumato, il prossimo alarm che viene
 			  //settato ha un id maggiore del precedente (infatti gli alarm sono ordinati
 			  //per orario); quindi, per cercare il prossimo alarm si parte dall'id
 			  //successivo a quello dell'alarm corrente (che ha id>=1, visto che nel database
-			  //gli id autoincrementanti partono da 1)
-					
-			for(int i=current_alarm_id+1; i<=alarms.size() && !stop; i++){
-				Alarm e = alarms.get(i-1);
+			  //gli id autoincrementanti partono da 1)			
+			
+			for(int i=current_alarm_id+1; i<=alarms_number && !stop; i++){ //i<=alarms.size()
+				
+				Alarm e = getAlarm(context, i); //alarms.get(i-1);
 				
 				
 				if(isLastListenedIntervalFarEnough(context, e, prevAlarmNotAvailable,0)){
@@ -728,7 +743,7 @@ public final class AlarmUtils {
 						if(e.get_actionType()){
 							//è un alarm di start						
 							//si prova ad effettuare la mutazione, attivando l'intervallo
-							stop=intervalMutated(e, alarms, artificialIndex, alarmDao, context);
+							stop=intervalMutated(e, artificialIndex, alarmDao, context);
 							if(stop){
 								nextAlarm=e;
 							}
@@ -831,9 +846,9 @@ public final class AlarmUtils {
 				currentIndex=getNextDayIndex(currentIndex);
 				/////////
 				
-				for(int i=0; i<alarms.size() && !stop; i++){
+				for(int i=1; i<=alarms_number && !stop; i++){ //int i=0; i<alarms.size()
 					
-					Alarm e = alarms.get(i);
+					Alarm e = getAlarm(context, i); //alarms.get(i);
 					
 					/////////
 					//PER TEST ALGORITMO: si fa sempre riferimento all'indice artificiale;
@@ -855,7 +870,7 @@ public final class AlarmUtils {
 								//è un alarm di start
 								
 								//si prova ad effettuare la mutazione, attivando l'intervallo
-								stop=intervalMutated(e, alarms, currentIndex, alarmDao, context);
+								stop=intervalMutated(e, currentIndex, alarmDao, context);
 								if(stop){
 									nextAlarm=e;
 								}
@@ -944,8 +959,9 @@ public final class AlarmUtils {
 		
 		
 		//prevAlarmNotAvailable==true: questo metodo è stato chiamato dopo il completamento
-		//del boot perché l'alarm precedentemente impostato non è più valido; dopo aver
-		//trovato un nuovo alarm, se quest'ultimo è di stop significa che si è all'interno di
+		//del boot perché l'alarm precedentemente impostato non è più valido, current_alarm_id==-1:
+		//questo metodo è stato invocato subito dopo la configurazione iniziale dell'algoritmo; dopo
+		//aver trovato un nuovo alarm, se quest'ultimo è di stop significa che si è all'interno di
 		//un nuovo intervallo attivo: si fa ripartire il classificatore Google/scalini
 		if((prevAlarmNotAvailable || current_alarm_id==-1) && !nextAlarm.get_actionType()){
 						 
@@ -988,12 +1004,17 @@ public final class AlarmUtils {
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		
 		if(Build.VERSION.SDK_INT < 19){
+			
+			System.out.println("API "+ Build.VERSION.SDK_INT +", SET next alarm");
+			
 			alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime.getTimeInMillis(), pi);
 		}
 		else{
 			//se nel sistema sta eseguendo una versione di Android con API >=19
     		//allora è necessario invocare il metodo setExact
 			alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTime.getTimeInMillis(), pi);
+			
+			System.out.println("API "+ Build.VERSION.SDK_INT +", SET EXACT next alarm");
 		}
 		
 		
@@ -1040,8 +1061,8 @@ public final class AlarmUtils {
 	 
 	
 	
-	private static boolean intervalMutated(Alarm a_start, List<Alarm> alarms, 
-			int current_day_index, RuntimeExceptionDao<Alarm, Integer> alarmDao, Context context){
+	private static boolean intervalMutated(Alarm a_start, int current_day_index, 
+			RuntimeExceptionDao<Alarm, Integer> alarmDao, Context context){
 		
 		//la probabilità di attivare l'intervallo è data dalla sua valutazione v
 		//(0 <= v <= valore_soglia) 
@@ -1070,7 +1091,7 @@ public final class AlarmUtils {
 			//si recupera dalla lista il relativo alarm di stop 
 			//(c'è sicuramente visto che un alarm di start deve essere seguito
 			//dal suo alarm di stop)
-			Alarm a_stop = alarms.get(id_start);//'id_start' perché indice_lista = alarm_id-1 
+			Alarm a_stop = getAlarm(context, id_stop); //alarms.get(id_start);//'id_start' perché indice_lista = alarm_id-1 
 			System.out.println("Alarm stop: id: "+a_stop.get_id()+" index: "+id_start);
 			a_stop.setRepeatingDay(current_day_index, true);
 			a_stop.setStepsInterval(current_day_index, false);
@@ -1416,7 +1437,7 @@ public final class AlarmUtils {
 	
 	
 	
-	private static ArrayList<ArrayList<Alarm>> getActiveIntervalSets(Context context){
+	private static ArrayList<ArrayList<Alarm>> getActiveIntervalSets(Context context, int alarms_number){
 		
 		//si recupera l'indice del giorno corrente
 		int day_index = PreferenceManager.getDefaultSharedPreferences(context).getInt("artificialDayIndex", 0);//context.getSharedPreferences("appPrefs", 0).getInt("artificialDayIndex", 0);
@@ -1485,7 +1506,7 @@ public final class AlarmUtils {
 	
 
 	@SuppressLint("UseSparseArrays")
-	private static Map<Long,IntPair> getPossibleTriggerSetPairs(Context context, ArrayList<ArrayList<Alarm>> activeSets){
+	private static Map<Long,IntPair> getPossibleTriggerPairs(Context context, ArrayList<ArrayList<Alarm>> activeSets){
 		
 		//in input si ha la lista di gruppi di intervalli consecutivi attivi (un gruppo è formato
 		//da almeno 3 e al massimo da 12 intervalli); questo metodo viene chiamato nel caso ci siano
@@ -1606,7 +1627,48 @@ public final class AlarmUtils {
 	
 	
 	
+	/*
+	private static IntPair getBestTriggerPair(Context context, ArrayList<Alarm> alarms, Map<Long,IntPair> triggerPairs){
+		
+		Alarm first_alarm = alarms.get(0);
+		
+		Alarm last_alarm = alarms.get(alarms.size()-1);
+		
+		
+		//si ordinano le distanze temporali tra le coppie di possibili trigger trovate		
+		List<Long> sortedKeys=new ArrayList<Long>(triggerPairs.keySet());
+		Collections.sort(sortedKeys);
+		
+		//si itera dalla coppia di trigger a distanza maggiore
+		boolean stop = false;		
+		ListIterator<Long> it = sortedKeys.listIterator(sortedKeys.size());
+		
+		while(!stop && it.hasPrevious()){
+			
+			//si recupera la coppia di trigger
+			IntPair triggerPair = triggerPairs.get(it.next());
+		    
+			//Alarm 
+			
+			
+		    
+		}
+		
+		
+	}
+	*/
 	
+	
+	
+	private static void setTriggers(){
+		
+		
+		
+		
+		//alla fine imposto i due trigger tramite shared preferences: 2 interi e data completa giorno
+		
+		
+	}
 	
 	
 	

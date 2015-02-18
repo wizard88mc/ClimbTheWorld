@@ -27,7 +27,7 @@ public class SetNextAlarmIntentService extends IntentService {
 			boolean prevAlarmNotAvailable = intent.getBooleanExtra("prevAlarmNotAvailable", false);
 			
 			//si imposta e si lancia il prossimo alarm
-	    	AlarmUtils.setNextAlarm(getApplicationContext(),AlarmUtils.getAllAlarms(getApplicationContext()),takeAllAlarms,prevAlarmNotAvailable,current_alarm_id);		
+	    	AlarmUtils.setNextAlarm(getApplicationContext(),takeAllAlarms,prevAlarmNotAvailable,current_alarm_id);		
 		}		
 	}
 

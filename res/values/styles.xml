@@ -25,7 +25,7 @@
 		<item name="buttonBarButtonStyle">@style/ButtonBarButton</item>
 		<item name="actionBarStyle">@style/FullscreenActionBarStyle</item>
 		<item name="actionBarTabTextStyle">@style/MyActionBarTabText</item>
-		<item name="actionBarTabStyle">@style/MyActionBarTabView</item>
+		<!--  <item name="actionBarTabStyle">@style/MyActionBarTabView</item>-->
 		<item name="actionMenuTextColor">@color/white</item>
 		<item name="homeAsUpIndicator">@drawable/ic_action_previous_item</item>
 		<!-- <item name="android:windowContentOverlay">@null</item> -->
@@ -42,9 +42,9 @@
 	<style name="HoloTitleText" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
 		<item name="android:textColor">@android:color/white</item>
 	</style>
-	<style name="MyActionBarTabView" parent="Widget.AppCompat.Base.ActionBar.TabView">
+	<!--  <style name="MyActionBarTabView" parent="Widget.AppCompat.Base.ActionBar.TabView">
 		<item name="background">@drawable/ic_action_previous_item</item>
-	</style>
+	</style>  --> 
 	<style name="MyActionBarTabText" parent="@style/Widget.AppCompat.ActionBar.TabText">
 		<item name="android:textColor">@color/white</item>
 		<!-- The textColor property is backward compatible with the Support Library -->

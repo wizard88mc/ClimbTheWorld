@@ -65,7 +65,8 @@
         <activity
             android:name="org.unipd.nbeghin.climbtheworld.ClimbActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_climb"            
+            android:label="@string/title_activity_climb"
+            android:launchMode="singleTask"            
             android:parentActivityName="org.unipd.nbeghin.climbtheworld.MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullscreenTheme" >

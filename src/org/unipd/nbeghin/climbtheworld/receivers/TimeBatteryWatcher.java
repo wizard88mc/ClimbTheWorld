@@ -221,11 +221,13 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    	
 				if(Build.VERSION.SDK_INT < 19){
 					alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), PendingIntent.getBroadcast(context, 0, update_index_intent, 0));					
+					System.out.println("API "+ Build.VERSION.SDK_INT +", SET update intent");
 				}
 				else{
 					//se nel sistema sta eseguendo una versione di Android con API >=19
     	    		//allora è necessario invocare il metodo setExact
 					alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), PendingIntent.getBroadcast(context, 0, update_index_intent, 0));
+					System.out.println("API "+ Build.VERSION.SDK_INT +", SET EXACT update intent");
 				}
 		    	
 		    	/*
@@ -378,11 +380,13 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			    					    		
 			    		if(Build.VERSION.SDK_INT < 19){
 			    			alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime.getTimeInMillis(), pi);			
-						}
+			    			System.out.println("API "+ Build.VERSION.SDK_INT +", SET valid next alarm on-boot");
+			    		}
 						else{
 							//se nel sistema sta eseguendo una versione di Android con API >=19
 		    	    		//allora è necessario invocare il metodo setExact
 							alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTime.getTimeInMillis(), pi);
+							System.out.println("API "+ Build.VERSION.SDK_INT +", SET EXACT valid next alarm on-boot");
 						}
 			    		
 			    		
@@ -607,11 +611,13 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 	    	
 			if(Build.VERSION.SDK_INT < 19){
 				alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), PendingIntent.getBroadcast(context, 0, update_index_intent, 0));					
+				System.out.println("API "+ Build.VERSION.SDK_INT +", SET update intent midnight");
 			}
 			else{
 				//se nel sistema sta eseguendo una versione di Android con API >=19
 	    		//allora è necessario invocare il metodo setExact
 				alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), PendingIntent.getBroadcast(context, 0, update_index_intent, 0));
+				System.out.println("API "+ Build.VERSION.SDK_INT +", SET EXACT update intent midnight");
 			}
 			/////////
 	    	if(MainActivity.logEnabled){
