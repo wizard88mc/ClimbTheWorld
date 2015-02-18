@@ -386,7 +386,9 @@ public final class AlarmUtils {
 		
 		//si recupera il numero di alarm salvati nel database
 		int alarms_number = prefs.getInt("alarms_number", 0);
+				
 		
+		//riferimento all'alarm che si andrà ad impostare
 		Alarm nextAlarm=null;
 		
 		/*
@@ -412,6 +414,30 @@ public final class AlarmUtils {
 		//DA RIPRISTINARE CON SETTIMANA DI 7 GIORNI
 		//int today = alarmTime.get(Calendar.DAY_OF_WEEK)-1;
 		
+		
+		//si recupera l'id dell'alarm di stop dell'ultimo intervallo valutato
+		int last_evaluated_stop_alarm_id = prefs.getInt("last_evaluated_interval_stop_id",-1);			
+		//calendar per l'ultimo intervallo valutato
+		Calendar last_evaluated_interval_time = (Calendar) alarmTime.clone();	
+		
+		//se esiste un precedente intervallo valutato
+		if(last_evaluated_stop_alarm_id!=-1){
+			
+			//si recupera l'alarm di stop dell'ultimo intervallo valutato
+			Alarm last_evaluated=getAlarm(context, last_evaluated_stop_alarm_id);
+			
+			//si settano i parametri del calendar con data e ora dell'ultimo intervallo valutato
+			last_evaluated_interval_time.set(Calendar.HOUR_OF_DAY, last_evaluated.get_hour());
+			last_evaluated_interval_time.set(Calendar.MINUTE, last_evaluated.get_minute());
+			last_evaluated_interval_time.set(Calendar.SECOND, last_evaluated.get_second());
+			last_evaluated_interval_time.set(Calendar.DATE, prefs.getInt("last_evaluated_interval_alarm_date", -1));
+			last_evaluated_interval_time.set(Calendar.MONTH, prefs.getInt("last_evaluated_interval_alarm_month", -1));
+			last_evaluated_interval_time.set(Calendar.YEAR, prefs.getInt("last_evaluated_interval_alarm_year", -1));			
+		}
+		else{
+			last_evaluated_interval_time=null;
+		}
+			
 		
 		boolean stop=false;		
 				
@@ -477,7 +503,7 @@ public final class AlarmUtils {
 				//(disattivato) anche l'alarm di stop successivo)
 				
 				
-				if(isLastListenedIntervalFarEnough(context, nextAlarm, prevAlarmNotAvailable,0)){
+				if(isLastListenedIntervalFarEnough(context, nextAlarm, alarmTime, last_evaluated_interval_time, prevAlarmNotAvailable)){
 					
 					//se l'alarm non è attivato per questo giorno e se esso è di start, vuol dire
 					//che il relativo intervallo non è stato attivato per questo giorno					
@@ -597,7 +623,7 @@ public final class AlarmUtils {
 					/////////
 					
 					
-					if(isLastListenedIntervalFarEnough(context, e, prevAlarmNotAvailable,0)){
+					if(isLastListenedIntervalFarEnough(context, e, alarmTime, last_evaluated_interval_time, prevAlarmNotAvailable)){
 						
 						if(e.getRepeatingDay(artificialIndex)){
 							//l'alarm è attivato per questo giorno
@@ -733,7 +759,7 @@ public final class AlarmUtils {
 				Alarm e = getAlarm(context, i); //alarms.get(i-1);
 				
 				
-				if(isLastListenedIntervalFarEnough(context, e, prevAlarmNotAvailable,0)){
+				if(isLastListenedIntervalFarEnough(context, e, alarmTime, last_evaluated_interval_time, prevAlarmNotAvailable)){
 					
 					if(e.getRepeatingDay(artificialIndex)){
 						nextAlarm=e;
@@ -856,7 +882,7 @@ public final class AlarmUtils {
 					/////////
 					
 					
-					if(isLastListenedIntervalFarEnough(context, e, prevAlarmNotAvailable, days_added)){
+					if(isLastListenedIntervalFarEnough(context, e, alarmTime, last_evaluated_interval_time, prevAlarmNotAvailable)){
 						
 						//gli alarm hanno un istante di inizio sicuramente > di ora in quanto
 						//si stanno cercando in un giorno successivo a quello corrente
@@ -1236,62 +1262,47 @@ public final class AlarmUtils {
 	}
 	
 	
-	private static boolean isLastListenedIntervalFarEnough(Context context, Alarm current_alarm, boolean prevAlarmNotAvailable, int days_number_to_add){
-		
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-		
-		//si recupera l'id dell'alarm di stop dell'ultimo intervallo valutato
-		int last_evaluated_stop_alarm_id = prefs.getInt("last_evaluated_interval_stop_id",-1);
-		
+	private static boolean isLastListenedIntervalFarEnough(Context context, Alarm current_alarm, 
+			Calendar current_alarm_time, Calendar last_evaluated_interval_time, 
+			boolean prevAlarmNotAvailable){ //int days_number_to_add
+				
 		//se il metodo di set alarm è stato chiamato a causa del fatto che l'alarm precedentemente impostato
 		//non è più valido allora significa che l'alarm precedente si è concluso senza essere valutato;
 		//se non è mai stato valutato alcun intervallo allora si esce subito
-		if(prevAlarmNotAvailable || last_evaluated_stop_alarm_id==-1){
+		if(prevAlarmNotAvailable || last_evaluated_interval_time==null){ //last_evaluated_stop_alarm_id==-1
 			Log.d(MainActivity.AppName, "AlarmUtils - filtro bilanciamento energetico: OK (non più valido o nessuno ancora valutato)");
 			return true;
 		}
-				
-		long target_time_diff = 600000; 
 		
-		//si recupera l'alarm di stop dell'ultimo intervallo valutato
-		Alarm last_evaluated=getAlarm(context, last_evaluated_stop_alarm_id);	
+		//la distanza temporale tra l'intervallo corrente e l'ultimo valutato deve essere di
+		//almeno 10 minuti
+		long target_time_diff = 600000;
 		
-		Calendar current_alarm_time = Calendar.getInstance();
-		Calendar last_interval_time = (Calendar) current_alarm_time.clone();
-		
-		if(days_number_to_add>0){
-			current_alarm_time.add(Calendar.DATE, days_number_to_add);
-		}
+		//si impostano ora, minuti e secondi per il calendar dell'alarm corrente
 		current_alarm_time.set(Calendar.HOUR_OF_DAY, current_alarm.get_hour());
 		current_alarm_time.set(Calendar.MINUTE, current_alarm.get_minute());
 		current_alarm_time.set(Calendar.SECOND, current_alarm.get_second());
 		
-		int last_val_hh=last_evaluated.get_hour();
-		int last_val_mm=last_evaluated.get_minute();
-		
-		if(last_val_hh==23 && last_val_mm==59){
+		//caso particolare in cui l'ultimo intervallo valutato è l'ultimo della giornata (intervallo
+		//che finisce 5 secondi prima); in tal caso si aggiungono 5 secondi alla distanza target
+		if(last_evaluated_interval_time.get(Calendar.HOUR_OF_DAY)==23 
+				&& last_evaluated_interval_time.get(Calendar.MINUTE)==59){
 			target_time_diff+=5000;
 		}
 		
-		last_interval_time.set(Calendar.HOUR_OF_DAY, last_val_hh);
-		last_interval_time.set(Calendar.MINUTE, last_val_mm);
-		last_interval_time.set(Calendar.SECOND, last_evaluated.get_second());
-		last_interval_time.set(Calendar.DATE, prefs.getInt("last_evaluated_interval_alarm_date", -1));
-		last_interval_time.set(Calendar.MONTH, prefs.getInt("last_evaluated_interval_alarm_month", -1));
-		last_interval_time.set(Calendar.YEAR, prefs.getInt("last_evaluated_interval_alarm_year", -1));
-				
+		
 		//differenza di tempo tra i due alarm
-		long time_diff = current_alarm_time.getTime().getTime() - last_interval_time.getTime().getTime();
+		long time_diff = current_alarm_time.getTime().getTime() - last_evaluated_interval_time.getTime().getTime();
 		
 		if(MainActivity.logEnabled){
 			int alr_m=current_alarm_time.get(Calendar.MONTH)+1;  
-			int last_m=last_interval_time.get(Calendar.MONTH)+1;  
+			int last_m=last_evaluated_interval_time.get(Calendar.MONTH)+1;  
 			Log.d(MainActivity.AppName, "AlarmUtils - filtro bilanciamento energetico: CURR:" 
 					+ current_alarm_time.get(Calendar.HOUR_OF_DAY)+":"+ current_alarm_time.get(Calendar.MINUTE)+":"+ current_alarm_time.get(Calendar.SECOND) +
 					"  "+current_alarm_time.get(Calendar.DATE)+"/"+alr_m+"/"+current_alarm_time.get(Calendar.YEAR)+
-					"; LAST: "+ last_interval_time.get(Calendar.HOUR_OF_DAY)+":"+ last_interval_time.get(Calendar.MINUTE)+":"+ 
-					last_interval_time.get(Calendar.SECOND) + "  "+last_interval_time.get(Calendar.DATE)+"/"+last_m+"/"+
-					last_interval_time.get(Calendar.YEAR));
+					"; LAST: "+ last_evaluated_interval_time.get(Calendar.HOUR_OF_DAY)+":"+ last_evaluated_interval_time.get(Calendar.MINUTE)+":"+ 
+					last_evaluated_interval_time.get(Calendar.SECOND) + "  "+last_evaluated_interval_time.get(Calendar.DATE)+"/"+last_m+"/"+
+					last_evaluated_interval_time.get(Calendar.YEAR));
 		}		
 		
 		//se il tempo che intercorre tra la fine dell'ultimo intervallo valutato e l'intervallo
