@@ -8,64 +8,74 @@
 	<RelativeLayout
    	 android:layout_width="fill_parent"
    	 android:layout_height="wrap_content" >
+   	 
+	 <include layout="@layout/activity_new_toolbar" />
 
-	<TextView
-        android:id="@+id/config_text"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"        
-        android:layout_centerHorizontal="true"
-        android:text="@string/lab_first_config"
-        android:layout_marginBottom="10dp"
-        android:gravity="center_horizontal"
-		android:textSize="@dimen/card_medium_text"
-        android:textColor="@color/card_text"/>
-
- <Button
-        android:id="@+id/btt_google_play_action"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/btt_cancel_config"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="40dp"
-        android:gravity="center"        
-        android:drawableLeft="@drawable/ic_content_import_export"
-        android:onClick="selectAction"
-        style="@style/btnStyleCard"
-        android:textSize="@dimen/card_medium_text"
-        android:visibility="invisible"/>
-
-    <Button
-        android:id="@+id/btt_cancel_config"
-        style="@style/btnStyleCard"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/btt_next_config"
-        android:layout_marginBottom="20dp"
-        android:drawableLeft="@drawable/ic_navigation_cancel"
-        android:gravity="center"
-        android:onClick="selectAction"
-        android:text="@string/btt_cancel" 
-        android:textSize="@dimen/card_medium_text"/>
-
-    <Button
+     <Button
         android:id="@+id/btt_next_config"
-        style="@style/btnStyleCard"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/config_text"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="40dp"
-        android:drawableLeft="@drawable/ic_navigation_forward"
-        android:gravity="center"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="4dip"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="right"
         android:onClick="selectAction"
-        android:text="@string/btt_next" 
-        android:textSize="@dimen/card_medium_text"/>
+        android:padding="8dp"
+        android:text="@string/btt_next"
+        android:textSize="14sp" 
+        android:textAllCaps="true"
+        android:textColor="@color/accent"/>
+
+     <TextView
+        android:id="@+id/config_text"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="138dp"
+        android:text="@string/lab_first_config"
+        android:textColor="#87000000"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="36dp"
+        android:textSize="14sp" />
+
+     <Button
+        android:id="@+id/btt_cancel_config"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/btt_next_config"
+        android:layout_alignBottom="@+id/btt_next_config"
+        android:layout_toLeftOf="@+id/btt_next_config"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="right"
+        android:onClick="selectAction"
+        android:padding="8dp"
+        android:text="@string/btt_cancel"
+        android:textAllCaps="true"
+        android:textColor="@color/accent"
+        android:textSize="14sp" />
+
+     <Button
+        android:id="@+id/btt_google_play_action"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/btt_cancel_config"
+        android:layout_alignBottom="@+id/btt_cancel_config"
+        android:layout_toLeftOf="@+id/btt_cancel_config"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="right"
+        android:onClick="selectAction"
+        android:padding="8dp"
+        android:textAllCaps="true"
+        android:textColor="@color/accent"
+        android:textSize="14sp"
+        android:visibility="invisible" />
  
 </RelativeLayout>
 </ScrollView>
