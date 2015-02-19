@@ -1638,11 +1638,12 @@ public final class AlarmUtils {
 	
 	
 	
-	/*
+	
 	private static IntPair getBestTriggerPair(Context context, ArrayList<Alarm> alarms, Map<Long,IntPair> triggerPairs){
 		
+		//si ottiene il primo alarm del periodo di attività indicato dall'utente
 		Alarm first_alarm = alarms.get(0);
-		
+		//si ottiene l'ultimo alarm del periodo di attività indicato dall'utente
 		Alarm last_alarm = alarms.get(alarms.size()-1);
 		
 		
@@ -1650,24 +1651,48 @@ public final class AlarmUtils {
 		List<Long> sortedKeys=new ArrayList<Long>(triggerPairs.keySet());
 		Collections.sort(sortedKeys);
 		
-		//si itera dalla coppia di trigger a distanza maggiore
-		boolean stop = false;		
+		//si itera partendo dalla coppia di trigger a distanza maggiore
 		ListIterator<Long> it = sortedKeys.listIterator(sortedKeys.size());
 		
-		while(!stop && it.hasPrevious()){
+		//campo per memorizzare la differenza di distanze minore, cioè quella migliore
+		long best_distances_diff = Long.MAX_VALUE;
+		//relativa coppia di indici dei trigger
+		IntPair best_pair = triggerPairs.get(sortedKeys.size()-1);
+		
+		while(it.hasPrevious()){
 			
-			//si recupera la coppia di trigger
-			IntPair triggerPair = triggerPairs.get(it.next());
+			//si recupera la coppia di trigger, partendo dai loro indici salvati
+			IntPair triggerPair = triggerPairs.get(it.next());		    
+			Alarm first_trigger = getAlarm(context, triggerPair.getFirstInt());			
+			Alarm second_trigger = getAlarm(context, triggerPair.getSecondInt());
+						
+			//si calcola la distanza temporale tra l'inizio del periodo di attività e il primo trigger
+			long first_time_diff = getTimeDistance(first_trigger, first_alarm, true);
 		    
-			//Alarm 
+			//si calcola la distanza temporale tra la fine del periodo di attività e il secondo trigger
+			long second_time_diff = getTimeDistance(second_trigger, last_alarm, false);
 			
+			//se le due distanze temporali sono più o meno uguali (differenza <= 2 ore) allora 
+			//significa che i due trigger sono abbastanza centrati rispetto al periodo di attività;
+			//in tal caso si ritorna subito la coppia di indici dei due trigger
+			long distances_diff = Math.abs(first_time_diff-second_time_diff);			
 			
-		    
+			if(distances_diff <= 7200000){
+				return triggerPair;
+			}
+			else{ 
+				//se la differenza tra le due distanze temporali è > 2 ore, allora si controlla
+				//se questa differenza è minore di quella migliore trovata finora; se è così, questa
+				//differenza di distanze diventa quella migliore
+				if(distances_diff < best_distances_diff){
+					best_distances_diff = distances_diff;
+					best_pair = triggerPair;
+				}
+			}			
 		}
-		
-		
+		return best_pair;		
 	}
-	*/
+	
 	
 	
 	
