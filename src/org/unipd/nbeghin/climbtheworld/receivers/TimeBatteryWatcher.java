@@ -671,61 +671,70 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			//classificatore (il cl. scalini/non_scalini è già attivo in questo caso)
 			if(action.equalsIgnoreCase(INTERVAL_START_ACTION)){				
 						
-				//si resetta il numero totale di attività rilevate, il numero di valori che
-				//indicano un'attività fisica e le variabili per la somma dei pesi e per la somma
-				//dei prodotti confidenze-pesi
-				ActivityRecognitionIntentService.clearValuesCount(pref);
-								
-				Log.d(MainActivity.AppName,"START ACTION - Reset total number of values: " + ActivityRecognitionIntentService.getValuesNumber(pref));
-			   	Log.d(MainActivity.AppName,"START ACTION - Reset number of activities: " + ActivityRecognitionIntentService.getActivitiesNumber(pref));
-							   	
-			   	//si resetta il numero di scalini rilevati con il classificatore 
-			   	//scalini/non_scalini (si tiene comunque il fatto che in un periodo di gioco
-			   	//possono essere stati fatti degli scalini)
-			   	StairsClassifierReceiver.clearStepsNumber(pref);
-			   	Log.d(MainActivity.AppName,"START ACTION - Reset number of steps: " + StairsClassifierReceiver.getStepsNumber(pref));
-			   			   	
-			   	//si resetta il valore salvato nelle preferences che indica se l'ultimo
-			   	//intervallo considerato ha avuto almeno un periodo di gioco con scalini
-				pref.edit().putBoolean("last_interval_with_steps", false).commit();
-				Log.d(MainActivity.AppName,"START ACTION - Reset 'last_interval_with_steps' value: " + pref.getBoolean("last_interval_with_steps", false));
-			   	
-				//se è attivo il gioco non si fa partire il servizio di activity recognition/
-			   	//il cl. scalini/non_scalini
-				if(!ClimbActivity.samplingEnabled){//il gioco non è attivo
+				
+				if(AlarmUtils.hasTrigger(pref, this_alarm_id)){
 					
-					Log.d(MainActivity.AppName,"START ACTION - Gioco non attivo");
-					
-					//si controlla se questo alarm definisce un "intervallo con scalini";
-					//se è un "intervallo con scalini", allora non si attiva il servizio di 
-					//activity recognition, ma il classificatore scalini/non_scalini
-					if(!AlarmUtils.getAlarm(context, this_alarm_id).isStepsInterval(current_day_index)){
+					//si visualizza la notifica					
+				}
+				
+				
+				if(pref.getBoolean("next_is_far_enough", false)){
+					//si resetta il numero totale di attività rilevate, il numero di valori che
+					//indicano un'attività fisica e le variabili per la somma dei pesi e per la somma
+					//dei prodotti confidenze-pesi
+					ActivityRecognitionIntentService.clearValuesCount(pref);
+									
+					Log.d(MainActivity.AppName,"START ACTION - Reset total number of values: " + ActivityRecognitionIntentService.getValuesNumber(pref));
+				   	Log.d(MainActivity.AppName,"START ACTION - Reset number of activities: " + ActivityRecognitionIntentService.getActivitiesNumber(pref));
+								   	
+				   	//si resetta il numero di scalini rilevati con il classificatore 
+				   	//scalini/non_scalini (si tiene comunque il fatto che in un periodo di gioco
+				   	//possono essere stati fatti degli scalini)
+				   	StairsClassifierReceiver.clearStepsNumber(pref);
+				   	Log.d(MainActivity.AppName,"START ACTION - Reset number of steps: " + StairsClassifierReceiver.getStepsNumber(pref));
+				   			   	
+				   	//si resetta il valore salvato nelle preferences che indica se l'ultimo
+				   	//intervallo considerato ha avuto almeno un periodo di gioco con scalini
+					pref.edit().putBoolean("last_interval_with_steps", false).commit();
+					Log.d(MainActivity.AppName,"START ACTION - Reset 'last_interval_with_steps' value: " + pref.getBoolean("last_interval_with_steps", false));
+				   	
+					//se è attivo il gioco non si fa partire il servizio di activity recognition/
+				   	//il cl. scalini/non_scalini
+					if(!ClimbActivity.samplingEnabled){//il gioco non è attivo
 						
-						//non è un "intervallo con scalini"
+						Log.d(MainActivity.AppName,"START ACTION - Gioco non attivo");
 						
-						if(!GeneralUtils.isActivityRecognitionServiceRunning(context)){
-						   	context.getApplicationContext().startService(new Intent(context, ActivityRecognitionRecordService.class));
-						   	//si abilita anche il receiver per la registrazione dell'attività utente
-							//context.getApplicationContext().registerReceiver(userMotionReceiver, userMotionFilter);
-							//context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);					
-						   	Log.d(MainActivity.AppName,"START ACTION - Service di activity recognition NON in esecuzione");
-						}
-						else{
-							Log.d(MainActivity.AppName,"START ACTION - Service di activity recognition già in esecuzione");
-						}
-						
-					}					
-					else{ 
-						//è un "intervallo con scalini"			
-						Log.d(MainActivity.AppName,"START ACTION - 'Intervallo con scalini'");
-						
-						context.getApplicationContext().startService(new Intent(context, SamplingClassifyService.class));
-						//si registra anche il receiver
-						//context.getApplicationContext().registerReceiver(stairsReceiver, stairsActionFilter);
-						context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);					
-					}	
-				} 
-				//se il gioco è attivo, si continua con esso
+						//si controlla se questo alarm definisce un "intervallo con scalini";
+						//se è un "intervallo con scalini", allora non si attiva il servizio di 
+						//activity recognition, ma il classificatore scalini/non_scalini
+						if(!AlarmUtils.getAlarm(context, this_alarm_id).isStepsInterval(current_day_index)){
+							
+							//non è un "intervallo con scalini"
+							
+							if(!GeneralUtils.isActivityRecognitionServiceRunning(context)){
+							   	context.getApplicationContext().startService(new Intent(context, ActivityRecognitionRecordService.class));
+							   	//si abilita anche il receiver per la registrazione dell'attività utente
+								//context.getApplicationContext().registerReceiver(userMotionReceiver, userMotionFilter);
+								//context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);					
+							   	Log.d(MainActivity.AppName,"START ACTION - Service di activity recognition NON in esecuzione");
+							}
+							else{
+								Log.d(MainActivity.AppName,"START ACTION - Service di activity recognition già in esecuzione");
+							}
+							
+						}					
+						else{ 
+							//è un "intervallo con scalini"			
+							Log.d(MainActivity.AppName,"START ACTION - 'Intervallo con scalini'");
+							
+							context.getApplicationContext().startService(new Intent(context, SamplingClassifyService.class));
+							//si registra anche il receiver
+							//context.getApplicationContext().registerReceiver(stairsReceiver, stairsActionFilter);
+							context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);					
+						}	
+					} 
+					//se il gioco è attivo, si continua con esso
+				}				
 				
 			}
 			//tale receiver riceve un intent che rappresenta un'azione di stop di un intervallo:

@@ -503,8 +503,12 @@ public final class AlarmUtils {
 				//quando un alarm di start viene attivato (disattivato) viene attivato
 				//(disattivato) anche l'alarm di stop successivo)
 				
+				int id_this_alarm=nextAlarm.get_id();	
 				
-				if(isLastListenedIntervalFarEnough(context, nextAlarm, alarmTime, last_evaluated_interval_time, prevAlarmNotAvailable)){
+				boolean last_evaluated_far_enough =  isLastListenedIntervalFarEnough(context, nextAlarm, alarmTime, last_evaluated_interval_time, prevAlarmNotAvailable);
+				prefs.edit().putBoolean("next_is_far_enough", last_evaluated_far_enough).commit();
+				
+				if(hasTrigger(prefs, id_this_alarm) || last_evaluated_far_enough){
 					
 					//se l'alarm non è attivato per questo giorno e se esso è di start, vuol dire
 					//che il relativo intervallo non è stato attivato per questo giorno					
@@ -523,7 +527,7 @@ public final class AlarmUtils {
 						}			
 												
 						////////////////////////////
-						int id_this_alarm=nextAlarm.get_id();				
+						//int id_this_alarm=nextAlarm.get_id();				
 						
 						//se è un alarm di start
 						if(nextAlarm.get_actionType()){
@@ -623,8 +627,12 @@ public final class AlarmUtils {
 					//normalmente l'indice è dato dalla data corrente: e.getRepeatingDay(today)
 					/////////
 					
+					int e_id=e.get_id();
 					
-					if(isLastListenedIntervalFarEnough(context, e, alarmTime, last_evaluated_interval_time, prevAlarmNotAvailable)){
+					boolean last_evaluated_far_enough =  isLastListenedIntervalFarEnough(context, e, alarmTime, last_evaluated_interval_time, prevAlarmNotAvailable);
+					prefs.edit().putBoolean("next_is_far_enough", last_evaluated_far_enough).commit();
+					
+					if(hasTrigger(prefs, e_id) || last_evaluated_far_enough){
 						
 						if(e.getRepeatingDay(artificialIndex)){
 							//l'alarm è attivato per questo giorno
@@ -662,7 +670,7 @@ public final class AlarmUtils {
 										status="E,0";
 									}			
 									
-									int id_start=e.get_id();
+									//int id_start=e.get_id();
 									
 									/*if(id_start==1){
 										int month = alarmTime.get(Calendar.MONTH)+1;
@@ -670,7 +678,7 @@ public final class AlarmUtils {
 									}*/
 									
 									//si ottiene il relativo alarm di stop (esiste sicuramente)
-									Alarm next_stop= getAlarm(context, id_start+1); 							
+									Alarm next_stop= getAlarm(context, e_id+1); 							
 									/*
 									LogUtils.writeLogFile(context,status+": " + e.get_hour()+":"+e.get_minute()+
 											":"+e.get_second()+" - "+next_stop.get_hour()+":"+next_stop.get_minute()+
@@ -760,7 +768,10 @@ public final class AlarmUtils {
 				Alarm e = getAlarm(context, i); //alarms.get(i-1);
 				
 				
-				if(isLastListenedIntervalFarEnough(context, e, alarmTime, last_evaluated_interval_time, prevAlarmNotAvailable)){
+				boolean last_evaluated_far_enough = isLastListenedIntervalFarEnough(context, e, alarmTime, last_evaluated_interval_time, prevAlarmNotAvailable);
+				prefs.edit().putBoolean("next_is_far_enough", last_evaluated_far_enough).commit();
+												
+				if(hasTrigger(prefs, i) || last_evaluated_far_enough){
 					
 					if(e.getRepeatingDay(artificialIndex)){
 						nextAlarm=e;
@@ -789,7 +800,7 @@ public final class AlarmUtils {
 									status="E,0";
 								}			
 								
-								int id_start=e.get_id();
+								//int id_start=e.get_id();
 								
 								/*if(id_start==1){
 									int month = alarmTime.get(Calendar.MONTH)+1;
@@ -797,7 +808,7 @@ public final class AlarmUtils {
 								}*/
 								
 								//si ottiene il relativo alarm di stop (esiste sicuramente)
-								Alarm next_stop= getAlarm(context, id_start+1); 							
+								Alarm next_stop= getAlarm(context, i+1); 							
 								/*
 								LogUtils.writeLogFile(context,status+": " + e.get_hour()+":"+e.get_minute()+
 										":"+e.get_second()+" - "+next_stop.get_hour()+":"+next_stop.get_minute()+
@@ -882,8 +893,11 @@ public final class AlarmUtils {
 					//normalmente: e.getRepeatingDay(alarmTime.get(Calendar.DAY_OF_WEEK)-1)
 					/////////
 					
+					boolean last_evaluated_far_enough = isLastListenedIntervalFarEnough(context, e, alarmTime, last_evaluated_interval_time, prevAlarmNotAvailable);
+					prefs.edit().putBoolean("next_is_far_enough", last_evaluated_far_enough).commit();
 					
-					if(isLastListenedIntervalFarEnough(context, e, alarmTime, last_evaluated_interval_time, prevAlarmNotAvailable)){
+					
+					if(hasTrigger(prefs, i) || last_evaluated_far_enough){
 						
 						//gli alarm hanno un istante di inizio sicuramente > di ora in quanto
 						//si stanno cercando in un giorno successivo a quello corrente
@@ -916,7 +930,7 @@ public final class AlarmUtils {
 										status="E,0";
 									}			
 									
-									int id_start=e.get_id();
+									//int id_start=e.get_id();
 									
 									/*if(id_start==1){
 										int month = alarmTime.get(Calendar.MONTH)+1;
@@ -924,7 +938,7 @@ public final class AlarmUtils {
 									}*/
 									
 									//si ottiene il relativo alarm di stop (esiste sicuramente)
-									Alarm next_stop= getAlarm(context, id_start+1); 							
+									Alarm next_stop= getAlarm(context, i+1); 							
 									/*
 									LogUtils.writeLogFile(context,status+": " + e.get_hour()+":"+e.get_minute()+
 											":"+e.get_second()+" - "+next_stop.get_hour()+":"+next_stop.get_minute()+
@@ -1791,7 +1805,14 @@ public final class AlarmUtils {
 	}
 	
 	
-	
+	public static boolean hasTrigger(SharedPreferences prefs, int alarm_id){
+		
+		if(prefs.getInt("first_trigger", -1)==alarm_id || 
+				prefs.getInt("second_trigger", -1)==alarm_id){			
+			return true;			
+		}
+		return false;		
+	}
 	
 	
 	
