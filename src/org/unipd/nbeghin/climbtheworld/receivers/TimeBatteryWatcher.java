@@ -469,7 +469,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 							else{
 								//se l'intervallo è un "intervallo con scalini" e il gioco non è in esecuzione, allora
 								//si ferma il classificatore scalini/non_scalini
-								if(!ClimbActivity.samplingEnabled){
+								if(!ClimbActivity.isGameActive()){
 									Log.d(MainActivity.AppName,"BATTERY LOW - Gioco non attivo, si ferma il classificatore scalini");
 									toLog+=", game not active, stop stairs classifier";
 									context.getApplicationContext().stopService(new Intent(context, SamplingClassifyService.class));
@@ -671,10 +671,14 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			//classificatore (il cl. scalini/non_scalini è già attivo in questo caso)
 			if(action.equalsIgnoreCase(INTERVAL_START_ACTION)){				
 						
-				
-				if(AlarmUtils.hasTrigger(pref, this_alarm_id)){
+				//se l'intervallo che inizia è stato scelto per lanciare un trigger, si
+				//lancia quest'ultimo solo se il gioco non è attivo
+				if(!ClimbActivity.isGameActive() && AlarmUtils.hasTrigger(pref, this_alarm_id)){
 					
-					//si visualizza la notifica					
+					//si visualizza la notifica		
+					
+					
+					
 				}
 				
 				
@@ -700,7 +704,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				   	
 					//se è attivo il gioco non si fa partire il servizio di activity recognition/
 				   	//il cl. scalini/non_scalini
-					if(!ClimbActivity.samplingEnabled){//il gioco non è attivo
+					if(!ClimbActivity.isGameActive()){//il gioco non è attivo
 						
 						Log.d(MainActivity.AppName,"START ACTION - Gioco non attivo");
 						
@@ -805,7 +809,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					
 					//se il gioco non è attivo allora si ferma il classificatore
 					//scalini/non_scalini, disabilitando anche il relativo receiver
-					if(!ClimbActivity.samplingEnabled){
+					if(!ClimbActivity.isGameActive()){
 						
 						Log.d(MainActivity.AppName,"STOP ACTION - Gioco non attivo, si ferma il classificatore scalini");
 						

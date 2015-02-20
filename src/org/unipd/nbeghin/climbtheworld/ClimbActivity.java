@@ -64,7 +64,7 @@ public class ClimbActivity extends Activity {
 	public static final String		SAMPLING_TYPE				= "ACTION_SAMPLING";														// intent's action
 	public static final String		SAMPLING_TYPE_NON_STAIR		= "NON_STAIR";																// classifier's output
 	public static final String		SAMPLING_DELAY				= "DELAY";																	// intent's action
-	public static boolean			samplingEnabled				= false;	//aggiunto static e public															// sentinel if sampling is running
+	private static boolean			samplingEnabled				= false;	//aggiunto static e public															// sentinel if sampling is running
 	private static double			detectedSamplingRate		= 0;																		// detected sampling rate (after sampling rate detector)
 	private static int				samplingDelay;																							// current sampling delay (SensorManager)
 	private double					minimumSamplingRate			= 13;																		// minimum sampling rate for using this app
@@ -969,6 +969,10 @@ public class ClimbActivity extends Activity {
 	
 	public static boolean stepsInCurrentGamePeriod(){
 		return stepsInGamePeriod;
+	}
+	
+	public static boolean isGameActive(){
+		return samplingEnabled;
 	}
 	
 	/*

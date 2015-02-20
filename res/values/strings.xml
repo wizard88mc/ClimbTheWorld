@@ -59,8 +59,10 @@
     <string name="lab_configdialog_title">Configuration</string>
     <string name="lab_configdialog_status">&#8230;in progress&#8230;</string>  
      
-   <string name="lab_endconfig">Thank you!\n\nThe app has been configured according to your specifications.\nIf you think you\'ve done something wrong, don\'t worry: it is smart!\n\nStart playing now!</string>  
-   <string name="btt_ok">OK!</string> 
+    <string name="lab_endconfig">Thank you!\n\nThe app has been configured according to your specifications.\nIf you think you\'ve done something wrong, don\'t worry: it is smart!\n\nStart playing now!</string>  
+    <string name="btt_ok">OK!</string> 
     
+    <!-- Trigger notification -->   
+    <string name="trigger_text">Make steps playing with the app!!</string>
     
 </resources>

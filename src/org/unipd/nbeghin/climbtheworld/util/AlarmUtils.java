@@ -21,9 +21,11 @@ import org.unipd.nbeghin.climbtheworld.models.Alarm;
 import org.unipd.nbeghin.climbtheworld.receivers.StairsClassifierReceiver;
 import org.unipd.nbeghin.climbtheworld.services.ActivityRecognitionRecordService;
 import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
+import org.unipd.nbeghin.climbtheworldAlgorithm.R;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
@@ -34,6 +36,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.util.SparseIntArray;
 
@@ -1570,13 +1573,24 @@ public final class AlarmUtils {
 			Alarm first_alarm_second_set = (activeSets.get(end_index)).get(0); //per ultimo: secondSet.size()-1
 			int first_alarm_second_set_id = first_alarm_second_set.get_id();
 			//Alarm last_alarm_second_set = getAlarm(context, last_start_alarm_second_set.get_id()+1);			
+			
+			//se si sta considerando una coppia di gruppi diversa dalla prima (quella più esterna),
+			//allora si recuperano anche il primo alarm del gruppo precedente al primo e il primo
+			//alarm del gruppo successivo al secondo
+			Alarm first_alarm_prev_first_set=null;
+			int first_alarm_prev_first_set_id=-1;
+			Alarm first_alarm_next_second_set=null;
+			int first_alarm_next_second_set_id=-1;
+			
+			if(i!=0){
+				//si recupera anche il primo alarm del gruppo precedente al primo
+				first_alarm_prev_first_set = (activeSets.get(i-1)).get(0);
+				first_alarm_prev_first_set_id = first_alarm_prev_first_set.get_id();
+				//si recupera anche il primo alarm del gruppo successivo al secondo
+				first_alarm_next_second_set = (activeSets.get(end_index+1)).get(0);		
+				first_alarm_next_second_set_id = first_alarm_next_second_set.get_id();
+			}
 						
-			//si recupera anche il primo alarm del gruppo precedente al primo
-			Alarm first_alarm_prev_first_set = (activeSets.get(i-1)).get(0);
-			int first_alarm_prev_first_set_id = first_alarm_prev_first_set.get_id();
-			//si recupera anche il primo alarm del gruppo successivo al secondo
-			Alarm first_alarm_next_second_set = (activeSets.get(end_index+1)).get(0);		
-			int first_alarm_next_second_set_id = first_alarm_next_second_set.get_id();
 			
 			//se il primo intervallo del primo gruppo e il primo intervallo del secondo gruppo 
 			//distano almeno 6 ore, allora si tiene la coppia di alarm
@@ -1674,7 +1688,7 @@ public final class AlarmUtils {
 		while(it.hasPrevious()){
 			
 			//si recupera la coppia di trigger, partendo dai loro indici salvati
-			IntPair triggerPair = triggerPairs.get(it.next());		    
+			IntPair triggerPair = triggerPairs.get(it.previous());		    
 			Alarm first_trigger = getAlarm(context, triggerPair.getFirstInt());			
 			Alarm second_trigger = getAlarm(context, triggerPair.getSecondInt());
 						
@@ -1708,6 +1722,8 @@ public final class AlarmUtils {
 	
 	public static void setTriggers(Context context){
 		
+		System.out.println("SET TRIGGERS");
+		
 		//riferimento alle SharedPreferences
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		
@@ -1718,12 +1734,23 @@ public final class AlarmUtils {
 		
     	if(prefs.getString("triggers_date", "")!=dateFormatted){
     		
+    		System.out.println("SET TRIGGERS - Not setted yet");
+    		
     		//si recuperano tutti gli alarm salvati nel database
     		List<Alarm> all_alarms = getAllAlarms(context);	
     		
     		//si ottengono tutti i gruppi di 3 o più intervalli attivi (gruppi composti al massimo da
     		//12 intervalli)
     		ArrayList<ArrayList<Alarm>> activeIntervalSets = getActiveIntervalSets(context, all_alarms);
+    		
+    		System.out.println("SET TRIGGERS - active interval sets");
+    		String str="";
+    		for(ArrayList<Alarm> a : activeIntervalSets){
+    			str=a.get(0).get_id()+"-"+a.get(a.size()-1).get_id()+", ";    			
+    		}
+    		System.out.println(str);
+    		
+    		System.out.println("SET TRIGGERS - sets size "+activeIntervalSets.size());
     		
     		//oggetto che serve per contenere gli indici dei trigger
     		IntPair bestTriggerPair = new IntPair(-1,-1);
@@ -1735,17 +1762,30 @@ public final class AlarmUtils {
     			//la quale la loro distanza deve essere >= 6 ore
     			Map<Long,IntPair> possibleTriggerPairs = getPossibleTriggerPairs(context, activeIntervalSets);
     						
+    			System.out.println("SET TRIGGERS - possible trigger pairs");    			
+    			String str_pairs="";
+        		for(Map.Entry<Long, IntPair> e : possibleTriggerPairs.entrySet()){
+        			str_pairs=e.getKey() + " - " + e.getValue().getFirstInt()+"/"+e.getValue().getSecondInt()+", ";    			
+        		}
+        		System.out.println(str_pairs);
+        		System.out.println("SET TRIGGERS - pairs size "+possibleTriggerPairs.size());  
+        		
+        		
     			//se esiste almeno una coppia che soddisfa la condizione >= 6 ore
     			if(possibleTriggerPairs.size()>0){
-    				
+    				    				
     				//si cerca la migliore, cioè quella per cui i trigger sono abbastanza centrati
     				//rispetto al periodo di attività			
     				bestTriggerPair = getBestTriggerPair(context, all_alarms, possibleTriggerPairs);
+    				
+    				System.out.println("SET TRIGGERS - best pair "+bestTriggerPair.getFirstInt()+"-"+bestTriggerPair.getSecondInt());  
     			}
     			else{
     				//se nessuna coppia soddisfa la condizione >= 6 ore, allora si cerca l'alarm
     				//più centrale rispetto al periodo di attività indicato dall'utente; questo alarm
     				//sarà l'unico trigger
+    				
+    				System.out.println("SET TRIGGERS - NESSUNA COPPIA >=6 ore, si cerca alarm più centrale");  
     				
     				//si ottiene il primo alarm del periodo di attività indicato dall'utente
     				Alarm first_alarm = all_alarms.get(0);
@@ -1788,11 +1828,13 @@ public final class AlarmUtils {
     			
     			//se c'è solo un gruppo: si imposta come unico trigger il primo alarm del gruppo
     			if(activeIntervalSets.size()==1){				
-    				bestTriggerPair.setFirstInt(((activeIntervalSets.get(0)).get(0)).get_id());				
+    				bestTriggerPair.setFirstInt(((activeIntervalSets.get(0)).get(0)).get_id());	
+    				
+    				System.out.println("SET TRIGGERS - SOLO 1 GRUPPO, trigger: primo alarm del gruppo");
     			}
     			else{ //nessun gruppo, non imposto alcun trigger
     				
-    				
+    				System.out.println("SET TRIGGERS - NESSUN GRUPPO, NO TRIGGER");
     			}
     		}
     		
@@ -1800,7 +1842,11 @@ public final class AlarmUtils {
     	    prefs.edit().putInt("first_trigger", bestTriggerPair.getFirstInt()).commit();		
     	    prefs.edit().putInt("second_trigger", bestTriggerPair.getSecondInt()).commit();			    
     		//si memorizza la data in cui sono stati settati
-    	    prefs.edit().putString("triggers_date", dateFormatted).commit();    			
+    	    prefs.edit().putString("triggers_date", dateFormatted).commit();   
+    	    
+    	    System.out.println("SET TRIGGERS id1: " + prefs.getInt("first_trigger",-1) +", id2: " + prefs.getInt("second_trigger",-1)+", date: "+ prefs.getString("triggers_date", ""));
+    	    LogUtils.writeLogFile(context, "SET TRIGGERS id1: " + prefs.getInt("first_trigger",-1) +", id2: " + prefs.getInt("second_trigger",-1)+", date: "+ prefs.getString("triggers_date", ""));
+    	    
     	}
 	}
 	
@@ -1812,6 +1858,25 @@ public final class AlarmUtils {
 			return true;			
 		}
 		return false;		
+	}
+	
+	
+	
+	public static void showTriggerNotification(Context context){
+		/*
+		NotificationCompat.Builder mBuilder =
+		        new NotificationCompat.Builder(context)
+		        .setSmallIcon(R.drawable.ic_launcher)
+		        .setContentTitle("ClimbTheWorld")
+		        .setContentText(context.getString(R.string.trigger_text));
+
+		NotificationManager mNotificationManager =
+			    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+			// mId allows you to update the notification later on.
+			mNotificationManager.notify(mId, mBuilder.build());
+		*/
+		
+		LogUtils.writeLogFile(context, "SHOW TRIGGER " + Calendar.getInstance().getTime().toString());
 	}
 	
 	
