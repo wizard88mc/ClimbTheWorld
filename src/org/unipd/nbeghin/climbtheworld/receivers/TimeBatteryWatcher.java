@@ -205,6 +205,10 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    	}	
 		    	
 		    	
+		    	//si impostano i trigger, se ancora non sono stati settati
+		    	AlarmUtils.setTriggers(context);
+		    			    	
+		    	
 		    	//si reimposta l'alarm per l'update dell'indice artificiale, in quanto
 		    	//dopo un reboot del device quello impostato in precedenza non viene lanciato; 
 		    	//quest'ultimo viene prima cancellato attraverso l'alarm manager		    	
@@ -590,6 +594,21 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 	    		Log.d(MainActivity.AppName + " - TEST","TimeBatteryWatcher - on update index, new index: "+pref.getInt("artificialDayIndex", 0)+", new date: " + dateFormatted);
 	    	}
 	    			 
+	    	
+	    	//si impostano i trigger, se ancora non sono stati settati
+	    	AlarmUtils.setTriggers(context);
+	    	//se il primo intervallo di attività è quello 00:00-00:05 e se il precedente metodo ha
+	    	//impostato un primo trigger proprio in corrispondenza di questo primo intervallo, può
+	    	//darsi che l'action di start sia partita prima del set trigger e, quindi, non abbia 
+	    	//mostrato la notifica; in ogni caso la si visualizza
+	    	Alarm first_alarm = AlarmUtils.getAlarm(context, 1);
+	    	
+	    	int first_trigger_index = pref.getInt("first_trigger", -1);
+	    	
+	    	if(first_alarm.get_hour()==0 && first_alarm.get_minute()==0 && first_trigger_index==1){
+	    		//si visualizza la notifica (non causa problemi se la notifica è già on-screen)
+	    	}
+	    	
 	    	
 	    	//una volta consumato questo alarm per l'update dell'indice artificiale, viene prima
 	    	//cancellato ogni alarm di questo tipo attraverso l'alarm manager (solo per sicurezza)

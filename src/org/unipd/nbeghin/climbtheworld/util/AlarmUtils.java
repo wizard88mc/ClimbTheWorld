@@ -1,6 +1,7 @@
 package org.unipd.nbeghin.climbtheworld.util;
 
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -1691,101 +1692,102 @@ public final class AlarmUtils {
 	}
 	
 	
-	
-	
-	private static void setTriggers(Context context){
+	public static void setTriggers(Context context){
 		
 		//riferimento alle SharedPreferences
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		
+		//si ottiene la data corrente e si controlla se per essa sono già stati impostati i trigger
+		Calendar now = Calendar.getInstance();		
+		SimpleDateFormat calFormat = new SimpleDateFormat("yyyy-MM-dd");
+    	String dateFormatted = calFormat.format(now.getTime());
 		
-		//si recuperano tutti gli alarm salvati nel database
-		List<Alarm> all_alarms = getAllAlarms(context);	
-		
-		//si ottengono tutti i gruppi di 3 o più intervalli attivi (gruppi composti al massimo da
-		//12 intervalli)
-		ArrayList<ArrayList<Alarm>> activeIntervalSets = getActiveIntervalSets(context, all_alarms);
-		
-		//oggetto che serve per contenere gli indici dei trigger
-		IntPair bestTriggerPair = new IntPair(-1,-1);
-		
-		//se ci sono almeno due gruppi (cioè se si può ricavare almeno una coppia di trigger) 
-		if(activeIntervalSets.size()>=2){
-			
-			//si ricavano tutte le possibili coppie di trigger che soddisfano la condizione per
-			//la quale la loro distanza deve essere >= 6 ore
-			Map<Long,IntPair> possibleTriggerPairs = getPossibleTriggerPairs(context, activeIntervalSets);
-						
-			//se esiste almeno una coppia che soddisfa la condizione >= 6 ore
-			if(possibleTriggerPairs.size()>0){
-				
-				//si cerca la migliore, cioè quella per cui i trigger sono abbastanza centrati
-				//rispetto al periodo di attività			
-				bestTriggerPair = getBestTriggerPair(context, all_alarms, possibleTriggerPairs);
-			}
-			else{
-				//se nessuna coppia soddisfa la condizione >= 6 ore, allora si cerca l'alarm
-				//più centrale rispetto al periodo di attività indicato dall'utente; questo alarm
-				//sarà l'unico trigger
-				
-				//si ottiene il primo alarm del periodo di attività indicato dall'utente
-				Alarm first_alarm = all_alarms.get(0);
-				//si ottiene l'ultimo alarm del periodo di attività indicato dall'utente
-				Alarm last_alarm = all_alarms.get(all_alarms.size()-1);
-				
-				Iterator<ArrayList<Alarm>> it = activeIntervalSets.iterator();
-				boolean stop = false;
-				
-				long best_distances_diff = Long.MAX_VALUE;
-				
-				while(!stop && it.hasNext()){
-					
-					Alarm possible_trigger = (it.next()).get(0);
-					
-					//si calcola la distanza temporale tra l'inizio del periodo di attività e il possibile trigger
-					long begin_time_diff = getTimeDistance(possible_trigger, first_alarm, true);
-					//si calcola la distanza temporale tra la fine del periodo di attività e il possibile trigger
-					long end_time_diff = getTimeDistance(possible_trigger, last_alarm, false);
-					//si calcola la differenza in valore assoluto delle precedenti distanze temporali
-					long diff = Math.abs(begin_time_diff-end_time_diff);
-					
-					//se questa differenza è <= 1 ora 
-					if(diff <= 3600000){						
-						bestTriggerPair.setFirstInt(possible_trigger.get_id());
-						stop=!stop;						
-					}
-					else{ //se la differenza tra distanze è minore di quella migliore trovata finora,
-						  //allora questa differenza di distanze diventa quella migliore
-						
-						if(diff < best_distances_diff){
-							best_distances_diff=diff;
-							bestTriggerPair.setFirstInt(possible_trigger.get_id());
-						}
-					}
-				}				
-			}			
-		}
-		else{
-			
-			//se c'è solo un gruppo: si imposta come unico trigger il primo alarm del gruppo
-			if(activeIntervalSets.size()==1){				
-				bestTriggerPair.setFirstInt(((activeIntervalSets.get(0)).get(0)).get_id());				
-			}
-			else{ //nessun gruppo
-				
-				
-			}
-		}
-		
-		
-		//si impostano gli indici dei trigger 
-	    prefs.edit().putInt("first_trigger", bestTriggerPair.getFirstInt()).commit();		
-	    prefs.edit().putInt("second_trigger", bestTriggerPair.getSecondInt()).commit();
-			    
-		
-		//alla fine imposto i due trigger tramite shared preferences: 2 interi e data completa giorno
-		
-		
+    	if(prefs.getString("triggers_date", "")!=dateFormatted){
+    		
+    		//si recuperano tutti gli alarm salvati nel database
+    		List<Alarm> all_alarms = getAllAlarms(context);	
+    		
+    		//si ottengono tutti i gruppi di 3 o più intervalli attivi (gruppi composti al massimo da
+    		//12 intervalli)
+    		ArrayList<ArrayList<Alarm>> activeIntervalSets = getActiveIntervalSets(context, all_alarms);
+    		
+    		//oggetto che serve per contenere gli indici dei trigger
+    		IntPair bestTriggerPair = new IntPair(-1,-1);
+    		
+    		//se ci sono almeno due gruppi (cioè se si può ricavare almeno una coppia di trigger) 
+    		if(activeIntervalSets.size()>=2){
+    			
+    			//si ricavano tutte le possibili coppie di trigger che soddisfano la condizione per
+    			//la quale la loro distanza deve essere >= 6 ore
+    			Map<Long,IntPair> possibleTriggerPairs = getPossibleTriggerPairs(context, activeIntervalSets);
+    						
+    			//se esiste almeno una coppia che soddisfa la condizione >= 6 ore
+    			if(possibleTriggerPairs.size()>0){
+    				
+    				//si cerca la migliore, cioè quella per cui i trigger sono abbastanza centrati
+    				//rispetto al periodo di attività			
+    				bestTriggerPair = getBestTriggerPair(context, all_alarms, possibleTriggerPairs);
+    			}
+    			else{
+    				//se nessuna coppia soddisfa la condizione >= 6 ore, allora si cerca l'alarm
+    				//più centrale rispetto al periodo di attività indicato dall'utente; questo alarm
+    				//sarà l'unico trigger
+    				
+    				//si ottiene il primo alarm del periodo di attività indicato dall'utente
+    				Alarm first_alarm = all_alarms.get(0);
+    				//si ottiene l'ultimo alarm del periodo di attività indicato dall'utente
+    				Alarm last_alarm = all_alarms.get(all_alarms.size()-1);
+    				
+    				Iterator<ArrayList<Alarm>> it = activeIntervalSets.iterator();
+    				boolean stop = false;
+    				
+    				long best_distances_diff = Long.MAX_VALUE;
+    				
+    				while(!stop && it.hasNext()){
+    					
+    					Alarm possible_trigger = (it.next()).get(0);
+    					
+    					//si calcola la distanza temporale tra l'inizio del periodo di attività e il possibile trigger
+    					long begin_time_diff = getTimeDistance(possible_trigger, first_alarm, true);
+    					//si calcola la distanza temporale tra la fine del periodo di attività e il possibile trigger
+    					long end_time_diff = getTimeDistance(possible_trigger, last_alarm, false);
+    					//si calcola la differenza in valore assoluto delle precedenti distanze temporali
+    					long diff = Math.abs(begin_time_diff-end_time_diff);
+    					
+    					//se questa differenza è <= 1 ora 
+    					if(diff <= 3600000){						
+    						bestTriggerPair.setFirstInt(possible_trigger.get_id());
+    						stop=!stop;						
+    					}
+    					else{ //se la differenza tra distanze è minore di quella migliore trovata finora,
+    						  //allora questa differenza di distanze diventa quella migliore
+    						
+    						if(diff < best_distances_diff){
+    							best_distances_diff=diff;
+    							bestTriggerPair.setFirstInt(possible_trigger.get_id());
+    						}
+    					}
+    				}				
+    			}			
+    		}
+    		else{
+    			
+    			//se c'è solo un gruppo: si imposta come unico trigger il primo alarm del gruppo
+    			if(activeIntervalSets.size()==1){				
+    				bestTriggerPair.setFirstInt(((activeIntervalSets.get(0)).get(0)).get_id());				
+    			}
+    			else{ //nessun gruppo, non imposto alcun trigger
+    				
+    				
+    			}
+    		}
+    		
+    		//si impostano gli indici dei trigger 
+    	    prefs.edit().putInt("first_trigger", bestTriggerPair.getFirstInt()).commit();		
+    	    prefs.edit().putInt("second_trigger", bestTriggerPair.getSecondInt()).commit();			    
+    		//si memorizza la data in cui sono stati settati
+    	    prefs.edit().putString("triggers_date", dateFormatted).commit();    			
+    	}
 	}
 	
 	
