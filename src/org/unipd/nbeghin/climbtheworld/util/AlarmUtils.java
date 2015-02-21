@@ -1731,8 +1731,8 @@ public final class AlarmUtils {
 		Calendar now = Calendar.getInstance();		
 		SimpleDateFormat calFormat = new SimpleDateFormat("yyyy-MM-dd");
     	String dateFormatted = calFormat.format(now.getTime());
-		
-    	if(prefs.getString("triggers_date", "")!=dateFormatted){
+    	
+    	if(!dateFormatted.equals(prefs.getString("triggers_date", ""))){
     		
     		System.out.println("SET TRIGGERS - Not setted yet");
     		
