@@ -321,20 +321,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			    			.putExtra("low_battery", pref.getBoolean("low_battery_status", false))
 			    			.putExtra("write_log_off_intervals", true)); 
 			    			//ultimo parametro utile per scrivere nel log gli intervalli saltati (solo per test)
-		    		}
-		    		
-		    		/*		    		
-		    		Thread thread = new Thread(){					    	
-		    			@Override
-		    			public void run() {
-		    				AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context),true,true,alarm_id); 
-		    			}					    	
-		    		};		
-		    		//si fa partire il thread che imposta e lancia un nuovo alarm
-		    		//(se il nuovo alarm è di stop, si fa ripartire subito il 
-		    		//classificatore opportuno)
-		    		thread.start();			
-		    		*/			
+		    		}	
 		    	}			
 		    	else{	
 		    		//se l'alarm è ancora valido, lo si reimposta solamente se non si ha
@@ -705,11 +692,8 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				if(!ClimbActivity.isGameActive() && AlarmUtils.hasTrigger(pref, this_alarm_id)){
 					
 					//si visualizza la notifica		
-					
-					
-					
+					AlarmUtils.showTriggerNotification(context);					
 				}
-				
 				
 				if(pref.getBoolean("next_is_far_enough", false)){
 					//si resetta il numero totale di attività rilevate, il numero di valori che
@@ -891,17 +875,6 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				.putExtra("current_alarm_id", this_alarm_id)
 				.putExtra("low_battery", pref.getBoolean("low_battery_status", false)));
 			
-			/*
-			Thread thread = new Thread(){				
-				@Override
-				public void run() {					
-					//si imposta e si lancia il prossimo alarm
-			    	AlarmUtils.setNextAlarm(context,AlarmUtils.getAllAlarms(context),false,false,this_alarm_id); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,pref.getInt("current_template", -1)))	
-				}
-			};	
-			//si fa partire il thread che imposta il prossimo alarm
-			thread.start();	
-			*/		
 		}
 	}
 }

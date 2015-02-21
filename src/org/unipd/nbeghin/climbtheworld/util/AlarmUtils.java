@@ -1750,7 +1750,10 @@ public final class AlarmUtils {
     		System.out.println("SET TRIGGERS - active interval sets");
     		String str="";
     		for(ArrayList<Alarm> a : activeIntervalSets){
-    			str=a.get(0).get_id()+"-"+a.get(a.size()-1).get_id()+", ";    			
+    			Alarm b = a.get(0);
+    			Alarm c = a.get(a.size()-1);
+    			
+    			str+=b.get_id()+"("+b.get_hour()+":"+b.get_minute()+")"+"-"+c.get_id()+"("+c.get_hour()+":"+c.get_minute()+"), ";    			
     		}
     		System.out.println(str);
     		
@@ -1769,7 +1772,7 @@ public final class AlarmUtils {
     			System.out.println("SET TRIGGERS - possible trigger pairs");    			
     			String str_pairs="";
         		for(Map.Entry<Long, IntPair> e : possibleTriggerPairs.entrySet()){
-        			str_pairs=e.getKey() + " - " + e.getValue().getFirstInt()+"/"+e.getValue().getSecondInt()+", ";    			
+        			str_pairs+=e.getKey() + " - " + e.getValue().getFirstInt()+"/"+e.getValue().getSecondInt()+", ";    			
         		}
         		System.out.println(str_pairs);
         		System.out.println("SET TRIGGERS - pairs size "+possibleTriggerPairs.size());  
@@ -1867,20 +1870,29 @@ public final class AlarmUtils {
 	
 	
 	public static void showTriggerNotification(Context context){
-		/*
-		NotificationCompat.Builder mBuilder =
-		        new NotificationCompat.Builder(context)
-		        .setSmallIcon(R.drawable.ic_launcher)
-		        .setContentTitle("ClimbTheWorld")
-		        .setContentText(context.getString(R.string.trigger_text));
-
+		
 		NotificationManager mNotificationManager =
 			    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-			// mId allows you to update the notification later on.
-			mNotificationManager.notify(mId, mBuilder.build());
-		*/
-		
-		LogUtils.writeLogFile(context, "SHOW TRIGGER " + Calendar.getInstance().getTime().toString());
+				
+		Intent notificationIntent = new Intent(context, MainActivity.class);
+
+		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+		            | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+		PendingIntent intent = PendingIntent.getActivity(context, 0,
+		            notificationIntent, 0);
+
+		NotificationCompat.Builder mBuilder =
+				new NotificationCompat.Builder(context)
+					.setSmallIcon(R.drawable.ic_launcher)
+			        .setContentTitle("ClimbTheWorld")
+			        .setContentText(context.getString(R.string.trigger_text))
+			        .setContentIntent(intent);
+		    
+		//l'id consente di aggiornare la notifica
+		mNotificationManager.notify(0, mBuilder.build());
+			
+		//LogUtils.writeLogFile(context, "SHOW TRIGGER " + Calendar.getInstance().getTime().toString());
 	}
 	
 	
