@@ -141,26 +141,19 @@ public final class GeneralUtils {
     		@Override
     		public void run() {
     			
-    			//List<Alarm> alarms_created = AlarmUtils.getAllAlarms(context);
-    			
     			//si recupera il numero di alarm che sono presenti nel database (le API del 
     			//database presentano un metodo che ritorna il numero in 'long'; si fa il cast a
     			//'int' per andare meglio ad utilizzare questo numero; tale cast è safe in quanto
     			//non si perde informazione, infatti il numero ritornato è tra min=0 e max=576 con
     			//min > Integer.MIN_VALUE e max < Integer.MAX_VALUE)
     			int alarms_number = (int) AlarmUtils.countAlarms(context);
-    			   			
-    			
+    			   			    			
     			//se sono stati creati intervalli
     			if(alarms_number>0){
     				Editor editor = prefs.edit();    
     				//nelle SharedPreferences si salva il numero totale di alarm creati
     				editor.putInt("alarms_number", alarms_number).commit();
-    				
-        	    	//editor.putBoolean("firstRun", false); // si memorizza che non è il primo run dell'app
-        	    	//editor.putInt("current_template", 1); // il template orario che si usa è il primo    	
-        	    	 
-        	    	
+    				        	    	
         	    	/////////		
         	    	//PER TEST ALGORITMO
         	    	editor.putInt("artificialDayIndex", 0);    	
@@ -220,11 +213,9 @@ public final class GeneralUtils {
         	    	//LogUtils.writeLogFile(context, "ALGORITMO\n");
         	    	LogUtils.initLogFile(context, AlarmUtils.getAllAlarms(context));
         	    	
-        	    	LogUtils.offIntervalsTracking(context, prefs, -1);    			
+        	    	LogUtils.offIntervalsTracking(context, -1);    			
         	    	//si imposta e si lancia il prossimo alarm
-        	    	List<Alarm> alarms_created = AlarmUtils.getAllAlarms(context);
-        	    	
-        	    	AlarmUtils.setNextAlarm(context,true,false,-1); //AlarmUtils.lookupAlarmsForTemplate(context,AlarmUtils.getTemplate(context,1)) 
+        	    	AlarmUtils.setNextAlarm(context,true,false,-1);
         	    	
         	    	//si imposta l'alarm che serve per recuperare il livello di carica della batteria; è utile per
         	    	//attuare il bilanciamento energetico        	    	

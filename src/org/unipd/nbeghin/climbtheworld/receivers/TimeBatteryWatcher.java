@@ -13,11 +13,10 @@ import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionU
 import org.unipd.nbeghin.climbtheworld.models.Alarm;
 import org.unipd.nbeghin.climbtheworld.services.ActivityRecognitionRecordService;
 import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
-import org.unipd.nbeghin.climbtheworld.services.SetNextAlarmIntentService;
+import org.unipd.nbeghin.climbtheworld.services.SetNextAlarmTriggersIntentService;
 import org.unipd.nbeghin.climbtheworld.util.AlarmUtils;
 import org.unipd.nbeghin.climbtheworld.util.GeneralUtils;
 import org.unipd.nbeghin.climbtheworld.util.IntervalEvaluationUtils;
-import org.unipd.nbeghin.climbtheworld.util.LogUtils;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -206,7 +205,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    	
 		    	
 		    	//si impostano i trigger, se ancora non sono stati settati
-		    	AlarmUtils.setTriggers(context);
+		    	//AlarmUtils.setTriggers(context);
 		    			    	
 		    	
 		    	//si reimposta l'alarm per l'update dell'indice artificiale, in quanto
@@ -291,12 +290,12 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    	//già passato, allora si cerca e si setta un altro alarm
 		    	
 		    	//in ogni caso si cancella dall'alarm manager l'alarm precedentemente impostato 
-		    	AlarmUtils.cancelAlarm(context, current_next_alarm);	
+		    	//AlarmUtils.cancelAlarm(context, current_next_alarm);	
 					
 					
 		    	//////////////////////////////////////////////
 		    	//SI TRACCIANO GLI INTERVALLI NON VALUTATI A CAUSA DEL DEVICE SPENTO
-		    	LogUtils.offIntervalsTracking(context, pref, alarm_id);					
+		    	//LogUtils.offIntervalsTracking(context, alarm_id);					
 		    	//////////////////////////////////////////////
 					
 					
@@ -308,16 +307,20 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    		}
 						
 		    		
-		    		//si setta un nuovo alarm solo se il livello di batteria è accettabile
+		    		//si setta un nuovo alarm/trigger solo se il livello di batteria è accettabile
 		    		if(!pref.getBoolean("low_battery_status", false)){	
 		    			
-		    			//si fa partire l'intent service che imposta e lancia un nuovo alarm	 
+		    			//si fa partire l'intent service che setta i trigger per il giorno
+		    			//corrente (se non sono già stati settati) e imposta e lancia un nuovo alarm	 
 			    		//(se il nuovo alarm è di stop, si fa ripartire subito il classificatore opportuno)
-			    		context.getApplicationContext().startService(new Intent(context, SetNextAlarmIntentService.class)
+			    		context.getApplicationContext().startService(new Intent(context, SetNextAlarmTriggersIntentService.class)
+			    			.putExtra("set_triggers", true) //set dei trigger a 'true'
 			    			.putExtra("takeAllAlarms", true)
 			    			.putExtra("prevAlarmNotAvailable", true)
 			    			.putExtra("current_alarm_id", alarm_id)
-			    			.putExtra("low_battery", pref.getBoolean("low_battery_status", false)));			    		
+			    			.putExtra("low_battery", pref.getBoolean("low_battery_status", false))
+			    			.putExtra("write_log_off_intervals", true)); 
+			    			//ultimo parametro utile per scrivere nel log gli intervalli saltati (solo per test)
 		    		}
 		    		
 		    		/*		    		
@@ -334,10 +337,25 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    		*/			
 		    	}			
 		    	else{	
-		    		//se l'alarm è ancora valido, lo si re-imposta solamente se non si ha
+		    		//se l'alarm è ancora valido, lo si reimposta solamente se non si ha
 		    		//un livello di batteria critico
 		    		if(!pref.getBoolean("low_battery_status", false)){		    			
-		    			
+		    					    			
+		    			//si fa partire l'intent service che setta i trigger per il giorno
+		    			//corrente (se non sono già stati settati) e che reimposta l'alarm valido
+		    			//impostato in precedenza
+		    			context.getApplicationContext().startService(new Intent(context, SetNextAlarmTriggersIntentService.class)
+		    				.putExtra("set_triggers", true) //set dei trigger a 'true'
+		    				.putExtra("valid_on_boot", true) //l'alarm settato in precedenza è ancora valido
+		    				.putExtra("current_alarm_id", alarm_id)
+		    				.putExtra("low_battery", pref.getBoolean("low_battery_status", false))
+		    				.putExtra("current_day_index", curr_day_index)
+		    				.putExtra("alarm_time_millis", alarmTime.getTimeInMillis())
+		    				.putExtra("alarm_time_date", alarmTime.get(Calendar.DATE))
+		    				.putExtra("alarm_time_month", alarmTime.get(Calendar.MONTH))
+		    				.putExtra("alarm_time_year", alarmTime.get(Calendar.YEAR)));
+		    			 
+		    			/*
 		    			//se il next alarm settato è un evento di stop significa che si è
 			    		//all'interno di un intervallo attivo iniziato in precedenza (infatti
 			    		//gli alarm sono preordinati per fare in modo che dopo un evento di
@@ -397,6 +415,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			    		if(MainActivity.logEnabled){
 			    			Log.d(MainActivity.AppName,"On boot - the previous alarm is valid; we set the same alarm");		
 			    		}
+			    		*/
 		    		}
 		    		else{
 		    			if(MainActivity.logEnabled){
@@ -483,9 +502,9 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						//si fa partire l'intent service del setNextAlarm che, in tal caso, cancella
 						//solamente il prossimo alarm, precedentemente impostato (in tal modo si
 						//ferma l'algoritmo)
-						context.getApplicationContext().startService(new Intent(context, SetNextAlarmIntentService.class)
-						.putExtra("current_alarm_id", pref.getInt("alarm_id",-1))
-						.putExtra("low_battery", true));		
+						context.getApplicationContext().startService(new Intent(context, SetNextAlarmTriggersIntentService.class)	
+							.putExtra("current_alarm_id", pref.getInt("alarm_id",-1))
+							.putExtra("low_battery", true));		
 						
 						toLog+=", STOP ALGORITHM (cancel next alarm)";
 					}
@@ -501,7 +520,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						
 						//////////////////////////////////////////////
 						//SI TRACCIANO GLI INTERVALLI NON VALUTATI A CAUSA DEL LIVELLO CRITICO DELLA BATTERIA
-						LogUtils.offIntervalsTracking(context, pref, alarm_id);					
+						//LogUtils.offIntervalsTracking(context, pref, alarm_id);					
 						//////////////////////////////////////////////
 						
 						//il livello della batteria non è più critico
@@ -509,11 +528,13 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						
 						//si fa partire l'intent service del setNextAlarm che imposta il prossimo
 						//alarm valido, facendo ripartire l'algoritmo
-						context.getApplicationContext().startService(new Intent(context, SetNextAlarmIntentService.class)
+						context.getApplicationContext().startService(new Intent(context, SetNextAlarmTriggersIntentService.class)
 							.putExtra("takeAllAlarms", true)
 							.putExtra("prevAlarmNotAvailable", true)
 							.putExtra("current_alarm_id", pref.getInt("alarm_id",-1))
-							.putExtra("low_battery", false));			
+							.putExtra("low_battery", false)
+							.putExtra("write_log_off_intervals", true));
+						    //ultimo parametro utile per scrivere nel log gli intervalli saltati (solo per test)
 						
 						toLog+=", low before, now ok, RESTART ALGORITHM (set new next alarm)";
 					}		
@@ -595,6 +616,14 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 	    	}
 	    			 
 	    	
+	    	//si fa partire l'intent service che setta solamente i trigger per il giorno
+			//corrente (se non sono già stati settati)
+			context.getApplicationContext().startService(new Intent(context, SetNextAlarmTriggersIntentService.class)				
+				.putExtra("set_triggers", true)
+				.putExtra("on_midnight", true)
+				.putExtra("set_next_alarm", false)); //non si imposta alcun alarm
+	    	
+	    	/*
 	    	//si impostano i trigger, se ancora non sono stati settati
 	    	AlarmUtils.setTriggers(context);
 	    	//se il primo intervallo di attività è quello 00:00-00:05 e se il precedente metodo ha
@@ -608,7 +637,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 	    	if(first_alarm.get_hour()==0 && first_alarm.get_minute()==0 && first_trigger_index==1){
 	    		//si visualizza la notifica (non causa problemi se la notifica è già on-screen)
 	    	}
-	    	
+	    	*/
 	    	
 	    	//una volta consumato questo alarm per l'update dell'indice artificiale, viene prima
 	    	//cancellato ogni alarm di questo tipo attraverso l'alarm manager (solo per sicurezza)
@@ -856,7 +885,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			
 			//si fa partire l'intent service che cancella l'alarm "consumato" da questo on receive e
 			//che imposta e lancia il prossimo alarm
-			context.getApplicationContext().startService(new Intent(context, SetNextAlarmIntentService.class)
+			context.getApplicationContext().startService(new Intent(context, SetNextAlarmTriggersIntentService.class)
 				.putExtra("takeAllAlarms", false)
 				.putExtra("prevAlarmNotAvailable", false)
 				.putExtra("current_alarm_id", this_alarm_id)
