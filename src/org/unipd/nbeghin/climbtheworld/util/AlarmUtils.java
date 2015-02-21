@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Random;
 
 import org.unipd.nbeghin.climbtheworld.AlgorithmConfigFragment;
+import org.unipd.nbeghin.climbtheworld.ClimbActivity;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionIntentService;
 import org.unipd.nbeghin.climbtheworld.comparator.AlarmComparator;
@@ -1018,11 +1019,14 @@ public final class AlarmUtils {
 			
 			//è un "intervallo di esplorazione"
 			if(!nextAlarm.isStepsInterval(artificialIndex)){ //normalmente alarmTime.get(Calendar.DAY_OF_WEEK))-1
-					
-				context.startService(new Intent(context, ActivityRecognitionRecordService.class));
-				//si registra anche il receiver per la registrazione dell'attività utente
-				//context.getApplicationContext().registerReceiver(userMotionReceiver, userMotionFilter);
-				//context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+				
+				//si attiva il classificatore Google solo se il gioco non è attivo
+				if(!ClimbActivity.isGameActive()){
+					context.startService(new Intent(context, ActivityRecognitionRecordService.class));
+					//si registra anche il receiver per la registrazione dell'attività utente
+					//context.getApplicationContext().registerReceiver(userMotionReceiver, userMotionFilter);
+					//context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+				}
 			}				
 			else{ //è un "intervallo con scalini"
 				
