@@ -18,7 +18,6 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 import android.view.View;
 
 /**
@@ -243,11 +242,11 @@ public class HoloCircleSeekBar extends View implements Parcelable{
 				unactive_wheel_color = Color
 						.parseColor(wheel_unactive_color_attr);
 			} catch (IllegalArgumentException e) {
-				unactive_wheel_color = Color.rgb(51,181,229);
+				unactive_wheel_color = Color.WHITE;
 			}
 
 		} else {
-			unactive_wheel_color =  Color.rgb(51,181,229);
+			unactive_wheel_color =  Color.WHITE;
 		}
 
 		if (pointer_color_attr != null) {
