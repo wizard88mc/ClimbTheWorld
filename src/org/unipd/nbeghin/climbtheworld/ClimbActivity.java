@@ -81,7 +81,7 @@ public class ClimbActivity extends Activity {
 	private VerticalSeekBar			seekbarIndicator;																						// reference to vertical seekbar
 	private int						vstep_for_rstep				= 1;
 	private boolean					used_bonus					= false;
-	private double					percentage_bonus			= 0.25f; //0.50f
+	private double					percentage_bonus			= 0.30f; //0.50f
 	private boolean climbedYesterday=false;
 	
 	// number of virtual step for each real step

@@ -35,8 +35,6 @@ public class StairsClassifierReceiver extends BroadcastReceiver {
  		
  		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
  		 		
- 		//Log.d(MainActivity.AppName,"STAIRS RECEIVER - result: " + result);
- 		
  		
 		double correction = 0.0;
 		for (int indexHistory = 0; indexHistory < history.size(); indexHistory++) {
@@ -77,6 +75,8 @@ public class StairsClassifierReceiver extends BroadcastReceiver {
 			if(climb!=null){ // && ClimbActivity.samplingEnabled){
 				Log.d(MainActivity.AppName,"STAIRS RECEIVER - refresh GUI:");
 				climb.refreshOnStep();
+				
+				//prefs.edit().putBoolean("steps_with_game", true).commit();
 			}
 		}
 		

@@ -1869,6 +1869,47 @@ public final class AlarmUtils {
 	
 	
 	
+	public static boolean isLastShownTriggerFarEnough(Context context, int current_trigger_id){
+		
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+		
+		//si recupera l'identificativo dell'ultimo trigger mostrato
+		int last_shown_trigger_id = pref.getInt("last_shown_trigger_id", -1);
+		
+		//se non è stato mai visualizzato un trigger, si ritorna 'true'
+		if(last_shown_trigger_id==-1){
+			return true;
+		}
+		
+		Calendar now = Calendar.getInstance();		
+		Calendar last_shown_trigger_time = (Calendar) now.clone();
+		
+		//si imposta il calendar del trigger che si vuole mostrare in questo momento
+		Alarm current_trigger_alarm = getAlarm(context, current_trigger_id);	
+		now.set(Calendar.HOUR_OF_DAY, current_trigger_alarm.get_hour());
+		now.set(Calendar.MINUTE, current_trigger_alarm.get_minute());
+		now.set(Calendar.SECOND, current_trigger_alarm.get_second());
+		
+		//si imposta il calendar con la data completa dell'ultimo trigger mostrato
+		Alarm last_shown_trigger_alarm = getAlarm(context, last_shown_trigger_id);		
+		last_shown_trigger_time.set(Calendar.HOUR_OF_DAY, last_shown_trigger_alarm.get_hour());
+		last_shown_trigger_time.set(Calendar.MINUTE, last_shown_trigger_alarm.get_minute());
+		last_shown_trigger_time.set(Calendar.SECOND, last_shown_trigger_alarm.get_second());		
+		last_shown_trigger_time.set(Calendar.DATE, pref.getInt("last_shown_trigger_date", -1));
+		last_shown_trigger_time.set(Calendar.MONTH, pref.getInt("last_shown_trigger_month", -1));
+		last_shown_trigger_time.set(Calendar.YEAR, pref.getInt("last_shown_trigger_year", -1));
+		
+		//se il trigger che viene visualizzato in questo momento dista almeno 6 ore dall'ultimo
+		//trigger mostrato, allora si può notificare il nuovo trigger
+		if(now.getTime().getTime() - last_shown_trigger_time.getTime().getTime() >= 21600000){
+			return true;
+		}
+		return false;		
+	}
+	
+	
+	
+	
 	public static void showTriggerNotification(Context context){
 		
 		NotificationManager mNotificationManager =
