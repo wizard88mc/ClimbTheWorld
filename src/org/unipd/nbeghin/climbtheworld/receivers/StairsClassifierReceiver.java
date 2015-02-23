@@ -78,6 +78,14 @@ public class StairsClassifierReceiver extends BroadcastReceiver {
 				
 				prefs.edit().putInt("steps_with_game_today",prefs.getInt("steps_with_game_today",0)+1).commit();
 			}
+			else{ 
+				//se il gioco non è attivo e sta eseguendo questo receiver, significa che il
+				//classificatore scalini/non_scalini è attivo per un "intervallo con scalini"; in
+				//tal caso, basta uno scalino per mantenere un intervallo di questo tipo e, quindi,
+				//al primo scalino rilevato si ferma il classificatore
+				
+				
+			}
 		}
 		
 		if(climb!=null){ // && ClimbActivity.samplingEnabled){

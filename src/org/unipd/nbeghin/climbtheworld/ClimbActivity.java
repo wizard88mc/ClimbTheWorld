@@ -224,7 +224,14 @@ public class ClimbActivity extends Activity {
 			}
 			updateStats(); // update the view of current stats
 			if (win) {
-				stopClassify(AlarmUtils.getAlarm(appContext, settings.getInt("alarm_id", -1)), settings.getInt("artificialDayIndex", 0)); // stop classifier service
+				//si recupera il prossimo alarm impostato
+				int next_alarm_id = settings.getInt("alarm_id", -1);
+				Alarm next_alarm = null;				
+				if(next_alarm_id!=-1){
+					next_alarm = AlarmUtils.getAlarm(appContext, next_alarm_id);
+				}
+				
+				stopClassify(next_alarm, settings.getInt("artificialDayIndex", 0)); // stop classifier service
 				apply_win();
 			}
 		}
