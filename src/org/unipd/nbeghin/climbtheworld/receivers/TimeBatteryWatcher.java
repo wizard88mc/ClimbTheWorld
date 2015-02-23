@@ -204,6 +204,26 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    	}	
 		    	
 		    	
+		    	if(day_diff>0){		    		
+		    		//si resetta il campo che memorizza il numero di scalini fatti ieri giocando
+		    		pref.edit().putInt("steps_with_game_yesterday",0).commit();
+		    		
+		    		//se durante l'ultimo spegnimento è iniziato un nuovo giorno (solo uno)
+			    	if(day_diff==1){		    		
+			    		
+			    		//nel campo 'steps_with_game_yesterday' si memorizza il numero di scalini
+			    		//fatti ieri giocando, usando il campo 'steps_with_game_today' relativo al
+			    		//giorno precedente
+			    		pref.edit().putInt("steps_with_game_yesterday",pref.getInt("steps_with_game_today",0)).commit();
+			    		
+			    		Log.d(MainActivity.AppName,"TimeBatteryWatcher - on boot, steps_with_game_yesterday: " + pref.getInt("steps_with_game_yesterday",-1));	
+			    	}
+			    	
+			    	//si resetta il campo numero di scalini fatti col gioco nel giorno corrente
+			    	pref.edit().putInt("steps_with_game_today",0).commit();		    		
+		    	}
+		    	
+		    	
 		    	//si impostano i trigger, se ancora non sono stati settati
 		    	//AlarmUtils.setTriggers(context);
 		    			    	
@@ -291,13 +311,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    	
 		    	//in ogni caso si cancella dall'alarm manager l'alarm precedentemente impostato 
 		    	//AlarmUtils.cancelAlarm(context, current_next_alarm);	
-					
-					
-		    	//////////////////////////////////////////////
-		    	//SI TRACCIANO GLI INTERVALLI NON VALUTATI A CAUSA DEL DEVICE SPENTO
-		    	//LogUtils.offIntervalsTracking(context, alarm_id);					
-		    	//////////////////////////////////////////////
-					
+										
 					
 		    	//l'alarm ha un istante di inizio già passato e, quindi, non è più valido
 		    	if(alarmTime.before(Calendar.getInstance())){
@@ -313,7 +327,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    			//si fa partire l'intent service che setta i trigger per il giorno
 		    			//corrente (se non sono già stati settati) e imposta e lancia un nuovo alarm	 
 			    		//(se il nuovo alarm è di stop, si fa ripartire subito il classificatore opportuno)
-			    		context.getApplicationContext().startService(new Intent(context, SetNextAlarmTriggersIntentService.class)
+			    		context.startService(new Intent(context, SetNextAlarmTriggersIntentService.class)
 			    			.putExtra("set_triggers", true) //set dei trigger a 'true'
 			    			.putExtra("takeAllAlarms", true)
 			    			.putExtra("prevAlarmNotAvailable", true)
@@ -331,7 +345,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    			//si fa partire l'intent service che setta i trigger per il giorno
 		    			//corrente (se non sono già stati settati) e che reimposta l'alarm valido
 		    			//impostato in precedenza
-		    			context.getApplicationContext().startService(new Intent(context, SetNextAlarmTriggersIntentService.class)
+		    			context.startService(new Intent(context, SetNextAlarmTriggersIntentService.class)
 		    				.putExtra("set_triggers", true) //set dei trigger a 'true'
 		    				.putExtra("valid_on_boot", true) //l'alarm settato in precedenza è ancora valido
 		    				.putExtra("current_alarm_id", alarm_id)
@@ -413,12 +427,19 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    	}		    	
 		    	//}	
 		    	
+		    	//in ogni caso (anche se scalini con gioco oggi > scalini con gioco ieri) si pone a
+		    	//'false' il booleano che indica che l'utente si è migliorato, così da non
+		    	//riavviare nuovamente l'algoritmo (già riavviato qui) in caso di batteria 
+		    	//accettabile e scalini con gioco oggi <= scalini con gioco ieri
+		    	pref.edit().putBoolean("better_game_steps_number",false).commit();
+		    	
+		    	
 		    	//si re-imposta l'alarm che serve per recuperare il livello di carica della batteria;
 		    	//è utile per attuare il bilanciamento energetico        	    	
     	    	Intent battery_intent = new Intent(context, TimeBatteryWatcher.class);
     	    	battery_intent.setAction("org.unipd.nbeghin.climbtheworld.BATTERY_ENERGY_BALANCING");    	
-    	    	//si ripete l'alarm circa ogni ora (il primo lancio avviene entro 5 minuti dal boot)
-    	    	alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 300000,
+    	    	//si ripete l'alarm circa ogni ora (il primo lancio avviene entro 5 secondi dal boot)
+    	    	alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 5000,
     	    			3600000, PendingIntent.getBroadcast(context, 0, battery_intent, 0));		    	
 			}
 		}
@@ -435,153 +456,192 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			int alarm_id = pref.getInt("alarm_id", -1);
 			//se l'algoritmo è stato configurato e c'è un prossimo alarm impostato
 			if(pref.getBoolean("algorithm_configured", false) && alarm_id!=-1){	
+					
+				//si recupera il livello della batteria
+				IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+				Intent batteryStatus = context.getApplicationContext().registerReceiver(null, ifilter);
+				int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+				int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+				//percentuale di batteria
+				float batteryPct = level / (float)scale;
 				
-				//if(!pref.getBoolean("steps_with_game", false)){
+				String toLog="";
+				
+				//se il livello di batteria è critico (<=20%) e non si sono già fatte le opportune
+				//correzioni, si sospende l'algoritmo (ascolto e trigger)
+				if(batteryPct<=0.2){
 					
-					//se dal precedente rilevamento non ha fatto scalini giocando, si ferma 
-					//l'algoritmo solo se il livello di batteria è critico
+					toLog+="TimeBatteryWatcher - ENERGY BALANCING, LEVEL <=20%";
 					
-					//si recupera il livello della batteria
-					IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-					Intent batteryStatus = context.getApplicationContext().registerReceiver(null, ifilter);
-					int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-					int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-					//percentuale di batteria
-					float batteryPct = level / (float)scale;
-					
-					//LogUtils.writeLogFile(context, "\nTimeBatteryWatcher - ENERGY BALANCING, "+dateFormat.format((Calendar.getInstance()).getTime())+" level: "+level+", scale: "+scale+", BATTERY: "+batteryPct);
-					
-					String toLog="";
-					
-					//se il livello di batteria è critico (<=20%) e non si sono già fatte le opportune
-					//correzioni, si sospende l'algoritmo (ascolto e trigger)
-					if(batteryPct<=0.2){
-					
-						toLog+="TimeBatteryWatcher - ENERGY BALANCING, LEVEL <=20%";
+					if(!pref.getBoolean("low_battery_status", false)){
 						
-						if(!pref.getBoolean("low_battery_status", false)){
-							
-							//nelle shared preferences si salva il booleano che indica il livello critico della batteria 
-							pref.edit().putBoolean("low_battery_status", true).commit();
-							
-							//si recupera il prossimo alarm impostato in precedenza
-							Alarm current_next_alarm = AlarmUtils.getAlarm(context, alarm_id);
-							//se è di stop significa che si è all'interno di un intervallo attivo e, quindi,
-							//si ferma il classificatore eventualmente in esecuzione
-							if(!current_next_alarm.get_actionType()){
+						//nelle shared preferences si salva il booleano che indica il livello critico della batteria 
+						pref.edit().putBoolean("low_battery_status", true).commit();
+						
+						/*
+						//si recupera il prossimo alarm impostato in precedenza
+						Alarm current_next_alarm = AlarmUtils.getAlarm(context, alarm_id);
+						//se è di stop significa che si è all'interno di un intervallo attivo e, quindi,
+						//si ferma il classificatore eventualmente in esecuzione
+						if(!current_next_alarm.get_actionType()){
 								
-								if(!current_next_alarm.isStepsInterval(pref.getInt("artificialDayIndex", 0))){
-									if(GeneralUtils.isActivityRecognitionServiceRunning(context)){
-										Log.d(MainActivity.AppName,"BATTERY LOW - Stop activity recognition");
-										toLog+=", stop activity recognition";
-										context.getApplicationContext().stopService(new Intent(context, ActivityRecognitionRecordService.class));
-									}
-								}
-								else{
-									//se l'intervallo è un "intervallo con scalini" e il gioco non è in esecuzione, allora
-									//si ferma il classificatore scalini/non_scalini
-									if(!ClimbActivity.isGameActive()){
-										Log.d(MainActivity.AppName,"BATTERY LOW - Gioco non attivo, si ferma il classificatore scalini");
-										toLog+=", game not active, stop stairs classifier";
-										context.getApplicationContext().stopService(new Intent(context, SamplingClassifyService.class));
-										//si disabilita anche il receiver
-										//context.getApplicationContext().unregisterReceiver(stairsReceiver);
-										context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
-									}	
+							if(!current_next_alarm.isStepsInterval(pref.getInt("artificialDayIndex", 0))){
+								if(GeneralUtils.isActivityRecognitionServiceRunning(context)){
+									Log.d(MainActivity.AppName,"BATTERY LOW - Stop activity recognition");
+									toLog+=", stop activity recognition";
+									context.getApplicationContext().stopService(new Intent(context, ActivityRecognitionRecordService.class));
 								}
 							}
-								
-							//si fa partire l'intent service del setNextAlarm che, in tal caso, cancella
-							//solamente il prossimo alarm, precedentemente impostato (in tal modo si
-							//ferma l'algoritmo)
-							context.getApplicationContext().startService(new Intent(context, SetNextAlarmTriggersIntentService.class)	
-								.putExtra("current_alarm_id", pref.getInt("alarm_id",-1))
-								.putExtra("low_battery", true));		
-							
-							toLog+=", STOP ALGORITHM (cancel next alarm)";
+							else{
+								//se l'intervallo è un "intervallo con scalini" e il gioco non è in esecuzione, allora
+								//si ferma il classificatore scalini/non_scalini
+								if(!ClimbActivity.isGameActive()){
+									Log.d(MainActivity.AppName,"BATTERY LOW - Gioco non attivo, si ferma il classificatore scalini");
+									toLog+=", game not active, stop stairs classifier";
+									context.getApplicationContext().stopService(new Intent(context, SamplingClassifyService.class));
+									//si disabilita anche il receiver
+									//context.getApplicationContext().unregisterReceiver(stairsReceiver);
+									context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+								}	
+							}
 						}
+								
+						//si fa partire l'intent service del setNextAlarm che, in tal caso, cancella
+						//solamente il prossimo alarm, precedentemente impostato (in tal modo si
+						//ferma l'algoritmo)
+						context.getApplicationContext().startService(new Intent(context, SetNextAlarmTriggersIntentService.class)	
+							.putExtra("current_alarm_id", pref.getInt("alarm_id",-1))
+							.putExtra("low_battery", true));		
+						*/
+						
+						GeneralUtils.stopAlgorithm(context, alarm_id, pref);
+												
+						toLog+=", STOP ALGORITHM (cancel next alarm)";
 					}
-					else {
-						
-						toLog+="TimeBatteryWatcher - ENERGY BALANCING, LEVEL >20%";
-						
-						//se l'ultima volta è stato rilevato un livello di batteria critico, ora quest'ultimo
-						//si è alzato e, quindi, si fa ripartire l'algoritmo, impostando opportunamente il
-						//prossimo alarm
-						if(pref.getBoolean("low_battery_status", false)){
+				}
+				else {
+					
+					toLog+="TimeBatteryWatcher - ENERGY BALANCING, LEVEL >20%";
+					
+					//se l'ultima volta è stato rilevato un livello di batteria critico, ora quest'ultimo
+					//si è alzato e, quindi, si fa ripartire l'algoritmo, impostando opportunamente il
+					//prossimo alarm
+					if(pref.getBoolean("low_battery_status", false)){
+												
+						//il livello della batteria non è più critico
+						pref.edit().putBoolean("low_battery_status", false).commit();
 							
-							//////////////////////////////////////////////
-							//SI TRACCIANO GLI INTERVALLI NON VALUTATI A CAUSA DEL LIVELLO CRITICO DELLA BATTERIA
-							//LogUtils.offIntervalsTracking(context, pref, alarm_id);					
-							//////////////////////////////////////////////
+						//se oggi l'utente, giocando, non si è migliorato facendo più scalini
+						//rispetto a ieri, allora si attiva l'algoritmo
+						if(pref.getInt("steps_with_game_today",0) <= pref.getInt("steps_with_game_yesterday",0)){
 							
-							//il livello della batteria non è più critico
-							pref.edit().putBoolean("low_battery_status", false).commit();
+							pref.edit().putBoolean("better_game_steps_number",false).commit();
 							
 							//si fa partire l'intent service del setNextAlarm che imposta il prossimo
 							//alarm valido, facendo ripartire l'algoritmo
-							context.getApplicationContext().startService(new Intent(context, SetNextAlarmTriggersIntentService.class)
+							context.startService(new Intent(context, SetNextAlarmTriggersIntentService.class)
 								.putExtra("takeAllAlarms", true)
 								.putExtra("prevAlarmNotAvailable", true)
 								.putExtra("current_alarm_id", pref.getInt("alarm_id",-1))
 								.putExtra("low_battery", false)
 								.putExtra("write_log_off_intervals", true));
-							    //ultimo parametro utile per scrivere nel log gli intervalli saltati (solo per test)
+								//ultimo parametro utile per scrivere nel log gli intervalli saltati (solo per test)
+								
+							toLog+=", low before, now ok, steps_game_today <= yesterday, RESTART ALGORITHM (set new next alarm)";
+						}
+						else{ //scalini con gioco oggi > scalini con gioco ieri
 							
-							toLog+=", low before, now ok, RESTART ALGORITHM (set new next alarm)";
-						}		
+							pref.edit().putBoolean("better_game_steps_number",true).commit();
+							
+							toLog+=", low before, now ok, steps_game_today > yesterday, NO RESTART ALGORITHM";
+						}
+					}
+					else{
+						//se l'ultima volta è stato rilevato un livello di batteria accettabile e lo
+						//è ancora, l'algoritmo è attualmente in esecuzione (cioè è impostato un
+						//prossimo alarm) solo se non lo si è fermato in precedenza per il fatto che
+						//l'utente si è migliorato come numero scalini rispetto a ieri;
+						//si ferma l'algoritmo se, rispetto a ieri, l'utente è migliorato nel numero
+						//di scalini fatti col gioco
 						
-						boolean restart=false;
-						
-						//se il livello di batteria L è <=45% si abbassa la frequenza di aggiornamento
-						//del servizio di activity recognition:
-						//se 20%<L<=30%: ogni 20 secondi, se 30%<L<=45%: ogni 10 secondi, 
-						//se L>45% ogni 5 secondi (impostazione di default)
-						if(batteryPct<=0.3){						
-							if(ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)!=20000){							
-								//si imposta la frequenza di aggiornamento a 20 secondi
-								ActivityRecognitionUtils.setDetectionIntervalMilliseconds(context, 20000);
-								restart=true;
+						//se oggi l'utente, giocando, si è migliorato facendo più scalini rispetto a
+						//ieri, allora si ferma l'algoritmo
+						if(pref.getInt("steps_with_game_today",0) > pref.getInt("steps_with_game_yesterday",0)){
+							
+							GeneralUtils.stopAlgorithm(context, alarm_id, pref);
+							
+							pref.edit().putBoolean("better_game_steps_number",true).commit();
+							
+							toLog+=", steps_game_today > yesterday, STOP ALGORITHM (cancel next alarm)";
+						}
+						else{//scalini con gioco oggi <= scalini con gioco ieri
+							
+							//se al precedente rilevamento, il numero di scalini era migliorato,
+							//significa che l'algoritmo non è attualmente in esecuzione; quindi
+							//in tal caso lo si riavvia; se, invece, il numero di scalini non era 
+							//buono già da prima, l'algoritmo è attualmente in esecuzione
+							if(pref.getBoolean("better_game_steps_number",false)){
+								//si fa partire l'intent service del setNextAlarm che imposta il prossimo
+								//alarm valido, facendo ripartire l'algoritmo
+								context.startService(new Intent(context, SetNextAlarmTriggersIntentService.class)
+									.putExtra("takeAllAlarms", true)
+									.putExtra("prevAlarmNotAvailable", true)
+									.putExtra("current_alarm_id", pref.getInt("alarm_id",-1))
+									.putExtra("low_battery", false)
+									.putExtra("write_log_off_intervals", true));
+									//ultimo parametro utile per scrivere nel log gli intervalli saltati (solo per test)
+								
+								toLog+=", steps_game_today <= yesterday, before >, RESTART algorithm";
 							}
-						}
-						else if(batteryPct<=0.45){					
-							if(ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)!=10000){
-								//si imposta la frequenza di aggiornamento a 10 secondi
-								ActivityRecognitionUtils.setDetectionIntervalMilliseconds(context, 10000);	
-								restart=true;
-							}						
-						}
-						else{ //batteryPct>0.45						
-							if(ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)!=5000){
-								//si imposta la frequenza di aggiornamento a 5 secondi
-								ActivityRecognitionUtils.setDetectionIntervalMilliseconds(context, 5000);
-								restart=true;
-							}						
-						}
-						//se si è cambiata la frequenza di aggiornamento e se il servizio di activity
-						//recognition è in esecuzione, si riavvia
-						if(restart && GeneralUtils.isActivityRecognitionServiceRunning(context)){
-							context.getApplicationContext().stopService(new Intent(context, ActivityRecognitionRecordService.class));
-							context.getApplicationContext().startService(new Intent(context, ActivityRecognitionRecordService.class));
-							toLog+=", restart activity recognition service with "+ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)/1000+"-seconds update interval";
+							else{
+								toLog+=", steps_game_today <= yesterday, before <=, CONTINUE algorithm";
+							}
+							
+							pref.edit().putBoolean("better_game_steps_number",false).commit();
 						}
 					}
-					//LogUtils.writeLogFile(context, toLog);
-									
-					if(MainActivity.logEnabled){
-		    			Log.d(MainActivity.AppName,"TimeBatteryWatcher - ENERGY BALANCING, "+dateFormat.format((Calendar.getInstance()).getTime())+" level: "+level+", scale: "+scale+", BATTERY: "+batteryPct);		
-		    		    Log.d(MainActivity.AppName,toLog);
+					
+					boolean restart=false;
+					
+					//se il livello di batteria L è <=45% si abbassa la frequenza di aggiornamento
+					//del servizio di activity recognition:
+					//se 20%<L<=30%: ogni 20 secondi, se 30%<L<=45%: ogni 10 secondi, 
+					//se L>45% ogni 5 secondi (impostazione di default)
+					if(batteryPct<=0.3){						
+						if(ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)!=20000){							
+							//si imposta la frequenza di aggiornamento a 20 secondi
+							ActivityRecognitionUtils.setDetectionIntervalMilliseconds(context, 20000);
+							restart=true;
+						}
 					}
-				/*	
+					else if(batteryPct<=0.45){					
+						if(ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)!=10000){
+							//si imposta la frequenza di aggiornamento a 10 secondi
+							ActivityRecognitionUtils.setDetectionIntervalMilliseconds(context, 10000);	
+							restart=true;
+						}						
+					}
+					else{ //batteryPct>0.45						
+						if(ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)!=5000){
+							//si imposta la frequenza di aggiornamento a 5 secondi
+							ActivityRecognitionUtils.setDetectionIntervalMilliseconds(context, 5000);
+							restart=true;
+						}						
+					}
+					//se si è cambiata la frequenza di aggiornamento e se il servizio di activity
+					//recognition è in esecuzione, si riavvia
+					if(restart && GeneralUtils.isActivityRecognitionServiceRunning(context)){
+						context.stopService(new Intent(context, ActivityRecognitionRecordService.class));
+						context.startService(new Intent(context, ActivityRecognitionRecordService.class));
+						toLog+=", restart activity recognition service with "+ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)/1000+"-seconds update interval";
+					}
 				}
-				else{
-					//se dal precedente rilevamento ha fatto scalini giocando, si ferma l'algoritmo
-					
-					
-					
-				}
-				pref.edit().putBoolean("steps_with_game", false).commit();				
-				*/
+				//LogUtils.writeLogFile(context, toLog);
+				
+				if(MainActivity.logEnabled){
+					Log.d(MainActivity.AppName,"TimeBatteryWatcher - ENERGY BALANCING, "+dateFormat.format((Calendar.getInstance()).getTime())+" level: "+level+", scale: "+scale+", BATTERY: "+batteryPct);		
+					Log.d(MainActivity.AppName,toLog);
+				}				
 			}
 		}
 		/////////
@@ -615,11 +675,20 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 	    	if(MainActivity.logEnabled){
 	    		Log.d(MainActivity.AppName + " - TEST","TimeBatteryWatcher - on update index, new index: "+pref.getInt("artificialDayIndex", 0)+", new date: " + dateFormatted);
 	    	}
-	    			 
+	    	
+	    	
+	    	//nel campo 'steps_with_game_yesterday' si memorizza il numero di scalini
+    		//fatti ieri giocando, usando il campo 'steps_with_game_today' relativo al
+    		//giorno precedente	     	
+	    	pref.edit().putInt("steps_with_game_yesterday",pref.getInt("steps_with_game_today",0)).commit();
+	    	//si resetta il campo numero di scalini fatti col gioco nel giorno corrente
+	    	pref.edit().putInt("steps_with_game_today",0).commit();
+	    	Log.d(MainActivity.AppName,"TimeBatteryWatcher - on update index, steps_with_game_yesterday: "+pref.getInt("steps_with_game_yesterday",-1)
+	    			+" reset steps_with_game_today: "+pref.getInt("steps_with_game_today",-1));
 	    	
 	    	//si fa partire l'intent service che setta solamente i trigger per il giorno
 			//corrente (se non sono già stati settati)
-			context.getApplicationContext().startService(new Intent(context, SetNextAlarmTriggersIntentService.class)				
+			context.startService(new Intent(context, SetNextAlarmTriggersIntentService.class)				
 				.putExtra("set_triggers", true)
 				.putExtra("on_midnight", true)
 				.putExtra("set_next_alarm", false)); //non si imposta alcun alarm
@@ -763,7 +832,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 							//non è un "intervallo con scalini"
 							
 							if(!GeneralUtils.isActivityRecognitionServiceRunning(context)){
-							   	context.getApplicationContext().startService(new Intent(context, ActivityRecognitionRecordService.class));
+							   	context.startService(new Intent(context, ActivityRecognitionRecordService.class));
 							   	//si abilita anche il receiver per la registrazione dell'attività utente
 								//context.getApplicationContext().registerReceiver(userMotionReceiver, userMotionFilter);
 								//context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);					
@@ -778,7 +847,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 							//è un "intervallo con scalini"			
 							Log.d(MainActivity.AppName,"START ACTION - 'Intervallo con scalini'");
 							
-							context.getApplicationContext().startService(new Intent(context, SamplingClassifyService.class));
+							context.startService(new Intent(context, SamplingClassifyService.class));
 							//si registra anche il receiver
 							//context.getApplicationContext().registerReceiver(stairsReceiver, stairsActionFilter);
 							context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);					
@@ -806,7 +875,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					//è attivo
 					if(GeneralUtils.isActivityRecognitionServiceRunning(context)){
 						Log.d(MainActivity.AppName,"STOP ACTION - Stop activity recognition");
-					   	context.getApplicationContext().stopService(new Intent(context, ActivityRecognitionRecordService.class));
+					   	context.stopService(new Intent(context, ActivityRecognitionRecordService.class));
 						//si disabilita anche il receiver per la registrazione dell'attività utente
 						//context.getApplicationContext().unregisterReceiver(userMotionReceiver);
 						//context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, UserMotionReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
@@ -860,7 +929,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						
 						Log.d(MainActivity.AppName,"STOP ACTION - Gioco non attivo, si ferma il classificatore scalini");
 						
-						context.getApplicationContext().stopService(new Intent(context, SamplingClassifyService.class));
+						context.stopService(new Intent(context, SamplingClassifyService.class));
 						//si disabilita anche il receiver
 						//context.getApplicationContext().unregisterReceiver(stairsReceiver);
 						context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);					
@@ -903,7 +972,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 			
 			//si fa partire l'intent service che cancella l'alarm "consumato" da questo on receive e
 			//che imposta e lancia il prossimo alarm
-			context.getApplicationContext().startService(new Intent(context, SetNextAlarmTriggersIntentService.class)
+			context.startService(new Intent(context, SetNextAlarmTriggersIntentService.class)
 				.putExtra("takeAllAlarms", false)
 				.putExtra("prevAlarmNotAvailable", false)
 				.putExtra("current_alarm_id", this_alarm_id)

@@ -16,7 +16,6 @@ import org.unipd.nbeghin.climbtheworld.AlgorithmConfigFragment;
 import org.unipd.nbeghin.climbtheworld.ClimbActivity;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.activity.recognition.ActivityRecognitionIntentService;
-import org.unipd.nbeghin.climbtheworld.comparator.AlarmComparator;
 import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.models.Alarm;
 import org.unipd.nbeghin.climbtheworld.receivers.StairsClassifierReceiver;
@@ -1240,48 +1239,7 @@ public final class AlarmUtils {
 	}
 	
 	
-	private static boolean isNextIntervalActive(Context context, Alarm current_alarm, int current_day_index){
-				
-		//se l'alarm corrente è di stop, l'id di start del prossimo intervallo è quello successivo; il
-		//tempo che intercorre tra i due alarm deve essere pari a 1 secondo
-		int next_id=current_alarm.get_id()+1;		
-		long target_time_diff = 1000;
-		//se l'alarm corrente è di start, l'id di start dell'intervallo successivo dista 2 lunghezze da
-		//quello corrente; il tempo che intercorre tra i due alarm deve essere pari a 5 minuti
-		if(current_alarm.get_actionType()){
-			next_id=current_alarm.get_id()+2;	
-			target_time_diff=300000; //5 minuti
-		}
-		
-		//si recupera il prossimo alarm
-		Alarm next_alarm=getAlarm(context, next_id);
-		//se il prossimo alarm esiste ed è attivo per il giorno corrente, si controlla che questo sia
-		//consecutivo all'alarm corrente
-		if(next_alarm!=null && next_alarm.getRepeatingDay(current_day_index)){
-			
-			Calendar current_alarm_time = Calendar.getInstance();
-			Calendar next_interval_time = (Calendar) current_alarm_time.clone();
-			int current_h=current_alarm.get_hour();
-			int current_m=current_alarm.get_minute();
-			current_alarm_time.set(Calendar.HOUR_OF_DAY, current_h);
-			current_alarm_time.set(Calendar.MINUTE, current_m);
-			current_alarm_time.set(Calendar.SECOND, current_alarm.get_second());
-			next_interval_time.set(Calendar.HOUR_OF_DAY, next_alarm.get_hour());
-			next_interval_time.set(Calendar.MINUTE, next_alarm.get_minute());
-			next_interval_time.set(Calendar.SECOND, next_alarm.get_second());
-			
-			//differenza di tempo tra i due alarm
-			long time_diff = next_interval_time.getTime().getTime() - current_alarm_time.getTime().getTime();
-			
-			//si ritorna 'true' se il prossimo intervallo è attivo e viene immediatamente dopo in ordine
-			//di tempo rispetto all'alarm corrente
-			if(time_diff==target_time_diff){
-				return true;
-			}
-			return false;			
-		}		
-		return false;
-	}
+	
 	
 	
 	private static boolean isLastListenedIntervalFarEnough(Context context, Alarm current_alarm, 
@@ -1427,23 +1385,7 @@ public final class AlarmUtils {
 	
 	
 	
-	private static boolean areIntervalSetsFarEnough(Context context, Alarm last_alarm_first_set, Alarm first_alarm_second_set){
-		
-		Calendar alarm_first_set_time = Calendar.getInstance();
-		Calendar alarm_second_set_time = (Calendar) alarm_first_set_time.clone();
-		
-		alarm_first_set_time.set(Calendar.HOUR_OF_DAY, last_alarm_first_set.get_hour());
-		alarm_first_set_time.set(Calendar.MINUTE, last_alarm_first_set.get_minute());
-		alarm_first_set_time.set(Calendar.SECOND, last_alarm_first_set.get_second());
-		alarm_second_set_time.set(Calendar.HOUR_OF_DAY, first_alarm_second_set.get_hour());
-		alarm_second_set_time.set(Calendar.MINUTE, first_alarm_second_set.get_minute());
-		alarm_second_set_time.set(Calendar.SECOND, first_alarm_second_set.get_second());
-		
-		if(alarm_second_set_time.getTime().getTime() - alarm_first_set_time.getTime().getTime() >= 21600000){
-			return true;
-		}
-		return false;		
-	}
+	
 	
 	
 	
@@ -1952,7 +1894,73 @@ public final class AlarmUtils {
 	}
 	/////////
 	 
+
+	/*
 	 
+	 private static boolean isNextIntervalActive(Context context, Alarm current_alarm, int current_day_index){
+				
+		//se l'alarm corrente è di stop, l'id di start del prossimo intervallo è quello successivo; il
+		//tempo che intercorre tra i due alarm deve essere pari a 1 secondo
+		int next_id=current_alarm.get_id()+1;		
+		long target_time_diff = 1000;
+		//se l'alarm corrente è di start, l'id di start dell'intervallo successivo dista 2 lunghezze da
+		//quello corrente; il tempo che intercorre tra i due alarm deve essere pari a 5 minuti
+		if(current_alarm.get_actionType()){
+			next_id=current_alarm.get_id()+2;	
+			target_time_diff=300000; //5 minuti
+		}
+		
+		//si recupera il prossimo alarm
+		Alarm next_alarm=getAlarm(context, next_id);
+		//se il prossimo alarm esiste ed è attivo per il giorno corrente, si controlla che questo sia
+		//consecutivo all'alarm corrente
+		if(next_alarm!=null && next_alarm.getRepeatingDay(current_day_index)){
+			
+			Calendar current_alarm_time = Calendar.getInstance();
+			Calendar next_interval_time = (Calendar) current_alarm_time.clone();
+			int current_h=current_alarm.get_hour();
+			int current_m=current_alarm.get_minute();
+			current_alarm_time.set(Calendar.HOUR_OF_DAY, current_h);
+			current_alarm_time.set(Calendar.MINUTE, current_m);
+			current_alarm_time.set(Calendar.SECOND, current_alarm.get_second());
+			next_interval_time.set(Calendar.HOUR_OF_DAY, next_alarm.get_hour());
+			next_interval_time.set(Calendar.MINUTE, next_alarm.get_minute());
+			next_interval_time.set(Calendar.SECOND, next_alarm.get_second());
+			
+			//differenza di tempo tra i due alarm
+			long time_diff = next_interval_time.getTime().getTime() - current_alarm_time.getTime().getTime();
+			
+			//si ritorna 'true' se il prossimo intervallo è attivo e viene immediatamente dopo in ordine
+			//di tempo rispetto all'alarm corrente
+			if(time_diff==target_time_diff){
+				return true;
+			}
+			return false;			
+		}		
+		return false;
+	}
+	 
+	 private static boolean areIntervalSetsFarEnough(Context context, Alarm last_alarm_first_set, Alarm first_alarm_second_set){
+		
+		Calendar alarm_first_set_time = Calendar.getInstance();
+		Calendar alarm_second_set_time = (Calendar) alarm_first_set_time.clone();
+		
+		alarm_first_set_time.set(Calendar.HOUR_OF_DAY, last_alarm_first_set.get_hour());
+		alarm_first_set_time.set(Calendar.MINUTE, last_alarm_first_set.get_minute());
+		alarm_first_set_time.set(Calendar.SECOND, last_alarm_first_set.get_second());
+		alarm_second_set_time.set(Calendar.HOUR_OF_DAY, first_alarm_second_set.get_hour());
+		alarm_second_set_time.set(Calendar.MINUTE, first_alarm_second_set.get_minute());
+		alarm_second_set_time.set(Calendar.SECOND, first_alarm_second_set.get_second());
+		
+		if(alarm_second_set_time.getTime().getTime() - alarm_first_set_time.getTime().getTime() >= 21600000){
+			return true;
+		}
+		return false;		
+	}
+	 
+	 */
+	
+	
 	 
 	 // fare metodo per considerare una coppia di alarm start-stop consecutivi
 	 //      l'idea è che se si seleziona un alarm di start scartato per dargli una 

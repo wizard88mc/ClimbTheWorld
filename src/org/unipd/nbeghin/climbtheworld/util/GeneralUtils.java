@@ -2,14 +2,10 @@ package org.unipd.nbeghin.climbtheworld.util;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.List;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -21,27 +17,28 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.unipd.nbeghin.climbtheworld.ClimbTheWorldApp;
+import org.unipd.nbeghin.climbtheworld.ClimbActivity;
 import org.unipd.nbeghin.climbtheworld.MainActivity;
-import org.unipd.nbeghin.climbtheworld.db.DbHelper;
 import org.unipd.nbeghin.climbtheworld.models.Alarm;
+import org.unipd.nbeghin.climbtheworld.receivers.StairsClassifierReceiver;
 import org.unipd.nbeghin.climbtheworld.receivers.TimeBatteryWatcher;
-
-import com.j256.ormlite.dao.RuntimeExceptionDao;
+import org.unipd.nbeghin.climbtheworld.services.ActivityRecognitionRecordService;
+import org.unipd.nbeghin.climbtheworld.services.SamplingClassifyService;
+import org.unipd.nbeghin.climbtheworld.services.SetNextAlarmTriggersIntentService;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.res.AssetManager;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -221,8 +218,8 @@ public final class GeneralUtils {
         	    	//attuare il bilanciamento energetico        	    	
         	    	Intent battery_intent = new Intent(context, TimeBatteryWatcher.class);
         	    	battery_intent.setAction("org.unipd.nbeghin.climbtheworld.BATTERY_ENERGY_BALANCING");    	
-        	    	//si ripete l'alarm circa ogni ora (il primo lancio avviene entro 5 minuti)
-        	    	alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 300000,
+        	    	//si ripete l'alarm circa ogni ora (il primo lancio avviene entro 5 secondi)
+        	    	alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 5000,
         	    			3600000, PendingIntent.getBroadcast(context, 0, battery_intent, 0));
     			}
     			else{
@@ -236,6 +233,44 @@ public final class GeneralUtils {
     
     
     
+    public static void stopAlgorithm(Context context, int alarm_id, SharedPreferences prefs){
+    	
+    	//si recupera il prossimo alarm impostato in precedenza
+		Alarm current_next_alarm = AlarmUtils.getAlarm(context, alarm_id);
+		//se è di stop significa che si è all'interno di un intervallo attivo e, quindi,
+		//si ferma il classificatore eventualmente in esecuzione
+		if(!current_next_alarm.get_actionType()){
+				
+			if(!current_next_alarm.isStepsInterval(prefs.getInt("artificialDayIndex", 0))){
+				if(isActivityRecognitionServiceRunning(context)){
+					Log.d(MainActivity.AppName,"BATTERY LOW - Stop activity recognition");
+					context.stopService(new Intent(context, ActivityRecognitionRecordService.class));
+				}
+			}
+			else{
+				//se l'intervallo è un "intervallo con scalini" e il gioco non è in esecuzione, allora
+				//si ferma il classificatore scalini/non_scalini
+				if(!ClimbActivity.isGameActive()){
+					Log.d(MainActivity.AppName,"BATTERY LOW - Gioco non attivo, si ferma il classificatore scalini");
+					context.stopService(new Intent(context, SamplingClassifyService.class));
+					//si disabilita anche il receiver
+					//context.getApplicationContext().unregisterReceiver(stairsReceiver);
+					context.getPackageManager().setComponentEnabledSetting(new ComponentName(context, StairsClassifierReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+				}	
+			}
+		}
+				
+		//si fa partire l'intent service del setNextAlarm che, in tal caso, cancella
+		//solamente il prossimo alarm, precedentemente impostato (in tal modo si
+		//ferma l'algoritmo)
+		context.startService(new Intent(context, SetNextAlarmTriggersIntentService.class)	
+			.putExtra("current_alarm_id", prefs.getInt("alarm_id",-1))
+			.putExtra("low_battery", true)); 
+    }
+    
+    
+    
+    /*
     private static void readIntervalsFromFile(Context context) {
 
     	DbHelper helper = DbHelper.getInstance(context);
@@ -276,14 +311,7 @@ public final class GeneralUtils {
 	            	Log.d(MainActivity.AppName, "Read intervals file: line number=" + line_number);
 	            	
 	            	if(line_number>1){
-	            		/*
-	            		if(MainActivity.logEnabled){
-	    	    			int month=cal_previous_stop.get(Calendar.MONTH)+1;	
-	    	    			Log.d(MainActivity.AppName, "AlarmUtils - PREVIOUS STOP_" + line_number + "  h:m:s=" 
-	    	    					+ cal_previous_stop.get(Calendar.HOUR_OF_DAY)+":"+ cal_previous_stop.get(Calendar.MINUTE)+":"+ cal_previous_stop.get(Calendar.SECOND) +
-	    	    					"  "+cal_previous_stop.get(Calendar.DATE)+"/"+month+"/"+cal_previous_stop.get(Calendar.YEAR));		    	    			
-	    	    		}	
-	    	            */
+	            	
 		            	int substring_end = receiveString.indexOf(";",0);
 		            		            	
 		            	String str_startTime = receiveString.substring(0,substring_end).trim();
@@ -366,7 +394,7 @@ public final class GeneralUtils {
 	        Log.e(MainActivity.AppName, " - Can not read file: " + e.toString());
 	    }
 	}
-    
+    */
     
     
     @SuppressWarnings("deprecation")

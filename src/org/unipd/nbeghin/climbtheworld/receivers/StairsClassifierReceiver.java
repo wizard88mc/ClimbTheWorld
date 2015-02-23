@@ -66,7 +66,7 @@ public class StairsClassifierReceiver extends BroadcastReceiver {
 		
 		if(finalClassification>0){ //scalino
 			
-			prefs.edit().putInt("steps_number", prefs.getInt("steps_number", 0)+1).commit();
+			prefs.edit().putInt("steps_number", prefs.getInt("steps_number",0)+1).commit();
 			
 			steps_number++;
 			Log.d(MainActivity.AppName,"STAIRS RECEIVER - steps number: " + getStepsNumber(prefs));
@@ -76,7 +76,7 @@ public class StairsClassifierReceiver extends BroadcastReceiver {
 				Log.d(MainActivity.AppName,"STAIRS RECEIVER - refresh GUI:");
 				climb.refreshOnStep();
 				
-				//prefs.edit().putBoolean("steps_with_game", true).commit();
+				prefs.edit().putInt("steps_with_game_today",prefs.getInt("steps_with_game_today",0)+1).commit();
 			}
 		}
 		
