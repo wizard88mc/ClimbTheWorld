@@ -21,7 +21,7 @@ import android.util.Log;
 public class SetNextAlarmTriggersIntentService extends IntentService {
 
 	public SetNextAlarmTriggersIntentService() {
-		super("SetNextAlarmIntentService");
+		super("SetNextAlarmTriggersIntentService");
 	}
 
 	@Override

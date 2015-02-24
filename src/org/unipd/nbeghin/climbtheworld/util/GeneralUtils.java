@@ -214,6 +214,8 @@ public final class GeneralUtils {
         	    	//si imposta e si lancia il prossimo alarm
         	    	AlarmUtils.setNextAlarm(context,true,false,-1);
         	    	
+        	    	prefs.edit().putInt("steps_with_game_yesterday",100).commit();
+        	    	
         	    	//si imposta l'alarm che serve per recuperare il livello di carica della batteria; è utile per
         	    	//attuare il bilanciamento energetico        	    	
         	    	Intent battery_intent = new Intent(context, TimeBatteryWatcher.class);
