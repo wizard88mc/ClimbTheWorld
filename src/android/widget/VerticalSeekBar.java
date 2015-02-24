@@ -34,6 +34,8 @@ public class VerticalSeekBar extends SeekBar {
 	 private int width = 0;
 	 private List<View> lines = new ArrayList<View>();
 	 private List<Bitmap> thumbs = new ArrayList<Bitmap>();
+	 private boolean show = true;
+
 	 
 	 private void setLists(){
 			RelativeLayout parent = (RelativeLayout) this.getParent();
@@ -82,7 +84,7 @@ public class VerticalSeekBar extends SeekBar {
 	protected void onDraw(Canvas c) {
 		c.rotate(-90);
 		c.translate(-getHeight(), 0);
-		if(lines.isEmpty() && thumbs.isEmpty()) setLists();
+		if(lines.size() < 4 && thumbs.size() < 4 && show) setLists();
 
 		for(int i = 0; i < lines.size(); i++){
 			View v = lines.get(i);
@@ -144,6 +146,11 @@ public class VerticalSeekBar extends SeekBar {
 			thumbs.set(i, goldenStar);
 		invalidate();
 	}
+	
+	public void hideStars(){
+		show = false;
+	}
+
 
 	/*
 	 * nbeghin: added onSizeChanged to solve thumb image not updated
