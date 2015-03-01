@@ -471,7 +471,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 				
 				//se il livello di batteria è critico (<=20%) e non si sono già fatte le opportune
 				//correzioni, si sospende l'algoritmo (ascolto e trigger)
-				if(batteryPct<=0.2){
+				if(batteryPct<=0.2f){
 					
 					toLog+="TimeBatteryWatcher - ENERGY BALANCING, LEVEL <=20%";
 					
@@ -570,11 +570,16 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						//rispetto a ieri, allora si ferma l'algoritmo
 						if(pref.getInt("steps_with_game_today",0) > pref.getInt("steps_with_game_yesterday",0)+steps_with_game_threshold){
 							
-							GeneralUtils.stopAlgorithm(context, alarm_id, pref);
-							
-							pref.edit().putBoolean("better_game_steps_number",true).commit();
-							
-							toLog+=", steps_game_today > yesterday+"+steps_with_game_threshold+", STOP ALGORITHM (cancel next alarm)";
+							if(!pref.getBoolean("better_game_steps_number",false)){
+								GeneralUtils.stopAlgorithm(context, alarm_id, pref);
+								
+								pref.edit().putBoolean("better_game_steps_number",true).commit();
+								
+								toLog+=", steps_game_today > yesterday+"+steps_with_game_threshold+", STOP ALGORITHM (cancel next alarm)";
+							}
+							else{
+								toLog+=", steps_game_today > yesterday+"+steps_with_game_threshold+", algorithm already stopped";
+							}							
 						}
 						else{//scalini con gioco oggi <= scalini con gioco ieri+10
 							
@@ -609,14 +614,14 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					//del servizio di activity recognition:
 					//se 20%<L<=30%: ogni 20 secondi, se 30%<L<=45%: ogni 10 secondi, 
 					//se L>45% ogni 5 secondi (impostazione di default)
-					if(batteryPct<=0.3){						
+					if(batteryPct<=0.3f){						
 						if(ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)!=20000){							
 							//si imposta la frequenza di aggiornamento a 20 secondi
 							ActivityRecognitionUtils.setDetectionIntervalMilliseconds(context, 20000);
 							restart=true;
 						}
 					}
-					else if(batteryPct<=0.45){					
+					else if(batteryPct<=0.45f){					
 						if(ActivityRecognitionUtils.getDetectionIntervalMilliseconds(context)!=10000){
 							//si imposta la frequenza di aggiornamento a 10 secondi
 							ActivityRecognitionUtils.setDetectionIntervalMilliseconds(context, 10000);	
