@@ -1109,7 +1109,9 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 			if (dialog.isShowing()) {
 				dialog.dismiss();
 			}
-			timer.schedule(updates, 3000, 5000); //execute in every 10 ms
+			//AUTOMATIC UPDATE
+			if(climbing.getGame_mode() != 0)
+				timer.schedule(updates, 3000, 5000); //execute in every 10 ms
 		}
 	}
 
@@ -1286,6 +1288,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 										group_members.get(i).setClickable(false);
 										group_members.get(i).setVisibility(View.VISIBLE);
 										group_members.get(i).setTextAppearance(getApplicationContext(), R.style.chartNormal);
+										group_members.get(i).setBackgroundColor(Color.parseColor("#dcdcdc"));
 										if (collaboration.getAmICreator()) {
 											final Integer idx = new Integer(i);
 											final ChartMember member = new ChartMember(key, steps);
