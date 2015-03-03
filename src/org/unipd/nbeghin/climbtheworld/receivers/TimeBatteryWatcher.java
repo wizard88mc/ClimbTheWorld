@@ -429,10 +429,10 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 		    	}		    	
 		    	//}	
 		    	
-		    	//in ogni caso (anche se scalini con gioco oggi > scalini con gioco ieri) si pone a
+		    	//in ogni caso (anche se scalini con gioco oggi > scalini con gioco ieri+10) si pone a
 		    	//'false' il booleano che indica che l'utente si è migliorato, così da non
 		    	//riavviare nuovamente l'algoritmo (già riavviato qui) in caso di batteria 
-		    	//accettabile e scalini con gioco oggi <= scalini con gioco ieri
+		    	//accettabile e scalini con gioco oggi <= scalini con gioco ieri+10
 		    	pref.edit().putBoolean("better_game_steps_number",false).commit();
 		    	
 		    	
@@ -442,7 +442,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
     	    	battery_intent.setAction("org.unipd.nbeghin.climbtheworld.BATTERY_ENERGY_BALANCING");    	
     	    	//si ripete l'alarm circa ogni ora (il primo lancio avviene entro 5 secondi dal boot)
     	    	alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 5000,
-    	    			3600000, PendingIntent.getBroadcast(context, 0, battery_intent, 0));		    	
+    	    			3600000, PendingIntent.getBroadcast(context, 0, battery_intent, 0));	    	
 			}
 		}
 		else if(action.equalsIgnoreCase(ENERGY_BALANCING)){ //bilanciamento energetico
@@ -571,6 +571,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						if(pref.getInt("steps_with_game_today",0) > pref.getInt("steps_with_game_yesterday",0)+steps_with_game_threshold){
 							
 							if(!pref.getBoolean("better_game_steps_number",false)){
+								
 								GeneralUtils.stopAlgorithm(context, alarm_id, pref);
 								
 								pref.edit().putBoolean("better_game_steps_number",true).commit();
@@ -802,10 +803,12 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 					editor.putInt("last_shown_trigger_month", now_tr.get(Calendar.MONTH));
 					editor.putInt("last_shown_trigger_year", now_tr.get(Calendar.YEAR));   
 					editor.commit();    				
-				}
-								
+				}	
 				
-				if(pref.getBoolean("next_is_far_enough", false)){
+				Alarm this_alarm = AlarmUtils.getAlarm(context, this_alarm_id);
+								
+				if(pref.getBoolean("next_is_far_enough", false) 
+						&& this_alarm.getRepeatingDay(current_day_index)){
 					//si resetta il numero totale di attività rilevate, il numero di valori che
 					//indicano un'attività fisica e le variabili per la somma dei pesi e per la somma
 					//dei prodotti confidenze-pesi
@@ -834,7 +837,7 @@ public class TimeBatteryWatcher extends BroadcastReceiver {
 						//si controlla se questo alarm definisce un "intervallo con scalini";
 						//se è un "intervallo con scalini", allora non si attiva il servizio di 
 						//activity recognition, ma il classificatore scalini/non_scalini
-						if(!AlarmUtils.getAlarm(context, this_alarm_id).isStepsInterval(current_day_index)){
+						if(!this_alarm.isStepsInterval(current_day_index)){
 							
 							//non è un "intervallo con scalini"
 							
