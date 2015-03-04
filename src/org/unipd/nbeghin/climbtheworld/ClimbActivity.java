@@ -211,6 +211,10 @@ public class ClimbActivity extends Activity {
 	
 	public void refreshOnStep(){
 		
+		//l'utente ha fatto almeno uno scalino nel periodo di gioco corrente
+		stepsInGamePeriod=true;
+		Log.d(MainActivity.AppName,"ClimbActivity - STEP");
+		
 		if (climbedYesterday && percentage > 0.25f && percentage < 0.50f && used_bonus == false) { // bonus at 25%
 			apply_percentage_bonus();
 		} else { // standard, no bonus
@@ -236,9 +240,6 @@ public class ClimbActivity extends Activity {
 			}
 		}
 		
-		//l'utente ha fatto almeno uno scalino nel periodo di gioco corrente
-		stepsInGamePeriod=true;
-		Log.d(MainActivity.AppName,"ClimbActivity - STEP");
 	}
 	
 	
