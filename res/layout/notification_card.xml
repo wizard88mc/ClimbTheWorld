@@ -26,17 +26,24 @@
         android:paddingLeft="8dp"
         android:paddingRight="8dp" >
 
+        <ImageView
+            android:id="@+id/logoView"
+            android:layout_width="30dp"
+            android:layout_height="36dp"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/fb_logo" />
+
         <TextView
             android:id="@+id/text"
             style="@style/CardText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:lines="4"
             android:layout_weight="1"
             android:minLines="4"
             android:gravity="center|left"
             android:textColor="@color/black"
-            android:lines="4"
-            android:text="Text\ntext\n text" />
+            android:text="Text\ntexttttttttttttttttttttttttttttttttttttttttt\ntext" />
 
         <ProgressBar
             android:id="@+id/progressBarNotf"

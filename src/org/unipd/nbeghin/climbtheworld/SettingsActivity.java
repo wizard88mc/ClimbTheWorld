@@ -33,6 +33,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 //import com.facebook.widget.ProfilePictureView;
 import android.widget.ProfilePictureView;
 import android.widget.TextView;
@@ -74,7 +75,7 @@ public class SettingsActivity extends PreferenceActivity {
 			onSessionStateChange(session, state, exception);
 		}
 	};
-	
+	private Bitmap userImage;
 	protected static Activity getThisActivity(){
 		return current_activity;
 	}
@@ -124,6 +125,7 @@ public class SettingsActivity extends PreferenceActivity {
 							        
 							    } catch (Exception e) {
 							        // Log exception
+							    	userImage = null; 
 							        e.printStackTrace();
 							    }
 						   }
@@ -162,8 +164,9 @@ public class SettingsActivity extends PreferenceActivity {
 	    }
 
 	    protected void onPostExecute(Bitmap myBitmap) {
+	    	userImage = myBitmap; 
 			final Preference profile_name = findPreference("profile_name");
-	        profile_name.setIcon(new BitmapDrawable(getResources(), myBitmap));
+	        profile_name.setIcon(new BitmapDrawable(getResources(), userImage));
 	    }
 	}
 
@@ -223,6 +226,9 @@ public class SettingsActivity extends PreferenceActivity {
 		final Preference profile_name = findPreference("profile_name");
 //		profile_name.setIcon(((ProfilePictureView) findViewById(R.id.fb_profile_picture)).getProfileImage());
 //		((LinearLayout) findViewById(R.id.lblFacebook)).setVisibility(View.GONE);
+		ProfilePictureView image = ((ProfilePictureView) findViewById(R.id.fb_profile_picture));
+		SharedPreferences pref = getSharedPreferences("UserSession", 0);
+		((LinearLayout) findViewById(R.id.lblFacebook)).setVisibility(View.GONE); 
 		super.onWindowFocusChanged(hasFocus);
 	}
 

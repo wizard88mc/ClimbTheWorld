@@ -13,7 +13,6 @@ import java.util.SimpleTimeZone;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.unipd.nbeghin.climbtheworld.ClimbApplication;
-import org.unipd.nbeghin.climbtheworld.MainActivity;
 import org.unipd.nbeghin.climbtheworld.R;
 import org.unipd.nbeghin.climbtheworld.TeamPreparationActivity;
 import org.unipd.nbeghin.climbtheworld.models.Building;
@@ -28,6 +27,7 @@ import org.unipd.nbeghin.climbtheworld.models.MicrogoalText;
 import org.unipd.nbeghin.climbtheworld.models.TeamDuel;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
+import org.unipd.nbeghin.climbtheworld.util.GraphicsUtils;
 import org.unipd.nbeghin.climbtheworld.util.ModelsUtil;
 import org.unipd.nbeghin.climbtheworld.util.ParseUtils;
 
@@ -37,8 +37,10 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,6 +61,13 @@ import com.facebook.Session;
 import com.facebook.widget.WebDialog;
 import com.facebook.widget.WebDialog.OnCompleteListener;
 import com.fima.cardsui.objects.Card;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.ImageLoadingListener;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -166,8 +175,74 @@ public class BuildingCard extends Card {
 		tourOrderText = ((TextView) view.findViewById(R.id.tourOrder));
 		((TextView) view.findViewById(R.id.title)).setText(buildingText.getName());
 		int imageId = ClimbApplication.getBuildingImageResource(building);
-		if (imageId > 0)
-			photo.setImageResource(imageId);
+		if (imageId > 0){
+//			Bitmap bitmap_image = ClimbApplication.getBitmap(building.get_id());
+//			if(bitmap_image == null){
+//			final int maxSize = 960;
+//			int outWidth;
+//			int outHeight;
+//			Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(),imageId);
+//			int inWidth = bitmap.getWidth();
+//			int inHeight = bitmap.getHeight();
+//			if(inWidth > inHeight){
+//			    outWidth = maxSize;
+//			    outHeight = (inHeight * maxSize) / inWidth; 
+//			} else {
+//			    outHeight = maxSize;
+//			    outWidth = (inWidth * maxSize) / inHeight; 
+//			}
+//			//photo.setImageResource(imageId);
+//			photo.setImageBitmap(GraphicsUtils.decodeSampledBitmapFromResource(ClimbApplication.getContext().getResources(), imageId, outWidth, outHeight));
+//			}else{
+//				photo.setImageBitmap(bitmap_image);
+//			}
+			//DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder().cacheInMemory(true).bitmapConfig(Bitmap.Config.RGB_565).cacheOnDisc(true).build(); // enable image caching
+			
+			ImageLoaderConfiguration config_image = new ImageLoaderConfiguration.Builder(context)
+	        //.memoryCacheSize(41943040)
+	        //.discCacheSize(104857600)
+	        .threadPoolSize(10)
+	        .build();
+
+			DisplayImageOptions options = new DisplayImageOptions.Builder()
+			.showImageForEmptyUri(R.drawable.ic_action_help_dark)
+			.showImageOnFail(R.drawable.ic_action_cancel)
+			.resetViewBeforeLoading(true)
+			.imageScaleType(ImageScaleType.EXACTLY)
+			.bitmapConfig(Bitmap.Config.RGB_565)
+			.displayer(new FadeInBitmapDisplayer(300))
+			.cacheInMemory(true)
+			.cacheOnDisc(true)
+			.build();
+			
+			
+			
+			//ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(activity.getApplicationContext()).threadPoolSize(3).defaultDisplayImageOptions(options).build();
+			ImageLoader.getInstance().init(config_image);
+			
+			ImageLoader.getInstance().displayImage("drawable://"+imageId, photo, options, new ImageLoadingListener() {
+				
+				@Override
+				public void onLoadingStarted(String arg0, View arg1) {
+					
+				}
+				
+				@Override
+				public void onLoadingFailed(String arg0, View arg1, FailReason arg2) {
+					
+				}
+				
+				@Override
+				public void onLoadingComplete(String arg0, View arg1, Bitmap arg2) {
+										
+				}
+				
+				@Override
+				public void onLoadingCancelled(String arg0, View arg1) {
+										
+				}
+			});
+		}
 		LayoutParams paramsPhoto = (LayoutParams) photo.getLayoutParams();
 		((TextView) view.findViewById(R.id.buildingStat)).setMinLines(2);
 		boolean tutorial = false;
@@ -221,7 +296,7 @@ public class BuildingCard extends Card {
 
 			gameMode.setText(ClimbApplication.getContext().getString(R.string.mode) + setModeText());
 			if (climbing != null) {
-				if (climbing.getPercentage() >= 1.00)
+				if (climbing.getPercentage() >= 1.00 || climbing.getGame_mode() != 0)
 					microGoalBtn.setVisibility(View.GONE);
 				else
 					microGoalBtn.setVisibility(View.VISIBLE);
@@ -612,7 +687,7 @@ public class BuildingCard extends Card {
 								else {
 									Log.i("BuildingCard", "Building id clicked: " + building.get_id());
 									Intent intent = new Intent(activity.getApplicationContext(), TeamPreparationActivity.class);
-									intent.putExtra(ClimbApplication.building_text_intent_object, building.get_id());
+									intent.putExtra(ClimbApplication.building_text_intent_object, buildingText.get_id());
 									intent.putExtra(ClimbApplication.duel_intent_object, currentDuel.get_id());
 									activity.startActivity(intent);
 								}
@@ -723,7 +798,7 @@ public class BuildingCard extends Card {
 
 									Log.i("Building Card", "Building id clicked: " + building.get_id());
 									Intent intent = new Intent(activity.getApplicationContext(), TeamPreparationActivity.class);
-									intent.putExtra(ClimbApplication.building_text_intent_object, building.get_id());
+									intent.putExtra(ClimbApplication.building_text_intent_object, buildingText.get_id());
 									activity.startActivity(intent);
 								}
 							} else {
@@ -969,7 +1044,7 @@ public class BuildingCard extends Card {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext());
 		compet.setBuilding(building);
 		compet.setMy_stairs(0);
 		compet.setCurrent_position(0);
@@ -980,6 +1055,7 @@ public class BuildingCard extends Card {
 		compet.setChecks(0);
 		compet.setWinner_id("0");
 		compet.setVictory_time(0);
+		compet.setDifficulty(Integer.parseInt(settings.getString("difficulty", "10")));
 		ClimbApplication.competitionDao.create(compet);
 		
 		competParse = new ParseObject("Competition");
@@ -990,6 +1066,7 @@ public class BuildingCard extends Card {
 		competParse.put("creator", creator);
 		competParse.put("checks", compet.getChecks());
 		competParse.put("winner_id", compet.getWinner_id());
+		competParse.put("difficulty", compet.getDifficulty());
 		try {
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 			competParse.put("victory_time", df.parse(df.format(compet.getVictory_time())));
@@ -1034,6 +1111,7 @@ public class BuildingCard extends Card {
 	 */
 	private void saveTeamDuel() {
 		System.out.println("save team duel");
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext());
 		User me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
 		duel.setBuilding(building);
 		duel.setUser(me);
@@ -1051,6 +1129,7 @@ public class BuildingCard extends Card {
 		duel.setVictory_time(0);
 		duel.setChecks(0);
 		duel.setWinner_id("0");
+		duel.setDifficulty(Integer.parseInt(settings.getString("difficulty", "10")));
 		ClimbApplication.teamDuelDao.create(duel);
 
 		JSONObject creator_stairs = new JSONObject();
@@ -1081,6 +1160,7 @@ public class BuildingCard extends Card {
 		teamDuelParse.put("challenger_stairs", challenger_stairs);
 		teamDuelParse.put("winner_id", duel.getWinner_id());
 		teamDuelParse.put("checks", duel.getChecks());
+		teamDuelParse.put("difficulty", duel.getDifficulty());
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
 		try {

@@ -37,6 +37,8 @@ import org.unipd.nbeghin.climbtheworld.models.NotificationType;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 import org.unipd.nbeghin.climbtheworld.util.GraphicsUtils;
+import org.unipd.nbeghin.climbtheworld.util.LogUtils;
+import org.unipd.nbeghin.climbtheworld.util.ModelsUtil;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
@@ -44,7 +46,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -56,7 +57,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -145,7 +145,6 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests, 
 		
 		waitLayout = (RelativeLayout) findViewById(R.id.waitLayout);
 		
-		ClimbApplication.notifications = new ArrayList<Notification>();
 		sContext = getApplicationContext();
 
 		// loading fragments
@@ -223,13 +222,19 @@ public class MainActivity extends ActionBarActivity implements NetworkRequests, 
 		}
 
 		Intent i = getIntent();
-		boolean isFromSplashScreen = i.getBooleanExtra("FirstOpen", false);
-
+		 boolean isFromSplashScreen = false;
+		 if(i != null && i.getExtras() != null) 	 	
+	            isFromSplashScreen = getIntent().getExtras().getBoolean("FirstOpen");//i.getBooleanExtra("FirstOpen", false); 
+		 
+		 
 		if (!FacebookUtils.isOnline(sContext) && isFromSplashScreen) {
 			Toast t = Toast.makeText(getContext(), getString(R.string.offline), Toast.LENGTH_LONG);
 			t.setGravity(Gravity.TOP, 0, 300);
 			t.show();
 		}
+		
+		if(isFromSplashScreen) 	 	
+	            getIntent().removeExtra("FirstOpen");
 
 		// onboarding message 1
 		if (pref.getBoolean("first_open_1", true)) {
@@ -315,6 +320,12 @@ public void onWindowFocusChanged(boolean hasFocus) {
 			editor.commit();
 
 		}
+		//LOG------------------------------------------------- 	 	
+					//LINE 	 	
+							String line = "OWNER LOGGED"; 	 	
+							LogUtils.writeGameUpdate(sContext, line); 	 	
+					// 	 	
+					//--------------------------------------------------- 
 		ClimbApplication.refreshClimbings();
 		ClimbApplication.refreshCollaborations();
 		ClimbApplication.refreshCompetitions();
@@ -420,7 +431,8 @@ public void onWindowFocusChanged(boolean hasFocus) {
 						JSONArray array = (JSONArray) res.getProperty("data");
 						Log.d("MainActivity", "Notifications: " + array.length());
 						for (int i = 0; i < array.length(); i++) {
-							createNotification((JSONObject) array.get(i), deleteRequests);
+							if(!ModelsUtil.containsId(ClimbApplication.notifications, ((JSONObject) array.get(i)).getString("id")))
+								createNotification((JSONObject) array.get(i), deleteRequests);
 						}
 						Request.executeBatchAndWait(deleteRequests);
 					} catch (Exception e) {
@@ -457,26 +469,27 @@ public void onWindowFocusChanged(boolean hasFocus) {
 	/**
 	 * Check for an incoming notifications. If there's any and if they're valid, then create the corresponding Notification object and add it to the Nofitication list.
 	 */
-	public void onUpdateNotifications(MenuItem v) {
+	public void onUpdateNotifications() {
 		// Check for an incoming notification. Save the info if it is valid
-		Uri intentUri = getIntent().getData();
-		if (intentUri != null) {
-			String requestIdParam = intentUri.getQueryParameter("request_ids");
-			if (requestIdParam != null) {
-				String array[] = requestIdParam.split(",");
-				for (int i = 0; i < array.length; i++) {
-					requestId = array[i];
-					Log.i("onActivityCreated", "Request id: " + requestId);
-					getRequestData(requestId);
-				}
-				if (ClimbApplication.notifications.isEmpty())
-					Toast.makeText(this, getString(R.string.no_notification), Toast.LENGTH_SHORT).show();
-				else
-					Toast.makeText(this, getResources().getQuantityString(R.plurals.n_notification, ClimbApplication.notifications.size()), Toast.LENGTH_SHORT).show();
-
-			}
-
-		}
+		new NotificationAsyncTask().execute(); 
+//		Uri intentUri = getIntent().getData();
+//		if (intentUri != null) {
+//			String requestIdParam = intentUri.getQueryParameter("request_ids");
+//			if (requestIdParam != null) {
+//				String array[] = requestIdParam.split(",");
+//				for (int i = 0; i < array.length; i++) {
+//					requestId = array[i];
+//					Log.i("onActivityCreated", "Request id: " + requestId);
+//					getRequestData(requestId);
+//				}
+//				if (ClimbApplication.notifications.isEmpty())
+//					Toast.makeText(this, getString(R.string.no_notification), Toast.LENGTH_SHORT).show();
+//				else
+//					Toast.makeText(this, getResources().getQuantityString(R.plurals.n_notification, ClimbApplication.notifications.size()), Toast.LENGTH_SHORT).show();
+//
+//			}
+//
+//		}
 	}
 
 	/**
@@ -879,8 +892,16 @@ public void onWindowFocusChanged(boolean hasFocus) {
 						}
 					} else {
 						// System.err.println("no user");
-						//FBid gi� settato, scarico le mie informazioni
+						//FBid gia settato, scarico le mie informazioni
 						new MyAsync(MainActivity.this, PD, false).execute();
+						//LOG------------------------------------------------- 	 	
+													//LINE 	 	
+													String line = "USERNAME (FB) " + pref.getString("username", ""); 	 	
+													System.out.println("USERNAME (FB) " + pref.getString("username", "")); 	 	
+													System.out.println("USERNAME (ID) " + pref.getInt("local_id", -1)); 	 	
+													LogUtils.writeGameUpdate(sContext, line); 	 	
+													// 	 	
+													//--------------------------------------------------- 
 						Editor edit = pref.edit();
 						edit.putBoolean("openedFirst", false);
 						edit.commit();
@@ -1126,6 +1147,13 @@ public void onWindowFocusChanged(boolean hasFocus) {
 	      e.printStackTrace();
 	   }
 	}
+	
+	public void uploadGameLog(MenuItem v){ 	 	
+					if(FacebookUtils.isOnline(getApplicationContext())) 	 	
+						new UploadGameLogTask(getApplicationContext()).execute(); 	 	
+					else 	 	
+						Toast.makeText(getApplicationContext(), "Ops! No intenet connection", Toast.LENGTH_SHORT).show(); 	 	
+				} 
 
 	@Override
 	public void onTabReselected(Tab arg0, FragmentTransaction arg1) {

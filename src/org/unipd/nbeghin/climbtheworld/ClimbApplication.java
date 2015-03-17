@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -26,6 +25,7 @@ import org.unipd.nbeghin.climbtheworld.models.BuildingTour;
 import org.unipd.nbeghin.climbtheworld.models.Climbing;
 import org.unipd.nbeghin.climbtheworld.models.Collaboration;
 import org.unipd.nbeghin.climbtheworld.models.Competition;
+import org.unipd.nbeghin.climbtheworld.models.GameNotification;
 import org.unipd.nbeghin.climbtheworld.models.Microgoal;
 import org.unipd.nbeghin.climbtheworld.models.MicrogoalText;
 import org.unipd.nbeghin.climbtheworld.models.Notification;
@@ -35,6 +35,7 @@ import org.unipd.nbeghin.climbtheworld.models.Tour;
 import org.unipd.nbeghin.climbtheworld.models.TourText;
 import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.models.UserBadge;
+import org.unipd.nbeghin.climbtheworld.util.LogUtils;
 import org.unipd.nbeghin.climbtheworld.util.ParseUtils;
 
 import android.app.Activity;
@@ -92,6 +93,8 @@ public class ClimbApplication extends Application {
 	public static final List<String> PERMISSIONS = Arrays.asList("user_friends,public_profile");
 
 	public static final int N_MEMBERS_PER_GROUP = 6;  // 5 friends + me
+	public static final int N_MEMBERS_PER_GROUP_TEAM = 2; // REAL: 5 friends + me = 6 	 	
+																	// TEST: 2 frends + me = 3 
 	public static int PERCENTAGE_MICROGOAL = 25;
 	public static boolean BUSY = false;
 	public static Object lock = new Object();
@@ -205,6 +208,17 @@ public class ClimbApplication extends Application {
 		Log.d("ClimbApplication", "onCreate");
 		
 		sContext = getApplicationContext();
+		if(notifications == null) 	 	
+							ClimbApplication.notifications = new ArrayList<Notification>(); 	 	
+						//LOG------------------------------------------------- 	 	
+								//LINE 	 	
+								String line = "OPEN APP at " + new Date().toString(); 	 	
+								LogUtils.initGameLog(sContext, "BEGINS NOW"); 	 	
+								LogUtils.writeGameUpdate(sContext, line); 	 	
+								// 	 	
+								//--------------------------------------------------- 	 	
+						 	
+		
 		emptyMultimapNotification();
 		
 		SharedPreferences pref = sContext.getSharedPreferences("UserSession", 0);
@@ -245,9 +259,17 @@ public class ClimbApplication extends Application {
 	
 	public static void addBadgeNotification(String message){
 		notifications_inbox_contents.put("BADGE", message);
-		System.out.println(notifications_inbox_contents.toString());
+		//System.out.println(notifications_inbox_contents.toString());
 
 	}
+	
+	public static int getGameNotification(){ 	 	
+					for(int i = 0; i < notifications.size(); i++){ 	 	
+						if(notifications.get(i) instanceof GameNotification) 	 	
+							return i; 	 	
+					} 	 	
+					return -1; 	 	
+				}
 
 	/**
 	 * Return the XP points given the current level
@@ -591,6 +613,66 @@ public class ClimbApplication extends Application {
 			return null;
 		}
 	}
+	
+	public static TeamDuel getTeamDuelForUserAndId(String id, int user_id) {
+
+		QueryBuilder<TeamDuel, Integer> query = teamDuelDao.queryBuilder(); 
+		Where<TeamDuel, Integer> where = query.where();
+		try {
+			where.eq("id_online", id);
+			where.and();
+			where.eq("user_id", user_id);
+			PreparedQuery<TeamDuel> preparedQuery = query.prepare(); 
+			List<TeamDuel> userBadges = teamDuelDao.query(preparedQuery); 
+			if (userBadges.isEmpty())
+				return null;
+			return userBadges.get(0);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static Collaboration getCollaborationForUserAndId(String id, int user_id) {
+
+		QueryBuilder<Collaboration, Integer> query = collaborationDao.queryBuilder(); 
+		Where<Collaboration, Integer> where = query.where();
+		try {
+			where.eq("id_online", id);
+			where.and();
+			where.eq("user_id", user_id);
+			PreparedQuery<Collaboration> preparedQuery = query.prepare(); 
+			List<Collaboration> userBadges = collaborationDao.query(preparedQuery); 
+			if (userBadges.isEmpty())
+				return null;
+			return userBadges.get(0);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static Competition getCompetitionForUserAndId(String id, int user_id) {
+
+		QueryBuilder<Competition, Integer> query = competitionDao.queryBuilder(); 
+		Where<Competition, Integer> where = query.where();
+		try {
+			where.eq("id_online", id);
+			where.and();
+			where.eq("user_id", user_id);
+			PreparedQuery<Competition> preparedQuery = query.prepare(); 
+			List<Competition> userBadges = competitionDao.query(preparedQuery); 
+			if (userBadges.isEmpty())
+				return null;
+			return userBadges.get(0);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
 
 	/**
 	 * Reload all tours
@@ -918,6 +1000,15 @@ public class ClimbApplication extends Application {
 		}
 		return -1;
 	}
+	
+	public static BuildingText getBuildingTextByBuildingId(int id) { 	 	
+					Map<String, Object> conditions = new HashMap<String, Object>(); 	 	
+					conditions.put("building_id", id); // filter for building ID 	 	
+					List<BuildingText> buildings = buildingTextDao.queryForFieldValuesArgs(conditions); 	 	
+					if (buildings.size() == 0) 	 	
+						return null; 	 	
+					return buildings.get(0); 	 	
+				} 
 
 	public static BuildingText getBuildingTextByBuilding(int building_id) {
 		QueryBuilder<BuildingText, Integer> query = buildingTextDao.queryBuilder();
@@ -1033,6 +1124,28 @@ public class ClimbApplication extends Application {
 		// return false;
 		// }
 	}
+	
+	public static boolean needUpdate(String date){	  	 	
+					 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); 	 	
+					  	 	
+					 Date today = null; 	 	
+					 Date check = null; 	 	
+					try { 	 	
+						today = sdf.parse(sdf.format(new Date())); 	 	
+						check = sdf.parse(sdf.format(new Date(Long.valueOf(date)))); 	 	
+			 	 	
+					} catch (java.text.ParseException e) { 	 	
+						// TODO Auto-generated catch block 	 	
+						e.printStackTrace(); 	 	
+					} 	 	
+					  	 	
+					  	 	
+					 if(check.before(today)) 	 	
+						 return true; 	 	
+					 else 	 	
+						 return false; 	 	
+					  	 	
+				 } 
 
 	public static long daysPassed(String date) {
 		Date today = new Date();
@@ -1041,6 +1154,7 @@ public class ClimbApplication extends Application {
 		return TimeUnit.MILLISECONDS.toDays(millDiff);
 	}
 
+	
 	/**
 	 * Calculates the new mean value
 	 * 

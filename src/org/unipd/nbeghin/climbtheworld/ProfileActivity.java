@@ -1,10 +1,8 @@
 package org.unipd.nbeghin.climbtheworld;
 
-
 import it.sephiroth.android.library.tooltip.TooltipManager;
 
 import java.text.DecimalFormat;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,11 +14,11 @@ import org.unipd.nbeghin.climbtheworld.models.User;
 import org.unipd.nbeghin.climbtheworld.models.UserBadge;
 import org.unipd.nbeghin.climbtheworld.util.FacebookUtils;
 import org.unipd.nbeghin.climbtheworld.util.GraphicsUtils;
+import org.unipd.nbeghin.climbtheworld.util.LogUtils;
 import org.unipd.nbeghin.climbtheworld.util.StatUtils;
 
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -28,7 +26,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -51,7 +48,7 @@ import com.facebook.widget.LoginButton;
 //import com.facebook.widget.ProfilePictureView;
 import com.parse.ParseUser;
 
-public class ProfileActivity extends ActionBarActivity implements NetworkRequests,  TooltipManager.onTooltipClosingCallback  {
+public class ProfileActivity extends ActionBarActivity implements NetworkRequests, TooltipManager.onTooltipClosingCallback {
 
 	Button improveBtn;
 	private Session.StatusCallback callback = new Session.StatusCallback() {
@@ -67,17 +64,24 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 	private User me;
 	SharedPreferences pref;
 	public ProfilePictureView profilePictureView;
-	
+
 	List<String> permissions;
-	
+
 	public void setProfileData(GraphUser user, boolean login) {
 		me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
 		profilePictureView.setCropped(true);
 		profilePictureView.setProfileId(user.getId());
 		lblFacebookUser.setText(user.getName());
-		if(login){
+		if (login) {
 			String own = me.isOwner() ? "\n" + getString(R.string.owner) : "";
 			Toast.makeText(this, getString(R.string.logged_as, me.getName()) + own, Toast.LENGTH_SHORT).show();
+			// LOG-------------------------------------------------
+			// LINE
+			String line = "USER MAKES LOGIN WITH FB: " + me.getName() + " IS OWNER? " + me.isOwner();
+			LogUtils.writeGameUpdate(getApplicationContext(), line);
+			//
+			// ---------------------------------------------------
+
 		}
 		updateUserData();
 	}
@@ -85,8 +89,6 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 	public ProfilePictureView getProfilePictureView() {
 		return profilePictureView;
 	}
-	
-
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -97,82 +99,75 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 
 		lblFacebookUser = ((TextView) findViewById(R.id.textUserName));
 		profilePictureView = (ProfilePictureView) findViewById(R.id.fb_profile_picture2);
-		profilePictureView.setPresetSize(-2); //SMALL
+		profilePictureView.setPresetSize(-2); // SMALL
 		pref = getApplicationContext().getSharedPreferences("UserSession", 0);
 		me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
-		
+
 		LoginButton authButton = (LoginButton) findViewById(R.id.login_button);
-	    authButton.setPublishPermissions("public_profile,user_friends");
-//	    Session.NewPermissionsRequest newPermissionsRequest = new 
-//	    Session.NewPermissionsRequest(this, Arrays.asList("user_friends,public_profile"));
-//	    Session.getActiveSession().requestNewReadPermissions(newPermissionsRequest);
-		
+		authButton.setPublishPermissions("public_profile,user_friends");
+		// Session.NewPermissionsRequest newPermissionsRequest = new
+		// Session.NewPermissionsRequest(this, Arrays.asList("user_friends,public_profile"));
+		// Session.getActiveSession().requestNewReadPermissions(newPermissionsRequest);
+
 		updateUserData();
 
 		Session session = Session.getActiveSession();
-		
-		 
-		    
-		    
-//		if(session != null && session.isOpened()){
-//		final List<String> PERMISSIONS = Arrays.asList("publish_actions, user_friends");
-//		List<String> permissions = Session.getActiveSession().getPermissions();
-//		
-//		for(String p : permissions)
-//			System.out.println(p);
-//
-//		if (!new HashSet<String>(permissions).containsAll(PERMISSIONS)) {
-//			Session.NewPermissionsRequest newPermissionsRequest = new Session.NewPermissionsRequest(this, PERMISSIONS);
-//			Session.getActiveSession().requestNewPublishPermissions(newPermissionsRequest);
-//			Log.w("FBShare", "has permission");
-//		}
-//		
-//		permissions = Session.getActiveSession().getPermissions();
-//		System.out.println("dopo");
-//		for(String p : permissions)
-//			System.out.println(p);
-//		}
-		
+
+		// if(session != null && session.isOpened()){
+		// final List<String> PERMISSIONS = Arrays.asList("publish_actions, user_friends");
+		// List<String> permissions = Session.getActiveSession().getPermissions();
+		//
+		// for(String p : permissions)
+		// System.out.println(p);
+		//
+		// if (!new HashSet<String>(permissions).containsAll(PERMISSIONS)) {
+		// Session.NewPermissionsRequest newPermissionsRequest = new Session.NewPermissionsRequest(this, PERMISSIONS);
+		// Session.getActiveSession().requestNewPublishPermissions(newPermissionsRequest);
+		// Log.w("FBShare", "has permission");
+		// }
+		//
+		// permissions = Session.getActiveSession().getPermissions();
+		// System.out.println("dopo");
+		// for(String p : permissions)
+		// System.out.println(p);
+		// }
+
 		if (session != null && session.isOpened()) {
 			setProfilePicture(session, session.getState());
 		}
-		
+
 		boolean needHelp = getIntent().getBooleanExtra("need_help", false);
-		if(needHelp){
+		if (needHelp) {
 			new HelpDialogActivity(this, R.style.Transparent, true).show();
 		}
 
 	}
-	
+
 	@Override
-	protected void onStart(){
+	protected void onStart() {
 		super.onStart();
 	}
-	
-
 
 	/**
 	 * Downloads Facebook profile picture asynchronously
+	 * 
 	 * @param session
 	 * @param state
 	 */
 	private void setProfilePicture(final Session session, SessionState state) {
 		if (state.isOpened()) {
 
-			
-//			try
-//            {
-//                Session.OpenRequest request = new Session.OpenRequest(this);
-//                request.setPermissions(Arrays.asList("publish_actions, user_friends"));
-//            }
-//        catch (Exception e)
-//            {
-//                // TODO Auto-generated catch block
-//                e.printStackTrace();
-//            }
-			
-			
-             
+			// try
+			// {
+			// Session.OpenRequest request = new Session.OpenRequest(this);
+			// request.setPermissions(Arrays.asList("publish_actions, user_friends"));
+			// }
+			// catch (Exception e)
+			// {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// }
+
 			Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
 				@Override
 				public void onCompleted(GraphUser user, Response response) {
@@ -205,7 +200,7 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 		((TextView) findViewById(R.id.MyStepsText)).setText(getString(R.string.mean_text, String.valueOf(me.getMean())));
 		((TextView) findViewById(R.id.textCurrentValue)).setText(getString(R.string.today_step, String.valueOf(me.getCurrent_steps_value())));
 		DecimalFormat df = new DecimalFormat("####0.00");
-		((TextView) findViewById(R.id.textHeight)).setText(getString(R.string.height_text) + ": \t " + df.format(me.getHeight()) /*String.valueOf(me.getHeight())*/ + "mt");
+		((TextView) findViewById(R.id.textHeight)).setText(getString(R.string.height_text) + ": \t " + df.format(me.getHeight()) /* String.valueOf(me.getHeight()) */+ "mt");
 		int total = ClimbApplication.levelToXP(me.getLevel() + 1);
 		int percentage = 0;
 		if (total != 0)
@@ -282,43 +277,26 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 		// Nothing changed
 		return false;
 	}
-	
+
 	public void onWindowFocusChanged(boolean hasFocus) {
-		
-		
+
 		if (pref.getBoolean("first_open_5", true)) {
-			if(!pref.getBoolean("done_tutorial", false)){
+			if (!pref.getBoolean("done_tutorial", false)) {
 				View locButton = findViewById(R.id.itemInviteFacebookFriends);
 
-
 				TooltipManager manager = TooltipManager.getInstance(this);
-				manager.create(0)
-			       .anchor(locButton, TooltipManager.Gravity.BOTTOM)
-			       .actionBarSize(GraphicsUtils.getActionBarSize(getBaseContext()))
-			       .closePolicy(TooltipManager.ClosePolicy.TouchOutside, 0)
-			       .text(R.string.tip_invite)
-			       .toggleArrow(true)
-			       .maxWidth(400)
-			       .showDelay(300)
-			       .withCallback(this)
-			       .withCustomView(R.layout.activity_splashscreen, false)
-			       .withStyleId(R.style.ToolTipLayoutCustomStyle)			       
-			       .show();
-				
+				manager.create(0).anchor(locButton, TooltipManager.Gravity.BOTTOM).actionBarSize(GraphicsUtils.getActionBarSize(getBaseContext())).closePolicy(TooltipManager.ClosePolicy.TouchOutside, 0).text(R.string.tip_invite).toggleArrow(true).maxWidth(400).showDelay(300).withCallback(this).withCustomView(R.layout.activity_splashscreen, false).withStyleId(R.style.ToolTipLayoutCustomStyle).show();
+
 				ClimbApplication.setTextTipStyle(((TextView) findViewById(android.R.id.text1)));
 
-				
-				
-
 				pref.edit().putBoolean("first_open_5", false).commit();
-			}else{
+			} else {
 				pref.edit().putBoolean("first_open_5", false).commit();
 			}
 		}
-		
+
 		super.onWindowFocusChanged(hasFocus);
 
-		
 	}
 
 	private void updateFacebookSession(final Session session, SessionState state) {
@@ -390,26 +368,23 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 		Session session = Session.getActiveSession();
 
 		if (session != null && (session.isOpened() || session.isClosed())) {
-			//onSessionStateChange(session, session.getState(), null);
+			// onSessionStateChange(session, session.getState(), null);
 		}
 		me = ClimbApplication.getUserById(pref.getInt("local_id", -1));
 		((TextView) findViewById(R.id.MyStepsText)).setText(getString(R.string.mean_text, String.valueOf(me.getMean())));
 		((TextView) findViewById(R.id.textCurrentValue)).setText(getString(R.string.today_step, String.valueOf(me.getCurrent_steps_value())));
 		DecimalFormat df = new DecimalFormat("####0.00");
-		((TextView) findViewById(R.id.textHeight)).setText(getString(R.string.height_text) + ": " /*String.valueOf(me.getHeight()) */ + "\t " + df.format(me.getHeight())+ "mt");
+		((TextView) findViewById(R.id.textHeight)).setText(getString(R.string.height_text) + ": " /* String.valueOf(me.getHeight()) */+ "\t " + df.format(me.getHeight()) + "mt");
 
-		
-		if(session != null && session.isOpened()){
-			
+		if (session != null && session.isOpened()) {
 
-//			if (!new HashSet<String>(permissions).containsAll(PERMISSIONS)) {
-//				Session.NewPermissionsRequest newPermissionsRequest = new Session.NewPermissionsRequest(this, PERMISSIONS);
-//				Session.getActiveSession().requestNewPublishPermissions(newPermissionsRequest);
-//				Log.w("FBShare", "has permission");
-//			}
-			
-			
-			}
+			// if (!new HashSet<String>(permissions).containsAll(PERMISSIONS)) {
+			// Session.NewPermissionsRequest newPermissionsRequest = new Session.NewPermissionsRequest(this, PERMISSIONS);
+			// Session.getActiveSession().requestNewPublishPermissions(newPermissionsRequest);
+			// Log.w("FBShare", "has permission");
+			// }
+
+		}
 
 		uiHelper.onResume();
 		ClimbApplication.activityResumed();
@@ -442,8 +417,7 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 
 	public void onInviteFacebookFriends(MenuItem v) {
 		/*
-		 * Intent intent = new Intent(sContext, FBPickFriendActivity.class);
-		 * startActivity(intent);
+		 * Intent intent = new Intent(sContext, FBPickFriendActivity.class); startActivity(intent);
 		 */
 		if (me != null && !me.getFBid().equalsIgnoreCase("empty")) {
 			if (FacebookUtils.isOnline(this)) {
@@ -596,6 +570,6 @@ public class ProfileActivity extends ActionBarActivity implements NetworkRequest
 	@Override
 	public void onClosing(int id, boolean fromUser, boolean containsTouch) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

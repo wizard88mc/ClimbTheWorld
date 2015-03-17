@@ -9,6 +9,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -26,18 +27,21 @@ public class VerticalSeekBar extends SeekBar {
 	 private Bitmap thumb2 = BitmapFactory.decodeResource(getResources(), R.drawable.star);
 	 private Bitmap thumb3 = BitmapFactory.decodeResource(getResources(), R.drawable.star);
 	 private Bitmap thumb4 = BitmapFactory.decodeResource(getResources(), R.drawable.star);
+	 //private Bitmap place =  BitmapFactory.decodeResource(getResources(), R.drawable.ic_place);
 
 	 private static double starHeight = 0;
+	 private static double placeHeight = 1;
 	 private static double perc_unit = 0;
 	 private static int totalHeight = 0;
 	 private int height = 0;
 	 private int width = 0;
 	 private List<View> lines = new ArrayList<View>();
 	 private List<Bitmap> thumbs = new ArrayList<Bitmap>();
-	 private boolean show = true;
-
 	 
-	 private void setLists(){
+	 private boolean show = true;
+	 //private boolean showPlace = false;
+	 
+	 private void setLists(){ 
 			RelativeLayout parent = (RelativeLayout) this.getParent();
 			lines.add(parent.findViewById(R.id.redLine1));
 			lines.add(parent.findViewById(R.id.redLine2));
@@ -84,9 +88,10 @@ public class VerticalSeekBar extends SeekBar {
 	protected void onDraw(Canvas c) {
 		c.rotate(-90);
 		c.translate(-getHeight(), 0);
+		
 		if(lines.size() < 4 && thumbs.size() < 4 && show) setLists();
 
-		for(int i = 0; i < lines.size(); i++){
+		for(int i = 0; i < lines.size(); i++){ 
 			View v = lines.get(i);
 			v.setVisibility(View.GONE);
 			v.setLayoutParams(new LayoutParams(width/2, 2));
@@ -98,11 +103,16 @@ public class VerticalSeekBar extends SeekBar {
 				starHeight = height- toolbar_dimens + 50;//100 + 5;
 			}
 			
-			c.drawBitmap(thumbs.get(i), (float)starHeight , 40,null); System.out.println(starHeight);
+			c.drawBitmap(thumbs.get(i), (float)starHeight , 40,null);
 //			params.setMargins(0,  totalHeight - ((int) starHeight) - 30, 0, 0); //substitute parameters for left, top, right, bottom
 //			v.setLayoutParams(params);
 //			v.setBackgroundColor(getResources().getColor(R.color.red));
 		}
+		
+//		if(showPlace)
+//			c.drawBitmap(place, (float)placeHeight , 40, null);
+		
+		
 //		line1 = parent.findViewById(R.id.redLine1);		
 //		line1.setLayoutParams(new LayoutParams(width/2, 2));
 //		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)line1.getLayoutParams();
@@ -116,18 +126,18 @@ public class VerticalSeekBar extends SeekBar {
 		super.onDraw(c);
 	}
 	
-	public void nextStar(int progress){
-		thumb1 = BitmapFactory.decodeResource(getResources(), R.drawable.star);
-		//System.out.println("height " + height  + " progress " + progress);
-		starHeight = (((double) progress * ((double) height)) /(double) 100) + 5;
-		if(starHeight >= height){
-			float toolbar_dimens = getResources().getDimension(R.dimen.abc_action_bar_default_height_material);
-			starHeight = height - toolbar_dimens;//100 + 5;
-		}
-		//System.out.println(starHeight);
-		invalidate();
-		
-	}
+//	public void nextStar(int progress){
+//		thumb1 = BitmapFactory.decodeResource(getResources(), R.drawable.star);
+//		//System.out.println("height " + height  + " progress " + progress);
+//		starHeight = (((double) progress * ((double) height)) /(double) 100) + 5;
+//		if(starHeight >= height){
+//			float toolbar_dimens = getResources().getDimension(R.dimen.abc_action_bar_default_height_material);
+//			starHeight = height - toolbar_dimens;//100 + 5;
+//		}
+//		//System.out.println(starHeight);
+//		invalidate();
+//		
+//	}
 	
 	public void setTotalHeight(){
 		totalHeight = height;
@@ -140,17 +150,26 @@ public class VerticalSeekBar extends SeekBar {
 	}
 	
 	public void setInitialGoldenStars(int finalPosition, double unit){
-		perc_unit = unit;
-		Bitmap goldenStar = BitmapFactory.decodeResource(getResources(), R.drawable.gold_star);
-		for(int i = 0; i < finalPosition; i++)
-			thumbs.set(i, goldenStar);
-		invalidate();
+		if(thumbs.size() >= 4){
+			perc_unit = unit;
+			Bitmap goldenStar = BitmapFactory.decodeResource(getResources(), R.drawable.gold_star);
+			for(int i = 0; i < finalPosition; i++)
+				thumbs.set(i, goldenStar);
+			invalidate();
+		}
 	}
 	
 	public void hideStars(){
 		show = false;
 	}
-
+	
+//	public void showPlace(){
+//		showPlace = true;
+//	}
+	
+	public void setPlaceHeight(double placePerc){
+		this.placeHeight = ((double) height) /  ((double) 100) * (placePerc);
+	}
 
 	/*
 	 * nbeghin: added onSizeChanged to solve thumb image not updated

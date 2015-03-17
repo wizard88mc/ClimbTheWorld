@@ -49,7 +49,7 @@
     <string name="message_group_invite">%1$s ti chiede di unirsi al suo nuovo gruppo: %2$s</string>
     <string name="message_collaboration">%1$s ti chiede aiuto per scalare l\'edificio %2$s</string>
     <string name="message_competition">%1$s ti sfida a scalare l\'edificio %2$s</string>    
-    <string name="message_team_challenge">%1$s ti sfida in un team duel a scalare l\'edificio %1$s</string>  
+<string name="message_team_challenge">%1$s ti sfida in una sfida tra team a scalare l\'edificio %2$s</string>
     <string name="message_team_member">%1$s ti chiede aiuto per vincere il duello con il suo team scalando l\'edificio %2$s</string>
     <string name="group_not_exists">Il gruppo non esiste più</string>
     <string name="group_already_part">Fai già parte di %s</string>
@@ -71,7 +71,7 @@
     <string name="no_notifications">Nessuna notifica \n\n Premi b0 per fare login con Facebook poi \n\n premi b1 o b2 -> "Notifiche FB" per vedere le nuove notifiche</string>
     <string name="competition_end">Competizione già terminata</string>
     <string name="no_base_level">Devi raggiungere il livello %1$d per sbloccare %2$s</string>
-    
+    <string name="wait_notification">Attendi il salvataggio</string> 
     
      <!-- UserBadge -->
     <string name="steps_badge">Fai %d passi</string>
@@ -132,7 +132,7 @@
     <string name="new_group">Crea gruppo: inserisci un nome per il gruppo</string>
     
     <!-- ClimbActivity -->
-    <string name="bonus">BONUS: hai scalato questo edificio più di una volta nelle ultime 24h, guadagni +30%%</string>
+    <string name="bonus">BONUS: hai scalato questo edificio più di una volta nelle ultime 24h, guadagni +30%</string>
     <string name="well_done">Ben Fatto!!!!</string>
     <string name="alert_title">Rate di campionamento basso</string>
     <string name="alert_message">Il tuo accelerometro non è veloce a sufficienza per questa applicazione. Assicurati di usare almeno %f Hz</string>   
@@ -142,7 +142,7 @@
     <string name="num_steps">%s scalini</string>
     <string name="no_collaboration">Nessuna collaborazione disponibile per questo edificio</string>
     <string name="no_team_duel">Nessuna sfida tra team disponibile per questo edificio</string>
-    
+    <string name="difficulty">Difficoltà: %s</string> 
     <string name="no_competition">Nessuna competizione disponibile per questo edificio</string>
     <string name="collab_no_available">Questa collaborazione non è ancora disponbile</string>
     <string name="already_climb">Già scalato in data %s</string>
@@ -158,8 +158,10 @@
     <string name="bonus_competition">Hai vinto %d XP bonus per la tua vittoria!!!!</string>
     <string name="bonus_team_duel">Hai vinto %d XP bonus per il tuo aiuto e per la vittoria!!!!</string>
     <string name="team_of">Team di </string>
+    <string name="my_team">Il tuo team</string> 	 	
+	    <string name="other_team">Il team avversario</string> 
     <string name="ready_to_go">PRONTO PER LA SCALATA!</string>
-    <string name="win">CE L\'HAI FATTA!</string>
+    <string name="win">SCALATA\nCOMPLETATA!</string>
     <string name="encouragement">Ben fatto!</string>
     <string name="microgoal_terminated">Goal completato!!!! Hai vinto %d XP</string>
     <string name="microgoal_terminated2">Goal completato!\n + %d XP extra</string>
@@ -167,7 +169,7 @@
     <string name="successfull_climb">Hai fatto i %1$d scalini (%2$d m) dell\'edificio %3$s !</string>
     <string name="kicked_out">Sei stato cacciato! Ora sei in modalità Solo Climb</string>
     <string name="new_level">Grande! Hai raggiunto il livello %d!</string>
-    <string name="new_level_inbox">Nuovo livello Livello %d</string>
+    <string name="new_level_inbox">Nuovo livello: Livello %d</string>
     <string name="new_badge">Hai vinto un nuovo trofeo: %s</string>
     <string name="new_badge_inbox">Nuovo trofeo! %s</string>
     <string name="no_microgoal">Nessun altro goal disponibile per questo edificio</string>
@@ -178,7 +180,11 @@
     <string name="team_two">Team n2</string>
     <string name="creator">Leader: </string>
     <string name="offline_team">Vai online per vedere i team attuali o per ritirarti</string>
-    
+    <string name="wait_team">Attendi che i team siano completi</string>
+    <string name="completed_teams">I team sono completi\nPremi play per giocare</string>
+    <string name="exit_team_btn">Esci dal gruppo</string>
+    <string name="add_members_btn">Aggiungi membri</string>
+     <string name="add_challenger_btn">Aggiungi sfidante</string>
   
     <!-- SettingsActivity -->
     <string name="settings_title">Impostazioni</string>
@@ -295,7 +301,7 @@
     <string name="microgoal_help">Premi per vedere il tuo obiettivo attuale</string>
     <string name="update_help">Premi per aggiornare i dati suoi tuoi amici</string>
     <string name="tap_to_dismiss">Tocca per chiudere</string>
-    <string name="add_group_help">Invita 5 tuoi amici su Facebook ad entrare nel tuo team</string>
+    <string name="add_group_help">Invita un amico su Facebook ad entrare nel tuo team</string>
     <string name="add_challenger">Scegli lo sfidante tra i tuoi amici di facebook</string>
     <string name="add_other_help">Invita altri tuoi amici su Facebook ad entrare nel tuo team</string>
     <string name="delete_player">Caccia un tuo amico da questa scalata</string>
@@ -435,11 +441,20 @@
     
 	<plurals name="summary_inbox_text_2">
         <item quantity="one">%d notifica</item>
-        <item quantity="other">%d notfiche</item>
+        <item quantity="other">%d notifiche</item>
     </plurals>	
     
 	<string name="tip_profile">Tocca qui per vedere il tuo profilo</string>
 	<string name="tip_invite">Tocca qui per invitare gli amici a provare Climb the World dopo il login in Facebook</string>
    <string name="connect_to_post">Connettiti per pubblicare il post</string>
 		
+   <!-- Trigger notification -->    	 	
+	    <string name="trigger_text">Fai degli scalini giocando con l\'app!!</string> 	 	
+	    <string name="download_notification">Download\nNotifiche</string> 	 	
+	    <string name="notification_read">Notifica letta</string> 	 	
+	    <string name="no_notification_msg">Nessuna notifica\nPremi per controllare se ci sono notifiche per te</string> 
+<string name="lab_uploadialog_title">Invio file di log</string>
+    <string name="lab_upload_filenotexists">Prima di inviare il file di log, devi configurare l\'algoritmo.</string>
+    <string name="lab_upload_error">Si è verificato un errore. Per favore riprova.</string>
+    <string name="lab_upload_success">Il file di log è stato caricato con successo! Grazie!</string>
 </resources>
