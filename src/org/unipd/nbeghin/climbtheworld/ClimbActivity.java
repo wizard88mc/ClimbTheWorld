@@ -464,7 +464,7 @@ public class ClimbActivity extends ActionBarActivity implements Observer {
 		
 		int unit = (int) Math.ceil((double) (building.getSteps()*percentage)/ (double) 100);
 		int final_pos = (int) Math.floor(((double) (num_steps)/ (double) unit));
-		if(num_steps == building.getSteps()) final_pos += 1;
+		if(num_steps == building.getSteps() && final_pos < 4) final_pos += 1;
 
 		seekbarIndicator.setGoldStar(final_pos);
 		/*
