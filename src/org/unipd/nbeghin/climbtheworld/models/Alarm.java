@@ -8,22 +8,12 @@ import com.j256.ormlite.table.DatabaseTable;
 
 /**
  * 
- * Classe che definisce un oggetto Alarm che rappresenta un evento di start/stop del processo di
- * classificazione oppure un evento di lancio di un trigger.
+ * Class that defines a start/stop event of an interval which corresponds to a start/stop action of
+ * a classify service. In an interval can be launched also a trigger.
  *
  */
 @DatabaseTable(tableName = "alarms")
 public class Alarm {
-
-	//campi interi che rappresentano i giorni della settimana, utili a controllare se un certo
-	//alarm è attivo in un determinato giorno della settimana
-	public static final int SUNDAY = 0;
-    public static final int MONDAY = 1;
-    public static final int TUESDAY = 2;
-    public static final int WEDNESDAY = 3;
-    public static final int THURSDAY = 4;
-    public static final int FRIDAY = 5;
-    public static final int SATURDAY = 6;
      
 	//si usa questo nome del campo 'id' in modo da considerarlo quando viene costruita una query
     //per ottenere gli alarm aventi un certo id
@@ -31,9 +21,6 @@ public class Alarm {
     //si usa questo nome del campo 'actionType' in modo da considerarlo quando viene costruita una query
     //per ottenere gli alarm che fanno partire o fermano il servizio di classificazione
     public final static String ACTION_TYPE_FIELD_NAME = "actionType";
-    //si usa questo nome del campo 'classificatorType' in modo da considerarlo quando viene costruita una query
-    //per ottenere gli alarm relativi ad un certo classificatore (Google o scalini/non_scalini)
-    public final static String CLASSIF_TYPE_FIELD_NAME = "classificatorType";
     
     @DatabaseField(generatedId = true, canBeNull = false, columnName = ID_FIELD_NAME) 
     private int id;
@@ -44,25 +31,22 @@ public class Alarm {
     @DatabaseField
 	private int second;
     @DatabaseField(columnName = ACTION_TYPE_FIELD_NAME) 
-    private boolean actionType;    //per ora boolean (con lancio trigger: int, 0,1,-1)
-   // @DatabaseField(columnName = CLASSIF_TYPE_FIELD_NAME) 
-    //private boolean classificatorType; 
+    private boolean actionType;
         
     @DatabaseField(dataType = DataType.SERIALIZABLE)
     private boolean repeatingDays[] = new boolean[GeneralUtils.daysOfWeek]; // =  new boolean[7];
     //la dimensione è decisa all'inizio a seconda del numero di giorni della settimana
     //(per test algoritmo meno di 7 giorni, es. 1,2)
-    
-    
+            
           
-    //i valori del seguente array indicano le varie probabilità di riconsiderare
-    //gli alarm scartati in precedenza; ogni valore dell'array indica la probabilità 
-    //di lanciare il relativo alarm (se scartato) in un certo giorno della settimana;
-    //tale array viene usato solo per gli alarm di start in quanto un alarm di stop
-    //se non è attivo non viene ripescato per essere lanciato 
+    //array nel quale vengono inserite le valutazioni di un certo intervallo
+    //(alarm start-stop) per i vari giorni della settimana;
+    //se per l'algoritmo si considera una probabilità di mutazione legata alla
+    //valutazione, i valori del seguente array indicano le varie probabilità di
+    //riconsiderare un intervallo inattivo per un certo giorno della settimana;
     //tale array per un certo alarm viene popolato durante la settimana: in 
     //corrispondenza dell'indice relativo ad un certo giorno in cui l'alarm viene
-    //considerato viene posto il valore di probabilità calcolato in base alla fitness
+    //considerato viene posta la valutazione calcolata
     @DatabaseField(dataType = DataType.SERIALIZABLE)
     private float evaluations[] = new float[GeneralUtils.daysOfWeek]; // =  new float[7];
     
@@ -70,7 +54,7 @@ public class Alarm {
     //i valori di tale array indicano se l'alarm definisce un "intervallo con scalini",
     //cioè un intervallo in cui l'utente la settimana precedente ha fatto scalini (usando
     //il gioco o senza); in un intervallo di questo tipo non si fa partire il servizio di
-    //activity recognition, bensì il classificatore scalini/non_scalini
+    //activity recognition, bensì il classificatore di riconoscimento scalini
     @DatabaseField(dataType = DataType.SERIALIZABLE)
     private boolean stepsInterval[] = new boolean[GeneralUtils.daysOfWeek]; // =  new float[7];
     
@@ -82,14 +66,13 @@ public class Alarm {
     }
  
     /**
-     * Costruttore di un oggetto Alarm 
+     * Costruttore di un oggetto Alarm.
      * @param hour
      * @param minute
      * @param second
-     * @param type
+     * @param actionType
      * @param repeatingDays
-     * @param repeatWeekly
-     * @param isEnabled
+     * @param evaluations
      */
     public Alarm(int hour, int minute, int second, boolean actionType, boolean[] repeatingDays, float[] evaluations) {
 		
@@ -98,7 +81,6 @@ public class Alarm {
     	this.minute=minute;
     	this.second=second;
     	this.actionType=actionType;
-    	//this.classificatorType= classificatorType;
     	    	
     	for(int i=0; i<repeatingDays.length; i++)
     		this.repeatingDays[i]=repeatingDays[i];
@@ -112,7 +94,7 @@ public class Alarm {
 	}
 
     /**
-     * Costruttore
+     * Costruttore di un oggetto Alarm.
      * @param hour
      * @param minute
      * @param second
@@ -126,7 +108,6 @@ public class Alarm {
     	this.minute=minute;
     	this.second=second;
     	this.actionType=actionType;
-    	//this.classificatorType= classificatorType;
     	
     	for(int i=0; i<repeatingDays.length; i++)
     		this.repeatingDays[i]=true;    	
@@ -182,28 +163,6 @@ public class Alarm {
 	public void set_actionType(boolean type) {
 		actionType = type;
 	}
-
-	/*
-	public boolean get_classificatorType() {
-		return classificatorType;
-	}
-
-	public void set_classificatorType(boolean type) {
-		classificatorType = type;
-	}
-	*/
-	
-	/*
-	public boolean[] get_repeatingDays(){
-		return repeatingDays;
-	}
-	
-	public void set_repeatingDays(boolean[] repeatingDays) {
-	
-		for(int i=0; i<repeatingDays.length; i++)
-    		this.repeatingDays[i]=repeatingDays[i];		
-	}
-	*/
 	
 	public void setRepeatingDay(int dayOfWeek, boolean value) {
         repeatingDays[dayOfWeek] = value;

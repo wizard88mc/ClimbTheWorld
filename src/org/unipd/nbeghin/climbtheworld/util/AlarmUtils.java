@@ -1197,6 +1197,7 @@ public final class AlarmUtils {
 	private static boolean intervalMutated(Alarm a_start, int current_day_index, 
 			RuntimeExceptionDao<Alarm, Integer> alarmDao, Context context){
 		
+		/*
 		//la probabilità di attivare l'intervallo è data dalla sua valutazione v
 		//(0 <= v <= valore_soglia) 
 		float probability = a_start.getEvaluation(current_day_index);
@@ -1205,6 +1206,10 @@ public final class AlarmUtils {
 		if(probability<0.1f){						
 			probability=0.1f;
 		}
+		*/
+		
+		//probabilità di mutazione uniforme pari a 0.5
+		float probability = 0.5f;
 		
 		int id_start=a_start.get_id();
 		int id_stop=id_start+1;
