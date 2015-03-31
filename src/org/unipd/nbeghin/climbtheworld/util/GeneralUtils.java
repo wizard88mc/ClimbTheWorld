@@ -150,7 +150,11 @@ public final class GeneralUtils {
     				Editor editor = prefs.edit();    
     				//nelle SharedPreferences si salva il numero totale di alarm creati
     				editor.putInt("alarms_number", alarms_number).commit();
-    				        	    	
+    				//si memorizza anche l'id dell'alarm centrale (utile nel caso del lancio trigger
+    				//in cui è necessario verificare se si è nella prima o nella seconda metà del
+    				//periodo di attività)
+    				editor.putInt("middle_alarm", alarms_number/2).commit();        	    	
+    				
         	    	/////////		
         	    	//PER TEST ALGORITMO
         	    	editor.putInt("artificialDayIndex", 0);    	
