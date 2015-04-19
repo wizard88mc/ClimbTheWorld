@@ -121,7 +121,7 @@ public final class LogUtils {
 		//chiamato al primo avvio per tracciare gli intervalli che hanno orario di inizio
 		//già passato
     	if(alarm_id==-1){   
-    		lastDayIndex=pref.getInt("artificialDayIndex", 0);//normalmente, indice dato dalla data corrente
+    		lastDayIndex=pref.getInt("artificialDayIndex", 0);
     		alarm_id=1;    		
     		dd=time_before.get(Calendar.DATE);
     		mm=time_before.get(Calendar.MONTH);
@@ -130,7 +130,7 @@ public final class LogUtils {
     		not_evaluated_cause="NC";
     	}
     	else{    	
-    		lastDayIndex=pref.getInt("alarm_artificial_day_index", 0); //normalmente, indice ottenuto dalla data dell'alarm
+    		lastDayIndex=pref.getInt("alarm_artificial_day_index", 0);
     		dd=pref.getInt("alarm_date", -1);
     		mm=pref.getInt("alarm_month", -1);
     		yyyy=pref.getInt("alarm_year", -1);		
@@ -283,8 +283,8 @@ public final class LogUtils {
 			
 			Log.d(MainActivity.AppName, "Algoritmo non attivo; si passa al giorno successivo");
 			
-			/////////
-			//PER TEST ALGORITMO: si inizializza l'indice artificiale 
+			
+			//si inizializza l'indice artificiale 
 			int ii = lastDayIndex; 
 			
 			//indice per scorrere il numero di giorni di differenza
@@ -294,13 +294,9 @@ public final class LogUtils {
 			while(day_i<days_diff){			
 				
 				time_before.add(Calendar.DATE, 1);
-				
-				/////////	
-				//PER TEST ALGORITMO: si aggiorna l'indice artificiale man mano che
-				//si incrementa la data
+								
+				//si aggiorna l'indice artificiale man mano che si incrementa la data
 				ii=AlarmUtils.getNextDayIndex(ii);
-				/////////
-				//time_before.get(Calendar.DAY_OF_WEEK)-1
 				
 				Log.d(MainActivity.AppName, "Algoritmo non attivo, indice giorno: " + ii);
 				
